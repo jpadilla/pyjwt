@@ -1,11 +1,14 @@
-# PyJWT
+PyJWT
+=====
 A Python implementation of [JSON Web Token draft 01](http://self-issued.info/docs/draft-jones-json-web-token-01.html).
 
-## Installing
+Installing
+----------
 
     sudo easy_install PyJWT
 
-## Usage
+Usage
+-----
 
     import jwt
     jwt.encode({"some": "payload"}, "secret")
@@ -18,7 +21,8 @@ If the secret is wrong, it will raise a `jwt.DecodeError` telling you as such. Y
 
     jwt.decode("someJWTstring", verify=False)
 
-## Algorithms
+Algorithms
+----------
 
 The JWT spec supports several algorithms for cryptographic signing. This library currently supports:
 
@@ -30,12 +34,14 @@ Change the algorithm with by setting it in encode:
 
     jwt.encode({"some": "payload"}, "secret", "HS512")
 
-## Tests
+Tests
+-----
 
 You can run tests from the project root after installed with:
 
     python tests/test_jwt.py
 
-## License
+License
+-------
 
 MIT
