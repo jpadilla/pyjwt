@@ -43,6 +43,12 @@ class TestJWT(unittest.TestCase):
     def test_invalid_crypto_alg(self):
         self.assertRaises(NotImplementedError, jwt.encode, self.payload, "secret", "HS1024")
     
+    def test_unicode_secret(self):
+        secret = u'\xc2'
+        jwt_message = jwt.encode(self.payload, secret)
+        decoded_payload = jwt.decode(jwt_message, secret)
+        self.assertEqual(decoded_payload, self.payload)
+    
 
 if __name__ == '__main__':
     unittest.main()

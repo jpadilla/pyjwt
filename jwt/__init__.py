@@ -36,7 +36,8 @@ def encode(payload, key, algorithm='HS256'):
     segments.append(base64url_encode(json.dumps(payload)))
     signing_input = '.'.join(segments)
     try:
-        signature = signing_methods[algorithm](signing_input, key)
+        ascii_key = unicode(key).encode('utf8')
+        signature = signing_methods[algorithm](signing_input, ascii_key)
     except KeyError:
         raise NotImplementedError("Algorithm not supported")
     segments.append(base64url_encode(signature))
@@ -56,7 +57,8 @@ def decode(jwt, key='', verify=True):
         raise DecodeError("Invalid segment encoding")
     if verify:
         try:
-            if not signature == signing_methods[header['alg']](signing_input, key):
+            ascii_key = unicode(key).encode('utf8')
+            if not signature == signing_methods[header['alg']](signing_input, ascii_key):
                 raise DecodeError("Signature verification failed")
         except KeyError:
             raise DecodeError("Algorithm not supported")
