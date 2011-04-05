@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name = "PyJWT",
-    version = "0.1.2",
+    version = "0.1.3",
     author = "Jeff Lindsay",
     author_email = "jeff.lindsay@twilio.com",
     description = ("JSON Web Token implemtnation in Python"),
