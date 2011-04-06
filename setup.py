@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name = "PyJWT",
-    version = "0.1.3",
+    version = "0.1.4",
     author = "Jeff Lindsay",
     author_email = "jeff.lindsay@twilio.com",
     description = ("JSON Web Token implemtnation in Python"),
@@ -14,6 +14,7 @@ setup(
     keywords = "jwt json web token security signing",
     url = "http://github.com/progrium/pyjwt",
     packages=['jwt', 'tests'],
+    scripts=['bin/jwt'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",

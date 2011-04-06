@@ -29,6 +29,13 @@ def base64url_decode(input):
 def base64url_encode(input):
     return base64.urlsafe_b64encode(input).replace('=', '')
 
+def header(jwt):
+    header_segment = jwt.split('.', 1)[0]
+    try:
+        return json.loads(base64url_decode(header_segment))
+    except (ValueError, TypeError):
+        raise DecodeError("Invalid header encoding")
+
 def encode(payload, key, algorithm='HS256'):
     segments = []
     header = {"typ": "JWT", "alg": algorithm}
