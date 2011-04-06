@@ -14,8 +14,6 @@ def fix_optionparser_whitespace(input):
     doublespace = '\033[8m.\033[0m' * 2
     return input.replace('  ', doublespace).replace('\n', newline)
 
-
-
 def main():
     """Encodes or decodes JSON Web Tokens based on input
   
@@ -24,7 +22,7 @@ Decoding examples:
   %prog --key=secret json.web.token
   %prog --no-verify json.web.token
   
-Encoding requires the key argument and takes space separated key/value pairs 
+Encoding requires the key option and takes space separated key/value pairs 
 separated by equals (=) as input. Examples:
   
   %prog --key=secret iss=me exp=1302049071
@@ -58,7 +56,7 @@ The exp key is special and can take an offset to current Unix time.
                     sys.exit(0)
                 except jwt.DecodeError, e:
                     print e
-                    sys.exit(0)
+                    sys.exit(1)
         except jwt.DecodeError:
             pass
         
@@ -72,7 +70,7 @@ The exp key is special and can take an offset to current Unix time.
         for arg in arguments:
             try:
                 k,v = arg.split('=', 1)
-                # exp special case?
+                # exp +offset special case?
                 if k == 'exp' and v[0] == '+' and len(v) > 1:
                     v = str(int(time.time()+int(v[1:])))
                 # Cast to integer?
@@ -95,8 +93,10 @@ The exp key is special and can take an offset to current Unix time.
         
         try:
             print jwt.encode(payload, key=options.key, algorithm=options.algorithm)
+            sys.exit(0)
         except Exception, e:
             print e
+            sys.exit(1)
     else:
         p.print_help()
 
