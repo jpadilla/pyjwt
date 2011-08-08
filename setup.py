@@ -13,7 +13,7 @@ setup(
     license = "MIT",
     keywords = "jwt json web token security signing",
     url = "http://github.com/progrium/pyjwt",
-    packages=['jwt', 'tests'],
+    packages=['jwt'],
     scripts=['bin/jwt'],
     long_description=read('README.md'),
     classifiers=[
