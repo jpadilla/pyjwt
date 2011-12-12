@@ -48,7 +48,12 @@ class TestJWT(unittest.TestCase):
         jwt_message = jwt.encode(self.payload, secret)
         decoded_payload = jwt.decode(jwt_message, secret)
         self.assertEqual(decoded_payload, self.payload)
-    
+
+    def test_nonascii_secret(self):
+        secret = '\xc2' # char value that ascii codec cannot decode
+        jwt_message = jwt.encode(self.payload, secret)
+        decoded_payload = jwt.decode(jwt_message, secret)
+        self.assertEqual(decoded_payload, self.payload)
 
 if __name__ == '__main__':
     unittest.main()
