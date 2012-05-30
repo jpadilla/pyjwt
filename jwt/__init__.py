@@ -23,7 +23,9 @@ signing_methods = {
 }
 
 def base64url_decode(input):
-    input += '=' * (4 - (len(input) % 4))
+    rem = len(input) % 4
+    if rem > 0:
+        input += '=' * (4 - rem)
     return base64.urlsafe_b64decode(input)
 
 def base64url_encode(input):
