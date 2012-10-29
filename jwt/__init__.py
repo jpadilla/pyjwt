@@ -55,7 +55,7 @@ def encode(payload, key, algorithm='HS256'):
 
 def decode(jwt, key='', verify=True):
     try:
-        signing_input, crypto_segment = jwt.rsplit('.', 1)
+        signing_input, crypto_segment = str(jwt).rsplit('.', 1)
         header_segment, payload_segment = signing_input.split('.', 1)
     except ValueError:
         raise DecodeError("Not enough segments")

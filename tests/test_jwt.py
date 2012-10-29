@@ -55,5 +55,13 @@ class TestJWT(unittest.TestCase):
         decoded_payload = jwt.decode(jwt_message, secret)
         self.assertEqual(decoded_payload, self.payload)
 
+    def test_decode_unicode_value(self):
+        example_payload = {"hello": "world"}
+        example_secret = "secret"
+        example_jwt = unicode("eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJoZWxsbyI6ICJ3b3JsZCJ9.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+        decoded_payload = jwt.decode(example_jwt, example_secret)
+        self.assertEqual(decoded_payload, example_payload)
+
+
 if __name__ == '__main__':
     unittest.main()
