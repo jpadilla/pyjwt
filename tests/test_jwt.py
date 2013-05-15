@@ -62,6 +62,36 @@ class TestJWT(unittest.TestCase):
         decoded_payload = jwt.decode(example_jwt, example_secret)
         self.assertEqual(decoded_payload, example_payload)
 
+    def test_decode_invalid_header_padding(self):
+        example_jwt = unicode("aeyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJoZWxsbyI6ICJ3b3JsZCJ9.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+        example_secret = "secret"
+        jwt_message = jwt.decode(example_jwt, example_secret)
+        self.assertRaises(jwt.DecodeError, "Invalid header padding")
+
+    def test_decode_invalid_header_string(self):
+        example_jwt = unicode("eyJhbGciOiAiSFMyNTbpIiwgInR5cCI6ICJKV1QifQ==.eyJoZWxsbyI6ICJ3b3JsZCJ9.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+        example_secret = "secret"
+        jwt_message = jwt.decode(example_jwt, example_secret)
+        self.assertRaisesRegexp(jwt.DecodeError, "Invalid header string")
+
+    def test_decode_invalid_payload_padding(self):
+        example_jwt = unicode("eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.aeyJoZWxsbyI6ICJ3b3JsZCJ9.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+        example_secret = "secret"
+        jwt_message = jwt.decode(example_jwt, example_secret)
+        self.assertRaises(jwt.DecodeError, "Invalid payload padding")
+
+    def test_decode_invalid_payload_string(self):
+        example_jwt = unicode("eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJoZWxsb-kiOiAid29ybGQifQ==.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+        example_secret = "secret"
+        jwt_message = jwt.decode(example_jwt, example_secret)
+        self.assertRaisesRegexp(jwt.DecodeError, "Invalid payload string")
+
+    def test_decode_invalid_crypto_padding(self):
+        example_jwt = unicode("eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJoZWxsbyI6ICJ3b3JsZCJ9.aatvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+        example_secret = "secret"
+        jwt_message = jwt.decode(example_jwt, example_secret)
+        self.assertRaises(jwt.DecodeError, "Invalid crypto padding")
+
 
 if __name__ == '__main__':
     unittest.main()

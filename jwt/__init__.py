@@ -59,12 +59,26 @@ def decode(jwt, key='', verify=True):
         header_segment, payload_segment = signing_input.split('.', 1)
     except ValueError:
         raise DecodeError("Not enough segments")
+
     try:
         header = json.loads(base64url_decode(header_segment))
+    except TypeError:
+        raise DecodeError("Invalid header padding")
+    except ValueError as e:
+        raise DecodeError("Invalid header string: " + e)
+
+    try:
         payload = json.loads(base64url_decode(payload_segment))
+    except TypeError:
+        raise DecodeError("Invalid payload padding")
+    except ValueError as e:
+        raise DecodeError("Invalid payload string: " + e)
+
+    try:
         signature = base64url_decode(crypto_segment)
-    except (ValueError, TypeError):
-        raise DecodeError("Invalid segment encoding")
+    except TypeError:
+        raise DecodeError("Invalid crypto padding")
+
     if verify:
         try:
             if isinstance(key, unicode):
