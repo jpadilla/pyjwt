@@ -9,7 +9,7 @@ setup(
     version = "0.1.5",
     author = "Jeff Lindsay",
     author_email = "jeff.lindsay@twilio.com",
-    description = ("JSON Web Token implemtnation in Python"),
+    description = ("JSON Web Token implementation in Python"),
     license = "MIT",
     keywords = "jwt json web token security signing",
     url = "http://github.com/progrium/pyjwt",
