@@ -11,7 +11,7 @@ try:
     import json
 except ImportError:
     import simplejson as json
-    
+
 __all__ = ['encode', 'decode', 'DecodeError']
 
 class DecodeError(Exception): pass
@@ -65,14 +65,14 @@ def decode(jwt, key='', verify=True):
     except TypeError:
         raise DecodeError("Invalid header padding")
     except ValueError as e:
-        raise DecodeError("Invalid header string: " + e)
+        raise DecodeError("Invalid header string: %s" % e)
 
     try:
         payload = json.loads(base64url_decode(payload_segment))
     except TypeError:
         raise DecodeError("Invalid payload padding")
     except ValueError as e:
-        raise DecodeError("Invalid payload string: " + e)
+        raise DecodeError("Invalid payload string: %s" % e)
 
     try:
         signature = base64url_decode(crypto_segment)
