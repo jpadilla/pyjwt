@@ -7,6 +7,8 @@ import base64
 import hashlib
 import hmac
 
+from time import time
+
 try:
     import json
 except ImportError:
@@ -14,7 +16,14 @@ except ImportError:
 
 __all__ = ['encode', 'decode', 'DecodeError']
 
-class DecodeError(Exception): pass
+
+class DecodeError(Exception):
+    pass
+
+
+class ExpiredSignature(Exception):
+    pass
+
 
 signing_methods = {
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
@@ -22,14 +31,17 @@ signing_methods = {
     'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest(),
 }
 
+
 def base64url_decode(input):
     rem = len(input) % 4
     if rem > 0:
         input += '=' * (4 - rem)
     return base64.urlsafe_b64decode(input)
 
+
 def base64url_encode(input):
     return base64.urlsafe_b64encode(input).replace('=', '')
+
 
 def header(jwt):
     header_segment = jwt.split('.', 1)[0]
@@ -37,6 +49,7 @@ def header(jwt):
         return json.loads(base64url_decode(header_segment))
     except (ValueError, TypeError):
         raise DecodeError("Invalid header encoding")
+
 
 def encode(payload, key, algorithm='HS256'):
     segments = []
@@ -53,7 +66,8 @@ def encode(payload, key, algorithm='HS256'):
     segments.append(base64url_encode(signature))
     return '.'.join(segments)
 
-def decode(jwt, key='', verify=True):
+
+def decode(jwt, key='', verify=True, leeway=0):
     try:
         signing_input, crypto_segment = str(jwt).rsplit('.', 1)
         header_segment, payload_segment = signing_input.split('.', 1)
@@ -87,4 +101,8 @@ def decode(jwt, key='', verify=True):
                 raise DecodeError("Signature verification failed")
         except KeyError:
             raise DecodeError("Algorithm not supported")
+
+        if 'exp' in payload:
+            if payload['exp'] < (time() - leeway):
+                raise ExpiredSignature("Signature has expired")
     return payload

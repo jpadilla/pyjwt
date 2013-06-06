@@ -6,7 +6,7 @@ import jwt
 class TestJWT(unittest.TestCase):
 
     def setUp(self):
-        self.payload = {"iss": "jeff", "exp": int(time.time()), "claim": "insanity"}
+        self.payload = {"iss": "jeff", "exp": int(time.time()) + 1, "claim": "insanity"}
 
     def test_encode_decode(self):
         secret = 'secret'
@@ -39,6 +39,7 @@ class TestJWT(unittest.TestCase):
         right_secret = 'foo'
         bad_secret = 'bar'
         jwt_message = jwt.encode(self.payload, right_secret)
+
         with self.assertRaises(jwt.DecodeError):
             jwt.decode(jwt_message)
 
@@ -93,6 +94,25 @@ class TestJWT(unittest.TestCase):
         example_secret = "secret"
         with self.assertRaises(jwt.DecodeError):
             jwt_message = jwt.decode(example_jwt, example_secret)
+
+    def test_decode_with_expiration(self):
+        self.payload['exp'] = time.time() - 1
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+        with self.assertRaises(jwt.ExpiredSignature):
+            jwt.decode(jwt_message, secret)
+
+    def test_decode_with_expiration_with_leeway(self):
+        self.payload['exp'] = time.time() - 2
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+
+        # With 3 seconds leeway, should be ok
+        jwt.decode(jwt_message, secret, leeway=3)
+
+        # With 2 secondes, should fail
+        with self.assertRaises(jwt.ExpiredSignature):
+            jwt.decode(jwt_message, secret, leeway=2)
 
 
 if __name__ == '__main__':
