@@ -3,16 +3,33 @@ import time
 
 import jwt
 
+from datetime import datetime
+from calendar import timegm
+
+
+def utc_timestamp():
+    return timegm(datetime.utcnow().utctimetuple())
+
+
 class TestJWT(unittest.TestCase):
 
     def setUp(self):
-        self.payload = {"iss": "jeff", "exp": int(time.time()) + 1, "claim": "insanity"}
+        self.payload = {"iss": "jeff", "exp": utc_timestamp() + 1, "claim": "insanity"}
 
     def test_encode_decode(self):
         secret = 'secret'
         jwt_message = jwt.encode(self.payload, secret)
         decoded_payload = jwt.decode(jwt_message, secret)
         self.assertEqual(decoded_payload, self.payload)
+
+    def test_encode_expiration_datetime(self):
+        secret = "secret"
+        current_datetime = datetime.utcnow()
+        payload = {"exp": current_datetime}
+        jwt_message = jwt.encode(payload, secret)
+        decoded_payload = jwt.decode(jwt_message, secret, leeway=1)
+        self.assertEqual(decoded_payload['exp'],
+            timegm(current_datetime.utctimetuple()))
 
     def test_bad_secret(self):
         right_secret = 'foo'
@@ -96,23 +113,23 @@ class TestJWT(unittest.TestCase):
             jwt_message = jwt.decode(example_jwt, example_secret)
 
     def test_decode_with_expiration(self):
-        self.payload['exp'] = time.time() - 1
+        self.payload['exp'] = utc_timestamp() - 1
         secret = 'secret'
         jwt_message = jwt.encode(self.payload, secret)
         with self.assertRaises(jwt.ExpiredSignature):
             jwt.decode(jwt_message, secret)
 
     def test_decode_with_expiration_with_leeway(self):
-        self.payload['exp'] = time.time() - 2
+        self.payload['exp'] = utc_timestamp() - 2
         secret = 'secret'
         jwt_message = jwt.encode(self.payload, secret)
 
         # With 3 seconds leeway, should be ok
         jwt.decode(jwt_message, secret, leeway=3)
 
-        # With 2 secondes, should fail
+        # With 1 secondes, should fail
         with self.assertRaises(jwt.ExpiredSignature):
-            jwt.decode(jwt_message, secret, leeway=2)
+            jwt.decode(jwt_message, secret, leeway=1)
 
 
 if __name__ == '__main__':

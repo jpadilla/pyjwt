@@ -8,6 +8,8 @@ import hashlib
 import hmac
 
 from time import time
+from datetime import datetime
+from calendar import timegm
 
 try:
     import json
@@ -53,9 +55,17 @@ def header(jwt):
 
 def encode(payload, key, algorithm='HS256'):
     segments = []
+
+    # Header
     header = {"typ": "JWT", "alg": algorithm}
     segments.append(base64url_encode(json.dumps(header)))
+
+    # Payload
+    if isinstance(payload.get('exp'), datetime):
+        payload['exp'] = timegm(payload['exp'].utctimetuple())
     segments.append(base64url_encode(json.dumps(payload)))
+
+    # Segments
     signing_input = '.'.join(segments)
     try:
         if isinstance(key, unicode):
@@ -103,6 +113,7 @@ def decode(jwt, key='', verify=True, leeway=0):
             raise DecodeError("Algorithm not supported")
 
         if 'exp' in payload:
-            if payload['exp'] < (time() - leeway):
+            utc_timestamp = timegm(datetime.utcnow().utctimetuple())
+            if payload['exp'] < (utc_timestamp - leeway):
                 raise ExpiredSignature("Signature has expired")
     return payload
