@@ -3,16 +3,33 @@ import time
 
 import jwt
 
+from datetime import datetime
+from calendar import timegm
+
+
+def utc_timestamp():
+    return timegm(datetime.utcnow().utctimetuple())
+
+
 class TestJWT(unittest.TestCase):
 
     def setUp(self):
-        self.payload = {"iss": "jeff", "exp": int(time.time()), "claim": "insanity"}
+        self.payload = {"iss": "jeff", "exp": utc_timestamp() + 1, "claim": "insanity"}
 
     def test_encode_decode(self):
         secret = 'secret'
         jwt_message = jwt.encode(self.payload, secret)
         decoded_payload = jwt.decode(jwt_message, secret)
         self.assertEqual(decoded_payload, self.payload)
+
+    def test_encode_expiration_datetime(self):
+        secret = "secret"
+        current_datetime = datetime.utcnow()
+        payload = {"exp": current_datetime}
+        jwt_message = jwt.encode(payload, secret)
+        decoded_payload = jwt.decode(jwt_message, secret, leeway=1)
+        self.assertEqual(decoded_payload['exp'],
+            timegm(current_datetime.utctimetuple()))
 
     def test_bad_secret(self):
         right_secret = 'foo'
@@ -39,6 +56,7 @@ class TestJWT(unittest.TestCase):
         right_secret = 'foo'
         bad_secret = 'bar'
         jwt_message = jwt.encode(self.payload, right_secret)
+
         with self.assertRaises(jwt.DecodeError):
             jwt.decode(jwt_message)
 
@@ -93,6 +111,31 @@ class TestJWT(unittest.TestCase):
         example_secret = "secret"
         with self.assertRaises(jwt.DecodeError):
             jwt_message = jwt.decode(example_jwt, example_secret)
+
+    def test_decode_with_expiration(self):
+        self.payload['exp'] = utc_timestamp() - 1
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+        with self.assertRaises(jwt.ExpiredSignature):
+            jwt.decode(jwt_message, secret)
+
+    def test_decode_skip_expiration_verification(self):
+        self.payload['exp'] = time.time() - 1
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+        jwt.decode(jwt_message, secret, verify_expiration=False)
+
+    def test_decode_with_expiration_with_leeway(self):
+        self.payload['exp'] = utc_timestamp() - 2
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+
+        # With 3 seconds leeway, should be ok
+        jwt.decode(jwt_message, secret, leeway=3)
+
+        # With 1 secondes, should fail
+        with self.assertRaises(jwt.ExpiredSignature):
+            jwt.decode(jwt_message, secret, leeway=1)
 
 
 if __name__ == '__main__':
