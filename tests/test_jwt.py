@@ -119,6 +119,12 @@ class TestJWT(unittest.TestCase):
         with self.assertRaises(jwt.ExpiredSignature):
             jwt.decode(jwt_message, secret)
 
+    def test_decode_skip_expiration_verification(self):
+        self.payload['exp'] = time.time() - 1
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+        jwt.decode(jwt_message, secret, verify_expiration=False)
+
     def test_decode_with_expiration_with_leeway(self):
         self.payload['exp'] = utc_timestamp() - 2
         secret = 'secret'

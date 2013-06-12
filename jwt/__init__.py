@@ -77,7 +77,7 @@ def encode(payload, key, algorithm='HS256'):
     return '.'.join(segments)
 
 
-def decode(jwt, key='', verify=True, leeway=0):
+def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
     try:
         signing_input, crypto_segment = str(jwt).rsplit('.', 1)
         header_segment, payload_segment = signing_input.split('.', 1)
@@ -112,7 +112,7 @@ def decode(jwt, key='', verify=True, leeway=0):
         except KeyError:
             raise DecodeError("Algorithm not supported")
 
-        if 'exp' in payload:
+        if 'exp' in payload and verify_expiration:
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
             if payload['exp'] < (utc_timestamp - leeway):
                 raise ExpiredSignature("Signature has expired")
