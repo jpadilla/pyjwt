@@ -22,6 +22,14 @@ class TestJWT(unittest.TestCase):
         decoded_payload = jwt.decode(jwt_message, secret)
         self.assertEqual(decoded_payload, self.payload)
 
+    def test_encode_bad_type(self):
+
+        types = ['string', tuple(), list(), 42, set()]
+
+        for t in types:
+            with self.assertRaises(TypeError):
+                jwt.encode(t, 'secret')
+
     def test_encode_expiration_datetime(self):
         secret = "secret"
         current_datetime = datetime.utcnow()

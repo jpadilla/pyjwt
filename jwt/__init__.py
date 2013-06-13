@@ -10,6 +10,7 @@ import hmac
 from time import time
 from datetime import datetime
 from calendar import timegm
+from collections import Mapping
 
 try:
     import json
@@ -55,6 +56,11 @@ def header(jwt):
 
 def encode(payload, key, algorithm='HS256'):
     segments = []
+
+    # Check that we get a mapping
+    if not isinstance(payload, Mapping):
+        raise TypeError("Expecting a mapping object, as json web token only"
+                        "support json objects.")
 
     # Header
     header = {"typ": "JWT", "alg": algorithm}
