@@ -34,6 +34,20 @@ signing_methods = {
 }
 
 
+def constant_time_compare(val1, val2):
+    """
+    Returns True if the two strings are equal, False otherwise.
+
+    The time taken is independent of the number of characters that match.
+    """
+    if len(val1) != len(val2):
+        return False
+    result = 0
+    for x, y in zip(val1, val2):
+        result |= ord(x) ^ ord(y)
+    return result == 0
+
+
 def base64url_decode(input):
     rem = len(input) % 4
     if rem > 0:
@@ -107,7 +121,8 @@ def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
         try:
             if isinstance(key, unicode):
                 key = key.encode('utf-8')
-            if not signature == signing_methods[header['alg']](signing_input, key):
+            expected = signing_methods[header['alg']](signing_input, key)
+            if not constant_time_compare(signature, expected):
                 raise DecodeError("Signature verification failed")
         except KeyError:
             raise DecodeError("Algorithm not supported")
