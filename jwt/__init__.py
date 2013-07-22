@@ -7,7 +7,6 @@ import base64
 import hashlib
 import hmac
 
-from time import time
 from datetime import datetime
 from calendar import timegm
 from collections import Mapping
