@@ -41,7 +41,7 @@ verify_methods = {
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
     'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
     'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest(),
-    'RS256': lambda msg, key: PKCS1_v1_5.new(key).verify(SHA256.new(msg)),
+    'RS256': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA256.new(msg), sig),
     }
 
 
@@ -137,9 +137,13 @@ def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
         try:
             if isinstance(key, unicode):
                 key = key.encode('utf-8')
-            expected = verify_methods[header['alg']](signing_input, key)
-            if not constant_time_compare(signature, expected):
-                raise DecodeError("Signature verification failed")
+            if header['alg'].startswith('HS'):
+                expected = verify_methods[header['alg']](signing_input, key)
+                if not constant_time_compare(signature, expected):
+                    raise DecodeError("Signature verification failed")
+            else:
+                if not verify_methods[header['alg']](signing_input, key, signature):
+                    raise DecodeError("Signature verification failed")
         except KeyError:
             raise DecodeError("Algorithm not supported")
 
