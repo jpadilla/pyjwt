@@ -29,10 +29,17 @@ The JWT spec supports several algorithms for cryptographic signing. This library
 * HS256 - HMAC using SHA-256 hash algorithm (default)
 * HS384 - HMAC using SHA-384 hash algorithm
 * HS512 - HMAC using SHA-512 hash algorithm
+* RS256 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-256 hash algorithm
+* RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm
+* RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm
 
 Change the algorithm with by setting it in encode:
 
     jwt.encode({"some": "payload"}, "secret", "HS512")
+
+For the RSASSA-PKCS1-v1_5 algorithms, the "secret" argument in jwt.encode is supposed to be a private RSA key as
+imported with Crypto.PublicKey.RSA.importKey. Likewise, the "secret" argument in jwt.decode is supposed to be the
+public RSA key imported with the same method. 
 
 Tests
 -----
