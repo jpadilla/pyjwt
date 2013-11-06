@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 from setuptools import setup
 
@@ -21,4 +22,5 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
     ],
+    test_suite='tests.test_jwt'
 )
