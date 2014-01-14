@@ -7,3 +7,6 @@ Patches and Suggestions
 -----------------------
 
  - FELD Boris <boris.feld@novapost.fr> <lothiraldan@gmail.com>
+
+ - Åsmund Ødegård <asmund@xal.no> <ao@mcash.no> 
+   Adding support for RSA-SHA256 privat/public signature.

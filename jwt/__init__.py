@@ -14,6 +14,11 @@ from datetime import datetime
 from calendar import timegm
 from collections import Mapping
 
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.Hash import SHA256
+from Crypto.Hash import SHA384
+from Crypto.Hash import SHA512
+
 try:
     import json
 except ImportError:
@@ -38,7 +43,19 @@ signing_methods = {
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
     'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
     'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest(),
-}
+    'RS256': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA256.new(msg)),
+    'RS384': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA384.new(msg)),
+    'RS512': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA512.new(msg)),
+    }
+
+verify_methods = {
+    'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
+    'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
+    'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest(),
+    'RS256': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA256.new(msg), sig),
+    'RS384': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA384.new(msg), sig),
+    'RS512': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA512.new(msg), sig),
+    }
 
 
 def constant_time_compare(val1, val2):
@@ -146,9 +163,13 @@ def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
         try:
             if isinstance(key, unicode):
                 key = key.encode('utf-8')
-            expected = signing_methods[header['alg']](signing_input, key)
-            if not constant_time_compare(signature, expected):
-                raise DecodeError("Signature verification failed")
+            if header['alg'].startswith('HS'):
+                expected = verify_methods[header['alg']](signing_input, key)
+                if not constant_time_compare(signature, expected):
+                    raise DecodeError("Signature verification failed")
+            else:
+                if not verify_methods[header['alg']](signing_input, key, signature):
+                    raise DecodeError("Signature verification failed")
         except KeyError:
             raise DecodeError("Algorithm not supported")
 
