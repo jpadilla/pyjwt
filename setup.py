@@ -8,9 +8,9 @@ def read(fname):
 
 setup(
     name="PyJWT",
-    version="0.1.6",
+    version="0.1.7",
     author="Jeff Lindsay",
-    author_email="jeff.lindsay@twilio.com",
+    author_email="progrium@gmail.com",
     description="JSON Web Token implementation in Python",
     license="MIT",
     keywords="jwt json web token security signing",
