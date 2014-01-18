@@ -6,6 +6,10 @@ Installing
 ----------
 
     sudo easy_install PyJWT
+    
+**Note**: The RSASSA-PKCS1-v1_5 algorithms depend on PyCrypto. If you plan on using any of those algorithms you'll need to install it as well.
+
+	sudo easy_install PyCrypto
 
 Usage
 -----
@@ -38,8 +42,7 @@ Change the algorithm with by setting it in encode:
     jwt.encode({"some": "payload"}, "secret", "HS512")
 
 For the RSASSA-PKCS1-v1_5 algorithms, the "secret" argument in jwt.encode is supposed to be a private RSA key as
-imported with Crypto.PublicKey.RSA.importKey. Likewise, the "secret" argument in jwt.decode is supposed to be the
-public RSA key imported with the same method. 
+imported with Crypto.PublicKey.RSA.importKey. Likewise, the "secret" argument in jwt.decode is supposed to be the public RSA key imported with the same method.
 
 Tests
 -----
