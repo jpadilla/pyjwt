@@ -14,11 +14,6 @@ from datetime import datetime
 from calendar import timegm
 from collections import Mapping
 
-from Crypto.Signature import PKCS1_v1_5
-from Crypto.Hash import SHA256
-from Crypto.Hash import SHA384
-from Crypto.Hash import SHA512
-
 try:
     import json
 except ImportError:
@@ -42,20 +37,34 @@ class ExpiredSignature(Exception):
 signing_methods = {
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
     'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
-    'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest(),
-    'RS256': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA256.new(msg)),
-    'RS384': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA384.new(msg)),
-    'RS512': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA512.new(msg)),
-    }
+    'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest()
+}
 
 verify_methods = {
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
     'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
-    'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest(),
-    'RS256': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA256.new(msg), sig),
-    'RS384': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA384.new(msg), sig),
-    'RS512': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA512.new(msg), sig),
-    }
+    'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest()
+}
+
+try:
+    from Crypto.Signature import PKCS1_v1_5
+    from Crypto.Hash import SHA256
+    from Crypto.Hash import SHA384
+    from Crypto.Hash import SHA512
+    
+    signing_methods.update({
+        'RS256': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA256.new(msg)),
+        'RS384': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA384.new(msg)),
+        'RS512': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA512.new(msg))
+    })
+    
+    verify_methods.update({
+        'RS256': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA256.new(msg), sig),
+        'RS384': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA384.new(msg), sig),
+        'RS512': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA512.new(msg), sig)
+    })
+except ImportError:
+    pass
 
 
 def constant_time_compare(val1, val2):
