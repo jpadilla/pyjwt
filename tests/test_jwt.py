@@ -10,8 +10,6 @@ import jwt
 if sys.version_info >= (3, 0, 0):
     unicode = str
 
-from Crypto.PublicKey import RSA
-
 
 def utc_timestamp():
     return timegm(datetime.utcnow().utctimetuple())
@@ -175,30 +173,68 @@ class TestJWT(unittest.TestCase):
             jwt.decode(jwt_message, secret, leeway=1)
 
     def test_encode_decode_with_rsa_sha256(self):
-        with open('tests/testkey','r') as rsa_priv_file:
-            priv_rsakey = RSA.importKey(rsa_priv_file.read())
-            jwt_message = jwt.encode(self.payload, priv_rsakey, algorithm='RS256')
-        with open('tests/testkey.pub','r') as rsa_pub_file:
-            pub_rsakey = RSA.importKey(rsa_pub_file.read())
-            assert jwt.decode(jwt_message, pub_rsakey)
+        try:
+            from Crypto.PublicKey import RSA
+
+            with open('tests/testkey','r') as rsa_priv_file:
+                priv_rsakey = RSA.importKey(rsa_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_rsakey, algorithm='RS256')
+
+            with open('tests/testkey.pub','r') as rsa_pub_file:
+                pub_rsakey = RSA.importKey(rsa_pub_file.read())
+                assert jwt.decode(jwt_message, pub_rsakey)
+        except ImportError:
+            pass
 
     def test_encode_decode_with_rsa_sha384(self):
-        with open('tests/testkey','r') as rsa_priv_file:
-            priv_rsakey = RSA.importKey(rsa_priv_file.read())
-            jwt_message = jwt.encode(self.payload, priv_rsakey, algorithm='RS384')
-        with open('tests/testkey.pub','r') as rsa_pub_file:
-            pub_rsakey = RSA.importKey(rsa_pub_file.read())
-            assert jwt.decode(jwt_message, pub_rsakey)
+        try:
+            from Crypto.PublicKey import RSA
+
+            with open('tests/testkey','r') as rsa_priv_file:
+                priv_rsakey = RSA.importKey(rsa_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_rsakey, algorithm='RS384')
+
+            with open('tests/testkey.pub','r') as rsa_pub_file:
+                pub_rsakey = RSA.importKey(rsa_pub_file.read())
+                assert jwt.decode(jwt_message, pub_rsakey)
+        except ImportError:
+            pass
 
     def test_encode_decode_with_rsa_sha512(self):
-        with open('tests/testkey','r') as rsa_priv_file:
-            priv_rsakey = RSA.importKey(rsa_priv_file.read())
-            jwt_message = jwt.encode(self.payload, priv_rsakey, algorithm='RS512')
-        with open('tests/testkey.pub','r') as rsa_pub_file:
-            pub_rsakey = RSA.importKey(rsa_pub_file.read())
-            assert jwt.decode(jwt_message, pub_rsakey)
+        try:
+            from Crypto.PublicKey import RSA
 
+            with open('tests/testkey','r') as rsa_priv_file:
+                priv_rsakey = RSA.importKey(rsa_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_rsakey, algorithm='RS512')
 
+            with open('tests/testkey.pub','r') as rsa_pub_file:
+                pub_rsakey = RSA.importKey(rsa_pub_file.read())
+                assert jwt.decode(jwt_message, pub_rsakey)
+        except ImportError:
+            pass
+
+    def test_crypto_related_signing_methods(self):
+        try:
+            import Crypto
+            self.assertTrue('RS256' in jwt.signing_methods)
+            self.assertTrue('RS384' in jwt.signing_methods)
+            self.assertTrue('RS512' in jwt.signing_methods)
+        except ImportError:
+            self.assertFalse('RS256' in jwt.signing_methods)
+            self.assertFalse('RS384' in jwt.signing_methods)
+            self.assertFalse('RS512' in jwt.signing_methods)
+
+    def test_crypto_related_verify_methods(self):
+        try:
+            import Crypto
+            self.assertTrue('RS256' in jwt.verify_methods)
+            self.assertTrue('RS384' in jwt.verify_methods)
+            self.assertTrue('RS512' in jwt.verify_methods)
+        except ImportError:
+            self.assertFalse('RS256' in jwt.verify_methods)
+            self.assertFalse('RS384' in jwt.verify_methods)
+            self.assertFalse('RS512' in jwt.verify_methods)
 
 
 if __name__ == '__main__':
