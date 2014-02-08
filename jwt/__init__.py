@@ -137,6 +137,16 @@ def encode(payload, key, algorithm='HS256'):
 
 
 def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
+    payload, signing_input, header, signature = load(jwt)
+
+    if verify:
+        verify_signature(payload, signing_input, header, signature, key,
+                verify_expiration, leeway)
+
+    return payload
+
+
+def load(jwt):
     if isinstance(jwt, unicode):
         jwt = jwt.encode('utf-8')
     try:
@@ -168,22 +178,25 @@ def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
     except (TypeError, binascii.Error):
         raise DecodeError("Invalid crypto padding")
 
-    if verify:
-        try:
-            if isinstance(key, unicode):
-                key = key.encode('utf-8')
-            if header['alg'].startswith('HS'):
-                expected = verify_methods[header['alg']](signing_input, key)
-                if not constant_time_compare(signature, expected):
-                    raise DecodeError("Signature verification failed")
-            else:
-                if not verify_methods[header['alg']](signing_input, key, signature):
-                    raise DecodeError("Signature verification failed")
-        except KeyError:
-            raise DecodeError("Algorithm not supported")
+    return (payload, signing_input, header, signature)
 
-        if 'exp' in payload and verify_expiration:
-            utc_timestamp = timegm(datetime.utcnow().utctimetuple())
-            if payload['exp'] < (utc_timestamp - leeway):
-                raise ExpiredSignature("Signature has expired")
-    return payload
+
+def verify_signature(payload, signing_input, header, signature, key='',
+            verify_expiration=True, leeway=0):
+    try:
+        if isinstance(key, unicode):
+            key = key.encode('utf-8')
+        if header['alg'].startswith('HS'):
+            expected = verify_methods[header['alg']](signing_input, key)
+            if not constant_time_compare(signature, expected):
+                raise DecodeError("Signature verification failed")
+        else:
+            if not verify_methods[header['alg']](signing_input, key, signature):
+                raise DecodeError("Signature verification failed")
+    except KeyError:
+        raise DecodeError("Algorithm not supported")
+
+    if 'exp' in payload and verify_expiration:
+        utc_timestamp = timegm(datetime.utcnow().utctimetuple())
+        if payload['exp'] < (utc_timestamp - leeway):
+            raise ExpiredSignature("Signature has expired")

@@ -3,8 +3,9 @@ import os
 from setuptools import setup
 
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
+    long_description = readme.read()
+
 
 setup(
     name="PyJWT",
@@ -17,7 +18,7 @@ setup(
     url="http://github.com/progrium/pyjwt",
     packages=['jwt'],
     scripts=['bin/jwt'],
-    long_description=read('README.md'),
+    long_description=long_description,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
