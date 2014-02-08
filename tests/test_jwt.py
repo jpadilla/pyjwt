@@ -118,7 +118,7 @@ class TestJWT(unittest.TestCase):
                           "secret", "HS1024")
 
     def test_unicode_secret(self):
-        secret = u'\xc2'
+        secret = '\xc2'
         jwt_message = jwt.encode(self.payload, secret)
 
         decoded_payload = jwt.decode(jwt_message, secret)
