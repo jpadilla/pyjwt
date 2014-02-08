@@ -1,4 +1,4 @@
-PyJWT
+PyJWT [![Build Status](https://travis-ci.org/progrium/pyjwt.png?branch=master)](https://travis-ci.org/progrium/pyjwt)
 =====
 A Python implementation of [JSON Web Token draft 01](http://self-issued.info/docs/draft-jones-json-web-token-01.html).
 
@@ -6,7 +6,7 @@ Installing
 ----------
 
     sudo easy_install PyJWT
-    
+
 **Note**: The RSASSA-PKCS1-v1_5 algorithms depend on PyCrypto. If you plan on using any of those algorithms you'll need to install it as well.
 
 	sudo easy_install PyCrypto
