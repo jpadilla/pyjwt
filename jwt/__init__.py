@@ -24,6 +24,7 @@ __all__ = ['encode', 'decode', 'DecodeError']
 
 if sys.version_info >= (3, 0, 0):
     unicode = str
+    basestring = str
 
 
 class DecodeError(Exception):
