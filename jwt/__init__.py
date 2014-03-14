@@ -81,9 +81,9 @@ try:
     })
 
     def prepare_RS_key(key):
-        if isinstance(key, basestring) and key.startswith('-----BEGIN '):
+        if isinstance(key, basestring):
             if isinstance(key, unicode):
-                key = key.encode('utf-8')            
+                key = key.encode('utf-8')
             key = RSA.importKey(key)
         elif isinstance(key, RSA._RSAobj):
             pass
