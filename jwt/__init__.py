@@ -67,13 +67,13 @@ try:
     from Crypto.Hash import SHA384
     from Crypto.Hash import SHA512
     from Crypto.PublicKey import RSA
-    
+
     signing_methods.update({
         'RS256': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA256.new(msg)),
         'RS384': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA384.new(msg)),
         'RS512': lambda msg, key: PKCS1_v1_5.new(key).sign(SHA512.new(msg))
     })
-    
+
     verify_methods.update({
         'RS256': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA256.new(msg), sig),
         'RS384': lambda msg, key, sig: PKCS1_v1_5.new(key).verify(SHA384.new(msg), sig),
@@ -139,7 +139,7 @@ def header(jwt):
         raise DecodeError("Invalid header encoding")
 
 
-def encode(payload, key, algorithm='HS256'):
+def encode(payload, key, algorithm='HS256', headers=None):
     segments = []
 
     # Check that we get a mapping
@@ -149,6 +149,8 @@ def encode(payload, key, algorithm='HS256'):
 
     # Header
     header = {"typ": "JWT", "alg": algorithm}
+    if headers:
+        header.update(headers)
     json_header = json.dumps(header, separators=(',', ':')).encode('utf-8')
     segments.append(base64url_encode(json_header))
 

@@ -18,6 +18,10 @@ Usage
     import jwt
     jwt.encode({"some": "payload"}, "secret")
 
+Additional headers may also be specified.
+
+    jwt.encode({"some": "payload"}, "secret", headers={"kid": "230498151c214b788dd97f22b85410a5"})
+
 Note the resulting JWT will not be encrypted, but verifiable with a secret key.
 
     jwt.decode("someJWTstring", "secret")
