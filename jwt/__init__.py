@@ -220,13 +220,14 @@ def load(jwt):
 def verify_signature(payload, signing_input, header, signature, key='',
             verify_expiration=True, leeway=0):
     try:
-        key = prepare_key_methods[header['alg']](key)
-        if header['alg'].startswith('HS'):
-            expected = verify_methods[header['alg']](signing_input, key)
+        algorithm = header['alg'].upper()
+        key = prepare_key_methods[algorithm](key)
+        if algorithm.startswith('HS'):
+            expected = verify_methods[algorithm](signing_input, key)
             if not constant_time_compare(signature, expected):
                 raise DecodeError("Signature verification failed")
         else:
-            if not verify_methods[header['alg']](signing_input, key, signature):
+            if not verify_methods[algorithm](signing_input, key, signature):
                 raise DecodeError("Signature verification failed")
     except KeyError:
         raise DecodeError("Algorithm not supported")
