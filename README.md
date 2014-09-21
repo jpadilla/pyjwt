@@ -7,10 +7,16 @@ Installing
 
     sudo easy_install PyJWT
 
-**Note**: The RSASSA-PKCS1-v1_5 algorithms depend on PyCrypto. If you plan on
-using any of those algorithms you'll need to install it as well.
+**A Note on Dependencies**:
+The RSASSA-PKCS1-v1_5 algorithms depend on PyCrypto. If you plan on
+using any of those algorithms, you'll need to install it as well.
 
     sudo easy_install PyCrypto
+
+The Elliptic Curve Digital Signature algorithms depend on Python-ECDSA. If
+you plan on using any of those algorithms, you'll need to install it as well.
+
+    sudo easy_install ecdsa
 
 Usage
 -----
@@ -40,6 +46,9 @@ currently supports:
 * HS256 - HMAC using SHA-256 hash algorithm (default)
 * HS384 - HMAC using SHA-384 hash algorithm
 * HS512 - HMAC using SHA-512 hash algorithm
+* ES256 - ECDSA signature algorithm using SHA-256 hash algorithm
+* ES384 - ECDSA signature algorithm using SHA-384 hash algorithm
+* ES512 - ECDSA signature algorithm using SHA-512 hash algorithm
 * RS256 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-256 hash algorithm
 * RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm
 * RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm
@@ -51,6 +60,9 @@ Change the algorithm with by setting it in encode:
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 `jwt.encode()` and `jwt.decode()` (`"secret"` in the examples) is expected to
 be an RSA private key as imported with `Crypto.PublicKey.RSA.importKey()`.
+
+When using the ECDSA algorithms, the `key` argument is expected to
+be an Elliptic Curve signing key as imported with `ecdsa.SigningKey.from_pem()`.
 
 Tests
 -----
