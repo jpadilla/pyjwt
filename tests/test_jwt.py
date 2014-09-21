@@ -18,7 +18,7 @@ def utc_timestamp():
 class TestJWT(unittest.TestCase):
 
     def setUp(self):
-        self.payload = {"iss": "jeff", "exp": utc_timestamp() + 1,
+        self.payload = {"iss": "jeff", "exp": utc_timestamp() + 10,
                         "claim": "insanity"}
 
     def test_encode_decode(self):
@@ -320,7 +320,7 @@ class TestJWT(unittest.TestCase):
         try:
             from Crypto.PublicKey import RSA
 
-            # RSA-formatted key
+            # PEM-formatted RSA key
             with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
@@ -353,7 +353,7 @@ class TestJWT(unittest.TestCase):
         try:
             from Crypto.PublicKey import RSA
 
-            # RSA-formatted key
+            # PEM-formatted RSA key
             with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
@@ -385,7 +385,7 @@ class TestJWT(unittest.TestCase):
         try:
             from Crypto.PublicKey import RSA
 
-            # RSA-formatted key
+            # PEM-formatted RSA key
             with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
@@ -413,7 +413,7 @@ class TestJWT(unittest.TestCase):
         except ImportError:
             pass
 
-    def test_crypto_related_signing_methods(self):
+    def test_rsa_related_signing_methods(self):
         try:
             import Crypto
             self.assertTrue('RS256' in jwt.signing_methods)
@@ -424,7 +424,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS384' in jwt.signing_methods)
             self.assertFalse('RS512' in jwt.signing_methods)
 
-    def test_crypto_related_verify_methods(self):
+    def test_rsa_related_verify_methods(self):
         try:
             import Crypto
             self.assertTrue('RS256' in jwt.verify_methods)
@@ -435,7 +435,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS384' in jwt.verify_methods)
             self.assertFalse('RS512' in jwt.verify_methods)
 
-    def test_crypto_related_key_preparation_methods(self):
+    def test_rsa_related_key_preparation_methods(self):
         try:
             import Crypto
             self.assertTrue('RS256' in jwt.prepare_key_methods)
