@@ -8,6 +8,7 @@ Installing
     sudo easy_install PyJWT
 
 **A Note on Dependencies**:
+
 The RSASSA-PKCS1-v1_5 algorithms depend on PyCrypto. If you plan on
 using any of those algorithms, you'll need to install it as well.
 
@@ -59,10 +60,11 @@ Change the algorithm with by setting it in encode:
 
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 `jwt.encode()` and `jwt.decode()` (`"secret"` in the examples) is expected to
-be an RSA private key as imported with `Crypto.PublicKey.RSA.importKey()`.
+be an RSA public or private key as imported with `Crypto.PublicKey.RSA.importKey()`.
 
 When using the ECDSA algorithms, the `key` argument is expected to
-be an Elliptic Curve signing key as imported with `ecdsa.SigningKey.from_pem()`.
+be an Elliptic Curve private key as imported with `ecdsa.SigningKey.from_pem()`,
+or a public key as imported with `ecdsa.VerifyingKey.from_pem()`.
 
 Tests
 -----
