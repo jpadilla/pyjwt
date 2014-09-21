@@ -100,6 +100,55 @@ try:
 except ImportError:
     pass
 
+try:
+    import ecdsa
+    from Crypto.Hash import SHA256
+    from Crypto.Hash import SHA384
+    from Crypto.Hash import SHA512
+
+    signing_methods.update({
+        'ES256': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha256),
+        'ES384': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha384),
+        'ES512': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha512),
+    })
+
+    verify_methods.update({
+        'ES256': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha256),
+        'ES384': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha384),
+        'ES512': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha512),
+    })
+
+    def prepare_ES_key(key):
+        if isinstance(key, basestring):
+            if isinstance(key, unicode):
+                key = key.encode('utf-8')
+
+            # Attempt to load key. We don't know if it's
+            # a Signing Key or a Verifying Key, so we try
+            # the Verifying Key first.
+            try:
+                key = ecdsa.VerifyingKey.from_pem(key)
+            except ecdsa.der.UnexpectedDER:
+                try:
+                    key = ecdsa.SigningKey.from_pem(key)
+                except:
+                    raise
+        elif isinstance(key, ecdsa.SigningKey) or isinstance(key, ecdsa.VerifyingKey):
+            pass
+        else:
+            raise TypeError("Expecting a PEM-formatted key.")
+        return key
+
+    prepare_key_methods.update({
+        'ES256': prepare_ES_key,
+        'ES384': prepare_ES_key,
+        'ES512': prepare_ES_key
+    })
+
+except ImportError:
+    pass
+
+
 
 def constant_time_compare(val1, val2):
     """
