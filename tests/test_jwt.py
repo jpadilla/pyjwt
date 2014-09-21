@@ -446,6 +446,136 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS384' in jwt.prepare_key_methods)
             self.assertFalse('RS512' in jwt.prepare_key_methods)
 
+    def test_encode_decode_with_ecdsa_sha256(self):
+        try:
+            import ecdsa
+
+            # PEM-formatted EC key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES256')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+            # string-formatted key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ec_priv_file.read()
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES256')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ec_pub_file.read()
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+        except ImportError:
+            pass
+
+    def test_encode_decode_with_ecdsa_sha384(self):
+        try:
+            import ecdsa
+
+            # PEM-formatted EC key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES384')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+            # string-formatted key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ec_priv_file.read()
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES384')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_rsakey = ec_pub_file.read()
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+        except ImportError:
+            pass
+
+    def test_encode_decode_with_ecdsa_sha512(self):
+        try:
+            import ecdsa
+
+            # PEM-formatted EC key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES512')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+            # string-formatted key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ec_priv_file.read()
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES512')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ec_pub_file.read()
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+        except ImportError:
+            pass
+
+    def test_ecdsa_related_signing_methods(self):
+        try:
+            import ecdsa
+            self.assertTrue('ES256' in jwt.signing_methods)
+            self.assertTrue('ES384' in jwt.signing_methods)
+            self.assertTrue('ES512' in jwt.signing_methods)
+        except ImportError:
+            self.assertFalse('ES256' in jwt.signing_methods)
+            self.assertFalse('ES384' in jwt.signing_methods)
+            self.assertFalse('ES512' in jwt.signing_methods)
+
+    def test_ecdsa_related_verify_methods(self):
+        try:
+            import ecdsa
+            self.assertTrue('ES256' in jwt.verify_methods)
+            self.assertTrue('ES384' in jwt.verify_methods)
+            self.assertTrue('ES512' in jwt.verify_methods)
+        except ImportError:
+            self.assertFalse('ES256' in jwt.verify_methods)
+            self.assertFalse('ES384' in jwt.verify_methods)
+            self.assertFalse('ES512' in jwt.verify_methods)
+
+    def test_ecdsa_related_key_preparation_methods(self):
+        try:
+            import ecdsa
+            self.assertTrue('ES256' in jwt.prepare_key_methods)
+            self.assertTrue('ES384' in jwt.prepare_key_methods)
+            self.assertTrue('ES512' in jwt.prepare_key_methods)
+        except ImportError:
+            self.assertFalse('ES256' in jwt.prepare_key_methods)
+            self.assertFalse('ES384' in jwt.prepare_key_methods)
+            self.assertFalse('ES512' in jwt.prepare_key_methods)
+
 
 if __name__ == '__main__':
     unittest.main()
