@@ -321,12 +321,12 @@ class TestJWT(unittest.TestCase):
             from Crypto.PublicKey import RSA
 
             # RSA-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS256')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = RSA.importKey(rsa_pub_file.read())
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -334,12 +334,12 @@ class TestJWT(unittest.TestCase):
                 jwt.verify_signature(key=pub_rsakey, *load_output)
 
             # string-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = rsa_priv_file.read()
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS256')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = rsa_pub_file.read()
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -354,12 +354,12 @@ class TestJWT(unittest.TestCase):
             from Crypto.PublicKey import RSA
 
             # RSA-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS384')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = RSA.importKey(rsa_pub_file.read())
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -367,12 +367,12 @@ class TestJWT(unittest.TestCase):
                 jwt.verify_signature(key=pub_rsakey, *load_output)
 
             # string-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = rsa_priv_file.read()
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS384')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = rsa_pub_file.read()
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -386,12 +386,12 @@ class TestJWT(unittest.TestCase):
             from Crypto.PublicKey import RSA
 
             # RSA-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS512')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = RSA.importKey(rsa_pub_file.read())
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -399,12 +399,12 @@ class TestJWT(unittest.TestCase):
                 jwt.verify_signature(key=pub_rsakey, *load_output)
 
             # string-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = rsa_priv_file.read()
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS512')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = rsa_pub_file.read()
                 assert jwt.decode(jwt_message, pub_rsakey)
 
