@@ -92,6 +92,7 @@ class TestJWT(unittest.TestCase):
             b"uTu7102G_QIXiijY5bx6mdmZa3xUuKeu-zobOIOqR8Zw"
             b"FqGjBLZum")
         decoded_payload = jwt.decode(example_jwt, example_pubkey)
+
         self.assertEqual(decoded_payload, example_payload)
 
     # 'Control' RSA JWT created by another library.
