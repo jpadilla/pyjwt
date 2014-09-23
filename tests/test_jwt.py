@@ -166,6 +166,21 @@ class TestJWT(unittest.TestCase):
 
         self.assertEqual(decoded_payload, self.payload)
 
+    def test_bytes_secret(self):
+        secret = b'\xc2'  # char value that ascii codec cannot decode
+        jwt_message = jwt.encode(self.payload, secret)
+
+        decoded_payload = jwt.decode(jwt_message, secret)
+
+        self.assertEqual(decoded_payload, self.payload)
+
+        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+
+        jwt.verify_signature(decoded_payload, signing,
+                             header, signature, secret)
+
+        self.assertEqual(decoded_payload, self.payload)
+
     def test_decode_unicode_value(self):
         example_payload = {"hello": "world"}
         example_secret = "secret"
