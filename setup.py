@@ -9,7 +9,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
 
 setup(
     name="PyJWT",
-    version="0.2.1",
+    version="0.2.2",
     author="Jeff Lindsay",
     author_email="progrium@gmail.com",
     description="JSON Web Token implementation in Python",
@@ -29,4 +29,5 @@ setup(
         "Programming Language :: Python :: 3.3",
         "Topic :: Utilities",
     ],
-    test_suite='tests.test_jwt')
+    test_suite='tests.test_jwt'
+)
