@@ -107,15 +107,15 @@ try:
     from Crypto.Hash import SHA512
 
     signing_methods.update({
-        'ES256': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha256),
-        'ES384': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha384),
-        'ES512': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha512),
+        'ES256': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha256, sigencode=ecdsa.util.sigencode_der),
+        'ES384': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha384, sigencode=ecdsa.util.sigencode_der),
+        'ES512': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha512, sigencode=ecdsa.util.sigencode_der),
     })
 
     verify_methods.update({
-        'ES256': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha256),
-        'ES384': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha384),
-        'ES512': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha512),
+        'ES256': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha256, sigdecode=ecdsa.util.sigdecode_der),
+        'ES384': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha384, sigdecode=ecdsa.util.sigdecode_der),
+        'ES512': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha512, sigdecode=ecdsa.util.sigdecode_der),
     })
 
     def prepare_ES_key(key):

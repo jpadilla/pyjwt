@@ -18,7 +18,7 @@ def utc_timestamp():
 class TestJWT(unittest.TestCase):
 
     def setUp(self):
-        self.payload = {"iss": "jeff", "exp": utc_timestamp() + 10,
+        self.payload = {"iss": "jeff", "exp": utc_timestamp() + 15,
                         "claim": "insanity"}
 
     def test_encode_decode(self):
@@ -73,6 +73,46 @@ class TestJWT(unittest.TestCase):
             b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
             b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
         decoded_payload = jwt.decode(example_jwt, example_secret)
+
+        self.assertEqual(decoded_payload, example_payload)
+
+    # 'Control' Elliptic Curve JWT created by another library.
+    # Used to test for regressions that could affect both
+    # encoding / decoding operations equally (causing tests
+    # to still pass).
+    def test_decodes_valid_es384_jwt(self):
+        example_payload = {"hello": "world"}
+        example_pubkey = open('tests/testkey_ec.pub', 'r').read()
+        example_jwt = (
+            b"eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9"
+            b".eyJoZWxsbyI6IndvcmxkIn0"
+            b".MIGHAkEdh2kR7IRu5w0tGuY6Xz3Vqa7PHHY2DgXWeee"
+            b"LXotEqpn9udp2NfVL-XFG0TDoCakzXbIGAWg42S69GFl"
+            b"KZzxhXAJCAPLPuJoKyAixFnXPBkvkti-UzSIj4s6DePe"
+            b"uTu7102G_QIXiijY5bx6mdmZa3xUuKeu-zobOIOqR8Zw"
+            b"FqGjBLZum")
+        decoded_payload = jwt.decode(example_jwt, example_pubkey)
+        self.assertEqual(decoded_payload, example_payload)
+
+    # 'Control' RSA JWT created by another library.
+    # Used to test for regressions that could affect both
+    # encoding / decoding operations equally (causing tests
+    # to still pass).
+    def test_decodes_valid_rs384_jwt(self):
+        example_payload = {"hello": "world"}
+        example_pubkey = open('tests/testkey_rsa.pub', 'r').read()
+        example_jwt = (
+            b"eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9"
+            b".eyJoZWxsbyI6IndvcmxkIn0"
+            b".yNQ3nI9vEDs7lEh-Cp81McPuiQ4ZRv6FL4evTYYAh1X"
+            b"lRTTR3Cz8pPA9Stgso8Ra9xGB4X3rlra1c8Jz10nTUju"
+            b"O06OMm7oXdrnxp1KIiAJDerWHkQ7l3dlizIk1bmMA457"
+            b"W2fNzNfHViuED5ISM081dgf_a71qBwJ_yShMMrSOfxDx"
+            b"mX9c4DjRogRJG8SM5PvpLqI_Cm9iQPGMvmYK7gzcq2cJ"
+            b"urHRJDJHTqIdpLWXkY7zVikeen6FhuGyn060Dz9gYq9t"
+            b"uwmrtSWCBUjiN8sqJ00CDgycxKqHfUndZbEAOjcCAhBr"
+            b"qWW3mSVivUfubsYbwUdUG3fSRPjaUPcpe8A")
+        decoded_payload = jwt.decode(example_jwt, example_pubkey)
 
         self.assertEqual(decoded_payload, example_payload)
 
