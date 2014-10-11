@@ -324,6 +324,17 @@ class TestJWT(unittest.TestCase):
         jwt.verify_signature(decoded_payload, signing, header,
                              signature, secret, verify_expiration=False)
 
+    def test_decode_skip_notbefore_verification(self):
+        self.payload['nbf'] = time.time() + 10
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+
+        jwt.decode(jwt_message, secret, verify_expiration=False)
+
+        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        jwt.verify_signature(decoded_payload, signing, header,
+                             signature, secret, verify_expiration=False)
+
     def test_decode_with_expiration_with_leeway(self):
         self.payload['exp'] = utc_timestamp() - 2
         secret = 'secret'
@@ -336,6 +347,29 @@ class TestJWT(unittest.TestCase):
 
         jwt.verify_signature(decoded_payload, signing, header,
                              signature, secret, leeway=3)
+
+        # With 1 seconds, should fail
+        self.assertRaises(
+            jwt.ExpiredSignature,
+            lambda: jwt.decode(jwt_message, secret, leeway=1))
+
+        self.assertRaises(
+            jwt.ExpiredSignature,
+            lambda: jwt.verify_signature(decoded_payload, signing,
+                                         header, signature, secret, leeway=1))
+
+    def test_decode_with_notbefore_with_leeway(self):
+        self.payload['nbf'] = utc_timestamp() + 10
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+
+        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+
+        # With 13 seconds leeway, should be ok
+        jwt.decode(jwt_message, secret, leeway=13)
+
+        jwt.verify_signature(decoded_payload, signing, header,
+                             signature, secret, leeway=13)
 
         # With 1 seconds, should fail
         self.assertRaises(
