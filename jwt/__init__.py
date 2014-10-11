@@ -251,6 +251,11 @@ def verify_signature(payload, signing_input, header, signature, key='',
     except KeyError:
         raise DecodeError('Algorithm not supported')
 
+    if 'nbf' in payload and verify_expiration:
+        utc_timestamp = timegm(datetime.utcnow().utctimetuple())
+        if payload['nbf'] > (utc_timestamp + leeway):
+            raise ExpiredSignature("Signature not yet valid")
+
     if 'exp' in payload and verify_expiration:
         utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 

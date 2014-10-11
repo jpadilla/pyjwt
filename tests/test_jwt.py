@@ -297,6 +297,22 @@ class TestJWT(unittest.TestCase):
             lambda: jwt.verify_signature(
                 decoded_payload, signing, header, signature, secret))
 
+    def test_decode_with_notbefore(self):
+        self.payload['nbf'] = utc_timestamp() + 10
+        secret = 'secret'
+        jwt_message = jwt.encode(self.payload, secret)
+
+        self.assertRaises(
+            jwt.ExpiredSignature,
+            lambda: jwt.decode(jwt_message, secret))
+
+        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+
+        self.assertRaises(
+            jwt.ExpiredSignature,
+            lambda: jwt.verify_signature(
+                decoded_payload, signing, header, signature, secret))
+
     def test_decode_skip_expiration_verification(self):
         self.payload['exp'] = time.time() - 1
         secret = 'secret'
