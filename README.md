@@ -77,6 +77,7 @@ JSON Web Token defines some reserved claim names and defines how they should be
 used. PyJWT supports these reserved claim names:
 
  - "exp" (Expiration Time) Claim
+ - "nbf" (Not Before Time) Claim
 
 ### Expiration Time Claim
 
