@@ -1,38 +1,47 @@
-PyJWT [![Build Status](https://travis-ci.org/progrium/pyjwt.png?branch=master)](https://travis-ci.org/progrium/pyjwt)
-=====
+# PyJWT [![Build Status](https://travis-ci.org/progrium/pyjwt.png?branch=master)](https://travis-ci.org/progrium/pyjwt)
+
 A Python implementation of [JSON Web Token draft 01](http://self-issued.info/docs/draft-jones-json-web-token-01.html).
 
-Installing
-----------
+## Installing
 
-    sudo easy_install PyJWT
+```
+$ pip install PyJWT
+```
 
 **Note**: The RSASSA-PKCS1-v1_5 algorithms depend on PyCrypto. If you plan on
 using any of those algorithms you'll need to install it as well.
 
-    sudo easy_install PyCrypto
+```
+$ pip install PyCrypto
+```
 
-Usage
------
+## Usage
 
-    import jwt
-    jwt.encode({"some": "payload"}, "secret")
+```python
+import jwt
+jwt.encode({'some': 'payload'}, 'secret')
+```
 
 Additional headers may also be specified.
 
-    jwt.encode({"some": "payload"}, "secret", headers={"kid": "230498151c214b788dd97f22b85410a5"})
+```python
+jwt.encode({'some': 'payload'}, 'secret', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+```
 
 Note the resulting JWT will not be encrypted, but verifiable with a secret key.
 
-    jwt.decode("someJWTstring", "secret")
+```python
+jwt.decode('someJWTstring', 'secret')
+```
 
 If the secret is wrong, it will raise a `jwt.DecodeError` telling you as such.
 You can still get the payload by setting the `verify` argument to `False`.
 
-    jwt.decode("someJWTstring", verify=False)
+```python
+jwt.decode('someJWTstring', verify=False)
+```
 
-Algorithms
-----------
+## Algorithms
 
 The JWT spec supports several algorithms for cryptographic signing. This library
 currently supports:
@@ -46,29 +55,30 @@ currently supports:
 
 Change the algorithm with by setting it in encode:
 
-    jwt.encode({"some": "payload"}, "secret", "HS512")
+```python
+jwt.encode({'some': 'payload'}, 'secret', 'HS512')
+```
 
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 `jwt.encode()` and `jwt.decode()` (`"secret"` in the examples) is expected to
 be an RSA private key as imported with `Crypto.PublicKey.RSA.importKey()`.
 
-Tests
------
+## Tests
 
 You can run tests from the project root after cloning with:
 
-    python tests/test_jwt.py
+```
+$ python tests/test_jwt.py
+```
 
-Support of reserved claim names
--------------------------------
+## Support of reserved claim names
 
 JSON Web Token defines some reserved claim names and defines how they should be
 used. PyJWT supports these reserved claim names:
 
  - "exp" (Expiration Time) Claim
 
-Expiration Time Claim
-=====================
+### Expiration Time Claim
 
 From [draft 01 of the JWT spec](http://self-issued.info/docs/draft-jones-json-web-token-01.html#ReservedClaimName):
 
@@ -83,18 +93,23 @@ From [draft 01 of the JWT spec](http://self-issued.info/docs/draft-jones-json-we
 You can pass the expiration time as a UTC UNIX timestamp (an int) or as a
 datetime, which will be converted into an int. For example:
 
-    jwt.encode({"exp": 1371720939}, "secret")
+```python
+jwt.encode({'exp': 1371720939}, 'secret')
 
-    jwt.encode({"exp": datetime.utcnow()}, "secret")
+jwt.encode({'exp': datetime.utcnow()}, 'secret')
+```
 
 Expiration time is automatically verified in `jwt.decode()` and raises
 `jwt.ExpiredSignature` if the expiration time is in the past:
 
-    import jwt
-    try:
-        jwt.decode('JWT_STRING', "secret")
-    except jwt.ExpiredSignature:
-        # Signature has expired
+```python
+import jwt
+
+try:
+    jwt.decode('JWT_STRING', 'secret')
+except jwt.ExpiredSignature:
+    # Signature has expired
+```
 
 Expiration time will be compared to the current UTC time (as given by
 `timegm(datetime.utcnow().utctimetuple())`), so be sure to use a UTC timestamp
@@ -108,15 +123,21 @@ For example, if you have a JWT payload with a expiration time set to 30 seconds
 after creation but you know that sometimes you will process it after 30 seconds,
 you can set a leeway of 10 seconds in order to have some margin:
 
-    import jwt, time
-    jwt_payload = jwt.encode({'exp': datetime.utcnow() + datetime.timedelta(seconds=30)}, 'secret')
-    time.sleep(32)
-    # Jwt payload is now expired
-    # But with some leeway, it will still validate
-    jwt.decode(jwt_payload, 'secret', leeway=10)
+```python
+import time
+import jwt
 
+jwt_payload = jwt.encode({
+    'exp': datetime.utcnow() + datetime.timedelta(seconds=30)
+}, 'secret')
 
-License
--------
+time.sleep(32)
+
+# JWT payload is now expired
+# But with some leeway, it will still validate
+jwt.decode(jwt_payload, 'secret', leeway=10)
+```
+
+## License
 
 MIT
