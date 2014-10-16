@@ -19,12 +19,13 @@ try:
 except ImportError:
     import simplejson as json
 
-__all__ = ['encode', 'decode', 'DecodeError']
-
 
 if sys.version_info >= (3, 0, 0):
     unicode = str
     basestring = str
+
+
+__all__ = ['encode', 'decode', 'DecodeError']
 
 
 class DecodeError(Exception):
@@ -47,11 +48,14 @@ verify_methods = {
     'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest()
 }
 
+
 def prepare_HS_key(key):
     if not isinstance(key, basestring) and not isinstance(key, bytes):
-        raise TypeError("Expecting a string- or bytes-formatted key.")
+        raise TypeError('Expecting a string- or bytes-formatted key.')
+
     if isinstance(key, unicode):
         key = key.encode('utf-8')
+
     return key
 
 prepare_key_methods = {
@@ -83,11 +87,13 @@ try:
         if isinstance(key, basestring):
             if isinstance(key, unicode):
                 key = key.encode('utf-8')
+
             key = RSA.importKey(key)
         elif isinstance(key, RSA._RSAobj):
             pass
         else:
-            raise TypeError("Expecting a PEM- or RSA-formatted key.")
+            raise TypeError('Expecting a PEM- or RSA-formatted key.')
+
         return key
 
     prepare_key_methods.update({
@@ -108,20 +114,26 @@ def constant_time_compare(val1, val2):
     """
     if len(val1) != len(val2):
         return False
+
     result = 0
-    if sys.version_info >= (3, 0, 0):  # bytes are numbers
+
+    if sys.version_info >= (3, 0, 0):
+        # Bytes are numbers
         for x, y in zip(val1, val2):
             result |= x ^ y
     else:
         for x, y in zip(val1, val2):
             result |= ord(x) ^ ord(y)
+
     return result == 0
 
 
 def base64url_decode(input):
     rem = len(input) % 4
+
     if rem > 0:
         input += b'=' * (4 - rem)
+
     return base64.urlsafe_b64decode(input)
 
 
@@ -135,7 +147,7 @@ def header(jwt):
         header_data = base64url_decode(header_segment).decode('utf-8')
         return json.loads(header_data)
     except (ValueError, TypeError):
-        raise DecodeError("Invalid header encoding")
+        raise DecodeError('Invalid header encoding')
 
 
 def encode(payload, key, algorithm='HS256', headers=None):
@@ -143,20 +155,23 @@ def encode(payload, key, algorithm='HS256', headers=None):
 
     # Check that we get a mapping
     if not isinstance(payload, Mapping):
-        raise TypeError("Expecting a mapping object, as json web token only"
-                        "support json objects.")
+        raise TypeError('Expecting a mapping object, as json web token only'
+                        'support json objects.')
 
     # Header
-    header = {"typ": "JWT", "alg": algorithm}
+    header = {'typ': 'JWT', 'alg': algorithm}
     if headers:
         header.update(headers)
+
     json_header = json.dumps(header, separators=(',', ':')).encode('utf-8')
     segments.append(base64url_encode(json_header))
 
     # Payload
-    for time_claim in ['exp', 'iat', 'nbf']:    # convert datetime to a intDate value in known time-format claims
+    for time_claim in ['exp', 'iat', 'nbf']:
+        # Convert datetime to a intDate value in known time-format claims
         if isinstance(payload.get(time_claim), datetime):
             payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+
     json_payload = json.dumps(payload, separators=(',', ':')).encode('utf-8')
     segments.append(base64url_encode(json_payload))
 
@@ -166,8 +181,10 @@ def encode(payload, key, algorithm='HS256', headers=None):
         key = prepare_key_methods[algorithm](key)
         signature = signing_methods[algorithm](signing_input, key)
     except KeyError:
-        raise NotImplementedError("Algorithm not supported")
+        raise NotImplementedError('Algorithm not supported')
+
     segments.append(base64url_encode(signature))
+
     return b'.'.join(segments)
 
 
@@ -176,7 +193,7 @@ def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
 
     if verify:
         verify_signature(payload, signing_input, header, signature, key,
-                verify_expiration, leeway)
+                         verify_expiration, leeway)
 
     return payload
 
@@ -188,50 +205,53 @@ def load(jwt):
         signing_input, crypto_segment = jwt.rsplit(b'.', 1)
         header_segment, payload_segment = signing_input.split(b'.', 1)
     except ValueError:
-        raise DecodeError("Not enough segments")
+        raise DecodeError('Not enough segments')
 
     try:
         header_data = base64url_decode(header_segment)
     except (TypeError, binascii.Error):
-        raise DecodeError("Invalid header padding")
+        raise DecodeError('Invalid header padding')
     try:
         header = json.loads(header_data.decode('utf-8'))
     except ValueError as e:
-        raise DecodeError("Invalid header string: %s" % e)
+        raise DecodeError('Invalid header string: %s' % e)
 
     try:
         payload_data = base64url_decode(payload_segment)
     except (TypeError, binascii.Error):
-        raise DecodeError("Invalid payload padding")
+        raise DecodeError('Invalid payload padding')
     try:
         payload = json.loads(payload_data.decode('utf-8'))
     except ValueError as e:
-        raise DecodeError("Invalid payload string: %s" % e)
+        raise DecodeError('Invalid payload string: %s' % e)
 
     try:
         signature = base64url_decode(crypto_segment)
     except (TypeError, binascii.Error):
-        raise DecodeError("Invalid crypto padding")
+        raise DecodeError('Invalid crypto padding')
 
     return (payload, signing_input, header, signature)
 
 
 def verify_signature(payload, signing_input, header, signature, key='',
-            verify_expiration=True, leeway=0):
+                     verify_expiration=True, leeway=0):
     try:
         algorithm = header['alg'].upper()
         key = prepare_key_methods[algorithm](key)
+
         if algorithm.startswith('HS'):
             expected = verify_methods[algorithm](signing_input, key)
+
             if not constant_time_compare(signature, expected):
-                raise DecodeError("Signature verification failed")
+                raise DecodeError('Signature verification failed')
         else:
             if not verify_methods[algorithm](signing_input, key, signature):
-                raise DecodeError("Signature verification failed")
+                raise DecodeError('Signature verification failed')
     except KeyError:
-        raise DecodeError("Algorithm not supported")
+        raise DecodeError('Algorithm not supported')
 
     if 'exp' in payload and verify_expiration:
         utc_timestamp = timegm(datetime.utcnow().utctimetuple())
+
         if payload['exp'] < (utc_timestamp - leeway):
-            raise ExpiredSignature("Signature has expired")
+            raise ExpiredSignature('Signature has expired')

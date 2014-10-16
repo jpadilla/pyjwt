@@ -18,8 +18,8 @@ def utc_timestamp():
 class TestJWT(unittest.TestCase):
 
     def setUp(self):
-        self.payload = {"iss": "jeff", "exp": utc_timestamp() + 1,
-                        "claim": "insanity"}
+        self.payload = {'iss': 'jeff', 'exp': utc_timestamp() + 1,
+                        'claim': 'insanity'}
 
     def test_encode_decode(self):
         secret = 'secret'
@@ -36,12 +36,12 @@ class TestJWT(unittest.TestCase):
             self.assertRaises(TypeError, lambda: jwt.encode(t, 'secret'))
 
     def test_encode_datetime(self):
-        secret = "secret"
+        secret = 'secret'
         current_datetime = datetime.utcnow()
         payload = {
-            "exp": current_datetime,
-            "iat": current_datetime,
-            "nbf": current_datetime
+            'exp': current_datetime,
+            'iat': current_datetime,
+            'nbf': current_datetime
         }
         jwt_message = jwt.encode(payload, secret)
         decoded_payload = jwt.decode(jwt_message, secret, leeway=1)
@@ -66,23 +66,23 @@ class TestJWT(unittest.TestCase):
             lambda: jwt.decode(jwt_message, bad_secret))
 
     def test_decodes_valid_jwt(self):
-        example_payload = {"hello": "world"}
-        example_secret = "secret"
+        example_payload = {'hello': 'world'}
+        example_secret = 'secret'
         example_jwt = (
-            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+            b'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            b'.eyJoZWxsbyI6ICJ3b3JsZCJ9'
+            b'.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
         decoded_payload = jwt.decode(example_jwt, example_secret)
 
         self.assertEqual(decoded_payload, example_payload)
 
     def test_load_verify_valid_jwt(self):
-        example_payload = {"hello": "world"}
-        example_secret = "secret"
+        example_payload = {'hello': 'world'}
+        example_secret = 'secret'
         example_jwt = (
-            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+            b'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            b'.eyJoZWxsbyI6ICJ3b3JsZCJ9'
+            b'.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
 
         decoded_payload, signing, header, signature = jwt.load(example_jwt)
 
@@ -134,7 +134,7 @@ class TestJWT(unittest.TestCase):
 
     def test_invalid_crypto_alg(self):
         self.assertRaises(NotImplementedError, jwt.encode, self.payload,
-                          "secret", "HS1024")
+                          'secret', 'HS1024')
 
     def test_unicode_secret(self):
         secret = '\xc2'
@@ -182,12 +182,12 @@ class TestJWT(unittest.TestCase):
         self.assertEqual(decoded_payload, self.payload)
 
     def test_decode_unicode_value(self):
-        example_payload = {"hello": "world"}
-        example_secret = "secret"
+        example_payload = {'hello': 'world'}
+        example_secret = 'secret'
         example_jwt = (
-            "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            ".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
+            'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            '.eyJoZWxsbyI6ICJ3b3JsZCJ9'
+            '.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
         decoded_payload = jwt.decode(example_jwt, example_secret)
 
         self.assertEqual(decoded_payload, example_payload)
@@ -196,10 +196,10 @@ class TestJWT(unittest.TestCase):
 
     def test_decode_invalid_header_padding(self):
         example_jwt = (
-            "aeyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            ".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
-        example_secret = "secret"
+            'aeyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            '.eyJoZWxsbyI6ICJ3b3JsZCJ9'
+            '.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+        example_secret = 'secret'
 
         self.assertRaises(
             jwt.DecodeError,
@@ -211,10 +211,10 @@ class TestJWT(unittest.TestCase):
 
     def test_decode_invalid_header_string(self):
         example_jwt = (
-            "eyJhbGciOiAiSFMyNTbpIiwgInR5cCI6ICJKV1QifQ=="
-            ".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
-        example_secret = "secret"
+            'eyJhbGciOiAiSFMyNTbpIiwgInR5cCI6ICJKV1QifQ=='
+            '.eyJoZWxsbyI6ICJ3b3JsZCJ9'
+            '.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+        example_secret = 'secret'
 
         try:
             jwt.load(example_jwt)
@@ -232,10 +232,10 @@ class TestJWT(unittest.TestCase):
 
     def test_decode_invalid_payload_padding(self):
         example_jwt = (
-            "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            ".aeyJoZWxsbyI6ICJ3b3JsZCJ9"
-            ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
-        example_secret = "secret"
+            'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            '.aeyJoZWxsbyI6ICJ3b3JsZCJ9'
+            '.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+        example_secret = 'secret'
 
         self.assertRaises(
             jwt.DecodeError,
@@ -247,10 +247,10 @@ class TestJWT(unittest.TestCase):
 
     def test_decode_invalid_payload_string(self):
         example_jwt = (
-            "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            ".eyJoZWxsb-kiOiAid29ybGQifQ=="
-            ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
-        example_secret = "secret"
+            'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            '.eyJoZWxsb-kiOiAid29ybGQifQ=='
+            '.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+        example_secret = 'secret'
 
         try:
             jwt.load(example_jwt)
@@ -268,10 +268,10 @@ class TestJWT(unittest.TestCase):
 
     def test_decode_invalid_crypto_padding(self):
         example_jwt = (
-            "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            ".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            ".aatvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8")
-        example_secret = "secret"
+            'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            '.eyJoZWxsbyI6ICJ3b3JsZCJ9'
+            '.aatvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+        example_secret = 'secret'
 
         self.assertRaises(
             jwt.DecodeError,
