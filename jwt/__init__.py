@@ -25,6 +25,7 @@ if sys.version_info >= (3, 0, 0):
     basestring = str
 
 
+__version__ = '0.2.2'
 __all__ = ['encode', 'decode', 'DecodeError']
 
 
