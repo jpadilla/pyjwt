@@ -38,12 +38,14 @@ class ExpiredSignature(Exception):
 
 
 signing_methods = {
+    'none': lambda msg, key: b'',
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
     'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
     'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest()
 }
 
 verify_methods = {
+    'none': lambda msg, key: b'',
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
     'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
     'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest()
@@ -60,6 +62,7 @@ def prepare_HS_key(key):
     return key
 
 prepare_key_methods = {
+    'none': lambda key: None,
     'HS256': prepare_HS_key,
     'HS384': prepare_HS_key,
     'HS512': prepare_HS_key
@@ -154,6 +157,9 @@ def header(jwt):
 def encode(payload, key, algorithm='HS256', headers=None):
     segments = []
 
+    if algorithm is None:
+        algorithm = 'none'
+
     # Check that we get a mapping
     if not isinstance(payload, Mapping):
         raise TypeError('Expecting a mapping object, as json web token only'
@@ -193,6 +199,9 @@ def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
     payload, signing_input, header, signature = load(jwt)
 
     if verify:
+        # do not approve empty signatures when verification is requested
+        if header['alg'] == 'none':
+            raise NotImplementedError('Cannot verify if algorithm is none')
         verify_signature(payload, signing_input, header, signature, key,
                          verify_expiration, leeway)
 
