@@ -124,11 +124,11 @@ after creation but you know that sometimes you will process it after 30 seconds,
 you can set a leeway of 10 seconds in order to have some margin:
 
 ```python
-import time
+import datetime
 import jwt
 
 jwt_payload = jwt.encode({
-    'exp': datetime.utcnow() + datetime.timedelta(seconds=30)
+    'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
 }, 'secret')
 
 time.sleep(32)
