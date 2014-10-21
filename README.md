@@ -77,6 +77,7 @@ JSON Web Token defines some reserved claim names and defines how they should be
 used. PyJWT supports these reserved claim names:
 
  - "exp" (Expiration Time) Claim
+ - "nbf" (Not Before Time) Claim
 
 ### Expiration Time Claim
 
@@ -125,6 +126,7 @@ you can set a leeway of 10 seconds in order to have some margin:
 
 ```python
 import datetime
+import time
 import jwt
 
 jwt_payload = jwt.encode({
@@ -137,6 +139,8 @@ time.sleep(32)
 # But with some leeway, it will still validate
 jwt.decode(jwt_payload, 'secret', leeway=10)
 ```
+
+PyJWT also supports not-before validation via the [`nbf` claim](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-27#section-4.1.5) in a similar fashion.
 
 ## License
 
