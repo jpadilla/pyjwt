@@ -198,9 +198,6 @@ def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
     payload, signing_input, header, signature = load(jwt)
 
     if verify:
-        # do not approve empty signatures when verification is requested
-        if header['alg'] == 'none':
-            raise NotImplementedError('Cannot verify if algorithm is none')
         verify_signature(payload, signing_input, header, signature, key,
                          verify_expiration, leeway)
 
