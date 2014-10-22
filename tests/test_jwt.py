@@ -381,6 +381,15 @@ class TestJWT(unittest.TestCase):
             lambda: jwt.verify_signature(decoded_payload, signing,
                                          header, signature, secret, leeway=1))
 
+    def test_encode_decode_with_algo_none(self):
+        jwt_message = jwt.encode(self.payload, key=None, algorithm=None)
+
+        self.assertRaises(
+            jwt.DecodeError,
+            lambda: jwt.decode(jwt_message))
+
+        jwt.decode(jwt_message, verify=False)
+
     def test_encode_decode_with_rsa_sha256(self):
         try:
             from Crypto.PublicKey import RSA

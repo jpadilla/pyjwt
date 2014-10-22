@@ -38,6 +38,7 @@ class ExpiredSignature(Exception):
 
 
 signing_methods = {
+    'none': lambda msg, key: b'',
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
     'HS384': lambda msg, key: hmac.new(key, msg, hashlib.sha384).digest(),
     'HS512': lambda msg, key: hmac.new(key, msg, hashlib.sha512).digest()
@@ -60,6 +61,7 @@ def prepare_HS_key(key):
     return key
 
 prepare_key_methods = {
+    'none': lambda key: None,
     'HS256': prepare_HS_key,
     'HS384': prepare_HS_key,
     'HS512': prepare_HS_key
@@ -153,6 +155,9 @@ def header(jwt):
 
 def encode(payload, key, algorithm='HS256', headers=None):
     segments = []
+
+    if algorithm is None:
+        algorithm = 'none'
 
     # Check that we get a mapping
     if not isinstance(payload, Mapping):
