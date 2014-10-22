@@ -87,13 +87,14 @@ try:
     })
 
     def prepare_RS_key(key):
+        if isinstance(key, RSA._RSAobj):
+            return key
+
         if isinstance(key, basestring):
             if isinstance(key, unicode):
                 key = key.encode('utf-8')
 
             key = RSA.importKey(key)
-        elif isinstance(key, RSA._RSAobj):
-            pass
         else:
             raise TypeError('Expecting a PEM- or RSA-formatted key.')
 
@@ -127,6 +128,10 @@ try:
     })
 
     def prepare_ES_key(key):
+        if isinstance(key, ecdsa.SigningKey) or \
+           isinstance(key, ecdsa.VerifyingKey):
+            return key
+
         if isinstance(key, basestring):
             if isinstance(key, unicode):
                 key = key.encode('utf-8')
@@ -141,10 +146,9 @@ try:
                     key = ecdsa.SigningKey.from_pem(key)
                 except:
                     raise
-        elif isinstance(key, ecdsa.SigningKey) or isinstance(key, ecdsa.VerifyingKey):
-            pass
         else:
-            raise TypeError("Expecting a PEM-formatted key.")
+            raise TypeError('Expecting a PEM-formatted key.')
+
         return key
 
     prepare_key_methods.update({
@@ -155,7 +159,6 @@ try:
 
 except ImportError:
     pass
-
 
 
 def constant_time_compare(val1, val2):
@@ -308,7 +311,7 @@ def verify_signature(payload, signing_input, header, signature, key='',
     if 'nbf' in payload and verify_expiration:
         utc_timestamp = timegm(datetime.utcnow().utctimetuple())
         if payload['nbf'] > (utc_timestamp + leeway):
-            raise ExpiredSignature("Signature not yet valid")
+            raise ExpiredSignature('Signature not yet valid')
 
     if 'exp' in payload and verify_expiration:
         utc_timestamp = timegm(datetime.utcnow().utctimetuple())
