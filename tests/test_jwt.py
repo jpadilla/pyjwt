@@ -18,7 +18,7 @@ def utc_timestamp():
 class TestJWT(unittest.TestCase):
 
     def setUp(self):
-        self.payload = {'iss': 'jeff', 'exp': utc_timestamp() + 1,
+        self.payload = {'iss': 'jeff', 'exp': utc_timestamp() + 15,
                         'claim': 'insanity'}
 
     def test_encode_decode(self):
@@ -73,6 +73,47 @@ class TestJWT(unittest.TestCase):
             b'.eyJoZWxsbyI6ICJ3b3JsZCJ9'
             b'.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
         decoded_payload = jwt.decode(example_jwt, example_secret)
+
+        self.assertEqual(decoded_payload, example_payload)
+
+    # 'Control' Elliptic Curve JWT created by another library.
+    # Used to test for regressions that could affect both
+    # encoding / decoding operations equally (causing tests
+    # to still pass).
+    def test_decodes_valid_es384_jwt(self):
+        example_payload = {'hello': 'world'}
+        example_pubkey = open('tests/testkey_ec.pub', 'r').read()
+        example_jwt = (
+            b'eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9'
+            b'.eyJoZWxsbyI6IndvcmxkIn0'
+            b'.MIGHAkEdh2kR7IRu5w0tGuY6Xz3Vqa7PHHY2DgXWeee'
+            b'LXotEqpn9udp2NfVL-XFG0TDoCakzXbIGAWg42S69GFl'
+            b'KZzxhXAJCAPLPuJoKyAixFnXPBkvkti-UzSIj4s6DePe'
+            b'uTu7102G_QIXiijY5bx6mdmZa3xUuKeu-zobOIOqR8Zw'
+            b'FqGjBLZum')
+        decoded_payload = jwt.decode(example_jwt, example_pubkey)
+
+        self.assertEqual(decoded_payload, example_payload)
+
+    # 'Control' RSA JWT created by another library.
+    # Used to test for regressions that could affect both
+    # encoding / decoding operations equally (causing tests
+    # to still pass).
+    def test_decodes_valid_rs384_jwt(self):
+        example_payload = {'hello': 'world'}
+        example_pubkey = open('tests/testkey_rsa.pub', 'r').read()
+        example_jwt = (
+            b'eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9'
+            b'.eyJoZWxsbyI6IndvcmxkIn0'
+            b'.yNQ3nI9vEDs7lEh-Cp81McPuiQ4ZRv6FL4evTYYAh1X'
+            b'lRTTR3Cz8pPA9Stgso8Ra9xGB4X3rlra1c8Jz10nTUju'
+            b'O06OMm7oXdrnxp1KIiAJDerWHkQ7l3dlizIk1bmMA457'
+            b'W2fNzNfHViuED5ISM081dgf_a71qBwJ_yShMMrSOfxDx'
+            b'mX9c4DjRogRJG8SM5PvpLqI_Cm9iQPGMvmYK7gzcq2cJ'
+            b'urHRJDJHTqIdpLWXkY7zVikeen6FhuGyn060Dz9gYq9t'
+            b'uwmrtSWCBUjiN8sqJ00CDgycxKqHfUndZbEAOjcCAhBr'
+            b'qWW3mSVivUfubsYbwUdUG3fSRPjaUPcpe8A')
+        decoded_payload = jwt.decode(example_jwt, example_pubkey)
 
         self.assertEqual(decoded_payload, example_payload)
 
@@ -394,13 +435,13 @@ class TestJWT(unittest.TestCase):
         try:
             from Crypto.PublicKey import RSA
 
-            # RSA-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            # PEM-formatted RSA key
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS256')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = RSA.importKey(rsa_pub_file.read())
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -408,12 +449,12 @@ class TestJWT(unittest.TestCase):
                 jwt.verify_signature(key=pub_rsakey, *load_output)
 
             # string-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = rsa_priv_file.read()
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS256')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = rsa_pub_file.read()
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -427,13 +468,13 @@ class TestJWT(unittest.TestCase):
         try:
             from Crypto.PublicKey import RSA
 
-            # RSA-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            # PEM-formatted RSA key
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS384')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = RSA.importKey(rsa_pub_file.read())
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -441,12 +482,12 @@ class TestJWT(unittest.TestCase):
                 jwt.verify_signature(key=pub_rsakey, *load_output)
 
             # string-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = rsa_priv_file.read()
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS384')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = rsa_pub_file.read()
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -459,13 +500,13 @@ class TestJWT(unittest.TestCase):
         try:
             from Crypto.PublicKey import RSA
 
-            # RSA-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            # PEM-formatted RSA key
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = RSA.importKey(rsa_priv_file.read())
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS512')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = RSA.importKey(rsa_pub_file.read())
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -473,12 +514,12 @@ class TestJWT(unittest.TestCase):
                 jwt.verify_signature(key=pub_rsakey, *load_output)
 
             # string-formatted key
-            with open('tests/testkey', 'r') as rsa_priv_file:
+            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
                 priv_rsakey = rsa_priv_file.read()
                 jwt_message = jwt.encode(self.payload, priv_rsakey,
                                          algorithm='RS512')
 
-            with open('tests/testkey.pub', 'r') as rsa_pub_file:
+            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
                 pub_rsakey = rsa_pub_file.read()
                 assert jwt.decode(jwt_message, pub_rsakey)
 
@@ -487,7 +528,7 @@ class TestJWT(unittest.TestCase):
         except ImportError:
             pass
 
-    def test_crypto_related_signing_methods(self):
+    def test_rsa_related_signing_methods(self):
         try:
             import Crypto
             self.assertTrue('RS256' in jwt.signing_methods)
@@ -498,7 +539,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS384' in jwt.signing_methods)
             self.assertFalse('RS512' in jwt.signing_methods)
 
-    def test_crypto_related_verify_methods(self):
+    def test_rsa_related_verify_methods(self):
         try:
             import Crypto
             self.assertTrue('RS256' in jwt.verify_methods)
@@ -509,7 +550,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS384' in jwt.verify_methods)
             self.assertFalse('RS512' in jwt.verify_methods)
 
-    def test_crypto_related_key_preparation_methods(self):
+    def test_rsa_related_key_preparation_methods(self):
         try:
             import Crypto
             self.assertTrue('RS256' in jwt.prepare_key_methods)
@@ -519,6 +560,136 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS256' in jwt.prepare_key_methods)
             self.assertFalse('RS384' in jwt.prepare_key_methods)
             self.assertFalse('RS512' in jwt.prepare_key_methods)
+
+    def test_encode_decode_with_ecdsa_sha256(self):
+        try:
+            import ecdsa
+
+            # PEM-formatted EC key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES256')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+            # string-formatted key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ec_priv_file.read()
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES256')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ec_pub_file.read()
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+        except ImportError:
+            pass
+
+    def test_encode_decode_with_ecdsa_sha384(self):
+        try:
+            import ecdsa
+
+            # PEM-formatted EC key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES384')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+            # string-formatted key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ec_priv_file.read()
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES384')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_rsakey = ec_pub_file.read()
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+        except ImportError:
+            pass
+
+    def test_encode_decode_with_ecdsa_sha512(self):
+        try:
+            import ecdsa
+
+            # PEM-formatted EC key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES512')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+
+            # string-formatted key
+            with open('tests/testkey_ec', 'r') as ec_priv_file:
+                priv_eckey = ec_priv_file.read()
+                jwt_message = jwt.encode(self.payload, priv_eckey,
+                                         algorithm='ES512')
+
+            with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
+                pub_eckey = ec_pub_file.read()
+                assert jwt.decode(jwt_message, pub_eckey)
+
+                load_output = jwt.load(jwt_message)
+                jwt.verify_signature(key=pub_eckey, *load_output)
+        except ImportError:
+            pass
+
+    def test_ecdsa_related_signing_methods(self):
+        try:
+            import ecdsa
+            self.assertTrue('ES256' in jwt.signing_methods)
+            self.assertTrue('ES384' in jwt.signing_methods)
+            self.assertTrue('ES512' in jwt.signing_methods)
+        except ImportError:
+            self.assertFalse('ES256' in jwt.signing_methods)
+            self.assertFalse('ES384' in jwt.signing_methods)
+            self.assertFalse('ES512' in jwt.signing_methods)
+
+    def test_ecdsa_related_verify_methods(self):
+        try:
+            import ecdsa
+            self.assertTrue('ES256' in jwt.verify_methods)
+            self.assertTrue('ES384' in jwt.verify_methods)
+            self.assertTrue('ES512' in jwt.verify_methods)
+        except ImportError:
+            self.assertFalse('ES256' in jwt.verify_methods)
+            self.assertFalse('ES384' in jwt.verify_methods)
+            self.assertFalse('ES512' in jwt.verify_methods)
+
+    def test_ecdsa_related_key_preparation_methods(self):
+        try:
+            import ecdsa
+            self.assertTrue('ES256' in jwt.prepare_key_methods)
+            self.assertTrue('ES384' in jwt.prepare_key_methods)
+            self.assertTrue('ES512' in jwt.prepare_key_methods)
+        except ImportError:
+            self.assertFalse('ES256' in jwt.prepare_key_methods)
+            self.assertFalse('ES384' in jwt.prepare_key_methods)
+            self.assertFalse('ES512' in jwt.prepare_key_methods)
 
 
 if __name__ == '__main__':
