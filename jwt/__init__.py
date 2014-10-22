@@ -37,6 +37,14 @@ class ExpiredSignature(Exception):
     pass
 
 
+class InvalidAudience(Exception):
+    pass
+
+
+class InvalidIssuer(Exception):
+    pass
+
+
 signing_methods = {
     'none': lambda msg, key: b'',
     'HS256': lambda msg, key: hmac.new(key, msg, hashlib.sha256).digest(),
@@ -246,12 +254,15 @@ def encode(payload, key, algorithm='HS256', headers=None):
     return b'.'.join(segments)
 
 
-def decode(jwt, key='', verify=True, verify_expiration=True, leeway=0):
+def decode(jwt, key='', verify=True, **kwargs):
     payload, signing_input, header, signature = load(jwt)
 
     if verify:
+        verify_expiration = kwargs.pop('verify_expiration', True)
+        leeway = kwargs.pop('leeway', 0)
+
         verify_signature(payload, signing_input, header, signature, key,
-                         verify_expiration, leeway)
+                         verify_expiration, leeway, **kwargs)
 
     return payload
 
@@ -292,7 +303,7 @@ def load(jwt):
 
 
 def verify_signature(payload, signing_input, header, signature, key='',
-                     verify_expiration=True, leeway=0):
+                     verify_expiration=True, leeway=0, **kwargs):
     try:
         algorithm = header['alg'].upper()
         key = prepare_key_methods[algorithm](key)
@@ -310,6 +321,7 @@ def verify_signature(payload, signing_input, header, signature, key='',
 
     if 'nbf' in payload and verify_expiration:
         utc_timestamp = timegm(datetime.utcnow().utctimetuple())
+
         if payload['nbf'] > (utc_timestamp + leeway):
             raise ExpiredSignature('Signature not yet valid')
 
@@ -318,3 +330,20 @@ def verify_signature(payload, signing_input, header, signature, key='',
 
         if payload['exp'] < (utc_timestamp - leeway):
             raise ExpiredSignature('Signature has expired')
+
+    audience = kwargs.get('audience')
+
+    if audience:
+        if isinstance(audience, list):
+            audiences = audience
+        else:
+            audiences = [audience]
+
+        if payload.get('aud') not in audiences:
+            raise InvalidAudience('Invalid audience')
+
+    issuer = kwargs.get('issuer')
+
+    if issuer:
+        if payload.get('iss') != issuer:
+            raise InvalidIssuer('Invalid issuer')
