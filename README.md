@@ -94,6 +94,8 @@ used. PyJWT supports these reserved claim names:
 
  - "exp" (Expiration Time) Claim
  - "nbf" (Not Before Time) Claim
+ - "iss" (Issuer) Claim
+ - "aud" (Audience) Claim
 
 ### Expiration Time Claim
 
@@ -156,7 +158,51 @@ time.sleep(32)
 jwt.decode(jwt_payload, 'secret', leeway=10)
 ```
 
-PyJWT also supports not-before validation via the [`nbf` claim](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-27#section-4.1.5) in a similar fashion.
+### Not Before Time Claim
+
+> The nbf (not before) claim identifies the time before which the JWT MUST NOT be accepted for processing. The processing of the nbf claim requires that the current date/time MUST be after or equal to the not-before date/time listed in the nbf claim. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a NumericDate value. Use of this claim is OPTIONAL.
+
+The `nbf` claim works similarly to the `exp` claim above.
+
+```python
+jwt.encode({'nbf': 1371720939}, 'secret')
+
+jwt.encode({'nbf': datetime.utcnow()}, 'secret')
+```
+
+### Issuer Claim
+
+> The iss (issuer) claim identifies the principal that issued the JWT. The processing of this claim is generally application specific. The iss value is a case-sensitive string containing a StringOrURI value. Use of this claim is OPTIONAL.
+
+```python
+import jwt
+
+
+payload = {
+    'some': 'payload',
+    'iss': 'urn:foo'
+}
+
+token = jwt.encode(payload, 'secret')
+decoded = jwt.decode(token, 'secret', issuer='urn:foo')
+```
+
+### Audience Claim
+
+> The aud (audience) claim identifies the recipients that the JWT is intended for. Each principal intended to process the JWT MUST identify itself with a value in the audience claim. If the principal processing the claim does not identify itself with a value in the aud claim when this claim is present, then the JWT MUST be rejected. In the general case, the aud value is an array of case-sensitive strings, each containing a StringOrURI value. In the special case when the JWT has one audience, the aud value MAY be a single case-sensitive string containing a StringOrURI value. The interpretation of audience values is generally application specific. Use of this claim is OPTIONAL.
+
+```python
+import jwt
+
+
+payload = {
+    'some': 'payload',
+    'aud': 'urn:foo'
+}
+
+token = jwt.encode(payload, 'secret')
+decoded = jwt.decode(token, 'secret', audience='urn:foo')
+```
 
 ## License
 
