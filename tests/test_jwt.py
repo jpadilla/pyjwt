@@ -19,7 +19,8 @@ if sys.version_info >= (3, 0, 0):
     unicode = str
 
 try:
-    from Crypto.PublicKey import RSA
+    from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key, load_ssh_public_key
+    from cryptography.hazmat.backends import default_backend
     has_rsa = True
 except ImportError:
     has_rsa = False
@@ -33,6 +34,13 @@ except ImportError:
 
 def utc_timestamp():
     return timegm(datetime.utcnow().utctimetuple())
+
+
+def ensure_bytes(key):
+    if isinstance(key, unicode):
+        key = key.encode('utf-8')
+
+    return key
 
 
 class TestJWT(unittest.TestCase):
@@ -457,12 +465,12 @@ class TestJWT(unittest.TestCase):
     def test_encode_decode_with_rsa_sha256(self):
         # PEM-formatted RSA key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = RSA.importKey(rsa_priv_file.read())
+            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()), password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_rsakey,
                                      algorithm='RS256')
 
         with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = RSA.importKey(rsa_pub_file.read())
+            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()), backend=default_backend())
             assert jwt.decode(jwt_message, pub_rsakey)
 
             load_output = jwt.load(jwt_message)
@@ -485,16 +493,13 @@ class TestJWT(unittest.TestCase):
     def test_encode_decode_with_rsa_sha384(self):
         # PEM-formatted RSA key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = RSA.importKey(rsa_priv_file.read())
+            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()), password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_rsakey,
                                      algorithm='RS384')
 
         with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = RSA.importKey(rsa_pub_file.read())
+            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()), backend=default_backend())
             assert jwt.decode(jwt_message, pub_rsakey)
-
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_rsakey, *load_output)
 
         # string-formatted key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
@@ -511,36 +516,31 @@ class TestJWT(unittest.TestCase):
 
     @unittest.skipIf(not has_rsa, 'Not supported without crypto library')
     def test_encode_decode_with_rsa_sha512(self):
-        try:
-            from Crypto.PublicKey import RSA
+        # PEM-formatted RSA key
+        with open('tests/testkey_rsa', 'r') as rsa_priv_file:
+            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()), password=None, backend=default_backend())
+            jwt_message = jwt.encode(self.payload, priv_rsakey,
+                                     algorithm='RS512')
 
-            # PEM-formatted RSA key
-            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
-                priv_rsakey = RSA.importKey(rsa_priv_file.read())
-                jwt_message = jwt.encode(self.payload, priv_rsakey,
-                                         algorithm='RS512')
+        with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
+            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()), backend=default_backend())
+            assert jwt.decode(jwt_message, pub_rsakey)
 
-            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
-                pub_rsakey = RSA.importKey(rsa_pub_file.read())
-                assert jwt.decode(jwt_message, pub_rsakey)
+            load_output = jwt.load(jwt_message)
+            jwt.verify_signature(key=pub_rsakey, *load_output)
 
-                load_output = jwt.load(jwt_message)
-                jwt.verify_signature(key=pub_rsakey, *load_output)
+        # string-formatted key
+        with open('tests/testkey_rsa', 'r') as rsa_priv_file:
+            priv_rsakey = rsa_priv_file.read()
+            jwt_message = jwt.encode(self.payload, priv_rsakey,
+                                     algorithm='RS512')
 
-            # string-formatted key
-            with open('tests/testkey_rsa', 'r') as rsa_priv_file:
-                priv_rsakey = rsa_priv_file.read()
-                jwt_message = jwt.encode(self.payload, priv_rsakey,
-                                         algorithm='RS512')
+        with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
+            pub_rsakey = rsa_pub_file.read()
+            assert jwt.decode(jwt_message, pub_rsakey)
 
-            with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
-                pub_rsakey = rsa_pub_file.read()
-                assert jwt.decode(jwt_message, pub_rsakey)
-
-                load_output = jwt.load(jwt_message)
-                jwt.verify_signature(key=pub_rsakey, *load_output)
-        except ImportError:
-            pass
+            load_output = jwt.load(jwt_message)
+            jwt.verify_signature(key=pub_rsakey, *load_output)
 
     def test_rsa_related_signing_methods(self):
         if has_rsa:
