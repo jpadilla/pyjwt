@@ -215,7 +215,7 @@ def header(jwt):
         raise DecodeError('Invalid header encoding')
 
 
-def encode(payload, key, algorithm='HS256', headers=None):
+def encode(payload, key, algorithm='HS256', headers=None, json_encoder=None):
     segments = []
 
     if algorithm is None:
@@ -231,7 +231,9 @@ def encode(payload, key, algorithm='HS256', headers=None):
     if headers:
         header.update(headers)
 
-    json_header = json.dumps(header, separators=(',', ':')).encode('utf-8')
+    json_header = json.dumps(header,
+                             separators=(',', ':'),
+                             cls=json_encoder).encode('utf-8')
     segments.append(base64url_encode(json_header))
 
     # Payload
@@ -240,7 +242,9 @@ def encode(payload, key, algorithm='HS256', headers=None):
         if isinstance(payload.get(time_claim), datetime):
             payload[time_claim] = timegm(payload[time_claim].utctimetuple())
 
-    json_payload = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+    json_payload = json.dumps(payload,
+                              separators=(',', ':'),
+                              cls=json_encoder).encode('utf-8')
     segments.append(base64url_encode(json_payload))
 
     # Segments
