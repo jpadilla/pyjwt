@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
+
 from calendar import timegm
 from datetime import datetime
+from decimal import Decimal
+
 import sys
 import time
 import unittest
+import json
 
 import jwt
 
@@ -810,6 +814,27 @@ class TestJWT(unittest.TestCase):
         self.assertRaises(
             jwt.InvalidIssuer,
             lambda: jwt.decode(token, 'secret', issuer=issuer))
+
+    def test_custom_json_encoder(self):
+
+        class CustomJSONEncoder(json.JSONEncoder):
+
+            def default(self, o):
+                if isinstance(o, Decimal):
+                    return 'it worked'
+                return super(CustomJSONEncoder, self).default(o)
+
+        data = {
+            'some_decimal': Decimal('2.2')
+        }
+
+        self.assertRaises(
+            TypeError,
+            lambda: jwt.encode(data, 'secret'))
+
+        token = jwt.encode(data, 'secret', json_encoder=CustomJSONEncoder)
+        payload = jwt.decode(token, 'secret')
+        self.assertEqual(payload, {'some_decimal': 'it worked'})
 
 
 if __name__ == '__main__':
