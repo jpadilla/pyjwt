@@ -25,7 +25,7 @@ if sys.version_info >= (3, 0, 0):
     basestring = str
 
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 __all__ = ['encode', 'decode', 'DecodeError']
 
 
@@ -231,9 +231,12 @@ def encode(payload, key, algorithm='HS256', headers=None, json_encoder=None):
     if headers:
         header.update(headers)
 
-    json_header = json.dumps(header,
-                             separators=(',', ':'),
-                             cls=json_encoder).encode('utf-8')
+    json_header = json.dumps(
+        header,
+        separators=(',', ':'),
+        cls=json_encoder
+    ).encode('utf-8')
+
     segments.append(base64url_encode(json_header))
 
     # Payload
@@ -242,9 +245,12 @@ def encode(payload, key, algorithm='HS256', headers=None, json_encoder=None):
         if isinstance(payload.get(time_claim), datetime):
             payload[time_claim] = timegm(payload[time_claim].utctimetuple())
 
-    json_payload = json.dumps(payload,
-                              separators=(',', ':'),
-                              cls=json_encoder).encode('utf-8')
+    json_payload = json.dumps(
+        payload,
+        separators=(',', ':'),
+        cls=json_encoder
+    ).encode('utf-8')
+
     segments.append(base64url_encode(json_payload))
 
     # Segments
