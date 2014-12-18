@@ -22,13 +22,9 @@ try:
     from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key, load_ssh_public_key
     from cryptography.hazmat.backends import default_backend
     has_rsa = True
-except ImportError:
-    has_rsa = False
-
-try:
-    import ecdsa
     has_ecdsa = True
 except ImportError:
+    has_rsa = False
     has_ecdsa = False
 
 
@@ -576,12 +572,12 @@ class TestJWT(unittest.TestCase):
     def test_encode_decode_with_ecdsa_sha256(self):
         # PEM-formatted EC key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_eckey,
                                      algorithm='ES256')
 
         with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+            pub_eckey = load_pem_public_key(ec_pub_file.read(), backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
             load_output = jwt.load(jwt_message)
@@ -605,12 +601,12 @@ class TestJWT(unittest.TestCase):
 
         # PEM-formatted EC key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_eckey,
                                      algorithm='ES384')
 
         with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+            pub_eckey = load_pem_public_key(ec_pub_file.read(), backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
             load_output = jwt.load(jwt_message)
@@ -633,12 +629,12 @@ class TestJWT(unittest.TestCase):
     def test_encode_decode_with_ecdsa_sha512(self):
         # PEM-formatted EC key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = ecdsa.SigningKey.from_pem(ec_priv_file.read())
+            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_eckey,
                                      algorithm='ES512')
 
         with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = ecdsa.VerifyingKey.from_pem(ec_pub_file.read())
+            pub_eckey = load_pem_public_key(ec_pub_file.read(), backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
             load_output = jwt.load(jwt_message)

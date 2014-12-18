@@ -76,10 +76,9 @@ prepare_key_methods = {
 }
 
 try:
-
     from cryptography.hazmat.primitives import interfaces, hashes
     from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key, load_ssh_public_key
-    from cryptography.hazmat.primitives.asymmetric import rsa, padding
+    from cryptography.hazmat.primitives.asymmetric import ec, rsa, padding
     from cryptography.hazmat.backends import default_backend
     from cryptography.exceptions import InvalidSignature
 
@@ -120,7 +119,8 @@ try:
     })
 
     def prepare_RS_key(key):
-        if isinstance(key, interfaces.RSAPrivateKey) or isinstance(key, interfaces.RSAPublicKey):
+        if isinstance(key, interfaces.RSAPrivateKey) or \
+           isinstance(key, interfaces.RSAPublicKey):
             return key
 
         if isinstance(key, basestring):
@@ -145,27 +145,38 @@ try:
         'RS512': prepare_RS_key
     })
 
-except ImportError:
-    pass
+    def sign_ecdsa(msg, key, hashalg):
+        signer = key.signer(ec.ECDSA(hashalg))
 
-try:
-    import ecdsa
+        signer.update(msg)
+        return signer.finalize()
+
+    def verify_ecdsa(msg, key, hashalg, sig):
+        verifier = key.verifier(sig, ec.ECDSA(hashalg))
+
+        verifier.update(msg)
+
+        try:
+            verifier.verify()
+            return True
+        except InvalidSignature:
+            return False
 
     signing_methods.update({
-        'ES256': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha256, sigencode=ecdsa.util.sigencode_der),
-        'ES384': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha384, sigencode=ecdsa.util.sigencode_der),
-        'ES512': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha512, sigencode=ecdsa.util.sigencode_der),
+        'ES256': lambda msg, key: sign_ecdsa(msg, key, hashes.SHA256()),
+        'ES384': lambda msg, key: sign_ecdsa(msg, key, hashes.SHA384()),
+        'ES512': lambda msg, key: sign_ecdsa(msg, key, hashes.SHA512()),
     })
 
     verify_methods.update({
-        'ES256': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha256, sigdecode=ecdsa.util.sigdecode_der),
-        'ES384': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha384, sigdecode=ecdsa.util.sigdecode_der),
-        'ES512': lambda msg, key, sig: key.verify(sig, msg, hashfunc=hashlib.sha512, sigdecode=ecdsa.util.sigdecode_der),
+        'ES256': lambda msg, key, sig: verify_ecdsa(msg, key, hashes.SHA256(), sig),
+        'ES384': lambda msg, key, sig: verify_ecdsa(msg, key, hashes.SHA384(), sig),
+        'ES512': lambda msg, key, sig: verify_ecdsa(msg, key, hashes.SHA512(), sig),
     })
 
     def prepare_ES_key(key):
-        if isinstance(key, ecdsa.SigningKey) or \
-           isinstance(key, ecdsa.VerifyingKey):
+        if isinstance(key, interfaces.EllipticCurvePrivateKey) or \
+           isinstance(key, interfaces.EllipticCurvePublicKey):
             return key
 
         if isinstance(key, basestring):
@@ -176,12 +187,10 @@ try:
             # a Signing Key or a Verifying Key, so we try
             # the Verifying Key first.
             try:
-                key = ecdsa.VerifyingKey.from_pem(key)
-            except ecdsa.der.UnexpectedDER:
-                try:
-                    key = ecdsa.SigningKey.from_pem(key)
-                except:
-                    raise
+                key = load_pem_public_key(key, backend=default_backend())
+            except ValueError:
+                key = load_pem_private_key(key, password=None, backend=default_backend())
+
         else:
             raise TypeError('Expecting a PEM-formatted key.')
 
