@@ -6,10 +6,14 @@ from decimal import Decimal
 
 import sys
 import time
-import unittest
 import json
 
 import jwt
+
+if sys.version_info >= (2, 7):
+    import unittest
+else:
+    import unittest2 as unittest
 
 if sys.version_info >= (3, 0, 0):
     unicode = str
