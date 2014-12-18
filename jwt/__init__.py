@@ -119,9 +119,6 @@ except ImportError:
 
 try:
     import ecdsa
-    from Crypto.Hash import SHA256
-    from Crypto.Hash import SHA384
-    from Crypto.Hash import SHA512
 
     signing_methods.update({
         'ES256': lambda msg, key: key.sign(msg, hashfunc=hashlib.sha256, sigencode=ecdsa.util.sigencode_der),
