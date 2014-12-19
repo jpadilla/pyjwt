@@ -19,13 +19,14 @@ if sys.version_info >= (3, 0, 0):
     unicode = str
 
 try:
-    from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key, load_ssh_public_key
     from cryptography.hazmat.backends import default_backend
-    has_rsa = True
-    has_ecdsa = True
+    from cryptography.hazmat.primitives.serialization import (
+        load_pem_private_key, load_pem_public_key, load_ssh_public_key
+    )
+
+    has_crypto = True
 except ImportError:
-    has_rsa = False
-    has_ecdsa = False
+    has_crypto = False
 
 
 def utc_timestamp():
@@ -104,7 +105,7 @@ class TestJWT(unittest.TestCase):
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
     # to still pass).
-    @unittest.skipIf(not has_ecdsa, "Can't run without ecdsa")
+    @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_decodes_valid_es384_jwt(self):
         example_payload = {'hello': 'world'}
         example_pubkey = open('tests/testkey_ec.pub', 'r').read()
@@ -124,7 +125,7 @@ class TestJWT(unittest.TestCase):
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
     # to still pass).
-    @unittest.skipIf(not has_rsa, "Can't run without crypto")
+    @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_decodes_valid_rs384_jwt(self):
         example_payload = {'hello': 'world'}
         example_pubkey = open('tests/testkey_rsa.pub', 'r').read()
@@ -457,16 +458,18 @@ class TestJWT(unittest.TestCase):
 
         jwt.decode(jwt_message, verify=False)
 
-    @unittest.skipIf(not has_rsa, 'Not supported without crypto library')
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha256(self):
         # PEM-formatted RSA key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()), password=None, backend=default_backend())
+            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
+                                               password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_rsakey,
                                      algorithm='RS256')
 
         with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()), backend=default_backend())
+            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
+                                             backend=default_backend())
             assert jwt.decode(jwt_message, pub_rsakey)
 
             load_output = jwt.load(jwt_message)
@@ -485,16 +488,18 @@ class TestJWT(unittest.TestCase):
             load_output = jwt.load(jwt_message)
             jwt.verify_signature(key=pub_rsakey, *load_output)
 
-    @unittest.skipIf(not has_rsa, 'Not supported without crypto library')
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha384(self):
         # PEM-formatted RSA key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()), password=None, backend=default_backend())
+            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
+                                               password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_rsakey,
                                      algorithm='RS384')
 
         with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()), backend=default_backend())
+            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
+                                             backend=default_backend())
             assert jwt.decode(jwt_message, pub_rsakey)
 
         # string-formatted key
@@ -510,16 +515,18 @@ class TestJWT(unittest.TestCase):
             load_output = jwt.load(jwt_message)
             jwt.verify_signature(key=pub_rsakey, *load_output)
 
-    @unittest.skipIf(not has_rsa, 'Not supported without crypto library')
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha512(self):
         # PEM-formatted RSA key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()), password=None, backend=default_backend())
+            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
+                                               password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_rsakey,
                                      algorithm='RS512')
 
         with open('tests/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()), backend=default_backend())
+            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
+                                             backend=default_backend())
             assert jwt.decode(jwt_message, pub_rsakey)
 
             load_output = jwt.load(jwt_message)
@@ -539,7 +546,7 @@ class TestJWT(unittest.TestCase):
             jwt.verify_signature(key=pub_rsakey, *load_output)
 
     def test_rsa_related_signing_methods(self):
-        if has_rsa:
+        if has_crypto:
             self.assertTrue('RS256' in jwt.signing_methods)
             self.assertTrue('RS384' in jwt.signing_methods)
             self.assertTrue('RS512' in jwt.signing_methods)
@@ -549,7 +556,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS512' in jwt.signing_methods)
 
     def test_rsa_related_verify_methods(self):
-        if has_rsa:
+        if has_crypto:
             self.assertTrue('RS256' in jwt.verify_methods)
             self.assertTrue('RS384' in jwt.verify_methods)
             self.assertTrue('RS512' in jwt.verify_methods)
@@ -559,7 +566,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS512' in jwt.verify_methods)
 
     def test_rsa_related_key_preparation_methods(self):
-        if has_rsa:
+        if has_crypto:
             self.assertTrue('RS256' in jwt.prepare_key_methods)
             self.assertTrue('RS384' in jwt.prepare_key_methods)
             self.assertTrue('RS512' in jwt.prepare_key_methods)
@@ -568,16 +575,18 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('RS384' in jwt.prepare_key_methods)
             self.assertFalse('RS512' in jwt.prepare_key_methods)
 
-    @unittest.skipIf(not has_ecdsa, "Can't run without ecdsa")
+    @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha256(self):
         # PEM-formatted EC key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None, backend=default_backend())
+            priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
+                                              password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_eckey,
                                      algorithm='ES256')
 
         with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = load_pem_public_key(ec_pub_file.read(), backend=default_backend())
+            pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()),
+                                            backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
             load_output = jwt.load(jwt_message)
@@ -596,17 +605,19 @@ class TestJWT(unittest.TestCase):
             load_output = jwt.load(jwt_message)
             jwt.verify_signature(key=pub_eckey, *load_output)
 
-    @unittest.skipIf(not has_ecdsa, "Can't run without ecdsa")
+    @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha384(self):
 
         # PEM-formatted EC key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None, backend=default_backend())
+            priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
+                                              password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_eckey,
                                      algorithm='ES384')
 
         with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = load_pem_public_key(ec_pub_file.read(), backend=default_backend())
+            pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()),
+                                            backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
             load_output = jwt.load(jwt_message)
@@ -625,16 +636,17 @@ class TestJWT(unittest.TestCase):
             load_output = jwt.load(jwt_message)
             jwt.verify_signature(key=pub_eckey, *load_output)
 
-    @unittest.skipIf(not has_ecdsa, "Can't run without ecdsa")
+    @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha512(self):
         # PEM-formatted EC key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None, backend=default_backend())
+            priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
+                                              password=None, backend=default_backend())
             jwt_message = jwt.encode(self.payload, priv_eckey,
                                      algorithm='ES512')
 
         with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = load_pem_public_key(ec_pub_file.read(), backend=default_backend())
+            pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()), backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
             load_output = jwt.load(jwt_message)
@@ -654,7 +666,7 @@ class TestJWT(unittest.TestCase):
             jwt.verify_signature(key=pub_eckey, *load_output)
 
     def test_ecdsa_related_signing_methods(self):
-        if has_ecdsa:
+        if has_crypto:
             self.assertTrue('ES256' in jwt.signing_methods)
             self.assertTrue('ES384' in jwt.signing_methods)
             self.assertTrue('ES512' in jwt.signing_methods)
@@ -664,7 +676,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('ES512' in jwt.signing_methods)
 
     def test_ecdsa_related_verify_methods(self):
-        if has_ecdsa:
+        if has_crypto:
             self.assertTrue('ES256' in jwt.verify_methods)
             self.assertTrue('ES384' in jwt.verify_methods)
             self.assertTrue('ES512' in jwt.verify_methods)
@@ -674,7 +686,7 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('ES512' in jwt.verify_methods)
 
     def test_ecdsa_related_key_preparation_methods(self):
-        if has_ecdsa:
+        if has_crypto:
             self.assertTrue('ES256' in jwt.prepare_key_methods)
             self.assertTrue('ES384' in jwt.prepare_key_methods)
             self.assertTrue('ES512' in jwt.prepare_key_methods)

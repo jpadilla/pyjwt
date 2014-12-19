@@ -77,7 +77,9 @@ prepare_key_methods = {
 
 try:
     from cryptography.hazmat.primitives import interfaces, hashes
-    from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key, load_ssh_public_key
+    from cryptography.hazmat.primitives.serialization import (
+        load_pem_private_key, load_pem_public_key, load_ssh_public_key
+    )
     from cryptography.hazmat.primitives.asymmetric import ec, rsa, padding
     from cryptography.hazmat.backends import default_backend
     from cryptography.exceptions import InvalidSignature

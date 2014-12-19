@@ -10,18 +10,11 @@ $ pip install PyJWT
 
 **A Note on Dependencies**:
 
-The RSASSA-PKCS1-v1_5 algorithms depend on PyCrypto. If you plan on
+RSA and ECDSA signatures depend on the cryptography package. If you plan on
 using any of those algorithms, you'll need to install it as well.
 
 ```
-$ pip install PyCrypto
-```
-
-The Elliptic Curve Digital Signature algorithms depend on Python-ECDSA. If
-you plan on using any of those algorithms, you'll need to install it as well.
-
-```
-$ pip install ecdsa
+$ pip install cryptography
 ```
 
 ## Usage
@@ -73,11 +66,11 @@ jwt.encode({'some': 'payload'}, 'secret', 'HS512')
 
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 `jwt.encode()` and `jwt.decode()` (`"secret"` in the examples) is expected to
-be an RSA public or private key as imported with `Crypto.PublicKey.RSA.importKey()`.
+be either an RSA public or private key in PEM format.
 
 When using the ECDSA algorithms, the `key` argument is expected to
-be an Elliptic Curve private key as imported with `ecdsa.SigningKey.from_pem()`,
-or a public key as imported with `ecdsa.VerifyingKey.from_pem()`.
+be an Elliptic Curve private key or an Elliptic Curve public
+key in PEM foramt.
 
 ## Tests
 
