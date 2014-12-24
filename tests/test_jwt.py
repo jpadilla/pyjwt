@@ -1,12 +1,12 @@
 from __future__ import unicode_literals
 
+import json
+import sys
+import time
+
 from calendar import timegm
 from datetime import datetime
 from decimal import Decimal
-
-import sys
-import time
-import json
 
 import jwt
 
@@ -630,7 +630,7 @@ class TestJWT(unittest.TestCase):
                                      algorithm='ES384')
 
         with open('tests/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_rsakey = ec_pub_file.read()
+            pub_eckey = ec_pub_file.read()
             assert jwt.decode(jwt_message, pub_eckey)
 
             load_output = jwt.load(jwt_message)
