@@ -387,7 +387,7 @@ def verify_signature(payload, signing_input, header, signature, key='',
 
     audience = kwargs.get('audience')
 
-    if audience:
+    if audience is not None:
         if isinstance(audience, list):
             audiences = audience
         else:
@@ -398,6 +398,6 @@ def verify_signature(payload, signing_input, header, signature, key='',
 
     issuer = kwargs.get('issuer')
 
-    if issuer:
+    if issuer is not None:
         if payload.get('iss') != issuer:
             raise InvalidIssuer('Invalid issuer')
