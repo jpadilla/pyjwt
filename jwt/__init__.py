@@ -1,4 +1,5 @@
-""" JSON Web Token implementation
+"""
+JSON Web Token implementation
 
 Minimum implementation based on this spec:
 http://self-issued.info/docs/draft-jones-json-web-token-01.html
@@ -83,7 +84,7 @@ try:
     from cryptography.hazmat.primitives.serialization import (
         load_pem_private_key, load_pem_public_key, load_ssh_public_key
     )
-    from cryptography.hazmat.primitives.asymmetric import ec, rsa, padding
+    from cryptography.hazmat.primitives.asymmetric import ec, padding
     from cryptography.hazmat.backends import default_backend
     from cryptography.exceptions import InvalidSignature
 
