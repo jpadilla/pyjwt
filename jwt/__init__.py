@@ -26,7 +26,10 @@ if sys.version_info >= (3, 0, 0):
 
 
 __version__ = '0.4.0'
-__all__ = ['encode', 'decode', 'DecodeError']
+__all__ = [
+    'encode', 'decode', 'DecodeError', 'ExpiredSignature',
+    'InvalidAudience', 'InvalidIssuer'
+]
 
 
 class DecodeError(Exception):
