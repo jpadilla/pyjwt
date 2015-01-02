@@ -361,7 +361,14 @@ def verify_signature(payload, signing_input, header, signature, key='',
                      verify_expiration=True, leeway=0, **kwargs):
 
     if isinstance(leeway, timedelta):
-        leeway = leeway.total_seconds()
+        try:
+            leeway.total_seconds
+        except AttributeError:
+            # On Python 2.6, timedelta instances do not have
+            # a .total_seconds() method.
+            leeway = leeway.days * 24 * 60 * 60 + leeway.seconds
+        else:
+            leeway = leeway.total_seconds()
 
     try:
         algorithm = header['alg'].upper()
