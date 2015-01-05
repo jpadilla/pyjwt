@@ -108,7 +108,8 @@ class TestJWT(unittest.TestCase):
     @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_decodes_valid_es384_jwt(self):
         example_payload = {'hello': 'world'}
-        example_pubkey = open('tests/testkey_ec.pub', 'r').read()
+        with open('tests/testkey_ec.pub', 'r') as fp:
+            example_pubkey = fp.read()
         example_jwt = (
             b'eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9'
             b'.eyJoZWxsbyI6IndvcmxkIn0'
@@ -128,7 +129,8 @@ class TestJWT(unittest.TestCase):
     @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_decodes_valid_rs384_jwt(self):
         example_payload = {'hello': 'world'}
-        example_pubkey = open('tests/testkey_rsa.pub', 'r').read()
+        with open('tests/testkey_rsa.pub', 'r') as fp:
+            example_pubkey = fp.read()
         example_jwt = (
             b'eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9'
             b'.eyJoZWxsbyI6IndvcmxkIn0'
