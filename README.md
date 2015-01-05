@@ -151,6 +151,13 @@ time.sleep(32)
 jwt.decode(jwt_payload, 'secret', leeway=10)
 ```
 
+Instead of specifying the leeway as a number of seconds, a `datetime.timedelta` instance can be used. The last line in the example above is equivalent to:
+
+```python
+jwt.decode(jwt_payload, 'secret', leeway=datetime.timedelta(seconds=10))
+```
+
+
 ### Not Before Time Claim
 
 > The nbf (not before) claim identifies the time before which the JWT MUST NOT be accepted for processing. The processing of the nbf claim requires that the current date/time MUST be after or equal to the not-before date/time listed in the nbf claim. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a NumericDate value. Use of this claim is OPTIONAL.

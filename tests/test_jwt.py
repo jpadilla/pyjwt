@@ -5,7 +5,7 @@ import sys
 import time
 
 from calendar import timegm
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 import jwt
@@ -411,20 +411,23 @@ class TestJWT(unittest.TestCase):
         decoded_payload, signing, header, signature = jwt.load(jwt_message)
 
         # With 3 seconds leeway, should be ok
-        jwt.decode(jwt_message, secret, leeway=3)
+        for leeway in (3, timedelta(seconds=3)):
+            jwt.decode(jwt_message, secret, leeway=leeway)
 
-        jwt.verify_signature(decoded_payload, signing, header,
-                             signature, secret, leeway=3)
+            jwt.verify_signature(decoded_payload, signing, header,
+                                 signature, secret, leeway=leeway)
 
         # With 1 seconds, should fail
-        self.assertRaises(
-            jwt.ExpiredSignature,
-            lambda: jwt.decode(jwt_message, secret, leeway=1))
+        for leeway in (1, timedelta(seconds=1)):
+            self.assertRaises(
+                jwt.ExpiredSignature,
+                lambda: jwt.decode(jwt_message, secret, leeway=leeway))
 
-        self.assertRaises(
-            jwt.ExpiredSignature,
-            lambda: jwt.verify_signature(decoded_payload, signing,
-                                         header, signature, secret, leeway=1))
+            self.assertRaises(
+                jwt.ExpiredSignature,
+                lambda: jwt.verify_signature(decoded_payload, signing,
+                                             header, signature, secret,
+                                             leeway=leeway))
 
     def test_decode_with_notbefore_with_leeway(self):
         self.payload['nbf'] = utc_timestamp() + 10

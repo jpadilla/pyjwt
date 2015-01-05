@@ -11,7 +11,7 @@ import hashlib
 import hmac
 import sys
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from calendar import timegm
 from collections import Mapping
 
@@ -359,6 +359,17 @@ def load(jwt):
 
 def verify_signature(payload, signing_input, header, signature, key='',
                      verify_expiration=True, leeway=0, **kwargs):
+
+    if isinstance(leeway, timedelta):
+        try:
+            leeway.total_seconds
+        except AttributeError:
+            # On Python 2.6, timedelta instances do not have
+            # a .total_seconds() method.
+            leeway = leeway.days * 24 * 60 * 60 + leeway.seconds
+        else:
+            leeway = leeway.total_seconds()
+
     try:
         algorithm = header['alg'].upper()
         key = prepare_key_methods[algorithm](key)
