@@ -28,24 +28,28 @@ if sys.version_info >= (3, 0, 0):
 
 __version__ = '0.4.0'
 __all__ = [
-    'encode', 'decode', 'DecodeError', 'ExpiredSignature',
-    'InvalidAudience', 'InvalidIssuer'
+    'encode', 'decode', 'InvalidToken', 'DecodeError',
+    'ExpiredSignature', 'InvalidAudience', 'InvalidIssuer'
 ]
 
 
-class DecodeError(Exception):
+class InvalidToken(Exception):
     pass
 
 
-class ExpiredSignature(Exception):
+class DecodeError(InvalidToken):
     pass
 
 
-class InvalidAudience(Exception):
+class ExpiredSignature(InvalidToken):
     pass
 
 
-class InvalidIssuer(Exception):
+class InvalidAudience(InvalidToken):
+    pass
+
+
+class InvalidIssuer(InvalidToken):
     pass
 
 
