@@ -317,11 +317,8 @@ def decode(jwt, key='', verify=True, **kwargs):
     payload, signing_input, header, signature = load(jwt)
 
     if verify:
-        verify_expiration = kwargs.pop('verify_expiration', True)
-        leeway = kwargs.pop('leeway', 0)
-
         verify_signature(payload, signing_input, header, signature, key,
-                         verify_expiration, leeway, **kwargs)
+                         **kwargs)
 
     return payload
 
@@ -362,7 +359,8 @@ def load(jwt):
 
 
 def verify_signature(payload, signing_input, header, signature, key='',
-                     verify_expiration=True, leeway=0, **kwargs):
+                     verify_expiration=True, leeway=0, audience=None,
+                     issuer=None):
 
     if isinstance(leeway, timedelta):
         try:
@@ -401,8 +399,6 @@ def verify_signature(payload, signing_input, header, signature, key='',
         if payload['exp'] < (utc_timestamp - leeway):
             raise ExpiredSignature('Signature has expired')
 
-    audience = kwargs.get('audience')
-
     if audience is not None:
         if isinstance(audience, list):
             audiences = audience
@@ -411,8 +407,6 @@ def verify_signature(payload, signing_input, header, signature, key='',
 
         if payload.get('aud') not in audiences:
             raise InvalidAudience('Invalid audience')
-
-    issuer = kwargs.get('issuer')
 
     if issuer is not None:
         if payload.get('iss') != issuer:
