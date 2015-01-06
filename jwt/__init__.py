@@ -398,6 +398,9 @@ def verify_signature(payload, signing_input, header, signature, key='',
         else:
             leeway = leeway.total_seconds()
 
+    if not isinstance(audience, (basestring, type(None))):
+        raise TypeError('audience must be a string or None')
+
     try:
         algorithm = header['alg'].upper()
         key = prepare_key_methods[algorithm](key)
@@ -425,14 +428,18 @@ def verify_signature(payload, signing_input, header, signature, key='',
         if payload['exp'] < (utc_timestamp - leeway):
             raise ExpiredSignatureError('Signature has expired')
 
-    if audience is not None:
-        if isinstance(audience, list):
-            audiences = audience
-        else:
-            audiences = [audience]
-
-        if payload.get('aud') not in audiences:
+    if 'aud' in payload:
+        audience_claims = payload['aud']
+        if isinstance(audience_claims, basestring):
+            audience_claims = [audience_claims]
+        if not isinstance(audience_claims, list):
+            raise InvalidAudienceError('Invalid claim format in token')
+        if audience not in audience_claims:
             raise InvalidAudienceError('Invalid audience')
+    elif audience is not None:
+        # Application specified an audience, but it could not be
+        # verified since the token does not contain a claim.
+        raise InvalidAudienceError('No audience claim in token')
 
     if issuer is not None:
         if payload.get('iss') != issuer:
