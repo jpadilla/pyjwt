@@ -12,7 +12,6 @@ from calendar import timegm
 from collections import Mapping
 from datetime import datetime, timedelta
 
-from jwt.algorithms import Algorithm, _register_default_algorithms
 from jwt.utils import base64url_decode, base64url_encode
 
 from .compat import (json, string_types, text_type, constant_time_compare,
@@ -51,6 +50,7 @@ def register_algorithm(alg_id, alg_obj):
 
     _algorithms[alg_id] = alg_obj
 
+from jwt.algorithms import Algorithm, _register_default_algorithms  # NOQA
 _register_default_algorithms()
 
 class InvalidTokenError(Exception):
