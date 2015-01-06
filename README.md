@@ -43,12 +43,12 @@ You can still get the payload by setting the `verify` argument to `False`.
 jwt.decode('someJWTstring', verify=False)
 ```
 
-The `decode()` function can raise other exceptions, e.g. for invalid issuer or audience (see below). All exceptions that signify that the token is invalid extend from the base `InvalidToken` exception class, so applications can use this approach to catch any issues relating to invalid tokens:
+The `decode()` function can raise other exceptions, e.g. for invalid issuer or audience (see below). All exceptions that signify that the token is invalid extend from the base `InvalidTokenError` exception class, so applications can use this approach to catch any issues relating to invalid tokens:
 
 ```python
 try:
     payload = jwt.decode('someJWTstring')
-exception jwt.InvalidToken:
+exception jwt.InvalidTokenError:
     pass  # do something sensible here, e.g. return HTTP 403 status code
 ```
 
