@@ -41,13 +41,13 @@ def _register_default_algorithms():
 
 class Algorithm(object):
     def prepare_key(self, key):
-        pass
+        raise NotImplementedError
 
     def sign(self, msg, key):
-        pass
+        raise NotImplementedError
 
     def verify(self, msg, key, sig):
-        pass
+        raise NotImplementedError
 
 
 class NoneAlgorithm(Algorithm):
