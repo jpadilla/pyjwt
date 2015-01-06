@@ -28,8 +28,21 @@ if sys.version_info >= (3, 0, 0):
 
 __version__ = '0.4.0'
 __all__ = [
-    'encode', 'decode', 'InvalidTokenError', 'DecodeError',
-    'ExpiredSignature', 'InvalidAudience', 'InvalidIssuer'
+    # Functions
+    'encode',
+    'decode',
+
+    # Exceptions
+    'InvalidTokenError',
+    'DecodeError',
+    'ExpiredSignatureError',
+    'InvalidAudienceError',
+    'InvalidIssuerError'
+
+    # Deprecated aliases
+    'ExpiredSignature',
+    'InvalidAudience',
+    'InvalidIssuer',
 ]
 
 
@@ -41,17 +54,22 @@ class DecodeError(InvalidTokenError):
     pass
 
 
-class ExpiredSignature(InvalidTokenError):
+class ExpiredSignatureError(InvalidTokenError):
     pass
 
 
-class InvalidAudience(InvalidTokenError):
+class InvalidAudienceError(InvalidTokenError):
     pass
 
 
-class InvalidIssuer(InvalidTokenError):
+class InvalidIssuerError(InvalidTokenError):
     pass
 
+
+# Compatibility aliases (deprecated)
+ExpiredSignature = ExpiredSignatureError
+InvalidAudience = InvalidAudienceError
+InvalidIssuer = InvalidIssuerError
 
 signing_methods = {
     'none': lambda msg, key: b'',
@@ -399,13 +417,13 @@ def verify_signature(payload, signing_input, header, signature, key='',
         utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
         if payload['nbf'] > (utc_timestamp + leeway):
-            raise ExpiredSignature('Signature not yet valid')
+            raise ExpiredSignatureError('Signature not yet valid')
 
     if 'exp' in payload and verify_expiration:
         utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
         if payload['exp'] < (utc_timestamp - leeway):
-            raise ExpiredSignature('Signature has expired')
+            raise ExpiredSignatureError('Signature has expired')
 
     if audience is not None:
         if isinstance(audience, list):
@@ -414,8 +432,8 @@ def verify_signature(payload, signing_input, header, signature, key='',
             audiences = [audience]
 
         if payload.get('aud') not in audiences:
-            raise InvalidAudience('Invalid audience')
+            raise InvalidAudienceError('Invalid audience')
 
     if issuer is not None:
         if payload.get('iss') != issuer:
-            raise InvalidIssuer('Invalid issuer')
+            raise InvalidIssuerError('Invalid issuer')

@@ -357,13 +357,13 @@ class TestJWT(unittest.TestCase):
         jwt_message = jwt.encode(self.payload, secret)
 
         self.assertRaises(
-            jwt.ExpiredSignature,
+            jwt.ExpiredSignatureError,
             lambda: jwt.decode(jwt_message, secret))
 
         decoded_payload, signing, header, signature = jwt.load(jwt_message)
 
         self.assertRaises(
-            jwt.ExpiredSignature,
+            jwt.ExpiredSignatureError,
             lambda: jwt.verify_signature(
                 decoded_payload, signing, header, signature, secret))
 
@@ -373,13 +373,13 @@ class TestJWT(unittest.TestCase):
         jwt_message = jwt.encode(self.payload, secret)
 
         self.assertRaises(
-            jwt.ExpiredSignature,
+            jwt.ExpiredSignatureError,
             lambda: jwt.decode(jwt_message, secret))
 
         decoded_payload, signing, header, signature = jwt.load(jwt_message)
 
         self.assertRaises(
-            jwt.ExpiredSignature,
+            jwt.ExpiredSignatureError,
             lambda: jwt.verify_signature(
                 decoded_payload, signing, header, signature, secret))
 
@@ -422,11 +422,11 @@ class TestJWT(unittest.TestCase):
         # With 1 seconds, should fail
         for leeway in (1, timedelta(seconds=1)):
             self.assertRaises(
-                jwt.ExpiredSignature,
+                jwt.ExpiredSignatureError,
                 lambda: jwt.decode(jwt_message, secret, leeway=leeway))
 
             self.assertRaises(
-                jwt.ExpiredSignature,
+                jwt.ExpiredSignatureError,
                 lambda: jwt.verify_signature(decoded_payload, signing,
                                              header, signature, secret,
                                              leeway=leeway))
@@ -446,11 +446,11 @@ class TestJWT(unittest.TestCase):
 
         # With 1 seconds, should fail
         self.assertRaises(
-            jwt.ExpiredSignature,
+            jwt.ExpiredSignatureError,
             lambda: jwt.decode(jwt_message, secret, leeway=1))
 
         self.assertRaises(
-            jwt.ExpiredSignature,
+            jwt.ExpiredSignatureError,
             lambda: jwt.verify_signature(decoded_payload, signing,
                                          header, signature, secret, leeway=1))
 
@@ -737,7 +737,7 @@ class TestJWT(unittest.TestCase):
         token = jwt.encode(payload, 'secret')
 
         self.assertRaises(
-            jwt.InvalidAudience,
+            jwt.InvalidAudienceError,
             lambda: jwt.decode(token, 'secret', audience=audience))
 
     def test_raise_exception_invalid_audience_in_array(self):
@@ -751,7 +751,7 @@ class TestJWT(unittest.TestCase):
         token = jwt.encode(payload, 'secret')
 
         self.assertRaises(
-            jwt.InvalidAudience,
+            jwt.InvalidAudienceError,
             lambda: jwt.decode(token, 'secret', audience=audience))
 
     def test_raise_exception_token_without_audience(self):
@@ -764,7 +764,7 @@ class TestJWT(unittest.TestCase):
         token = jwt.encode(payload, 'secret')
 
         self.assertRaises(
-            jwt.InvalidAudience,
+            jwt.InvalidAudienceError,
             lambda: jwt.decode(token, 'secret', audience=audience))
 
     def test_raise_exception_token_without_audience_in_array(self):
@@ -777,7 +777,7 @@ class TestJWT(unittest.TestCase):
         token = jwt.encode(payload, 'secret')
 
         self.assertRaises(
-            jwt.InvalidAudience,
+            jwt.InvalidAudienceError,
             lambda: jwt.decode(token, 'secret', audience=audience))
 
     def test_check_issuer(self):
@@ -804,7 +804,7 @@ class TestJWT(unittest.TestCase):
         token = jwt.encode(payload, 'secret')
 
         self.assertRaises(
-            jwt.InvalidIssuer,
+            jwt.InvalidIssuerError,
             lambda: jwt.decode(token, 'secret', issuer=issuer))
 
     def test_raise_exception_token_without_issuer(self):
@@ -817,7 +817,7 @@ class TestJWT(unittest.TestCase):
         token = jwt.encode(payload, 'secret')
 
         self.assertRaises(
-            jwt.InvalidIssuer,
+            jwt.InvalidIssuerError,
             lambda: jwt.decode(token, 'secret', issuer=issuer))
 
     def test_custom_json_encoder(self):
