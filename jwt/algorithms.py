@@ -3,7 +3,7 @@ import hmac
 import sys
 
 from jwt import register_algorithm
-from utils import constant_time_compare
+from jwt.utils import constant_time_compare
 
 if sys.version_info >= (3, 0, 0):
     unicode = str

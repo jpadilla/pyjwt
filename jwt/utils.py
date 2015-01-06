@@ -1,5 +1,7 @@
 import base64
 import hmac
+import sys
+
 
 def base64url_decode(input):
     rem = len(input) % 4

@@ -5,14 +5,15 @@ Minimum implementation based on this spec:
 http://self-issued.info/docs/draft-jones-json-web-token-01.html
 """
 
-import base64
 import binascii
-import hashlib
-import hmac
-from datetime import datetime, timedelta
+import sys
+
 from calendar import timegm
 from collections import Mapping
-from utils import base64url_encode, base64url_decode
+from datetime import datetime, timedelta
+
+from jwt.algorithms import Algorithm, _register_default_algorithms
+from jwt.utils import base64url_decode, base64url_encode
 
 from .compat import (json, string_types, text_type, constant_time_compare,
                      timedelta_total_seconds)
@@ -40,6 +41,7 @@ __all__ = [
 
 _algorithms = {}
 
+
 def register_algorithm(alg_id, alg_obj):
     if alg_id in _algorithms:
         raise ValueError('Algorithm already has a handler.')
@@ -49,7 +51,6 @@ def register_algorithm(alg_id, alg_obj):
 
     _algorithms[alg_id] = alg_obj
 
-from jwt.algorithms import Algorithm, _register_default_algorithms
 _register_default_algorithms()
 
 class InvalidTokenError(Exception):
@@ -75,6 +76,7 @@ class InvalidIssuerError(InvalidTokenError):
 ExpiredSignature = ExpiredSignatureError
 InvalidAudience = InvalidAudienceError
 InvalidIssuer = InvalidIssuerError
+
 
 def header(jwt):
     if isinstance(jwt, text_type):
