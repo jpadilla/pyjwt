@@ -48,7 +48,7 @@ The `decode()` function can raise other exceptions, e.g. for invalid issuer or a
 ```python
 try:
     payload = jwt.decode('someJWTstring')
-exception jwt.InvalidTokenError:
+except jwt.InvalidTokenError:
     pass  # do something sensible here, e.g. return HTTP 403 status code
 ```
 
