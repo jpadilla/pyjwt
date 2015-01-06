@@ -70,7 +70,7 @@ be either an RSA public or private key in PEM format.
 
 When using the ECDSA algorithms, the `key` argument is expected to
 be an Elliptic Curve private key or an Elliptic Curve public
-key in PEM foramt.
+key in PEM format.
 
 ## Tests
 
