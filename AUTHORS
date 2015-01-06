@@ -6,9 +6,11 @@ Pyjwt lead developper
 Patches and Suggestions
 -----------------------
 
- - FELD Boris <boris.feld@novapost.fr> <lothiraldan@gmail.com>
+ - Boris Feld <boris.feld@novapost.fr> <lothiraldan@gmail.com>
 
  - Åsmund Ødegård <asmund@xal.no> <ao@mcash.no> 
    Adding support for RSA-SHA256 privat/public signature.
 
  - Mark Adams <mark@markadams.me>
+
+ - Wouter Bolsterlee <uws@xs4all.nl>
