@@ -343,6 +343,8 @@ def load(jwt):
         header = json.loads(header_data.decode('utf-8'))
     except ValueError as e:
         raise DecodeError('Invalid header string: %s' % e)
+    if not isinstance(header, Mapping):
+        raise DecodeError('Invalid header string: must be a json object')
 
     try:
         payload_data = base64url_decode(payload_segment)
@@ -352,6 +354,8 @@ def load(jwt):
         payload = json.loads(payload_data.decode('utf-8'))
     except ValueError as e:
         raise DecodeError('Invalid payload string: %s' % e)
+    if not isinstance(payload, Mapping):
+        raise DecodeError('Invalid payload string: must be a json object')
 
     try:
         signature = base64url_decode(crypto_segment)
