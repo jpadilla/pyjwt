@@ -3,6 +3,7 @@ import hmac
 import sys
 
 from jwt import register_algorithm
+from utils import constant_time_compare
 
 if sys.version_info >= (3, 0, 0):
     unicode = str
@@ -77,33 +78,7 @@ class HMACAlgorithm(Algorithm):
         return hmac.new(key, msg, self.hash_alg).digest()
 
     def verify(self, msg, key, sig):
-        return self._constant_time_compare(sig, self.sign(msg, key))
-
-    try:
-        _constant_time_compare = staticmethod(hmac.compare_digest)
-    except AttributeError:
-        # Fallback for Python < 2.7.7 and Python < 3.3
-        @staticmethod
-        def constant_time_compare(val1, val2):
-            """
-            Returns True if the two strings are equal, False otherwise.
-
-            The time taken is independent of the number of characters that match.
-            """
-            if len(val1) != len(val2):
-                return False
-
-            result = 0
-
-            if sys.version_info >= (3, 0, 0):
-                # Bytes are numbers
-                for x, y in zip(val1, val2):
-                    result |= x ^ y
-            else:
-                for x, y in zip(val1, val2):
-                    result |= ord(x) ^ ord(y)
-
-            return result == 0
+        return constant_time_compare(sig, self.sign(msg, key))
 
 if has_crypto:
 

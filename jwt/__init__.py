@@ -12,6 +12,7 @@ import hmac
 from datetime import datetime, timedelta
 from calendar import timegm
 from collections import Mapping
+from utils import base64url_encode, base64url_decode
 
 from .compat import (json, string_types, text_type, constant_time_compare,
                      timedelta_total_seconds)
@@ -70,24 +71,10 @@ class InvalidAudienceError(InvalidTokenError):
 class InvalidIssuerError(InvalidTokenError):
     pass
 
-
 # Compatibility aliases (deprecated)
 ExpiredSignature = ExpiredSignatureError
 InvalidAudience = InvalidAudienceError
 InvalidIssuer = InvalidIssuerError
-
-def base64url_decode(input):
-    rem = len(input) % 4
-
-    if rem > 0:
-        input += b'=' * (4 - rem)
-
-    return base64.urlsafe_b64decode(input)
-
-
-def base64url_encode(input):
-    return base64.urlsafe_b64encode(input).replace(b'=', b'')
-
 
 def header(jwt):
     if isinstance(jwt, text_type):
