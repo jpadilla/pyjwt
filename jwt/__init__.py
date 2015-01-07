@@ -434,6 +434,8 @@ def verify_signature(payload, signing_input, header, signature, key='',
             audience_claims = [audience_claims]
         if not isinstance(audience_claims, list):
             raise InvalidAudienceError('Invalid claim format in token')
+        if any(not isinstance(c, basestring) for c in audience_claims):
+            raise InvalidAudienceError('Invalid claim format in token')
         if audience not in audience_claims:
             raise InvalidAudienceError('Invalid audience')
     elif audience is not None:
