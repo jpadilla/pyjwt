@@ -9,21 +9,11 @@ import base64
 import binascii
 import hashlib
 import hmac
-import sys
-
 from datetime import datetime, timedelta
 from calendar import timegm
 from collections import Mapping
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
-
-if sys.version_info >= (3, 0, 0):
-    unicode = str
-    basestring = str
+from jwt.compat import json, unicode, basestring, constant_time_compare
 
 
 __version__ = '0.4.0'
@@ -234,32 +224,6 @@ except ImportError:
     pass
 
 
-try:
-    constant_time_compare = hmac.compare_digest
-except AttributeError:
-    # Fallback for Python < 2.7.7 and Python < 3.3
-    def constant_time_compare(val1, val2):
-        """
-        Returns True if the two strings are equal, False otherwise.
-
-        The time taken is independent of the number of characters that match.
-        """
-        if len(val1) != len(val2):
-            return False
-
-        result = 0
-
-        if sys.version_info >= (3, 0, 0):
-            # Bytes are numbers
-            for x, y in zip(val1, val2):
-                result |= x ^ y
-        else:
-            for x, y in zip(val1, val2):
-                result |= ord(x) ^ ord(y)
-
-        return result == 0
-
-
 def base64url_decode(input):
     rem = len(input) % 4
 
@@ -389,14 +353,7 @@ def verify_signature(payload, signing_input, header, signature, key='',
                      issuer=None):
 
     if isinstance(leeway, timedelta):
-        try:
-            leeway.total_seconds
-        except AttributeError:
-            # On Python 2.6, timedelta instances do not have
-            # a .total_seconds() method.
-            leeway = leeway.days * 24 * 60 * 60 + leeway.seconds
-        else:
-            leeway = leeway.total_seconds()
+        leeway = leeway.days * 24 * 60 * 60 + leeway.seconds
 
     if not isinstance(audience, (basestring, type(None))):
         raise TypeError('audience must be a string or None')
