@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 from calendar import timegm
 from collections import Mapping
 
-from jwt.compat import json, unicode, basestring, constant_time_compare
+from .compat import (json, unicode, basestring, constant_time_compare,
+                     timedelta_total_seconds)
 
 
 __version__ = '0.4.0'
@@ -353,7 +354,7 @@ def verify_signature(payload, signing_input, header, signature, key='',
                      issuer=None):
 
     if isinstance(leeway, timedelta):
-        leeway = leeway.days * 24 * 60 * 60 + leeway.seconds
+        leeway = timedelta_total_seconds(leeway)
 
     if not isinstance(audience, (basestring, type(None))):
         raise TypeError('audience must be a string or None')

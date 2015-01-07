@@ -1,6 +1,6 @@
 """
 The `compat` module provides support for backwards compatibility with older
-versions of django/python, and compatibility wrappers around optional packages.
+versions of python, and compatibility wrappers around optional packages.
 """
 # flake8: noqa
 import sys
@@ -18,6 +18,19 @@ if sys.version_info >= (3, 0, 0):
 else:
     unicode = unicode
     basestring = basestring
+
+
+def timedelta_total_seconds(delta):
+    try:
+        delta.total_seconds
+    except AttributeError:
+        # On Python 2.6, timedelta instances do not have
+        # a .total_seconds() method.
+        total_seconds = delta.days * 24 * 60 * 60 + delta.seconds
+    else:
+        total_seconds = delta.total_seconds()
+
+    return total_seconds
 
 
 try:
