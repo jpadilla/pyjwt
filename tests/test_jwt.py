@@ -701,93 +701,58 @@ class TestJWT(unittest.TestCase):
             self.assertFalse('ES512' in jwt.prepare_key_methods)
 
     def test_check_audience(self):
-        audience = 'urn:foo'
-
         payload = {
             'some': 'payload',
-            'aud': 'urn:foo'
+            'aud': 'urn:me'
         }
-
         token = jwt.encode(payload, 'secret')
-        decoded = jwt.decode(token, 'secret', audience=audience)
-
+        decoded = jwt.decode(token, 'secret', audience='urn:me')
         self.assertEqual(decoded, payload)
 
     def test_check_audience_in_array(self):
-        audience = ['urn:foo', 'urn:other']
-
         payload = {
             'some': 'payload',
-            'aud': 'urn:foo'
+            'aud': ['urn:me', 'urn:someone-else']
         }
-
         token = jwt.encode(payload, 'secret')
-        decoded = jwt.decode(token, 'secret', audience=audience)
-
+        decoded = jwt.decode(token, 'secret', audience='urn:me')
         self.assertEqual(decoded, payload)
 
     def test_raise_exception_invalid_audience(self):
-        audience = 'urn:wrong'
-
         payload = {
             'some': 'payload',
-            'aud': 'urn:foo'
+            'aud': 'urn:someone-else'
         }
-
         token = jwt.encode(payload, 'secret')
-
         self.assertRaises(
             jwt.InvalidAudienceError,
-            lambda: jwt.decode(token, 'secret', audience=audience))
+            lambda: jwt.decode(token, 'secret', audience='urn-me'))
 
     def test_raise_exception_invalid_audience_in_array(self):
-        audience = ['urn:wrong', 'urn:morewrong']
-
         payload = {
             'some': 'payload',
-            'aud': 'urn:foo'
+            'aud': ['urn:someone', 'urn:someone-else']
         }
-
         token = jwt.encode(payload, 'secret')
-
         self.assertRaises(
             jwt.InvalidAudienceError,
-            lambda: jwt.decode(token, 'secret', audience=audience))
+            lambda: jwt.decode(token, 'secret', audience='urn:me'))
 
     def test_raise_exception_token_without_audience(self):
-        audience = 'urn:wrong'
-
         payload = {
             'some': 'payload',
         }
-
         token = jwt.encode(payload, 'secret')
-
         self.assertRaises(
             jwt.InvalidAudienceError,
-            lambda: jwt.decode(token, 'secret', audience=audience))
-
-    def test_raise_exception_token_without_audience_in_array(self):
-        audience = ['urn:wrong', 'urn:morewrong']
-
-        payload = {
-            'some': 'payload',
-        }
-
-        token = jwt.encode(payload, 'secret')
-
-        self.assertRaises(
-            jwt.InvalidAudienceError,
-            lambda: jwt.decode(token, 'secret', audience=audience))
+            lambda: jwt.decode(token, 'secret', audience='urn:me'))
 
     def test_check_issuer(self):
         issuer = 'urn:foo'
-
         payload = {
             'some': 'payload',
             'iss': 'urn:foo'
         }
-
         token = jwt.encode(payload, 'secret')
         decoded = jwt.decode(token, 'secret', issuer=issuer)
 
