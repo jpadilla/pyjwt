@@ -29,7 +29,7 @@ __all__ = [
     'DecodeError',
     'ExpiredSignatureError',
     'InvalidAudienceError',
-    'InvalidIssuerError'
+    'InvalidIssuerError',
 
     # Deprecated aliases
     'ExpiredSignature',
