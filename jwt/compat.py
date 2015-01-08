@@ -6,18 +6,22 @@ versions of python, and compatibility wrappers around optional packages.
 import sys
 import hmac
 
+
+PY3 = sys.version_info[0] == 3
+
+
+if PY3:
+    string_types = str,
+    text_type = str
+else:
+    string_types = basestring,
+    text_type = unicode
+
+
 try:
     import json
 except ImportError:
     import simplejson as json
-
-
-if sys.version_info >= (3, 0, 0):
-    unicode = str
-    basestring = str
-else:
-    unicode = unicode
-    basestring = basestring
 
 
 def timedelta_total_seconds(delta):

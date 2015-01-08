@@ -5,6 +5,7 @@ Minimum implementation based on this spec:
 http://self-issued.info/docs/draft-jones-json-web-token-01.html
 """
 from __future__ import unicode_literals
+
 import base64
 import binascii
 import hashlib
@@ -13,7 +14,7 @@ from datetime import datetime, timedelta
 from calendar import timegm
 from collections import Mapping
 
-from .compat import (json, unicode, basestring, constant_time_compare,
+from .compat import (json, string_types, text_type, constant_time_compare,
                      timedelta_total_seconds)
 
 
@@ -77,10 +78,10 @@ verify_methods = {
 
 
 def prepare_HS_key(key):
-    if not isinstance(key, basestring) and not isinstance(key, bytes):
+    if not isinstance(key, string_types) and not isinstance(key, bytes):
         raise TypeError('Expecting a string- or bytes-formatted key.')
 
-    if isinstance(key, unicode):
+    if isinstance(key, text_type):
         key = key.encode('utf-8')
 
     return key
@@ -142,8 +143,8 @@ try:
            isinstance(key, interfaces.RSAPublicKey):
             return key
 
-        if isinstance(key, basestring):
-            if isinstance(key, unicode):
+        if isinstance(key, string_types):
+            if isinstance(key, text_type):
                 key = key.encode('utf-8')
 
             try:
@@ -198,8 +199,8 @@ try:
            isinstance(key, interfaces.EllipticCurvePublicKey):
             return key
 
-        if isinstance(key, basestring):
-            if isinstance(key, unicode):
+        if isinstance(key, string_types):
+            if isinstance(key, text_type):
                 key = key.encode('utf-8')
 
             # Attempt to load key. We don't know if it's
@@ -239,7 +240,7 @@ def base64url_encode(input):
 
 
 def header(jwt):
-    if isinstance(jwt, unicode):
+    if isinstance(jwt, text_type):
         jwt = jwt.encode('utf-8')
     header_segment = jwt.split(b'.', 1)[0]
     try:
@@ -311,7 +312,7 @@ def decode(jwt, key='', verify=True, **kwargs):
 
 
 def load(jwt):
-    if isinstance(jwt, unicode):
+    if isinstance(jwt, text_type):
         jwt = jwt.encode('utf-8')
     try:
         signing_input, crypto_segment = jwt.rsplit(b'.', 1)
@@ -356,7 +357,7 @@ def verify_signature(payload, signing_input, header, signature, key='',
     if isinstance(leeway, timedelta):
         leeway = timedelta_total_seconds(leeway)
 
-    if not isinstance(audience, (basestring, type(None))):
+    if not isinstance(audience, (string_types, type(None))):
         raise TypeError('audience must be a string or None')
 
     try:
@@ -388,11 +389,11 @@ def verify_signature(payload, signing_input, header, signature, key='',
 
     if 'aud' in payload:
         audience_claims = payload['aud']
-        if isinstance(audience_claims, basestring):
+        if isinstance(audience_claims, string_types):
             audience_claims = [audience_claims]
         if not isinstance(audience_claims, list):
             raise InvalidAudienceError('Invalid claim format in token')
-        if any(not isinstance(c, basestring) for c in audience_claims):
+        if any(not isinstance(c, string_types) for c in audience_claims):
             raise InvalidAudienceError('Invalid claim format in token')
         if audience not in audience_claims:
             raise InvalidAudienceError('Invalid audience')
