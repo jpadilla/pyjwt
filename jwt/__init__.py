@@ -18,7 +18,7 @@ from .compat import (json, string_types, text_type, constant_time_compare,
                      timedelta_total_seconds)
 
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 __all__ = [
     # Functions
     'encode',
