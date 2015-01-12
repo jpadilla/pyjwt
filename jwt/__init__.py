@@ -4,7 +4,6 @@ JSON Web Token implementation
 Minimum implementation based on this spec:
 http://self-issued.info/docs/draft-jones-json-web-token-01.html
 """
-from __future__ import unicode_literals
 
 import base64
 import binascii
