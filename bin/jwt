@@ -13,7 +13,7 @@ __version__ = '0.1'
 
 
 def fix_optionparser_whitespace(input):
-    """Hacks around whitespace Nazi-ism in OptionParser"""
+    """Hacks around whitespace hypersensitivity in OptionParser"""
     newline = ' ' * 80
     doublespace = '\033[8m.\033[0m' * 2
     return input.replace('  ', doublespace).replace('\n', newline)
