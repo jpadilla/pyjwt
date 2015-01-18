@@ -8,6 +8,11 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 import jwt
+from jwt.api import (
+    load as jwt_load,
+    verify_signature as jwt_verify_signature,
+    _algorithms as jwt_algorithms
+)
 
 if sys.version_info >= (2, 7):
     import unittest
@@ -157,9 +162,9 @@ class TestJWT(unittest.TestCase):
             b'.eyJoZWxsbyI6ICJ3b3JsZCJ9'
             b'.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
 
-        decoded_payload, signing, header, signature = jwt.load(example_jwt)
+        decoded_payload, signing, header, signature = jwt_load(example_jwt)
 
-        jwt.verify_signature(decoded_payload, signing, header,
+        jwt_verify_signature(decoded_payload, signing, header,
                              signature, example_secret)
 
         self.assertEqual(decoded_payload, example_payload)
@@ -174,7 +179,7 @@ class TestJWT(unittest.TestCase):
     def test_load_no_verification(self):
         right_secret = 'foo'
         jwt_message = jwt.encode(self.payload, right_secret)
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
         self.assertEqual(decoded_payload, self.payload)
 
@@ -189,18 +194,18 @@ class TestJWT(unittest.TestCase):
     def test_verify_signature_no_secret(self):
         right_secret = 'foo'
         jwt_message = jwt.encode(self.payload, right_secret)
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
         self.assertRaises(
             jwt.DecodeError,
-            lambda: jwt.verify_signature(decoded_payload, signing,
+            lambda: jwt_verify_signature(decoded_payload, signing,
                                          header, signature))
 
     def test_custom_headers(self):
         right_secret = 'foo'
         headers = {'foo': 'bar', 'kid': 'test'}
         jwt_message = jwt.encode(self.payload, right_secret, headers=headers)
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
         for key, value in headers.items():
             self.assertEqual(header[key], value)
@@ -217,9 +222,9 @@ class TestJWT(unittest.TestCase):
 
         self.assertEqual(decoded_payload, self.payload)
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
-        jwt.verify_signature(decoded_payload, signing, header,
+        jwt_verify_signature(decoded_payload, signing, header,
                              signature, secret)
 
         self.assertEqual(decoded_payload, self.payload)
@@ -232,9 +237,9 @@ class TestJWT(unittest.TestCase):
 
         self.assertEqual(decoded_payload, self.payload)
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
-        jwt.verify_signature(decoded_payload, signing,
+        jwt_verify_signature(decoded_payload, signing,
                              header, signature, secret)
 
         self.assertEqual(decoded_payload, self.payload)
@@ -247,9 +252,9 @@ class TestJWT(unittest.TestCase):
 
         self.assertEqual(decoded_payload, self.payload)
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
-        jwt.verify_signature(decoded_payload, signing,
+        jwt_verify_signature(decoded_payload, signing,
                              header, signature, secret)
 
         self.assertEqual(decoded_payload, self.payload)
@@ -264,7 +269,7 @@ class TestJWT(unittest.TestCase):
         decoded_payload = jwt.decode(example_jwt, example_secret)
 
         self.assertEqual(decoded_payload, example_payload)
-        decoded_payload, signing, header, signature = jwt.load(example_jwt)
+        decoded_payload, signing, header, signature = jwt_load(example_jwt)
         self.assertEqual(decoded_payload, example_payload)
 
     def test_decode_invalid_header_padding(self):
@@ -276,7 +281,7 @@ class TestJWT(unittest.TestCase):
 
         self.assertRaises(
             jwt.DecodeError,
-            lambda: jwt.load(example_jwt))
+            lambda: jwt_load(example_jwt))
 
         self.assertRaises(
             jwt.DecodeError,
@@ -290,7 +295,7 @@ class TestJWT(unittest.TestCase):
         example_secret = 'secret'
 
         try:
-            jwt.load(example_jwt)
+            jwt_load(example_jwt)
         except jwt.DecodeError as e:
             self.assertTrue('Invalid header string' in str(e))
         else:
@@ -312,7 +317,7 @@ class TestJWT(unittest.TestCase):
 
         self.assertRaises(
             jwt.DecodeError,
-            lambda: jwt.load(example_jwt))
+            lambda: jwt_load(example_jwt))
 
         self.assertRaises(
             jwt.DecodeError,
@@ -326,7 +331,7 @@ class TestJWT(unittest.TestCase):
         example_secret = 'secret'
 
         try:
-            jwt.load(example_jwt)
+            jwt_load(example_jwt)
         except jwt.DecodeError as e:
             self.assertTrue('Invalid payload string' in str(e))
         else:
@@ -348,7 +353,7 @@ class TestJWT(unittest.TestCase):
 
         self.assertRaises(
             jwt.DecodeError,
-            lambda: jwt.load(example_jwt))
+            lambda: jwt_load(example_jwt))
 
         self.assertRaises(
             jwt.DecodeError,
@@ -363,11 +368,11 @@ class TestJWT(unittest.TestCase):
             jwt.ExpiredSignatureError,
             lambda: jwt.decode(jwt_message, secret))
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
         self.assertRaises(
             jwt.ExpiredSignatureError,
-            lambda: jwt.verify_signature(
+            lambda: jwt_verify_signature(
                 decoded_payload, signing, header, signature, secret))
 
     def test_decode_with_notbefore(self):
@@ -379,11 +384,11 @@ class TestJWT(unittest.TestCase):
             jwt.ExpiredSignatureError,
             lambda: jwt.decode(jwt_message, secret))
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
         self.assertRaises(
             jwt.ExpiredSignatureError,
-            lambda: jwt.verify_signature(
+            lambda: jwt_verify_signature(
                 decoded_payload, signing, header, signature, secret))
 
     def test_decode_skip_expiration_verification(self):
@@ -393,8 +398,8 @@ class TestJWT(unittest.TestCase):
 
         jwt.decode(jwt_message, secret, verify_expiration=False)
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
-        jwt.verify_signature(decoded_payload, signing, header,
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
+        jwt_verify_signature(decoded_payload, signing, header,
                              signature, secret, verify_expiration=False)
 
     def test_decode_skip_notbefore_verification(self):
@@ -404,8 +409,8 @@ class TestJWT(unittest.TestCase):
 
         jwt.decode(jwt_message, secret, verify_expiration=False)
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
-        jwt.verify_signature(decoded_payload, signing, header,
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
+        jwt_verify_signature(decoded_payload, signing, header,
                              signature, secret, verify_expiration=False)
 
     def test_decode_with_expiration_with_leeway(self):
@@ -413,13 +418,13 @@ class TestJWT(unittest.TestCase):
         secret = 'secret'
         jwt_message = jwt.encode(self.payload, secret)
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
         # With 3 seconds leeway, should be ok
         for leeway in (3, timedelta(seconds=3)):
             jwt.decode(jwt_message, secret, leeway=leeway)
 
-            jwt.verify_signature(decoded_payload, signing, header,
+            jwt_verify_signature(decoded_payload, signing, header,
                                  signature, secret, leeway=leeway)
 
         # With 1 seconds, should fail
@@ -430,7 +435,7 @@ class TestJWT(unittest.TestCase):
 
             self.assertRaises(
                 jwt.ExpiredSignatureError,
-                lambda: jwt.verify_signature(decoded_payload, signing,
+                lambda: jwt_verify_signature(decoded_payload, signing,
                                              header, signature, secret,
                                              leeway=leeway))
 
@@ -439,12 +444,12 @@ class TestJWT(unittest.TestCase):
         secret = 'secret'
         jwt_message = jwt.encode(self.payload, secret)
 
-        decoded_payload, signing, header, signature = jwt.load(jwt_message)
+        decoded_payload, signing, header, signature = jwt_load(jwt_message)
 
         # With 13 seconds leeway, should be ok
         jwt.decode(jwt_message, secret, leeway=13)
 
-        jwt.verify_signature(decoded_payload, signing, header,
+        jwt_verify_signature(decoded_payload, signing, header,
                              signature, secret, leeway=13)
 
         # With 1 seconds, should fail
@@ -454,7 +459,7 @@ class TestJWT(unittest.TestCase):
 
         self.assertRaises(
             jwt.ExpiredSignatureError,
-            lambda: jwt.verify_signature(decoded_payload, signing,
+            lambda: jwt_verify_signature(decoded_payload, signing,
                                          header, signature, secret, leeway=1))
 
     def test_encode_decode_with_algo_none(self):
@@ -480,8 +485,8 @@ class TestJWT(unittest.TestCase):
                                              backend=default_backend())
             assert jwt.decode(jwt_message, pub_rsakey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_rsakey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_rsakey, *load_output)
 
         # string-formatted key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
@@ -493,8 +498,8 @@ class TestJWT(unittest.TestCase):
             pub_rsakey = rsa_pub_file.read()
             assert jwt.decode(jwt_message, pub_rsakey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_rsakey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_rsakey, *load_output)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha384(self):
@@ -520,8 +525,8 @@ class TestJWT(unittest.TestCase):
             pub_rsakey = rsa_pub_file.read()
             assert jwt.decode(jwt_message, pub_rsakey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_rsakey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_rsakey, *load_output)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha512(self):
@@ -537,8 +542,8 @@ class TestJWT(unittest.TestCase):
                                              backend=default_backend())
             assert jwt.decode(jwt_message, pub_rsakey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_rsakey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_rsakey, *load_output)
 
         # string-formatted key
         with open('tests/testkey_rsa', 'r') as rsa_priv_file:
@@ -550,18 +555,18 @@ class TestJWT(unittest.TestCase):
             pub_rsakey = rsa_pub_file.read()
             assert jwt.decode(jwt_message, pub_rsakey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_rsakey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_rsakey, *load_output)
 
     def test_rsa_related_algorithms(self):
         if has_crypto:
-            self.assertTrue('RS256' in jwt._algorithms)
-            self.assertTrue('RS384' in jwt._algorithms)
-            self.assertTrue('RS512' in jwt._algorithms)
+            self.assertTrue('RS256' in jwt_algorithms)
+            self.assertTrue('RS384' in jwt_algorithms)
+            self.assertTrue('RS512' in jwt_algorithms)
         else:
-            self.assertFalse('RS256' in jwt._algorithms)
-            self.assertFalse('RS384' in jwt._algorithms)
-            self.assertFalse('RS512' in jwt._algorithms)
+            self.assertFalse('RS256' in jwt_algorithms)
+            self.assertFalse('RS384' in jwt_algorithms)
+            self.assertFalse('RS512' in jwt_algorithms)
 
     @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha256(self):
@@ -577,8 +582,8 @@ class TestJWT(unittest.TestCase):
                                             backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_eckey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_eckey, *load_output)
 
         # string-formatted key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
@@ -590,8 +595,8 @@ class TestJWT(unittest.TestCase):
             pub_eckey = ec_pub_file.read()
             assert jwt.decode(jwt_message, pub_eckey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_eckey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_eckey, *load_output)
 
     @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha384(self):
@@ -608,8 +613,8 @@ class TestJWT(unittest.TestCase):
                                             backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_eckey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_eckey, *load_output)
 
         # string-formatted key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
@@ -621,8 +626,8 @@ class TestJWT(unittest.TestCase):
             pub_eckey = ec_pub_file.read()
             assert jwt.decode(jwt_message, pub_eckey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_eckey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_eckey, *load_output)
 
     @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha512(self):
@@ -637,8 +642,8 @@ class TestJWT(unittest.TestCase):
             pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()), backend=default_backend())
             assert jwt.decode(jwt_message, pub_eckey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_eckey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_eckey, *load_output)
 
         # string-formatted key
         with open('tests/testkey_ec', 'r') as ec_priv_file:
@@ -650,18 +655,18 @@ class TestJWT(unittest.TestCase):
             pub_eckey = ec_pub_file.read()
             assert jwt.decode(jwt_message, pub_eckey)
 
-            load_output = jwt.load(jwt_message)
-            jwt.verify_signature(key=pub_eckey, *load_output)
+            load_output = jwt_load(jwt_message)
+            jwt_verify_signature(key=pub_eckey, *load_output)
 
     def test_ecdsa_related_algorithms(self):
         if has_crypto:
-            self.assertTrue('ES256' in jwt._algorithms)
-            self.assertTrue('ES384' in jwt._algorithms)
-            self.assertTrue('ES512' in jwt._algorithms)
+            self.assertTrue('ES256' in jwt_algorithms)
+            self.assertTrue('ES384' in jwt_algorithms)
+            self.assertTrue('ES512' in jwt_algorithms)
         else:
-            self.assertFalse('ES256' in jwt._algorithms)
-            self.assertFalse('ES384' in jwt._algorithms)
-            self.assertFalse('ES512' in jwt._algorithms)
+            self.assertFalse('ES256' in jwt_algorithms)
+            self.assertFalse('ES384' in jwt_algorithms)
+            self.assertFalse('ES512' in jwt_algorithms)
 
     def test_check_audience(self):
         payload = {
