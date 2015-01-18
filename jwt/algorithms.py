@@ -1,8 +1,8 @@
 import hashlib
 import hmac
 
-from jwt import register_algorithm
-from jwt.compat import constant_time_compare, string_types, text_type
+from .api import register_algorithm
+from .compat import constant_time_compare, string_types, text_type
 
 try:
     from cryptography.hazmat.primitives import interfaces, hashes
@@ -19,7 +19,9 @@ except ImportError:
 
 
 def _register_default_algorithms():
-    """ Registers the algorithms that are implemented by the library """
+    """
+    Registers the algorithms that are implemented by the library.
+    """
     register_algorithm('none', NoneAlgorithm())
     register_algorithm('HS256', HMACAlgorithm(hashlib.sha256))
     register_algorithm('HS384', HMACAlgorithm(hashlib.sha384))
@@ -36,32 +38,35 @@ def _register_default_algorithms():
 
 
 class Algorithm(object):
-    """ The interface for an algorithm used to sign and verify JWTs """
+    """
+    The interface for an algorithm used to sign and verify tokens.
+    """
     def prepare_key(self, key):
         """
         Performs necessary validation and conversions on the key and returns
-        the key value in the proper format for sign() and verify()
+        the key value in the proper format for sign() and verify().
         """
         raise NotImplementedError
 
     def sign(self, msg, key):
         """
-        Returns a digital signature for the specified message using the
-        specified key value
+        Returns a digital signature for the specified message
+        using the specified key value.
         """
         raise NotImplementedError
 
     def verify(self, msg, key, sig):
         """
-        Verifies that the specified digital signature is valid for the specified
-        message and key values.
+        Verifies that the specified digital signature is valid
+        for the specified message and key values.
         """
         raise NotImplementedError
 
 
 class NoneAlgorithm(Algorithm):
     """
-    Placeholder for use when no signing or verification operations are required
+    Placeholder for use when no signing or verification
+    operations are required.
     """
     def prepare_key(self, key):
         return None
@@ -75,8 +80,8 @@ class NoneAlgorithm(Algorithm):
 
 class HMACAlgorithm(Algorithm):
     """
-    Performs signing and verification operations using HMAC and the specified
-    hash function
+    Performs signing and verification operations using HMAC
+    and the specified hash function.
     """
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
@@ -100,8 +105,8 @@ if has_crypto:
 
     class RSAAlgorithm(Algorithm):
         """
-        Performs signing and verification operations using RSASSA-PKCS-v1_5 and
-        the specified hash function
+        Performs signing and verification operations using
+        RSASSA-PKCS-v1_5 and the specified hash function.
         """
 
         def __init__(self, hash_alg):
@@ -154,8 +159,8 @@ if has_crypto:
 
     class ECAlgorithm(Algorithm):
         """
-        Performs signing and verification operations using ECDSA and the
-        specified hash function
+        Performs signing and verification operations using
+        ECDSA and the specified hash function
         """
         def __init__(self, hash_alg):
             self.hash_alg = hash_alg
