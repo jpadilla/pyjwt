@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # flake8: noqa
 
 """
@@ -9,11 +8,10 @@ http://self-issued.info/docs/draft-jones-json-web-token-01.html
 """
 
 
-__title__ = 'pyjwt'
-__version__ = '0.4.1'
-__author__ = 'José Padilla'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2015 José Padilla'
+from .__about__ import (
+    __title__, __description__, __url__, __version__, __author__,
+    __email__, __license__, __copyright__, __description__
+)
 
 
 from .api import encode, decode, register_algorithm
