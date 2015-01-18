@@ -45,6 +45,10 @@ class TestJWT(unittest.TestCase):
         self.payload = {'iss': 'jeff', 'exp': utc_timestamp() + 15,
                         'claim': 'insanity'}
 
+    def test_register_algorithm_rejects_non_algorithm_obj(self):
+        with self.assertRaises(TypeError):
+            jwt.register_algorithm('AAA123', {})
+
     def test_encode_decode(self):
         secret = 'secret'
         jwt_message = jwt.encode(self.payload, secret)
@@ -549,35 +553,15 @@ class TestJWT(unittest.TestCase):
             load_output = jwt.load(jwt_message)
             jwt.verify_signature(key=pub_rsakey, *load_output)
 
-    def test_rsa_related_signing_methods(self):
+    def test_rsa_related_algorithms(self):
         if has_crypto:
-            self.assertTrue('RS256' in jwt.signing_methods)
-            self.assertTrue('RS384' in jwt.signing_methods)
-            self.assertTrue('RS512' in jwt.signing_methods)
+            self.assertTrue('RS256' in jwt._algorithms)
+            self.assertTrue('RS384' in jwt._algorithms)
+            self.assertTrue('RS512' in jwt._algorithms)
         else:
-            self.assertFalse('RS256' in jwt.signing_methods)
-            self.assertFalse('RS384' in jwt.signing_methods)
-            self.assertFalse('RS512' in jwt.signing_methods)
-
-    def test_rsa_related_verify_methods(self):
-        if has_crypto:
-            self.assertTrue('RS256' in jwt.verify_methods)
-            self.assertTrue('RS384' in jwt.verify_methods)
-            self.assertTrue('RS512' in jwt.verify_methods)
-        else:
-            self.assertFalse('RS256' in jwt.verify_methods)
-            self.assertFalse('RS384' in jwt.verify_methods)
-            self.assertFalse('RS512' in jwt.verify_methods)
-
-    def test_rsa_related_key_preparation_methods(self):
-        if has_crypto:
-            self.assertTrue('RS256' in jwt.prepare_key_methods)
-            self.assertTrue('RS384' in jwt.prepare_key_methods)
-            self.assertTrue('RS512' in jwt.prepare_key_methods)
-        else:
-            self.assertFalse('RS256' in jwt.prepare_key_methods)
-            self.assertFalse('RS384' in jwt.prepare_key_methods)
-            self.assertFalse('RS512' in jwt.prepare_key_methods)
+            self.assertFalse('RS256' in jwt._algorithms)
+            self.assertFalse('RS384' in jwt._algorithms)
+            self.assertFalse('RS512' in jwt._algorithms)
 
     @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha256(self):
@@ -669,35 +653,15 @@ class TestJWT(unittest.TestCase):
             load_output = jwt.load(jwt_message)
             jwt.verify_signature(key=pub_eckey, *load_output)
 
-    def test_ecdsa_related_signing_methods(self):
+    def test_ecdsa_related_algorithms(self):
         if has_crypto:
-            self.assertTrue('ES256' in jwt.signing_methods)
-            self.assertTrue('ES384' in jwt.signing_methods)
-            self.assertTrue('ES512' in jwt.signing_methods)
+            self.assertTrue('ES256' in jwt._algorithms)
+            self.assertTrue('ES384' in jwt._algorithms)
+            self.assertTrue('ES512' in jwt._algorithms)
         else:
-            self.assertFalse('ES256' in jwt.signing_methods)
-            self.assertFalse('ES384' in jwt.signing_methods)
-            self.assertFalse('ES512' in jwt.signing_methods)
-
-    def test_ecdsa_related_verify_methods(self):
-        if has_crypto:
-            self.assertTrue('ES256' in jwt.verify_methods)
-            self.assertTrue('ES384' in jwt.verify_methods)
-            self.assertTrue('ES512' in jwt.verify_methods)
-        else:
-            self.assertFalse('ES256' in jwt.verify_methods)
-            self.assertFalse('ES384' in jwt.verify_methods)
-            self.assertFalse('ES512' in jwt.verify_methods)
-
-    def test_ecdsa_related_key_preparation_methods(self):
-        if has_crypto:
-            self.assertTrue('ES256' in jwt.prepare_key_methods)
-            self.assertTrue('ES384' in jwt.prepare_key_methods)
-            self.assertTrue('ES512' in jwt.prepare_key_methods)
-        else:
-            self.assertFalse('ES256' in jwt.prepare_key_methods)
-            self.assertFalse('ES384' in jwt.prepare_key_methods)
-            self.assertFalse('ES512' in jwt.prepare_key_methods)
+            self.assertFalse('ES256' in jwt._algorithms)
+            self.assertFalse('ES384' in jwt._algorithms)
+            self.assertFalse('ES512' in jwt._algorithms)
 
     def test_check_audience(self):
         payload = {
