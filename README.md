@@ -1,6 +1,9 @@
-# PyJWT [![Build Status](https://travis-ci.org/progrium/pyjwt.png?branch=master)](https://travis-ci.org/progrium/pyjwt)
+# PyJWT
 
-A Python implementation of [JSON Web Token draft 01](http://self-issued.info/docs/draft-jones-json-web-token-01.html).
+[![build-status-image]][travis]
+[![pypi-version]][pypi]
+
+A Python implementation of [JSON Web Token draft 01][jwt-draft-01] originally written by [@progrium][progrium].
 
 ## Installing
 
@@ -102,7 +105,7 @@ used. PyJWT supports these reserved claim names:
 
 ### Expiration Time Claim
 
-From [draft 01 of the JWT spec](http://self-issued.info/docs/draft-jones-json-web-token-01.html#ReservedClaimName):
+From [draft 01 of the JWT spec][reserved-claimname]:
 
 > The exp (expiration time) claim identifies the expiration time on or after
 > which the JWT MUST NOT be accepted for processing. The processing of the exp
@@ -223,3 +226,11 @@ If the audience claim is incorrect, `jwt.InvalidAudienceError` will be raised.
 ## License
 
 MIT
+
+[build-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.png?branch=master
+[travis]: http://travis-ci.org/jpadilla/pyjwt?branch=master
+[pypi-version]: https://pypip.in/version/pyjwt/badge.svg
+[pypi]: https://pypi.python.org/pypi/pyjwt
+[jwt-draft-01]: http://self-issued.info/docs/draft-jones-json-web-token-01.html
+[progrium]: https://github.com/progrium
+[reserved-claimname]: http://self-issued.info/docs/draft-jones-json-web-token-01.html#ReservedClaimName
