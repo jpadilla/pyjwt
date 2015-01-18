@@ -1,8 +1,8 @@
 import hashlib
 import hmac
 
-from jwt import register_algorithm
-from jwt.compat import constant_time_compare, string_types, text_type
+from .api import register_algorithm
+from .compat import constant_time_compare, string_types, text_type
 
 try:
     from cryptography.hazmat.primitives import interfaces, hashes
