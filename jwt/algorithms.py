@@ -82,7 +82,7 @@ class HMACAlgorithm(Algorithm):
         self.hash_alg = hash_alg
 
     def prepare_key(self, key):
-        if not isinstance(key, string_types) and not isinstance(key, text_type):
+        if not isinstance(key, string_types) and not isinstance(key, bytes):
             raise TypeError('Expecting a string- or bytes-formatted key.')
 
         if isinstance(key, text_type):
