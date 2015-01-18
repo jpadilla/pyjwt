@@ -6,16 +6,10 @@ import sys
 
 from setuptools import setup
 
+about = {}
 
-def get_version(package):
-    """
-    Return package version as listed in `__version__` in `init.py`.
-    """
-    init_py = open(os.path.join(package, '__init__.py')).read()
-    return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
-
-
-version = get_version('jwt')
+with open(os.path.join("jwt", "__about__.py")) as f:
+    exec(f.read(), about)
 
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
     long_description = readme.read()
@@ -31,14 +25,14 @@ if sys.argv[-1] == 'publish':
 
 
 setup(
-    name='PyJWT',
-    version=version,
-    author='José Padilla',
-    author_email='hello@jpadilla.com',
-    description='JSON Web Token implementation in Python',
-    license='MIT',
+    name=about['__title__'],
+    version=about['__version__'],
+    author=about['__author__'],
+    author_email=about['__email__'],
+    description=about['__description__'],
+    license=about['__license__'],
     keywords='jwt json web token security signing',
-    url='http://github.com/jpadilla/pyjwt',
+    url=about['__url__'],
     packages=['jwt'],
     scripts=['bin/jwt'],
     long_description=long_description,
