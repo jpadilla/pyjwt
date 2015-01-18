@@ -6,7 +6,6 @@ http://self-issued.info/docs/draft-jones-json-web-token-01.html
 """
 
 import binascii
-import sys
 
 from calendar import timegm
 from collections import Mapping
@@ -14,8 +13,7 @@ from datetime import datetime, timedelta
 
 from jwt.utils import base64url_decode, base64url_encode
 
-from .compat import (json, string_types, text_type, constant_time_compare,
-                     timedelta_total_seconds)
+from .compat import (json, string_types, text_type, timedelta_total_seconds)
 
 
 __version__ = '0.4.1'
@@ -52,6 +50,7 @@ def register_algorithm(alg_id, alg_obj):
 
 from jwt.algorithms import Algorithm, _register_default_algorithms  # NOQA
 _register_default_algorithms()
+
 
 class InvalidTokenError(Exception):
     pass

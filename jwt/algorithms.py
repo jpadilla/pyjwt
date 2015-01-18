@@ -1,13 +1,8 @@
 import hashlib
 import hmac
-import sys
 
 from jwt import register_algorithm
-from jwt.utils import constant_time_compare
-
-if sys.version_info >= (3, 0, 0):
-    unicode = str
-    basestring = str
+from jwt.compat import constant_time_compare, string_types, text_type
 
 try:
     from cryptography.hazmat.primitives import interfaces, hashes
@@ -66,10 +61,10 @@ class HMACAlgorithm(Algorithm):
         self.hash_alg = hash_alg
 
     def prepare_key(self, key):
-        if not isinstance(key, basestring) and not isinstance(key, bytes):
+        if not isinstance(key, string_types) and not isinstance(key, text_type):
             raise TypeError('Expecting a string- or bytes-formatted key.')
 
-        if isinstance(key, unicode):
+        if isinstance(key, text_type):
             key = key.encode('utf-8')
 
         return key
@@ -92,7 +87,7 @@ if has_crypto:
                 return key
 
             if isinstance(key, basestring):
-                if isinstance(key, unicode):
+                if isinstance(key, text_type):
                     key = key.encode('utf-8')
 
                 try:
@@ -140,8 +135,8 @@ if has_crypto:
                isinstance(key, interfaces.EllipticCurvePublicKey):
                 return key
 
-            if isinstance(key, basestring):
-                if isinstance(key, unicode):
+            if isinstance(key, string_types):
+                if isinstance(key, text_type):
                     key = key.encode('utf-8')
 
                 # Attempt to load key. We don't know if it's
