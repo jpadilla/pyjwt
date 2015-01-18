@@ -40,7 +40,9 @@ _algorithms = {}
 
 
 def register_algorithm(alg_id, alg_obj):
-    """ Registers a new Algorithm for use when creating and verifying JWTs """
+    """
+    Registers a new Algorithm for use when creating and verifying tokens.
+    """
     if alg_id in _algorithms:
         raise ValueError('Algorithm already has a handler.')
 
