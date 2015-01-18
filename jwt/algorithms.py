@@ -112,7 +112,7 @@ if has_crypto:
                isinstance(key, interfaces.RSAPublicKey):
                 return key
 
-            if isinstance(key, basestring):
+            if isinstance(key, string_types):
                 if isinstance(key, text_type):
                     key = key.encode('utf-8')
 
