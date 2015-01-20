@@ -1,7 +1,8 @@
 # PyJWT
 
-[![build-status-image]][travis]
-[![pypi-version]][pypi]
+[![travis-status-image]][travis]
+[![pypi-version-image]][pypi]
+[![coveralls-status-image]][coveralls]
 
 A Python implementation of [JSON Web Token draft 01][jwt-draft-01] originally written by [@progrium][progrium].
 
@@ -227,10 +228,12 @@ If the audience claim is incorrect, `jwt.InvalidAudienceError` will be raised.
 
 MIT
 
-[build-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.png?branch=master
+[travis-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.png?branch=master
 [travis]: http://travis-ci.org/jpadilla/pyjwt?branch=master
-[pypi-version]: https://pypip.in/version/pyjwt/badge.svg
+[pypi-version-image]: https://pypip.in/version/pyjwt/badge.svg
 [pypi]: https://pypi.python.org/pypi/pyjwt
+[coveralls-status-image]: https://coveralls.io/repos/jpadilla/pyjwt/badge.svg?branch=master
+[coveralls]: https://coveralls.io/r/jpadilla/pyjwt?branch=master
 [jwt-draft-01]: http://self-issued.info/docs/draft-jones-json-web-token-01.html
 [progrium]: https://github.com/progrium
 [reserved-claimname]: http://self-issued.info/docs/draft-jones-json-web-token-01.html#ReservedClaimName
