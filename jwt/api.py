@@ -1,10 +1,11 @@
 import binascii
+import json
 
 from calendar import timegm
 from collections import Mapping
 from datetime import datetime, timedelta
 
-from .compat import json, string_types, text_type, timedelta_total_seconds
+from .compat import string_types, text_type, timedelta_total_seconds
 from .exceptions import (
     DecodeError, ExpiredSignatureError,
     InvalidAudienceError, InvalidIssuerError

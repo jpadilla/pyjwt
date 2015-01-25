@@ -18,12 +18,6 @@ else:
     text_type = unicode
 
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
-
 def timedelta_total_seconds(delta):
     try:
         delta.total_seconds

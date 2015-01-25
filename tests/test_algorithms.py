@@ -122,6 +122,13 @@ class TestJWT(unittest.TestCase):
             algo.prepare_key(None)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_ec_should_accept_unicode_key(self):
+        algo = ECAlgorithm(hashes.SHA256())
+
+        with open('tests/keys/testkey_ec', 'r') as ec_key:
+            algo.prepare_key(ensure_unicode(ec_key.read()))
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_ec_verify_should_return_false_if_signature_invalid(self):
         algo = ECAlgorithm(hashes.SHA256())
 
