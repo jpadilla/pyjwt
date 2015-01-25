@@ -1,15 +1,14 @@
 language: python
-python: 2.7
 sudo: false
 env:
-  - TOX_ENV=py26
-  - TOX_ENV=py27
-  - TOX_ENV=py32
-  - TOX_ENV=py33
+  - TOXENV=py26
+  - TOXENV=py27
+  - TOXENV=py32
+  - TOXENV=py33
+  - TOXENV=py34
 install:
   - pip install tox coveralls
 script:
-  - coverage erase
-  - tox -e $TOX_ENV
+  - tox
 after_success:
   - coveralls
