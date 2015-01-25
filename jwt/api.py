@@ -31,17 +31,6 @@ from jwt.algorithms import Algorithm, _register_default_algorithms  # NOQA
 _register_default_algorithms()
 
 
-def header(jwt):
-    if isinstance(jwt, text_type):
-        jwt = jwt.encode('utf-8')
-    header_segment = jwt.split(b'.', 1)[0]
-    try:
-        header_data = base64url_decode(header_segment)
-        return json.loads(header_data.decode('utf-8'))
-    except (ValueError, TypeError):
-        raise DecodeError('Invalid header encoding')
-
-
 def encode(payload, key, algorithm='HS256', headers=None, json_encoder=None):
     segments = []
 
