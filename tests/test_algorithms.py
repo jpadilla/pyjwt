@@ -15,7 +15,7 @@ except ImportError:
     has_crypto = False
 
 
-class TestJWT(unittest.TestCase):
+class TestAlgorithms(unittest.TestCase):
     def setUp(self):  # noqa
         pass
 
