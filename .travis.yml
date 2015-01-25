@@ -6,6 +6,9 @@ env:
   - TOXENV=py32
   - TOXENV=py33
   - TOXENV=py34
+  - TOXENV=pep8
+  - TOXENV=py34-nocrypto
+  - TOXENV=py27-nocrypto
 install:
   - pip install tox coveralls
 script:
