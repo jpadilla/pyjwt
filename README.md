@@ -79,13 +79,18 @@ Change the algorithm with by setting it in encode:
 jwt.encode({'some': 'payload'}, 'secret', 'HS512')
 ```
 
+Usage of RSA (RS\*) and EC (EC\*) algorithms require a basic understanding
+of how public-key cryptography is used with regards to digital signatures.
+If you are unfamiliar, you may want to read [this article](http://en.wikipedia.org/wiki/Public-key_cryptography).
+
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 `jwt.encode()` and `jwt.decode()` (`"secret"` in the examples) is expected to
-be either an RSA public or private key in PEM format.
+be either an RSA public or private key in PEM or SSH format. The type of key
+(private or public) depends on whether you are signing or verifying.
 
 When using the ECDSA algorithms, the `key` argument is expected to
-be an Elliptic Curve private key or an Elliptic Curve public
-key in PEM format.
+be an Elliptic Curve public or private key in PEM format. The type of key
+(private or public) depends on whether you are signing or verifying.
 
 ## Tests
 
