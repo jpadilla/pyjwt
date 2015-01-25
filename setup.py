@@ -46,5 +46,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Topic :: Utilities',
     ],
-    test_suite='tests.test_jwt'
+    test_suite='tests'
 )

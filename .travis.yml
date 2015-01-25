@@ -6,6 +6,7 @@ env:
   - TOXENV=py32
   - TOXENV=py33
   - TOXENV=py34
+  - TOXENV=pep8
 install:
   - pip install tox coveralls
 script:
