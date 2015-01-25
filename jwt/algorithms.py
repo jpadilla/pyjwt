@@ -75,7 +75,7 @@ class NoneAlgorithm(Algorithm):
         return b''
 
     def verify(self, msg, key, sig):
-        return True
+        return False
 
 
 class HMACAlgorithm(Algorithm):

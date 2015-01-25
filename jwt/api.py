@@ -144,7 +144,7 @@ def verify_signature(payload, signing_input, header, signature, key='',
         raise TypeError('audience must be a string or None')
 
     try:
-        alg_obj = _algorithms[header['alg'].upper()]
+        alg_obj = _algorithms[header['alg']]
         key = alg_obj.prepare_key(key)
 
         if not alg_obj.verify(signing_input, key, signature):

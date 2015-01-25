@@ -14,6 +14,8 @@ from jwt.api import (
     _algorithms as jwt_algorithms
 )
 
+from jwt.exceptions import DecodeError
+
 if sys.version_info >= (2, 7):
     import unittest
 else:
@@ -67,6 +69,28 @@ class TestJWT(unittest.TestCase):
 
         for t in types:
             self.assertRaises(TypeError, lambda: jwt.encode(t, 'secret'))
+
+    def test_encode_algorithm_param_should_be_case_sensitive(self):
+        payload = {'hello': 'world'}
+
+        jwt.encode(payload, 'secret', algorithm='HS256')
+
+        with self.assertRaises(NotImplementedError) as context:
+            jwt.encode(payload, None, algorithm='hs256')
+
+        exception = context.exception
+        self.assertEquals(str(exception), 'Algorithm not supported')
+
+    def test_decode_algorithm_param_should_be_case_sensitive(self):
+        example_jwt = ('eyJhbGciOiJoczI1NiIsInR5cCI6IkpXVCJ9' # alg = hs256
+                       '.eyJoZWxsbyI6IndvcmxkIn0'
+                       '.5R_FEPE7SW2dT9GgIxPgZATjFGXfUDOSwo7TtO_Kd_g')
+
+        with self.assertRaises(DecodeError) as context:
+            jwt.decode(example_jwt, 'secret')
+
+        exception = context.exception
+        self.assertEquals(str(exception), 'Algorithm not supported')
 
     def test_encode_datetime(self):
         secret = 'secret'
