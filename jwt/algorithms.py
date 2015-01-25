@@ -74,7 +74,7 @@ class NoneAlgorithm(Algorithm):
     def sign(self, msg, key):
         return b''
 
-    def verify(self, msg, key):
+    def verify(self, msg, key, sig):
         return True
 
 
