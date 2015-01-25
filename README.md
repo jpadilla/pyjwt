@@ -4,7 +4,8 @@
 [![pypi-version-image]][pypi]
 [![coveralls-status-image]][coveralls]
 
-A Python implementation of [JSON Web Token draft 01][jwt-draft-01] originally written by [@progrium][progrium].
+A Python implementation of [JSON Web Token draft 32][jwt-spec].
+Original implementation was written by [@progrium][progrium].
 
 ## Installing
 
@@ -94,10 +95,10 @@ You can run tests from the project root after cloning with:
 $ python tests/test_jwt.py
 ```
 
-## Support of reserved claim names
+## Support of registered claim names
 
-JSON Web Token defines some reserved claim names and defines how they should be
-used. PyJWT supports these reserved claim names:
+JSON Web Token defines some registered claim names and defines how they should be
+used. PyJWT supports these registered claim names:
 
  - "exp" (Expiration Time) Claim
  - "nbf" (Not Before Time) Claim
@@ -106,15 +107,15 @@ used. PyJWT supports these reserved claim names:
 
 ### Expiration Time Claim
 
-From [draft 01 of the JWT spec][reserved-claimname]:
+From [the JWT spec][jwt-spec-reg-claims]:
 
-> The exp (expiration time) claim identifies the expiration time on or after
-> which the JWT MUST NOT be accepted for processing. The processing of the exp
-> claim requires that the current date/time MUST be before the expiration
-> date/time listed in the exp claim. Implementers MAY provide for some small
-> leeway, usually no more than a few minutes, to account for clock skew. Its
-> value MUST be a number containing an IntDate value. Use of this claim is
-> OPTIONAL.
+> The "exp" (expiration time) claim identifies the expiration time on
+> or after which the JWT MUST NOT be accepted for processing.  The
+> processing of the "exp" claim requires that the current date/time
+> MUST be before the expiration date/time listed in the "exp" claim.
+> Implementers MAY provide for some small leeway, usually no more than
+> a few minutes, to account for clock skew.  Its value MUST be a number
+> containing a NumericDate value.  Use of this claim is OPTIONAL.
 
 You can pass the expiration time as a UTC UNIX timestamp (an int) or as a
 datetime, which will be converted into an int. For example:
@@ -174,7 +175,13 @@ jwt.decode(jwt_payload, 'secret', leeway=datetime.timedelta(seconds=10))
 
 ### Not Before Time Claim
 
-> The nbf (not before) claim identifies the time before which the JWT MUST NOT be accepted for processing. The processing of the nbf claim requires that the current date/time MUST be after or equal to the not-before date/time listed in the nbf claim. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a NumericDate value. Use of this claim is OPTIONAL.
+> The "nbf" (not before) claim identifies the time before which the JWT
+> MUST NOT be accepted for processing.  The processing of the "nbf"
+> claim requires that the current date/time MUST be after or equal to
+> the not-before date/time listed in the "nbf" claim.  Implementers MAY
+> provide for some small leeway, usually no more than a few minutes, to
+> account for clock skew.  Its value MUST be a number containing a
+> NumericDate value.  Use of this claim is OPTIONAL.
 
 The `nbf` claim works similarly to the `exp` claim above.
 
@@ -186,7 +193,10 @@ jwt.encode({'nbf': datetime.utcnow()}, 'secret')
 
 ### Issuer Claim
 
-> The iss (issuer) claim identifies the principal that issued the JWT. The processing of this claim is generally application specific. The iss value is a case-sensitive string containing a StringOrURI value. Use of this claim is OPTIONAL.
+> The "iss" (issuer) claim identifies the principal that issued the
+> JWT.  The processing of this claim is generally application specific.
+> The "iss" value is a case-sensitive string containing a StringOrURI
+> value.  Use of this claim is OPTIONAL.
 
 ```python
 import jwt
@@ -206,7 +216,17 @@ If the issuer claim is incorrect, `jwt.InvalidIssuerError` will be raised.
 
 ### Audience Claim
 
-> The aud (audience) claim identifies the recipients that the JWT is intended for. Each principal intended to process the JWT MUST identify itself with a value in the audience claim. If the principal processing the claim does not identify itself with a value in the aud claim when this claim is present, then the JWT MUST be rejected. In the general case, the aud value is an array of case-sensitive strings, each containing a StringOrURI value. In the special case when the JWT has one audience, the aud value MAY be a single case-sensitive string containing a StringOrURI value. The interpretation of audience values is generally application specific. Use of this claim is OPTIONAL.
+> The "aud" (audience) claim identifies the recipients that the JWT is
+> intended for.  Each principal intended to process the JWT MUST
+> identify itself with a value in the audience claim.  If the principal
+> processing the claim does not identify itself with a value in the
+> "aud" claim when this claim is present, then the JWT MUST be
+> rejected.  In the general case, the "aud" value is an array of case-
+> sensitive strings, each containing a StringOrURI value.  In the
+> special case when the JWT has one audience, the "aud" value MAY be a
+> single case-sensitive string containing a StringOrURI value.  The
+> interpretation of audience values is generally application specific.
+> Use of this claim is OPTIONAL.
 
 ```python
 import jwt
@@ -234,6 +254,6 @@ MIT
 [pypi]: https://pypi.python.org/pypi/pyjwt
 [coveralls-status-image]: https://coveralls.io/repos/jpadilla/pyjwt/badge.svg?branch=master
 [coveralls]: https://coveralls.io/r/jpadilla/pyjwt?branch=master
-[jwt-draft-01]: http://self-issued.info/docs/draft-jones-json-web-token-01.html
+[jwt-spec]: https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32
+[jwt-spec-reg-claims]: http://self-issued.info/docs/draft-jones-json-web-token-01.html#ReservedClaimName
 [progrium]: https://github.com/progrium
-[reserved-claimname]: http://self-issued.info/docs/draft-jones-json-web-token-01.html#ReservedClaimName
