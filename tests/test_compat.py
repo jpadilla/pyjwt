@@ -1,6 +1,7 @@
+from jwt.compat import constant_time_compare
+
 from .compat import unittest
 
-from jwt.compat import constant_time_compare
 
 class TestCompat(unittest.TestCase):
     def setUp(self):  # noqa
