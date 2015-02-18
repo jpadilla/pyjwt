@@ -19,5 +19,6 @@ __copyright__ = 'Copyright 2015 José Padilla'
 from .api import encode, decode, register_algorithm
 from .exceptions import (
     InvalidTokenError, DecodeError, ExpiredSignatureError,
-    InvalidAudienceError, InvalidIssuerError
+    InvalidAudienceError, InvalidIssuerError,
+    ExpiredSignature, InvalidAudience, InvalidIssuer
 )
