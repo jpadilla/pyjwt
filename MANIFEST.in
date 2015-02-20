@@ -1,3 +1,5 @@
 include README.md
 include LICENSE
 include AUTHORS
+include tox.ini
+graft tests
