@@ -259,7 +259,7 @@ class TestAPI(unittest.TestCase):
         decoded_payload, signing, header, signature = self.jwt._load(example_jwt)
 
         self.jwt._verify_signature(decoded_payload, signing, header,
-                             signature, example_secret)
+                                   signature, example_secret)
 
         self.assertEqual(decoded_payload, example_payload)
 
@@ -295,7 +295,7 @@ class TestAPI(unittest.TestCase):
         self.assertRaises(
             DecodeError,
             lambda: self.jwt._verify_signature(decoded_payload, signing,
-                                         header, signature))
+                                               header, signature))
 
     def test_custom_headers(self):
         right_secret = 'foo'
@@ -321,7 +321,7 @@ class TestAPI(unittest.TestCase):
         decoded_payload, signing, header, signature = self.jwt._load(jwt_message)
 
         self.jwt._verify_signature(decoded_payload, signing, header,
-                             signature, secret)
+                                   signature, secret)
 
         self.assertEqual(decoded_payload, self.payload)
 
@@ -336,7 +336,7 @@ class TestAPI(unittest.TestCase):
         decoded_payload, signing, header, signature = self.jwt._load(jwt_message)
 
         self.jwt._verify_signature(decoded_payload, signing,
-                             header, signature, secret)
+                                   header, signature, secret)
 
         self.assertEqual(decoded_payload, self.payload)
 
@@ -351,7 +351,7 @@ class TestAPI(unittest.TestCase):
         decoded_payload, signing, header, signature = self.jwt._load(jwt_message)
 
         self.jwt._verify_signature(decoded_payload, signing,
-                             header, signature, secret)
+                                   header, signature, secret)
 
         self.assertEqual(decoded_payload, self.payload)
 
@@ -496,7 +496,7 @@ class TestAPI(unittest.TestCase):
 
         decoded_payload, signing, header, signature = self.jwt._load(jwt_message)
         self.jwt._verify_signature(decoded_payload, signing, header,
-                             signature, secret, verify_expiration=False)
+                                   signature, secret, verify_expiration=False)
 
     def test_decode_skip_notbefore_verification(self):
         self.payload['nbf'] = time.time() + 10
@@ -507,7 +507,7 @@ class TestAPI(unittest.TestCase):
 
         decoded_payload, signing, header, signature = self.jwt._load(jwt_message)
         self.jwt._verify_signature(decoded_payload, signing, header,
-                             signature, secret, verify_expiration=False)
+                                   signature, secret, verify_expiration=False)
 
     def test_decode_with_expiration_with_leeway(self):
         self.payload['exp'] = utc_timestamp() - 2
@@ -521,7 +521,7 @@ class TestAPI(unittest.TestCase):
             self.jwt.decode(jwt_message, secret, leeway=leeway)
 
             self.jwt._verify_signature(decoded_payload, signing, header,
-                                 signature, secret, leeway=leeway)
+                                       signature, secret, leeway=leeway)
 
         # With 1 seconds, should fail
         for leeway in (1, timedelta(seconds=1)):
@@ -532,8 +532,8 @@ class TestAPI(unittest.TestCase):
             self.assertRaises(
                 ExpiredSignatureError,
                 lambda: self.jwt._verify_signature(decoded_payload, signing,
-                                             header, signature, secret,
-                                             leeway=leeway))
+                                                   header, signature, secret,
+                                                   leeway=leeway))
 
     def test_decode_with_notbefore_with_leeway(self):
         self.payload['nbf'] = utc_timestamp() + 10
@@ -546,7 +546,7 @@ class TestAPI(unittest.TestCase):
         self.jwt.decode(jwt_message, secret, leeway=13)
 
         self.jwt._verify_signature(decoded_payload, signing, header,
-                             signature, secret, leeway=13)
+                                   signature, secret, leeway=13)
 
         # With 1 seconds, should fail
         self.assertRaises(
@@ -556,7 +556,7 @@ class TestAPI(unittest.TestCase):
         self.assertRaises(
             ExpiredSignatureError,
             lambda: self.jwt._verify_signature(decoded_payload, signing,
-                                         header, signature, secret, leeway=1))
+                                               header, signature, secret, leeway=1))
 
     def test_encode_decode_with_algo_none(self):
         jwt_message = self.jwt.encode(self.payload, key=None, algorithm=None)
@@ -574,7 +574,7 @@ class TestAPI(unittest.TestCase):
             priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
                                                password=None, backend=default_backend())
             jwt_message = self.jwt.encode(self.payload, priv_rsakey,
-                                     algorithm='RS256')
+                                          algorithm='RS256')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
             pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
@@ -588,7 +588,7 @@ class TestAPI(unittest.TestCase):
         with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
             priv_rsakey = rsa_priv_file.read()
             jwt_message = self.jwt.encode(self.payload, priv_rsakey,
-                                     algorithm='RS256')
+                                          algorithm='RS256')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
             pub_rsakey = rsa_pub_file.read()
@@ -604,7 +604,7 @@ class TestAPI(unittest.TestCase):
             priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
                                                password=None, backend=default_backend())
             jwt_message = self.jwt.encode(self.payload, priv_rsakey,
-                                     algorithm='RS384')
+                                          algorithm='RS384')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
             pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
@@ -615,7 +615,7 @@ class TestAPI(unittest.TestCase):
         with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
             priv_rsakey = rsa_priv_file.read()
             jwt_message = self.jwt.encode(self.payload, priv_rsakey,
-                                     algorithm='RS384')
+                                          algorithm='RS384')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
             pub_rsakey = rsa_pub_file.read()
@@ -631,7 +631,7 @@ class TestAPI(unittest.TestCase):
             priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
                                                password=None, backend=default_backend())
             jwt_message = self.jwt.encode(self.payload, priv_rsakey,
-                                     algorithm='RS512')
+                                          algorithm='RS512')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
             pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
@@ -645,7 +645,7 @@ class TestAPI(unittest.TestCase):
         with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
             priv_rsakey = rsa_priv_file.read()
             jwt_message = self.jwt.encode(self.payload, priv_rsakey,
-                                     algorithm='RS512')
+                                          algorithm='RS512')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
             pub_rsakey = rsa_pub_file.read()
@@ -674,7 +674,7 @@ class TestAPI(unittest.TestCase):
             priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
                                               password=None, backend=default_backend())
             jwt_message = self.jwt.encode(self.payload, priv_eckey,
-                                     algorithm='ES256')
+                                          algorithm='ES256')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()),
@@ -688,7 +688,7 @@ class TestAPI(unittest.TestCase):
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
             priv_eckey = ec_priv_file.read()
             jwt_message = self.jwt.encode(self.payload, priv_eckey,
-                                     algorithm='ES256')
+                                          algorithm='ES256')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = ec_pub_file.read()
@@ -705,7 +705,7 @@ class TestAPI(unittest.TestCase):
             priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
                                               password=None, backend=default_backend())
             jwt_message = self.jwt.encode(self.payload, priv_eckey,
-                                     algorithm='ES384')
+                                          algorithm='ES384')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()),
@@ -719,7 +719,7 @@ class TestAPI(unittest.TestCase):
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
             priv_eckey = ec_priv_file.read()
             jwt_message = self.jwt.encode(self.payload, priv_eckey,
-                                     algorithm='ES384')
+                                          algorithm='ES384')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = ec_pub_file.read()
@@ -735,7 +735,7 @@ class TestAPI(unittest.TestCase):
             priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
                                               password=None, backend=default_backend())
             jwt_message = self.jwt.encode(self.payload, priv_eckey,
-                                     algorithm='ES512')
+                                          algorithm='ES512')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()), backend=default_backend())
@@ -748,7 +748,7 @@ class TestAPI(unittest.TestCase):
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
             priv_eckey = ec_priv_file.read()
             jwt_message = self.jwt.encode(self.payload, priv_eckey,
-                                     algorithm='ES512')
+                                          algorithm='ES512')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = ec_pub_file.read()
@@ -760,7 +760,7 @@ class TestAPI(unittest.TestCase):
     def test_ecdsa_related_algorithms(self):
         self.jwt = PyJWT()
         jwt_algorithms = self.jwt._algorithms
-        
+
         if has_crypto:
             self.assertTrue('ES256' in jwt_algorithms)
             self.assertTrue('ES384' in jwt_algorithms)

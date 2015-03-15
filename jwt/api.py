@@ -5,6 +5,7 @@ from calendar import timegm
 from collections import Mapping
 from datetime import datetime, timedelta
 
+from .algorithms import Algorithm, _register_default_algorithms  # NOQA
 from .compat import string_types, text_type, timedelta_total_seconds
 from .exceptions import (
     DecodeError, ExpiredSignatureError,
@@ -12,7 +13,6 @@ from .exceptions import (
 )
 from .utils import base64url_decode, base64url_encode
 
-from jwt.algorithms import Algorithm, _register_default_algorithms  # NOQA
 
 class PyJWT(object):
     def __init__(self):
@@ -83,16 +83,14 @@ class PyJWT(object):
 
         return b'.'.join(segments)
 
-
     def decode(self, jwt, key='', verify=True, **kwargs):
         payload, signing_input, header, signature = self._load(jwt)
 
         if verify:
             self._verify_signature(payload, signing_input, header, signature,
-                            key, **kwargs)
+                                   key, **kwargs)
 
         return payload
-
 
     def _load(self, jwt):
         if isinstance(jwt, text_type):
@@ -131,7 +129,6 @@ class PyJWT(object):
             raise DecodeError('Invalid crypto padding')
 
         return (payload, signing_input, header, signature)
-
 
     def _verify_signature(self, payload, signing_input, header, signature,
                           key='', verify_expiration=True, leeway=0,
