@@ -48,7 +48,10 @@ You can still get the payload by setting the `verify` argument to `False`.
 jwt.decode('someJWTstring', verify=False)
 ```
 
-The `decode()` function can raise other exceptions, e.g. for invalid issuer or audience (see below). All exceptions that signify that the token is invalid extend from the base `InvalidTokenError` exception class, so applications can use this approach to catch any issues relating to invalid tokens:
+The `decode()` function can raise other exceptions, e.g. for invalid issuer or
+audience (see below). All exceptions that signify that the token is invalid
+extend from the base `InvalidTokenError` exception class, so applications can
+use this approach to catch any issues relating to invalid tokens:
 
 ```python
 try:
@@ -88,7 +91,8 @@ jwt.encode({'some': 'payload'}, 'secret', 'HS512')
 
 Usage of RSA (RS\*) and EC (EC\*) algorithms require a basic understanding
 of how public-key cryptography is used with regards to digital signatures.
-If you are unfamiliar, you may want to read [this article](http://en.wikipedia.org/wiki/Public-key_cryptography).
+If you are unfamiliar, you may want to read
+[this article](http://en.wikipedia.org/wiki/Public-key_cryptography).
 
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 `jwt.encode()` and `jwt.decode()` (`"secret"` in the examples) is expected to
@@ -101,8 +105,8 @@ be an Elliptic Curve public or private key in PEM format. The type of key
 
 ## Support of registered claim names
 
-JSON Web Token defines some registered claim names and defines how they should be
-used. PyJWT supports these registered claim names:
+JSON Web Token defines some registered claim names and defines how they should
+be used. PyJWT supports these registered claim names:
 
  - "exp" (Expiration Time) Claim
  - "nbf" (Not Before Time) Claim
@@ -146,7 +150,8 @@ Expiration time will be compared to the current UTC time (as given by
 `timegm(datetime.utcnow().utctimetuple())`), so be sure to use a UTC timestamp
 or datetime in encoding.
 
-You can turn off expiration time verification with the `verify_expiration` argument.
+You can turn off expiration time verification with the `verify_expiration`
+argument.
 
 PyJWT also supports the leeway part of the expiration time definition, which
 means you can validate a expiration time which is in the past but not very far.
@@ -170,7 +175,8 @@ time.sleep(32)
 jwt.decode(jwt_payload, 'secret', leeway=10)
 ```
 
-Instead of specifying the leeway as a number of seconds, a `datetime.timedelta` instance can be used. The last line in the example above is equivalent to:
+Instead of specifying the leeway as a number of seconds, a `datetime.timedelta`
+instance can be used. The last line in the example above is equivalent to:
 
 ```python
 jwt.decode(jwt_payload, 'secret', leeway=datetime.timedelta(seconds=10))
