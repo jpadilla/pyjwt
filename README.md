@@ -57,6 +57,13 @@ except jwt.InvalidTokenError:
     pass  # do something sensible here, e.g. return HTTP 403 status code
 ```
 
+## Tests
+
+You can run tests from the project root after cloning with:
+
+```
+$ python tests/test_jwt.py
+```
 
 ## Algorithms
 
@@ -91,14 +98,6 @@ be either an RSA public or private key in PEM or SSH format. The type of key
 When using the ECDSA algorithms, the `key` argument is expected to
 be an Elliptic Curve public or private key in PEM format. The type of key
 (private or public) depends on whether you are signing or verifying.
-
-## Tests
-
-You can run tests from the project root after cloning with:
-
-```
-$ python tests/test_jwt.py
-```
 
 ## Support of registered claim names
 
