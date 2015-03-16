@@ -35,6 +35,20 @@ class TestAPI(unittest.TestCase):
                         'claim': 'insanity'}
         self.jwt = PyJWT()
 
+    def test_if_algorithms_param_is_empty_dict_then_no_algorithms(self):
+        jwt_obj = PyJWT(algorithms={})
+        jwt_algorithms = jwt_obj.get_supported_algorithms()
+
+        self.assertEqual(len(jwt_algorithms), 0)
+
+    def test_algorithms_param_sets_algorithms(self):
+        algorithms = {'TESTALG': Algorithm()}
+        jwt_obj = PyJWT(algorithms=algorithms)
+
+        supported_algs = jwt_obj.get_supported_algorithms()
+        self.assertEqual(len(supported_algs), 1)
+        self.assertIn('TESTALG', supported_algs)
+
     def test_register_algorithm_does_not_allow_duplicate_registration(self):
         self.jwt.register_algorithm('AAA', Algorithm())
 
@@ -656,7 +670,7 @@ class TestAPI(unittest.TestCase):
 
     def test_rsa_related_algorithms(self):
         self.jwt = PyJWT()
-        jwt_algorithms = self.jwt._algorithms
+        jwt_algorithms = self.jwt.get_supported_algorithms()
 
         if has_crypto:
             self.assertTrue('RS256' in jwt_algorithms)
@@ -759,7 +773,7 @@ class TestAPI(unittest.TestCase):
 
     def test_ecdsa_related_algorithms(self):
         self.jwt = PyJWT()
-        jwt_algorithms = self.jwt._algorithms
+        jwt_algorithms = self.jwt.get_supported_algorithms()
 
         if has_crypto:
             self.assertTrue('ES256' in jwt_algorithms)

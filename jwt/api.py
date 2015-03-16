@@ -15,9 +15,14 @@ from .utils import base64url_decode, base64url_encode
 
 
 class PyJWT(object):
-    def __init__(self):
+    def __init__(self, algorithms=None):
         self._algorithms = {}
-        _register_default_algorithms(self)
+
+        if algorithms is None:
+            _register_default_algorithms(self)
+        else:
+            for key, algo in algorithms.items():
+                self.register_algorithm(key, algo)
 
     def register_algorithm(self, alg_id, alg_obj):
         """
@@ -30,6 +35,12 @@ class PyJWT(object):
             raise TypeError('Object is not of type `Algorithm`')
 
         self._algorithms[alg_id] = alg_obj
+
+    def get_supported_algorithms(self):
+        """
+        Returns a list of supported values for the 'alg' parameter.
+        """
+        return self._algorithms.keys()
 
     def encode(self, payload, key, algorithm='HS256', headers=None, json_encoder=None):
         segments = []
