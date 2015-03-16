@@ -1,3 +1,5 @@
+import os
+
 from .compat import text_type
 
 
@@ -13,3 +15,8 @@ def ensure_unicode(key):
         key = key.decode()
 
     return key
+
+
+def key_path(key_name):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                        'keys', key_name)
