@@ -1,5 +1,4 @@
 import base64
-import hashlib
 
 from jwt.algorithms import Algorithm, HMACAlgorithm
 
@@ -7,7 +6,6 @@ from .compat import unittest
 from .utils import ensure_bytes, ensure_unicode
 
 try:
-    from cryptography.hazmat.primitives import hashes
     from jwt.algorithms import RSAAlgorithm, ECAlgorithm
 
     has_crypto = True
@@ -38,7 +36,7 @@ class TestAlgorithms(unittest.TestCase):
             algo.verify('message', 'key', 'signature')
 
     def test_hmac_should_reject_nonstring_key(self):
-        algo = HMACAlgorithm(hashlib.sha256())
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with self.assertRaises(TypeError) as context:
             algo.prepare_key(object())
@@ -47,34 +45,34 @@ class TestAlgorithms(unittest.TestCase):
         self.assertEqual(str(exception), 'Expecting a string- or bytes-formatted key.')
 
     def test_hmac_should_accept_unicode_key(self):
-        algo = HMACAlgorithm(hashlib.sha256())
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         algo.prepare_key(ensure_unicode('awesome'))
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_rsa_should_parse_pem_public_key(self):
-        algo = RSAAlgorithm(hashes.SHA256())
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open('tests/keys/testkey2_rsa.pub.pem', 'r') as pem_key:
             algo.prepare_key(pem_key.read())
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_rsa_should_accept_unicode_key(self):
-        algo = RSAAlgorithm(hashes.SHA256())
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open('tests/keys/testkey_rsa', 'r') as rsa_key:
             algo.prepare_key(ensure_unicode(rsa_key.read()))
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_rsa_should_reject_non_string_key(self):
-        algo = RSAAlgorithm(hashes.SHA256())
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with self.assertRaises(TypeError):
             algo.prepare_key(None)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_rsa_verify_should_return_false_if_signature_invalid(self):
-        algo = RSAAlgorithm(hashes.SHA256())
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         jwt_message = ensure_bytes('Hello World!')
 
@@ -96,7 +94,7 @@ class TestAlgorithms(unittest.TestCase):
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_rsa_verify_should_return_true_if_signature_valid(self):
-        algo = RSAAlgorithm(hashes.SHA256())
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         jwt_message = ensure_bytes('Hello World!')
 
@@ -116,21 +114,21 @@ class TestAlgorithms(unittest.TestCase):
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_ec_should_reject_non_string_key(self):
-        algo = ECAlgorithm(hashes.SHA256())
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with self.assertRaises(TypeError):
             algo.prepare_key(None)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_ec_should_accept_unicode_key(self):
-        algo = ECAlgorithm(hashes.SHA256())
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with open('tests/keys/testkey_ec', 'r') as ec_key:
             algo.prepare_key(ensure_unicode(ec_key.read()))
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_ec_verify_should_return_false_if_signature_invalid(self):
-        algo = ECAlgorithm(hashes.SHA256())
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         jwt_message = ensure_bytes('Hello World!')
 
@@ -150,7 +148,7 @@ class TestAlgorithms(unittest.TestCase):
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_ec_verify_should_return_true_if_signature_valid(self):
-        algo = ECAlgorithm(hashes.SHA256())
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         jwt_message = ensure_bytes('Hello World!')
 
