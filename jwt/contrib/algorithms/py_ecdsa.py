@@ -18,10 +18,12 @@ class ECAlgorithm(Algorithm):
 
     This is based off of the implementation in PyJWT 0.3.2
     """
+    SHA256 = hashlib.sha256
+    SHA384 = hashlib.sha384
+    SHA512 = hashlib.sha512
+
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
-
-    SHA256, SHA384, SHA512 = hashlib.sha256, hashlib.sha384, hashlib.sha512
 
     def prepare_key(self, key):
 

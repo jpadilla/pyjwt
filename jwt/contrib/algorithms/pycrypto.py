@@ -18,11 +18,12 @@ class RSAAlgorithm(Algorithm):
 
     This is based off of the implementation in PyJWT 0.3.2
     """
+    SHA256 = Crypto.Hash.SHA256
+    SHA384 = Crypto.Hash.SHA384
+    SHA512 = Crypto.Hash.SHA512
+
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
-
-    SHA256, SHA384, SHA512 = (Crypto.Hash.SHA256, Crypto.Hash.SHA384,
-                              Crypto.Hash.SHA512)
 
     def prepare_key(self, key):
 

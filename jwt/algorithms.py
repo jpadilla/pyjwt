@@ -83,10 +83,12 @@ class HMACAlgorithm(Algorithm):
     Performs signing and verification operations using HMAC
     and the specified hash function.
     """
+    SHA256 = hashlib.sha256
+    SHA384 = hashlib.sha384
+    SHA512 = hashlib.sha512
+
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
-
-    SHA256, SHA384, SHA512 = hashlib.sha256, hashlib.sha384, hashlib.sha512
 
     def prepare_key(self, key):
         if not isinstance(key, string_types) and not isinstance(key, bytes):
@@ -110,11 +112,12 @@ if has_crypto:
         Performs signing and verification operations using
         RSASSA-PKCS-v1_5 and the specified hash function.
         """
+        SHA256 = hashes.SHA256
+        SHA384 = hashes.SHA384
+        SHA512 = hashes.SHA512
 
         def __init__(self, hash_alg):
             self.hash_alg = hash_alg()
-
-        SHA256, SHA384, SHA512 = hashes.SHA256, hashes.SHA384, hashes.SHA512
 
         def prepare_key(self, key):
             if isinstance(key, interfaces.RSAPrivateKey) or \
@@ -166,10 +169,12 @@ if has_crypto:
         Performs signing and verification operations using
         ECDSA and the specified hash function
         """
+        SHA256 = hashes.SHA256
+        SHA384 = hashes.SHA384
+        SHA512 = hashes.SHA512
+
         def __init__(self, hash_alg):
             self.hash_alg = hash_alg()
-
-        SHA256, SHA384, SHA512 = hashes.SHA256, hashes.SHA384, hashes.SHA512
 
         def prepare_key(self, key):
             if isinstance(key, interfaces.EllipticCurvePrivateKey) or \
