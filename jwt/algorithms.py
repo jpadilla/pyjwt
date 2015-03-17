@@ -1,7 +1,6 @@
 import hashlib
 import hmac
 
-from .api import register_algorithm
 from .compat import constant_time_compare, string_types, text_type
 
 try:
@@ -18,23 +17,23 @@ except ImportError:
     has_crypto = False
 
 
-def _register_default_algorithms():
+def _register_default_algorithms(pyjwt_obj):
     """
     Registers the algorithms that are implemented by the library.
     """
-    register_algorithm('none', NoneAlgorithm())
-    register_algorithm('HS256', HMACAlgorithm(HMACAlgorithm.SHA256))
-    register_algorithm('HS384', HMACAlgorithm(HMACAlgorithm.SHA384))
-    register_algorithm('HS512', HMACAlgorithm(HMACAlgorithm.SHA512))
+    pyjwt_obj.register_algorithm('none', NoneAlgorithm())
+    pyjwt_obj.register_algorithm('HS256', HMACAlgorithm(HMACAlgorithm.SHA256))
+    pyjwt_obj.register_algorithm('HS384', HMACAlgorithm(HMACAlgorithm.SHA384))
+    pyjwt_obj.register_algorithm('HS512', HMACAlgorithm(HMACAlgorithm.SHA512))
 
     if has_crypto:
-        register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256))
-        register_algorithm('RS384', RSAAlgorithm(RSAAlgorithm.SHA384))
-        register_algorithm('RS512', RSAAlgorithm(RSAAlgorithm.SHA512))
+        pyjwt_obj.register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256))
+        pyjwt_obj.register_algorithm('RS384', RSAAlgorithm(RSAAlgorithm.SHA384))
+        pyjwt_obj.register_algorithm('RS512', RSAAlgorithm(RSAAlgorithm.SHA512))
 
-        register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256))
-        register_algorithm('ES384', ECAlgorithm(ECAlgorithm.SHA384))
-        register_algorithm('ES512', ECAlgorithm(ECAlgorithm.SHA512))
+        pyjwt_obj.register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256))
+        pyjwt_obj.register_algorithm('ES384', ECAlgorithm(ECAlgorithm.SHA384))
+        pyjwt_obj.register_algorithm('ES512', ECAlgorithm(ECAlgorithm.SHA512))
 
 
 class Algorithm(object):
