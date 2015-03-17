@@ -2,7 +2,7 @@ import hashlib
 import hmac
 
 from .compat import constant_time_compare, string_types, text_type
-from .exceptions import InvalidAlgorithmError
+from .exceptions import InvalidKeyError
 
 try:
     from cryptography.hazmat.primitives import interfaces, hashes
@@ -69,6 +69,9 @@ class NoneAlgorithm(Algorithm):
     operations are required.
     """
     def prepare_key(self, key):
+        if key is not None:
+            raise InvalidKeyError('When alg = "none", key value must be None.')
+
         return None
 
     def sign(self, msg, key):

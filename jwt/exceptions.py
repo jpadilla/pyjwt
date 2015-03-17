@@ -18,7 +18,7 @@ class InvalidIssuerError(InvalidTokenError):
     pass
 
 
-class InvalidAlgorithmError(Exception):
+class InvalidKeyError(Exception):
     pass
 
 
