@@ -27,13 +27,13 @@ def _register_default_algorithms(pyjwt_obj):
     pyjwt_obj.register_algorithm('HS512', HMACAlgorithm(HMACAlgorithm.SHA512))
 
     if has_crypto:
-        pyjwt_obj.register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256()))
-        pyjwt_obj.register_algorithm('RS384', RSAAlgorithm(RSAAlgorithm.SHA384()))
-        pyjwt_obj.register_algorithm('RS512', RSAAlgorithm(RSAAlgorithm.SHA512()))
+        pyjwt_obj.register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256)
+        pyjwt_obj.register_algorithm('RS384', RSAAlgorithm(RSAAlgorithm.SHA384)
+        pyjwt_obj.register_algorithm('RS512', RSAAlgorithm(RSAAlgorithm.SHA512)
 
-        pyjwt_obj.register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256()))
-        pyjwt_obj.register_algorithm('ES384', ECAlgorithm(ECAlgorithm.SHA384()))
-        pyjwt_obj.register_algorithm('ES512', ECAlgorithm(ECAlgorithm.SHA512()))
+        pyjwt_obj.register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256))
+        pyjwt_obj.register_algorithm('ES384', ECAlgorithm(ECAlgorithm.SHA384))
+        pyjwt_obj.register_algorithm('ES512', ECAlgorithm(ECAlgorithm.SHA512))
 
 
 class Algorithm(object):
