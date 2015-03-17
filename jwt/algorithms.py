@@ -23,18 +23,18 @@ def _register_default_algorithms():
     Registers the algorithms that are implemented by the library.
     """
     register_algorithm('none', NoneAlgorithm())
-    register_algorithm('HS256', HMACAlgorithm(hashlib.sha256))
-    register_algorithm('HS384', HMACAlgorithm(hashlib.sha384))
-    register_algorithm('HS512', HMACAlgorithm(hashlib.sha512))
+    register_algorithm('HS256', HMACAlgorithm(HMACAlgorithm.SHA256))
+    register_algorithm('HS384', HMACAlgorithm(HMACAlgorithm.SHA384))
+    register_algorithm('HS512', HMACAlgorithm(HMACAlgorithm.SHA512))
 
     if has_crypto:
-        register_algorithm('RS256', RSAAlgorithm(hashes.SHA256()))
-        register_algorithm('RS384', RSAAlgorithm(hashes.SHA384()))
-        register_algorithm('RS512', RSAAlgorithm(hashes.SHA512()))
+        register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256))
+        register_algorithm('RS384', RSAAlgorithm(RSAAlgorithm.SHA384))
+        register_algorithm('RS512', RSAAlgorithm(RSAAlgorithm.SHA512))
 
-        register_algorithm('ES256', ECAlgorithm(hashes.SHA256()))
-        register_algorithm('ES384', ECAlgorithm(hashes.SHA384()))
-        register_algorithm('ES512', ECAlgorithm(hashes.SHA512()))
+        register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256))
+        register_algorithm('ES384', ECAlgorithm(ECAlgorithm.SHA384))
+        register_algorithm('ES512', ECAlgorithm(ECAlgorithm.SHA512))
 
 
 class Algorithm(object):
@@ -83,6 +83,10 @@ class HMACAlgorithm(Algorithm):
     Performs signing and verification operations using HMAC
     and the specified hash function.
     """
+    SHA256 = hashlib.sha256
+    SHA384 = hashlib.sha384
+    SHA512 = hashlib.sha512
+
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
 
@@ -108,9 +112,12 @@ if has_crypto:
         Performs signing and verification operations using
         RSASSA-PKCS-v1_5 and the specified hash function.
         """
+        SHA256 = hashes.SHA256
+        SHA384 = hashes.SHA384
+        SHA512 = hashes.SHA512
 
         def __init__(self, hash_alg):
-            self.hash_alg = hash_alg
+            self.hash_alg = hash_alg()
 
         def prepare_key(self, key):
             if isinstance(key, interfaces.RSAPrivateKey) or \
@@ -162,8 +169,12 @@ if has_crypto:
         Performs signing and verification operations using
         ECDSA and the specified hash function
         """
+        SHA256 = hashes.SHA256
+        SHA384 = hashes.SHA384
+        SHA512 = hashes.SHA512
+
         def __init__(self, hash_alg):
-            self.hash_alg = hash_alg
+            self.hash_alg = hash_alg()
 
         def prepare_key(self, key):
             if isinstance(key, interfaces.EllipticCurvePrivateKey) or \
