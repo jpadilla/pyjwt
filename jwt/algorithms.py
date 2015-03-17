@@ -104,7 +104,7 @@ class HMACAlgorithm(Algorithm):
             key = key.encode('utf-8')
 
         if (b'-----BEGIN PUBLIC KEY-----' in key or b'-----BEGIN CERTIFICATE-----' in key):
-            raise InvalidAlgorithmError(
+            raise InvalidKeyError(
                 'The specified key is an assymetric key or x509 certificate and'
                 ' should not be used as an HMAC secret.')
 
