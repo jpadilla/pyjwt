@@ -69,10 +69,13 @@ class NoneAlgorithm(Algorithm):
     operations are required.
     """
     def prepare_key(self, key):
+        if key == '':
+            key = None
+
         if key is not None:
             raise InvalidKeyError('When alg = "none", key value must be None.')
 
-        return None
+        return key
 
     def sign(self, msg, key):
         return b''
