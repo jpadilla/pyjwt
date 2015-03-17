@@ -48,7 +48,10 @@ You can still get the payload by setting the `verify` argument to `False`.
 jwt.decode('someJWTstring', verify=False)
 ```
 
-The `decode()` function can raise other exceptions, e.g. for invalid issuer or audience (see below). All exceptions that signify that the token is invalid extend from the base `InvalidTokenError` exception class, so applications can use this approach to catch any issues relating to invalid tokens:
+The `decode()` function can raise other exceptions, e.g. for invalid issuer or
+audience (see below). All exceptions that signify that the token is invalid
+extend from the base `InvalidTokenError` exception class, so applications can
+use this approach to catch any issues relating to invalid tokens:
 
 ```python
 try:
@@ -57,6 +60,13 @@ except jwt.InvalidTokenError:
     pass  # do something sensible here, e.g. return HTTP 403 status code
 ```
 
+## Tests
+
+You can run tests from the project root after cloning with:
+
+```
+$ python tests/test_jwt.py
+```
 
 ## Algorithms
 
@@ -81,7 +91,8 @@ jwt.encode({'some': 'payload'}, 'secret', 'HS512')
 
 Usage of RSA (RS\*) and EC (EC\*) algorithms require a basic understanding
 of how public-key cryptography is used with regards to digital signatures.
-If you are unfamiliar, you may want to read [this article](http://en.wikipedia.org/wiki/Public-key_cryptography).
+If you are unfamiliar, you may want to read
+[this article](http://en.wikipedia.org/wiki/Public-key_cryptography).
 
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 `jwt.encode()` and `jwt.decode()` (`"secret"` in the examples) is expected to
@@ -92,18 +103,10 @@ When using the ECDSA algorithms, the `key` argument is expected to
 be an Elliptic Curve public or private key in PEM format. The type of key
 (private or public) depends on whether you are signing or verifying.
 
-## Tests
-
-You can run tests from the project root after cloning with:
-
-```
-$ python tests/test_jwt.py
-```
-
 ## Support of registered claim names
 
-JSON Web Token defines some registered claim names and defines how they should be
-used. PyJWT supports these registered claim names:
+JSON Web Token defines some registered claim names and defines how they should
+be used. PyJWT supports these registered claim names:
 
  - "exp" (Expiration Time) Claim
  - "nbf" (Not Before Time) Claim
@@ -147,7 +150,8 @@ Expiration time will be compared to the current UTC time (as given by
 `timegm(datetime.utcnow().utctimetuple())`), so be sure to use a UTC timestamp
 or datetime in encoding.
 
-You can turn off expiration time verification with the `verify_expiration` argument.
+You can turn off expiration time verification with the `verify_expiration`
+argument.
 
 PyJWT also supports the leeway part of the expiration time definition, which
 means you can validate a expiration time which is in the past but not very far.
@@ -171,7 +175,8 @@ time.sleep(32)
 jwt.decode(jwt_payload, 'secret', leeway=10)
 ```
 
-Instead of specifying the leeway as a number of seconds, a `datetime.timedelta` instance can be used. The last line in the example above is equivalent to:
+Instead of specifying the leeway as a number of seconds, a `datetime.timedelta`
+instance can be used. The last line in the example above is equivalent to:
 
 ```python
 jwt.decode(jwt_payload, 'secret', leeway=datetime.timedelta(seconds=10))
@@ -248,6 +253,22 @@ decoded = jwt.decode(token, 'secret', audience='urn:foo')
 
 If the audience claim is incorrect, `jwt.InvalidAudienceError` will be raised.
 
+## Frequently Asked Questions
+
+**How can I extract a public / private key from a x509 certificate?**
+
+The `load_pem_x509_certificate()` function from `cryptography` can be used to
+extract the public or private keys from a x509 certificate in PEM format.
+
+```python
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.backends import default_backend
+
+cert_str = "-----BEGIN CERTIFICATE-----MIIDETCCAfm..."
+cert_obj = load_pem_x509_certificate(cert_str, default_backend())
+public_key = cert_obj.public_key()
+private_key = cert_obj.private_key()
+```
 
 ## License
 
