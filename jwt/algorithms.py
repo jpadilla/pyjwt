@@ -2,6 +2,7 @@ import hashlib
 import hmac
 
 from .compat import constant_time_compare, string_types, text_type
+from .exceptions import InvalidAlgorithmError
 
 try:
     from cryptography.hazmat.primitives import interfaces, hashes
@@ -95,6 +96,12 @@ class HMACAlgorithm(Algorithm):
 
         if isinstance(key, text_type):
             key = key.encode('utf-8')
+
+        if (b'-----BEGIN PUBLIC KEY-----' in key
+            or b'-----BEGIN CERTIFICATE-----' in key):
+            raise InvalidAlgorithmError(
+                'The specified key is an assymetric key or x509 certificate and'
+                ' should not be used as an HMAC secret.')
 
         return key
 
