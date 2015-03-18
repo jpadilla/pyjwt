@@ -216,3 +216,4 @@ _jwt_global_obj = PyJWT()
 encode = _jwt_global_obj.encode
 decode = _jwt_global_obj.decode
 register_algorithm = _jwt_global_obj.register_algorithm
+unregister_algorithm = _jwt_global_obj.unregister_algorithm
