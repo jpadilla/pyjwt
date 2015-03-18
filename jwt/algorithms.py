@@ -103,7 +103,13 @@ class HMACAlgorithm(Algorithm):
         if isinstance(key, text_type):
             key = key.encode('utf-8')
 
-        if (b'-----BEGIN PUBLIC KEY-----' in key or b'-----BEGIN CERTIFICATE-----' in key):
+        invalid_strings = [
+            b'-----BEGIN PUBLIC KEY-----',
+            b'-----BEGIN CERTIFICATE-----',
+            b'ssh-rsa'
+        ]
+
+        if any([string_value in key for string_value in invalid_strings]):
             raise InvalidKeyError(
                 'The specified key is an assymetric key or x509 certificate and'
                 ' should not be used as an HMAC secret.')
