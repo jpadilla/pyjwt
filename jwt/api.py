@@ -5,10 +5,10 @@ from calendar import timegm
 from collections import Mapping
 from datetime import datetime, timedelta
 
-from .algorithms import Algorithm, _register_default_algorithms  # NOQA
+from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .compat import string_types, text_type, timedelta_total_seconds
 from .exceptions import (
-    DecodeError, ExpiredSignatureError,
+    DecodeError, ExpiredSignatureError, InvalidAlgorithmError,
     InvalidAudienceError, InvalidIssuerError
 )
 from .utils import base64url_decode, base64url_encode
@@ -16,13 +16,13 @@ from .utils import base64url_decode, base64url_encode
 
 class PyJWT(object):
     def __init__(self, algorithms=None):
-        self._algorithms = {}
+        self._algorithms = get_default_algorithms()
+        self._valid_algs = set(algorithms) if algorithms is not None else set(self._algorithms)
 
-        if algorithms is None:
-            _register_default_algorithms(self)
-        else:
-            for key, algo in algorithms.items():
-                self.register_algorithm(key, algo)
+        # Remove algorithms that aren't on the whitelist
+        for key in list(self._algorithms.keys()):
+            if key not in self._valid_algs:
+                del self._algorithms[key]
 
     def register_algorithm(self, alg_id, alg_obj):
         """
@@ -35,18 +35,33 @@ class PyJWT(object):
             raise TypeError('Object is not of type `Algorithm`')
 
         self._algorithms[alg_id] = alg_obj
+        self._valid_algs.add(alg_id)
 
-    def get_supported_algorithms(self):
+    def unregister_algorithm(self, alg_id):
+        """
+        Unregisters an Algorithm for use when creating and verifying tokens
+        Throws KeyError if algorithm is not registered.
+        """
+        if alg_id not in self._algorithms:
+            raise KeyError('The specified algorithm could not be removed because it is not registered.')
+
+        del self._algorithms[alg_id]
+        self._valid_algs.remove(alg_id)
+
+    def get_algorithms(self):
         """
         Returns a list of supported values for the 'alg' parameter.
         """
-        return self._algorithms.keys()
+        return list(self._valid_algs)
 
     def encode(self, payload, key, algorithm='HS256', headers=None, json_encoder=None):
         segments = []
 
         if algorithm is None:
             algorithm = 'none'
+
+        if algorithm not in self._valid_algs:
+            pass
 
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
@@ -94,12 +109,12 @@ class PyJWT(object):
 
         return b'.'.join(segments)
 
-    def decode(self, jwt, key='', verify=True, **kwargs):
+    def decode(self, jwt, key='', verify=True, algorithms=None, **kwargs):
         payload, signing_input, header, signature = self._load(jwt)
 
         if verify:
             self._verify_signature(payload, signing_input, header, signature,
-                                   key, **kwargs)
+                                   key, algorithms, **kwargs)
 
         return payload
 
@@ -142,8 +157,13 @@ class PyJWT(object):
         return (payload, signing_input, header, signature)
 
     def _verify_signature(self, payload, signing_input, header, signature,
-                          key='', verify_expiration=True, leeway=0,
+                          key='', algorithms=None, verify_expiration=True, leeway=0,
                           audience=None, issuer=None):
+
+        alg = header['alg']
+
+        if algorithms is not None and alg not in algorithms:
+            raise InvalidAlgorithmError('The specified alg value is not allowed')
 
         if isinstance(leeway, timedelta):
             leeway = timedelta_total_seconds(leeway)
@@ -152,14 +172,14 @@ class PyJWT(object):
             raise TypeError('audience must be a string or None')
 
         try:
-            alg_obj = self._algorithms[header['alg']]
+            alg_obj = self._algorithms[alg]
             key = alg_obj.prepare_key(key)
 
             if not alg_obj.verify(signing_input, key, signature):
                 raise DecodeError('Signature verification failed')
 
         except KeyError:
-            raise DecodeError('Algorithm not supported')
+            raise InvalidAlgorithmError('Algorithm not supported')
 
         if 'nbf' in payload and verify_expiration:
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())

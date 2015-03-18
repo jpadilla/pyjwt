@@ -18,23 +18,28 @@ except ImportError:
     has_crypto = False
 
 
-def _register_default_algorithms(pyjwt_obj):
+def get_default_algorithms():
     """
-    Registers the algorithms that are implemented by the library.
+    Returns the algorithms that are implemented by the library.
     """
-    pyjwt_obj.register_algorithm('none', NoneAlgorithm())
-    pyjwt_obj.register_algorithm('HS256', HMACAlgorithm(HMACAlgorithm.SHA256))
-    pyjwt_obj.register_algorithm('HS384', HMACAlgorithm(HMACAlgorithm.SHA384))
-    pyjwt_obj.register_algorithm('HS512', HMACAlgorithm(HMACAlgorithm.SHA512))
+    default_algorithms = {
+        'none': NoneAlgorithm(),
+        'HS256': HMACAlgorithm(HMACAlgorithm.SHA256),
+        'HS384': HMACAlgorithm(HMACAlgorithm.SHA384),
+        'HS512': HMACAlgorithm(HMACAlgorithm.SHA512)
+    }
 
     if has_crypto:
-        pyjwt_obj.register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256))
-        pyjwt_obj.register_algorithm('RS384', RSAAlgorithm(RSAAlgorithm.SHA384))
-        pyjwt_obj.register_algorithm('RS512', RSAAlgorithm(RSAAlgorithm.SHA512))
+        default_algorithms.update({
+            'RS256': RSAAlgorithm(RSAAlgorithm.SHA256),
+            'RS384': RSAAlgorithm(RSAAlgorithm.SHA384),
+            'RS512': RSAAlgorithm(RSAAlgorithm.SHA512),
+            'ES256': ECAlgorithm(ECAlgorithm.SHA256),
+            'ES384': ECAlgorithm(ECAlgorithm.SHA384),
+            'ES512': ECAlgorithm(ECAlgorithm.SHA512)
+        })
 
-        pyjwt_obj.register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256))
-        pyjwt_obj.register_algorithm('ES384', ECAlgorithm(ECAlgorithm.SHA384))
-        pyjwt_obj.register_algorithm('ES512', ECAlgorithm(ECAlgorithm.SHA512))
+    return default_algorithms
 
 
 class Algorithm(object):
