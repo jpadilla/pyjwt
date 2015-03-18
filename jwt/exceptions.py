@@ -18,6 +18,10 @@ class InvalidIssuerError(InvalidTokenError):
     pass
 
 
+class InvalidKeyError(Exception):
+    pass
+
+
 # Compatibility aliases (deprecated)
 ExpiredSignature = ExpiredSignatureError
 InvalidAudience = InvalidAudienceError

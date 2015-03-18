@@ -1,6 +1,7 @@
 import base64
 
-from jwt.algorithms import Algorithm, HMACAlgorithm
+from jwt.algorithms import Algorithm, HMACAlgorithm, NoneAlgorithm
+from jwt.exceptions import InvalidKeyError
 
 from .compat import unittest
 from .utils import ensure_bytes, ensure_unicode, key_path
@@ -35,6 +36,12 @@ class TestAlgorithms(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             algo.verify('message', 'key', 'signature')
 
+    def test_none_algorithm_should_throw_exception_if_key_is_not_none(self):
+        algo = NoneAlgorithm()
+
+        with self.assertRaises(InvalidKeyError):
+            algo.prepare_key('123')
+
     def test_hmac_should_reject_nonstring_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
@@ -48,6 +55,38 @@ class TestAlgorithms(unittest.TestCase):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         algo.prepare_key(ensure_unicode('awesome'))
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_hmac_should_throw_exception_if_key_is_pem_public_key(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with self.assertRaises(InvalidKeyError):
+            with open(key_path('testkey2_rsa.pub.pem'), 'r') as keyfile:
+                algo.prepare_key(keyfile.read())
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_hmac_should_throw_exception_if_key_is_x509_certificate(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with self.assertRaises(InvalidKeyError):
+            with open(key_path('testkey_rsa.cer'), 'r') as keyfile:
+                algo.prepare_key(keyfile.read())
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_hmac_should_throw_exception_if_key_is_ssh_public_key(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with self.assertRaises(InvalidKeyError):
+            with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
+                algo.prepare_key(keyfile.read())
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_hmac_should_throw_exception_if_key_is_x509_cert(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with self.assertRaises(InvalidKeyError):
+            with open(key_path('testkey2_rsa.pub.pem'), 'r') as keyfile:
+                algo.prepare_key(keyfile.read())
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_rsa_should_parse_pem_public_key(self):
