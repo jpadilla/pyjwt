@@ -16,7 +16,9 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright 2015 José Padilla'
 
 
-from .api import encode, decode, register_algorithm, PyJWT
+from .api import (
+    encode, decode, register_algorithm, unregister_algorithm, PyJWT
+)
 from .exceptions import (
     InvalidTokenError, DecodeError, ExpiredSignatureError,
     InvalidAudienceError, InvalidIssuerError,

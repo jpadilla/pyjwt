@@ -22,6 +22,10 @@ class InvalidKeyError(Exception):
     pass
 
 
+class InvalidAlgorithmError(InvalidTokenError):
+    pass
+
+
 # Compatibility aliases (deprecated)
 ExpiredSignature = ExpiredSignatureError
 InvalidAudience = InvalidAudienceError

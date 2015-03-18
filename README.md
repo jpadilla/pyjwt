@@ -26,19 +26,19 @@ $ pip install cryptography
 
 ```python
 import jwt
-jwt.encode({'some': 'payload'}, 'secret')
+jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256')
 ```
 
 Additional headers may also be specified.
 
 ```python
-jwt.encode({'some': 'payload'}, 'secret', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
 ```
 
 Note the resulting JWT will not be encrypted, but verifiable with a secret key.
 
 ```python
-jwt.decode('someJWTstring', 'secret')
+jwt.decode('someJWTstring', 'secret', algorithms=['HS256'])
 ```
 
 If the secret is wrong, it will raise a `jwt.DecodeError` telling you as such.
@@ -83,12 +83,27 @@ currently supports:
 * RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm
 * RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm
 
-Change the algorithm with by setting it in encode:
+### Encoding
+You can specify which algorithm you would like to use to sign the JWT
+by using the `algorithm` parameter:
 
 ```python
-jwt.encode({'some': 'payload'}, 'secret', 'HS512')
+jwt.encode({'some': 'payload'}, 'secret', algorithm='HS512')
 ```
 
+### Decoding
+When decoding, you can specify which algorithms you would like to permit
+when validating the JWT by using the `algorithms` parameter which takes a list
+of allowed algorithms:
+
+```python
+jwt.decode(some_jwt, 'secret', algorithms=['HS512', 'HS256'])
+```
+
+In the above case, if the JWT has any value for its alg header other than
+HS512 or HS256, the claim will be rejected with an `InvalidAlgorithmError`.
+
+### Asymmetric (Public-key) Algorithms
 Usage of RSA (RS\*) and EC (EC\*) algorithms require a basic understanding
 of how public-key cryptography is used with regards to digital signatures.
 If you are unfamiliar, you may want to read
@@ -102,6 +117,7 @@ be either an RSA public or private key in PEM or SSH format. The type of key
 When using the ECDSA algorithms, the `key` argument is expected to
 be an Elliptic Curve public or private key in PEM format. The type of key
 (private or public) depends on whether you are signing or verifying.
+
 
 ## Support of registered claim names
 

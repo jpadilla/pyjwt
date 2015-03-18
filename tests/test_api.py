@@ -8,7 +8,10 @@ from decimal import Decimal
 
 from jwt.algorithms import Algorithm
 from jwt.api import PyJWT
-from jwt.exceptions import DecodeError, ExpiredSignatureError, InvalidAudienceError, InvalidIssuerError
+from jwt.exceptions import (
+    DecodeError, ExpiredSignatureError, InvalidAlgorithmError,
+    InvalidAudienceError, InvalidIssuerError
+)
 
 from .compat import text_type, unittest
 from .utils import ensure_bytes
@@ -35,20 +38,6 @@ class TestAPI(unittest.TestCase):
                         'claim': 'insanity'}
         self.jwt = PyJWT()
 
-    def test_if_algorithms_param_is_empty_dict_then_no_algorithms(self):
-        jwt_obj = PyJWT(algorithms={})
-        jwt_algorithms = jwt_obj.get_supported_algorithms()
-
-        self.assertEqual(len(jwt_algorithms), 0)
-
-    def test_algorithms_param_sets_algorithms(self):
-        algorithms = {'TESTALG': Algorithm()}
-        jwt_obj = PyJWT(algorithms=algorithms)
-
-        supported_algs = jwt_obj.get_supported_algorithms()
-        self.assertEqual(len(supported_algs), 1)
-        self.assertIn('TESTALG', supported_algs)
-
     def test_register_algorithm_does_not_allow_duplicate_registration(self):
         self.jwt.register_algorithm('AAA', Algorithm())
 
@@ -59,12 +48,42 @@ class TestAPI(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.jwt.register_algorithm('AAA123', {})
 
+    def test_unregister_algorithm_removes_algorithm(self):
+        supported = self.jwt.get_algorithms()
+        self.assertIn('none', supported)
+        self.assertIn('HS256', supported)
+
+        self.jwt.unregister_algorithm('HS256')
+
+        supported = self.jwt.get_algorithms()
+        self.assertNotIn('HS256', supported)
+
+    def test_unregister_algorithm_throws_error_if_not_registered(self):
+        with self.assertRaises(KeyError):
+            self.jwt.unregister_algorithm('AAA')
+
+    def test_algorithms_parameter_removes_alg_from_algorithms_list(self):
+        self.assertIn('none', self.jwt.get_algorithms())
+        self.assertIn('HS256', self.jwt.get_algorithms())
+
+        self.jwt = PyJWT(algorithms=['HS256'])
+        self.assertNotIn('none', self.jwt.get_algorithms())
+        self.assertIn('HS256', self.jwt.get_algorithms())
+
     def test_encode_decode(self):
         secret = 'secret'
         jwt_message = self.jwt.encode(self.payload, secret)
         decoded_payload = self.jwt.decode(jwt_message, secret)
 
         self.assertEqual(decoded_payload, self.payload)
+
+    def test_decode_fails_when_alg_is_not_on_method_algorithms_param(self):
+        secret = 'secret'
+        jwt_token = self.jwt.encode(self.payload, secret, algorithm='HS256')
+        self.jwt.decode(jwt_token, secret)
+
+        with self.assertRaises(InvalidAlgorithmError):
+            self.jwt.decode(jwt_token, secret, algorithms=['HS384'])
 
     def test_decode_works_with_unicode_token(self):
         secret = 'secret'
@@ -170,7 +189,7 @@ class TestAPI(unittest.TestCase):
                        '.eyJoZWxsbyI6IndvcmxkIn0'
                        '.5R_FEPE7SW2dT9GgIxPgZATjFGXfUDOSwo7TtO_Kd_g')
 
-        with self.assertRaises(DecodeError) as context:
+        with self.assertRaises(InvalidAlgorithmError) as context:
             self.jwt.decode(example_jwt, 'secret')
 
         exception = context.exception
@@ -670,7 +689,7 @@ class TestAPI(unittest.TestCase):
 
     def test_rsa_related_algorithms(self):
         self.jwt = PyJWT()
-        jwt_algorithms = self.jwt.get_supported_algorithms()
+        jwt_algorithms = self.jwt.get_algorithms()
 
         if has_crypto:
             self.assertTrue('RS256' in jwt_algorithms)
@@ -773,7 +792,7 @@ class TestAPI(unittest.TestCase):
 
     def test_ecdsa_related_algorithms(self):
         self.jwt = PyJWT()
-        jwt_algorithms = self.jwt.get_supported_algorithms()
+        jwt_algorithms = self.jwt.get_algorithms()
 
         if has_crypto:
             self.assertTrue('ES256' in jwt_algorithms)
