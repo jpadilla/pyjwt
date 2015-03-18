@@ -171,13 +171,12 @@ class TestAlgorithms(unittest.TestCase):
 
         jwt_message = ensure_bytes('Hello World!')
 
+        # Mess up the signature by replacing a known byte
         jwt_sig = base64.b64decode(ensure_bytes(
             'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
             '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
             '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
-            'zJ8hSJmbw=='))
-
-        jwt_sig += ensure_bytes('123')  # Signature is now invalid
+            'zJ8hSJmbw=='.replace('r', 's')))
 
         with open(key_path('testkey_ec.pub'), 'r') as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
