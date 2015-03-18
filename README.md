@@ -15,12 +15,14 @@ $ pip install PyJWT
 
 **A Note on Dependencies**:
 
-RSA and ECDSA signatures depend on the cryptography package. If you plan on
+RSA and ECDSA signatures depend on the recommended `cryptography` package. If you plan on
 using any of those algorithms, you'll need to install it as well.
 
 ```
 $ pip install cryptography
 ```
+
+If you're system doesn't allow installing `cryptography` like on Google App Engine, you can install `PyCrypto` for RSA signatures and `ecdsa` for ECDSA signatures.
 
 ## Usage
 
