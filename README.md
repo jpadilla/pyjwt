@@ -67,7 +67,7 @@ except jwt.InvalidTokenError:
 You can run tests from the project root after cloning with:
 
 ```
-$ python tests/test_jwt.py
+$ python setup.py test
 ```
 
 ## Algorithms
@@ -287,10 +287,6 @@ cert_obj = load_pem_x509_certificate(cert_str, default_backend())
 public_key = cert_obj.public_key()
 private_key = cert_obj.private_key()
 ```
-
-## License
-
-MIT
 
 [travis-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.png?branch=master
 [travis]: http://travis-ci.org/jpadilla/pyjwt?branch=master
