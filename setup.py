@@ -12,6 +12,17 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
     long_description = readme.read()
 
 
+def get_packages(package):
+    """
+    Return root package and all sub-packages.
+    """
+    return [
+        dirpath
+        for dirpath, dirnames, filenames in os.walk(package)
+        if os.path.exists(os.path.join(dirpath, '__init__.py'))
+    ]
+
+
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     os.system('python setup.py bdist_wheel upload')
@@ -30,7 +41,7 @@ setup(
     license='MIT',
     keywords='jwt json web token security signing',
     url='http://github.com/jpadilla/pyjwt',
-    packages=['jwt'],
+    packages=get_packages('jwt'),
     scripts=['bin/jwt'],
     long_description=long_description,
     classifiers=[
