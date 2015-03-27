@@ -5,11 +5,11 @@ from .compat import constant_time_compare, string_types, text_type
 from .exceptions import InvalidKeyError
 
 try:
-    from cryptography.hazmat.primitives import interfaces, hashes
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import ec, padding, rsa
     from cryptography.hazmat.primitives.serialization import (
         load_pem_private_key, load_pem_public_key, load_ssh_public_key
     )
-    from cryptography.hazmat.primitives.asymmetric import ec, padding
     from cryptography.hazmat.backends import default_backend
     from cryptography.exceptions import InvalidSignature
 
@@ -142,8 +142,8 @@ if has_crypto:
             self.hash_alg = hash_alg()
 
         def prepare_key(self, key):
-            if isinstance(key, interfaces.RSAPrivateKey) or \
-               isinstance(key, interfaces.RSAPublicKey):
+            if isinstance(key, rsa.RSAPrivateKey) or \
+               isinstance(key, rsa.RSAPublicKey):
                 return key
 
             if isinstance(key, string_types):
@@ -199,8 +199,8 @@ if has_crypto:
             self.hash_alg = hash_alg()
 
         def prepare_key(self, key):
-            if isinstance(key, interfaces.EllipticCurvePrivateKey) or \
-               isinstance(key, interfaces.EllipticCurvePublicKey):
+            if isinstance(key, ec.EllipticCurvePrivateKey) or \
+               isinstance(key, ec.EllipticCurvePublicKey):
                 return key
 
             if isinstance(key, string_types):

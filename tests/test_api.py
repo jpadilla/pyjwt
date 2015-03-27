@@ -182,7 +182,7 @@ class TestAPI(unittest.TestCase):
             self.jwt.encode(payload, None, algorithm='hs256')
 
         exception = context.exception
-        self.assertEquals(str(exception), 'Algorithm not supported')
+        self.assertEqual(str(exception), 'Algorithm not supported')
 
     def test_decode_algorithm_param_should_be_case_sensitive(self):
         example_jwt = ('eyJhbGciOiJoczI1NiIsInR5cCI6IkpXVCJ9'  # alg = hs256
@@ -193,7 +193,7 @@ class TestAPI(unittest.TestCase):
             self.jwt.decode(example_jwt, 'secret')
 
         exception = context.exception
-        self.assertEquals(str(exception), 'Algorithm not supported')
+        self.assertEqual(str(exception), 'Algorithm not supported')
 
     def test_encode_datetime(self):
         secret = 'secret'
