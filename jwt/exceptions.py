@@ -18,9 +18,17 @@ class InvalidIssuerError(InvalidTokenError):
     pass
 
 
-class InvalidKeyError(Exception):
+class InvalidIssuedAtError(InvalidTokenError):
     pass
 
+
+class ImmatureSignatureError(InvalidTokenError):
+    pass
+
+
+class InvalidKeyError(Exception):
+    pass
+    
 
 class InvalidAlgorithmError(InvalidTokenError):
     pass

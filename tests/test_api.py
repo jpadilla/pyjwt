@@ -10,7 +10,8 @@ from jwt.algorithms import Algorithm
 from jwt.api import PyJWT
 from jwt.exceptions import (
     DecodeError, ExpiredSignatureError, InvalidAlgorithmError,
-    InvalidAudienceError, InvalidIssuerError
+    InvalidAudienceError, InvalidIssuerError, InvalidIssuedAtError,
+    ImmatureSignatureError
 )
 
 from .compat import text_type, unittest
@@ -210,7 +211,7 @@ class TestAPI(unittest.TestCase):
                        'eyJpYXQiOiJub3QtYW4taW50In0.'
                        'H1GmcQgSySa5LOKYbzGm--b1OmRbHFkyk8pq811FzZM')
 
-        with self.assertRaisesRegexp(DecodeError, 'iat'):
+        with self.assertRaises(DecodeError):
             self.jwt.decode(example_jwt, 'secret')
 
     def test_decode_raises_exception_if_nbf_is_not_int(self):
@@ -219,8 +220,15 @@ class TestAPI(unittest.TestCase):
                        'eyJuYmYiOiJub3QtYW4taW50In0.'
                        'c25hldC8G2ZamC8uKpax9sYMTgdZo3cxrmzFHaAAluw')
 
-        with self.assertRaisesRegexp(DecodeError, 'nbf'):
+        with self.assertRaises(DecodeError):
             self.jwt.decode(example_jwt, 'secret')
+
+    def test_decode_raises_exception_if_iat_in_the_future(self):
+        now = datetime.utcnow()
+        token = self.jwt.encode({'iat': now + timedelta(days=1)}, key='secret')
+
+        with self.assertRaises(InvalidIssuedAtError):
+            self.jwt.decode(token, 'secret')
 
     def test_encode_datetime(self):
         secret = 'secret'
@@ -451,7 +459,7 @@ class TestAPI(unittest.TestCase):
         secret = 'secret'
         jwt_message = self.jwt.encode(self.payload, secret)
 
-        with self.assertRaises(ExpiredSignatureError):
+        with self.assertRaises(ImmatureSignatureError):
             self.jwt.decode(jwt_message, secret)
 
     def test_decode_skip_expiration_verification(self):
@@ -492,7 +500,7 @@ class TestAPI(unittest.TestCase):
         # With 13 seconds leeway, should be ok
         self.jwt.decode(jwt_message, secret, leeway=13)
 
-        with self.assertRaises(ExpiredSignatureError):
+        with self.assertRaises(ImmatureSignatureError):
             self.jwt.decode(jwt_message, secret, leeway=1)
 
     def test_decode_with_algo_none_should_fail(self):
