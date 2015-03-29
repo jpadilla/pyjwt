@@ -14,6 +14,7 @@ Change Log
 ### Fixed
 - Include jwt/contrib' andjwt/contrib/algorithms` in setup.py so that they will
   actually be included when installing. Ref 882524d
+- Fix bin/jwt after removing jwt.header() Ref bd57b02
 
 [v1.0.0][1.0.0]
 -------------------------------------------------------------------------
