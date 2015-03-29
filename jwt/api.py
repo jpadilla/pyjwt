@@ -188,6 +188,11 @@ class PyJWT(object):
                 raise DecodeError('Issued At claim (iat) must be an integer.')
 
         if 'nbf' in payload and verify_expiration:
+            try:
+                nbf = int(payload['nbf'])
+            except ValueError:
+                raise DecodeError('Not Before claim (nbf) must be an integer.')
+
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
             if payload['nbf'] > (utc_timestamp + leeway):

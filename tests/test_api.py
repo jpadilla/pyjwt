@@ -213,6 +213,15 @@ class TestAPI(unittest.TestCase):
         with self.assertRaisesRegexp(DecodeError, 'iat'):
             self.jwt.decode(example_jwt, 'secret')
 
+    def test_decode_raises_exception_if_nbf_is_not_int(self):
+        # >>> jwt.encode({'nbf': 'not-an-int'}, 'secret')
+        example_jwt = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+                       'eyJuYmYiOiJub3QtYW4taW50In0.'
+                       'c25hldC8G2ZamC8uKpax9sYMTgdZo3cxrmzFHaAAluw')
+
+        with self.assertRaisesRegexp(DecodeError, 'nbf'):
+            self.jwt.decode(example_jwt, 'secret')
+
     def test_encode_datetime(self):
         secret = 'secret'
         current_datetime = datetime.utcnow()
