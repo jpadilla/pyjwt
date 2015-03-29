@@ -479,9 +479,6 @@ class TestAPI(unittest.TestCase):
         for leeway in (3, timedelta(seconds=3)):
             self.jwt.decode(jwt_message, secret, leeway=leeway)
 
-            self.jwt._verify_signature(decoded_payload, signing, header,
-                                       signature, secret, leeway=leeway)
-
         # With 1 seconds, should fail
         for leeway in (1, timedelta(seconds=1)):
             with self.assertRaises(ExpiredSignatureError):
