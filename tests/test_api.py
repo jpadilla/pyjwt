@@ -418,7 +418,6 @@ class TestAPI(unittest.TestCase):
         with self.assertRaisesRegexp(DecodeError, 'Invalid payload padding'):
             self.jwt.decode(example_jwt, example_secret)
 
-
     def test_decode_invalid_payload_string(self):
         example_jwt = (
             'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
@@ -435,7 +434,6 @@ class TestAPI(unittest.TestCase):
             '.eyJoZWxsbyI6ICJ3b3JsZCJ9'
             '.aatvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
         example_secret = 'secret'
-
 
         with self.assertRaisesRegexp(DecodeError, 'Invalid crypto padding'):
             self.jwt.decode(example_jwt, example_secret)
