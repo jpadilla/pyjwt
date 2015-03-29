@@ -20,7 +20,7 @@ from .api import (
     encode, decode, register_algorithm, unregister_algorithm, PyJWT
 )
 from .exceptions import (
-    InvalidTokenError, DecodeError, ExpiredSignatureError,
-    InvalidAudienceError, InvalidIssuerError,
-    ExpiredSignature, InvalidAudience, InvalidIssuer
+    InvalidTokenError, DecodeError, InvalidAudienceError,
+    ExpiredSignatureError, ImmatureSignatureError, InvalidIssuedAtError,
+    InvalidIssuerError, ExpiredSignature, InvalidAudience, InvalidIssuer
 )

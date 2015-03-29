@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .compat import string_types, text_type, timedelta_total_seconds
 from .exceptions import (
-    DecodeError, ExpiredSignatureError, InvalidAlgorithmError,
-    InvalidAudienceError, InvalidIssuerError
+    DecodeError, ExpiredSignatureError, ImmatureSignatureError,
+    InvalidAlgorithmError, InvalidAudienceError, InvalidIssuedAtError,
+    InvalidIssuerError
 )
 from .utils import base64url_decode, base64url_encode
 
@@ -184,11 +185,16 @@ class PyJWT(object):
         if not isinstance(audience, (string_types, type(None))):
             raise TypeError('audience must be a string or None')
 
+        now = timegm(datetime.utcnow().utctimetuple())
+
         if 'iat' in payload:
             try:
-                int(payload['iat'])
+                iat = int(payload['iat'])
             except ValueError:
                 raise DecodeError('Issued At claim (iat) must be an integer.')
+
+            if iat > (now + leeway):
+                raise InvalidIssuedAtError('Issued At claim (iat) cannot be in the future.')
 
         if 'nbf' in payload and verify_expiration:
             try:
@@ -196,10 +202,8 @@ class PyJWT(object):
             except ValueError:
                 raise DecodeError('Not Before claim (nbf) must be an integer.')
 
-            utc_timestamp = timegm(datetime.utcnow().utctimetuple())
-
-            if nbf > (utc_timestamp + leeway):
-                raise ExpiredSignatureError('Signature not yet valid')
+            if nbf > (now + leeway):
+                raise ImmatureSignatureError('The token is not yet valid (nbf)')
 
         if 'exp' in payload and verify_expiration:
             try:
@@ -207,9 +211,7 @@ class PyJWT(object):
             except ValueError:
                 raise DecodeError('Expiration Time claim (exp) must be an integer.')
 
-            utc_timestamp = timegm(datetime.utcnow().utctimetuple())
-
-            if exp < (utc_timestamp - leeway):
+            if exp < (now - leeway):
                 raise ExpiredSignatureError('Signature has expired')
 
         if 'aud' in payload:
