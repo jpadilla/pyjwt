@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .compat import string_types, text_type, timedelta_total_seconds
 from .exceptions import (
-    DecodeError, ExpiredSignatureError, InvalidAlgorithmError,
-    InvalidAudienceError, InvalidIssuerError,
-    InvalidIssuedAtError, ImmatureSignatureError
+    DecodeError, ExpiredSignatureError, ImmatureSignatureError,
+    InvalidAlgorithmError, InvalidAudienceError, InvalidIssuedAtError,
+    InvalidIssuerError
 )
 from .utils import base64url_decode, base64url_encode
 

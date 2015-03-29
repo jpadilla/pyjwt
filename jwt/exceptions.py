@@ -28,7 +28,7 @@ class ImmatureSignatureError(InvalidTokenError):
 
 class InvalidKeyError(Exception):
     pass
-    
+
 
 class InvalidAlgorithmError(InvalidTokenError):
     pass

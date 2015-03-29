@@ -9,9 +9,9 @@ from decimal import Decimal
 from jwt.algorithms import Algorithm
 from jwt.api import PyJWT
 from jwt.exceptions import (
-    DecodeError, ExpiredSignatureError, InvalidAlgorithmError,
-    InvalidAudienceError, InvalidIssuerError, InvalidIssuedAtError,
-    ImmatureSignatureError
+    DecodeError, ExpiredSignatureError, ImmatureSignatureError,
+    InvalidAlgorithmError, InvalidAudienceError, InvalidIssuedAtError,
+    InvalidIssuerError
 )
 
 from .compat import text_type, unittest
