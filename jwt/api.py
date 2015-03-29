@@ -181,6 +181,12 @@ class PyJWT(object):
         except KeyError:
             raise InvalidAlgorithmError('Algorithm not supported')
 
+        if 'iat' in payload:
+            try:
+                int(payload['iat'])
+            except ValueError:
+                raise DecodeError('Issued At claim (iat) must be an integer.')
+
         if 'nbf' in payload and verify_expiration:
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
@@ -191,7 +197,7 @@ class PyJWT(object):
             try:
                 exp = int(payload['exp'])
             except ValueError:
-                raise DecodeError('Expiration claim (exp) must be an integer.')
+                raise DecodeError('Expiration Time claim (exp) must be an integer.')
 
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 

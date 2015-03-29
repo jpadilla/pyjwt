@@ -198,12 +198,20 @@ class TestAPI(unittest.TestCase):
     def test_decode_raises_exception_if_exp_is_not_int(self):
         # >>> jwt.encode({'exp': 'not-an-int'}, 'secret')
         example_jwt = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
-                      'eyJleHAiOiJub3QtYW4taW50In0.'
-                      'P65iYgoHtBqB07PMtBSuKNUEIPPPfmjfJG217cEE66s')
+                       'eyJleHAiOiJub3QtYW4taW50In0.'
+                       'P65iYgoHtBqB07PMtBSuKNUEIPPPfmjfJG217cEE66s')
 
         with self.assertRaisesRegexp(DecodeError, 'exp'):
             self.jwt.decode(example_jwt, 'secret')
 
+    def test_decode_raises_exception_if_iat_is_not_int(self):
+        # >>> jwt.encode({'iat': 'not-an-int'}, 'secret')
+        example_jwt = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+                       'eyJpYXQiOiJub3QtYW4taW50In0.'
+                       'H1GmcQgSySa5LOKYbzGm--b1OmRbHFkyk8pq811FzZM')
+
+        with self.assertRaisesRegexp(DecodeError, 'iat'):
+            self.jwt.decode(example_jwt, 'secret')
 
     def test_encode_datetime(self):
         secret = 'secret'
