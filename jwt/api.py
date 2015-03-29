@@ -181,16 +181,32 @@ class PyJWT(object):
         except KeyError:
             raise InvalidAlgorithmError('Algorithm not supported')
 
+        if 'iat' in payload:
+            try:
+                int(payload['iat'])
+            except ValueError:
+                raise DecodeError('Issued At claim (iat) must be an integer.')
+
         if 'nbf' in payload and verify_expiration:
+            try:
+                nbf = int(payload['nbf'])
+            except ValueError:
+                raise DecodeError('Not Before claim (nbf) must be an integer.')
+
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
-            if payload['nbf'] > (utc_timestamp + leeway):
+            if nbf > (utc_timestamp + leeway):
                 raise ExpiredSignatureError('Signature not yet valid')
 
         if 'exp' in payload and verify_expiration:
+            try:
+                exp = int(payload['exp'])
+            except ValueError:
+                raise DecodeError('Expiration Time claim (exp) must be an integer.')
+
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
-            if payload['exp'] < (utc_timestamp - leeway):
+            if exp < (utc_timestamp - leeway):
                 raise ExpiredSignatureError('Signature has expired')
 
         if 'aud' in payload:
