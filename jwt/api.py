@@ -195,7 +195,7 @@ class PyJWT(object):
 
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
-            if payload['nbf'] > (utc_timestamp + leeway):
+            if nbf > (utc_timestamp + leeway):
                 raise ExpiredSignatureError('Signature not yet valid')
 
         if 'exp' in payload and verify_expiration:
@@ -206,7 +206,7 @@ class PyJWT(object):
 
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
-            if payload['exp'] < (utc_timestamp - leeway):
+            if exp < (utc_timestamp - leeway):
                 raise ExpiredSignatureError('Signature has expired')
 
         if 'aud' in payload:
