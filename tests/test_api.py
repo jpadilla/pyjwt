@@ -195,6 +195,16 @@ class TestAPI(unittest.TestCase):
         exception = context.exception
         self.assertEquals(str(exception), 'Algorithm not supported')
 
+    def test_decode_raises_exception_if_exp_is_not_int(self):
+        # >>> jwt.encode({'exp': 'not-an-int'}, 'secret')
+        example_jwt = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+                      'eyJleHAiOiJub3QtYW4taW50In0.'
+                      'P65iYgoHtBqB07PMtBSuKNUEIPPPfmjfJG217cEE66s')
+
+        with self.assertRaisesRegexp(DecodeError, 'exp'):
+            self.jwt.decode(example_jwt, 'secret')
+
+
     def test_encode_datetime(self):
         secret = 'secret'
         current_datetime = datetime.utcnow()

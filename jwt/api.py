@@ -188,6 +188,11 @@ class PyJWT(object):
                 raise ExpiredSignatureError('Signature not yet valid')
 
         if 'exp' in payload and verify_expiration:
+            try:
+                exp = int(payload['exp'])
+            except ValueError:
+                raise DecodeError('Expiration claim (exp) must be an integer.')
+
             utc_timestamp = timegm(datetime.utcnow().utctimetuple())
 
             if payload['exp'] < (utc_timestamp - leeway):
