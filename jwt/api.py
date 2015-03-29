@@ -114,7 +114,9 @@ class PyJWT(object):
 
         if verify:
             self._verify_signature(payload, signing_input, header, signature,
-                                   key, algorithms, **kwargs)
+                                   key, algorithms)
+
+            self._validate_claims(payload, **kwargs)
 
         return payload
 
@@ -157,19 +159,12 @@ class PyJWT(object):
         return (payload, signing_input, header, signature)
 
     def _verify_signature(self, payload, signing_input, header, signature,
-                          key='', algorithms=None, verify_expiration=True, leeway=0,
-                          audience=None, issuer=None):
+                          key='', algorithms=None):
 
         alg = header['alg']
 
         if algorithms is not None and alg not in algorithms:
             raise InvalidAlgorithmError('The specified alg value is not allowed')
-
-        if isinstance(leeway, timedelta):
-            leeway = timedelta_total_seconds(leeway)
-
-        if not isinstance(audience, (string_types, type(None))):
-            raise TypeError('audience must be a string or None')
 
         try:
             alg_obj = self._algorithms[alg]
@@ -180,6 +175,14 @@ class PyJWT(object):
 
         except KeyError:
             raise InvalidAlgorithmError('Algorithm not supported')
+
+    def _validate_claims(self, payload, verify_expiration=True, leeway=0,
+                         audience=None, issuer=None):
+        if isinstance(leeway, timedelta):
+            leeway = timedelta_total_seconds(leeway)
+
+        if not isinstance(audience, (string_types, type(None))):
+            raise TypeError('audience must be a string or None')
 
         if 'iat' in payload:
             try:
@@ -227,6 +230,7 @@ class PyJWT(object):
         if issuer is not None:
             if payload.get('iss') != issuer:
                 raise InvalidIssuerError('Invalid issuer')
+
 
 _jwt_global_obj = PyJWT()
 encode = _jwt_global_obj.encode
