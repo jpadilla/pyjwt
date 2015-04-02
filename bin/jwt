@@ -71,21 +71,22 @@ The exp key is special and can take an offset to current Unix time.
     options, arguments = p.parse_args()
 
     if len(arguments) > 0 or not sys.stdin.isatty():
-        # Try to decode
-        try:
-            if not sys.stdin.isatty():
-                token = sys.stdin.read()
-            else:
-                token = arguments[0]
+        if len(arguments) == 1 and ( options.verify is False or options.key is not None ):
+            # Try to decode
+            try:
+                if not sys.stdin.isatty():
+                    token = sys.stdin.read()
+                else:
+                    token = arguments[0]
 
-            token = token.encode('utf-8')
-            data = jwt.decode(token, key=options.key, verify=options.verify)
+                token = token.encode('utf-8')
+                data = jwt.decode(token, key=options.key, verify=options.verify)
 
-            print(json.dumps(data))
-            sys.exit(0)
-        except jwt.DecodeError as e:
-            print(e)
-            sys.exit(1)
+                print(json.dumps(data))
+                sys.exit(0)
+            except jwt.DecodeError as e:
+                print(e)
+                sys.exit(1)
 
         # Try to encode
         if options.key is None:
