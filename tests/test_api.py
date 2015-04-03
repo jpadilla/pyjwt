@@ -692,6 +692,14 @@ class TestAPI(unittest.TestCase):
         token = self.jwt.encode(payload, 'secret')
         self.jwt.decode(token, 'secret', audience='urn:me')
 
+    def test_check_audience_when_default(self):
+        payload = {
+            'some': 'payload',
+            'aud': 'urn:me'
+        }
+        token = self.jwt.encode(payload, 'secret')
+        self.jwt.decode(token, 'secret')
+
     def test_check_audience_in_array_when_valid(self):
         payload = {
             'some': 'payload',
