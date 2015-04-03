@@ -214,7 +214,12 @@ class PyJWT(object):
             if exp < (now - leeway):
                 raise ExpiredSignatureError('Signature has expired')
 
-        if 'aud' in payload:
+        if audience is not None:
+            # Application specified an audience, but it could not be
+            # verified since the token does not contain a claim.
+            if 'aud' not in payload:
+                raise InvalidAudienceError('No audience claim in token')
+
             audience_claims = payload['aud']
             if isinstance(audience_claims, string_types):
                 audience_claims = [audience_claims]
@@ -224,10 +229,6 @@ class PyJWT(object):
                 raise InvalidAudienceError('Invalid claim format in token')
             if audience not in audience_claims:
                 raise InvalidAudienceError('Invalid audience')
-        elif audience is not None:
-            # Application specified an audience, but it could not be
-            # verified since the token does not contain a claim.
-            raise InvalidAudienceError('No audience claim in token')
 
         if issuer is not None:
             if payload.get('iss') != issuer:
