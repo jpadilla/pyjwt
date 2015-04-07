@@ -90,6 +90,7 @@ class TestAPI(unittest.TestCase):
 
     def test_options_must_be_dict(self):
         self.assertRaises(TypeError, PyJWT, options=object())
+        self.assertRaises(TypeError, PyJWT, options=('something'))
 
     def test_encode_decode(self):
         secret = 'secret'
@@ -829,6 +830,7 @@ class TestAPI(unittest.TestCase):
         }
         token = self.jwt.encode(payload, 'secret')
         self.assertRaises(TypeError, self.jwt.decode, token, 'secret', options=object())
+        self.assertRaises(TypeError, self.jwt.decode, token, 'secret', options='something')
 
     def test_custom_json_encoder(self):
 

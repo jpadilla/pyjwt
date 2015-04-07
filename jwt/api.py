@@ -37,8 +37,11 @@ class PyJWT(object):
         }
 
         try:
-            self.options = {k: options[k] if k in options else v for k, v in self.default_options.items()}
-        except (ValueError, TypeError) as e:
+            merged_options = dict()
+            for k, v in self.default_options.items():
+                merged_options[k] = options.get(k, v)
+            self.options = merged_options
+        except AttributeError as e:
             raise TypeError('options must be a dictionary: %s' % e)
 
     def register_algorithm(self, alg_id, alg_obj):
@@ -254,11 +257,15 @@ class PyJWT(object):
     def _merge_options(self, override_options=None):
         if not override_options:
             override_options = {}
+
         try:
-            options = {k: override_options[k] if k in override_options else v for k, v in self.options.items()}
-        except (ValueError, TypeError) as e:
+            merged_options = dict()
+            for k, v in self.options.items():
+                merged_options[k] = override_options.get(k, v)
+        except AttributeError as e:
             raise TypeError('options must be a dictionary: %s' % e)
-        return options
+
+        return merged_options
 
 
 _jwt_global_obj = PyJWT()
