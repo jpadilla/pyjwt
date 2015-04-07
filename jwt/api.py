@@ -16,7 +16,7 @@ from .utils import base64url_decode, base64url_encode
 
 
 class PyJWT(object):
-    def __init__(self, algorithms=None):
+    def __init__(self, algorithms=None, options=None):
         self._algorithms = get_default_algorithms()
         self._valid_algs = set(algorithms) if algorithms is not None else set(self._algorithms)
 
@@ -24,6 +24,22 @@ class PyJWT(object):
         for key in list(self._algorithms.keys()):
             if key not in self._valid_algs:
                 del self._algorithms[key]
+
+        if not options:
+            options = {}
+
+        self.default_options = {
+            'verify_signature': True,
+            'verify_exp': True,
+            'verify_nbf': True,
+            'verify_iat': True,
+            'verify_aud': True,
+        }
+
+        try:
+            self.options = {k: options[k] if k in options else v for k, v in self.default_options.items()}
+        except (ValueError, TypeError) as e:
+            raise TypeError('options must be a dictionary: %s' % e)
 
     def register_algorithm(self, alg_id, alg_obj):
         """
@@ -110,14 +126,16 @@ class PyJWT(object):
 
         return b'.'.join(segments)
 
-    def decode(self, jwt, key='', verify=True, algorithms=None, **kwargs):
+    def decode(self, jwt, key='', verify=True, algorithms=None, options=None, **kwargs):
         payload, signing_input, header, signature = self._load(jwt)
 
         if verify:
-            self._verify_signature(payload, signing_input, header, signature,
-                                   key, algorithms)
+            merged_options = self._merge_options(override_options=options)
+            if merged_options.get('verify_signature'):
+                self._verify_signature(payload, signing_input, header, signature,
+                                       key, algorithms)
 
-            self._validate_claims(payload, **kwargs)
+            self._validate_claims(payload, options=merged_options, **kwargs)
 
         return payload
 
@@ -177,8 +195,8 @@ class PyJWT(object):
         except KeyError:
             raise InvalidAlgorithmError('Algorithm not supported')
 
-    def _validate_claims(self, payload, verify_expiration=True, leeway=0,
-                         audience=None, issuer=None):
+    def _validate_claims(self, payload, audience=None, issuer=None, leeway=0,
+                         options=None, **kwargs):
         if isinstance(leeway, timedelta):
             leeway = timedelta_total_seconds(leeway)
 
@@ -187,7 +205,7 @@ class PyJWT(object):
 
         now = timegm(datetime.utcnow().utctimetuple())
 
-        if 'iat' in payload:
+        if 'iat' in payload and options.get('verify_iat'):
             try:
                 iat = int(payload['iat'])
             except ValueError:
@@ -196,7 +214,7 @@ class PyJWT(object):
             if iat > (now + leeway):
                 raise InvalidIssuedAtError('Issued At claim (iat) cannot be in the future.')
 
-        if 'nbf' in payload and verify_expiration:
+        if 'nbf' in payload and options.get('verify_nbf'):
             try:
                 nbf = int(payload['nbf'])
             except ValueError:
@@ -205,7 +223,7 @@ class PyJWT(object):
             if nbf > (now + leeway):
                 raise ImmatureSignatureError('The token is not yet valid (nbf)')
 
-        if 'exp' in payload and verify_expiration:
+        if 'exp' in payload and options.get('verify_exp'):
             try:
                 exp = int(payload['exp'])
             except ValueError:
@@ -214,7 +232,7 @@ class PyJWT(object):
             if exp < (now - leeway):
                 raise ExpiredSignatureError('Signature has expired')
 
-        if 'aud' in payload:
+        if 'aud' in payload and options.get('verify_aud'):
             audience_claims = payload['aud']
             if isinstance(audience_claims, string_types):
                 audience_claims = [audience_claims]
@@ -232,6 +250,15 @@ class PyJWT(object):
         if issuer is not None:
             if payload.get('iss') != issuer:
                 raise InvalidIssuerError('Invalid issuer')
+
+    def _merge_options(self, override_options=None):
+        if not override_options:
+            override_options = {}
+        try:
+            options = {k: override_options[k] if k in override_options else v for k, v in self.options.items()}
+        except (ValueError, TypeError) as e:
+            raise TypeError('options must be a dictionary: %s' % e)
+        return options
 
 
 _jwt_global_obj = PyJWT()
