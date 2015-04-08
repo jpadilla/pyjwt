@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 - Added this CHANGELOG.md file
+- Added flexible and complete verification options. #131
 
 ### Fixed
 - Placeholder
