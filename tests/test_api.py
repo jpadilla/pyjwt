@@ -81,12 +81,12 @@ class TestAPI(unittest.TestCase):
         expected_options['verify_nbf'] = False
         self.assertEqual(expected_options, self.jwt.options)
 
-    def test_non_existant_options_dont_exist(self):
+    def test_non_default_options_persist(self):
         self.jwt = PyJWT(options={'verify_iat': False, 'foobar': False})
         expected_options = self.jwt.default_options
         expected_options['verify_iat'] = False
+        expected_options['foobar'] = False
         self.assertEqual(expected_options, self.jwt.options)
-        self.assertNotIn('foobar', self.jwt.options)
 
     def test_options_must_be_dict(self):
         self.assertRaises(TypeError, PyJWT, options=object())

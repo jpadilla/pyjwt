@@ -36,13 +36,7 @@ class PyJWT(object):
             'verify_aud': True,
         }
 
-        try:
-            merged_options = dict()
-            for k, v in self.default_options.items():
-                merged_options[k] = options.get(k, v)
-            self.options = merged_options
-        except AttributeError as e:
-            raise TypeError('options must be a dictionary: %s' % e)
+        self.options = self._merge_options(self.default_options, options)
 
     def register_algorithm(self, alg_id, alg_obj):
         """
@@ -254,15 +248,17 @@ class PyJWT(object):
             if payload.get('iss') != issuer:
                 raise InvalidIssuerError('Invalid issuer')
 
-    def _merge_options(self, override_options=None):
+    def _merge_options(self, default_options=None, override_options=None):
+        if not default_options:
+            default_options = {}
+
         if not override_options:
             override_options = {}
 
         try:
-            merged_options = dict()
-            for k, v in self.options.items():
-                merged_options[k] = override_options.get(k, v)
-        except AttributeError as e:
+            merged_options = self.default_options.copy()
+            merged_options.update(override_options)
+        except (AttributeError, ValueError) as e:
             raise TypeError('options must be a dictionary: %s' % e)
 
         return merged_options
