@@ -7,7 +7,7 @@ from .compat import unittest
 from .utils import ensure_bytes, ensure_unicode, key_path
 
 try:
-    from jwt.algorithms import RSAAlgorithm, ECAlgorithm
+    from jwt.algorithms import RSAAlgorithm, ECAlgorithm, RSAPSSAlgorithm
 
     has_crypto = True
 except ImportError:
@@ -169,34 +169,92 @@ class TestAlgorithms(unittest.TestCase):
     def test_ec_verify_should_return_false_if_signature_invalid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        jwt_message = ensure_bytes('Hello World!')
+        message = ensure_bytes('Hello World!')
 
         # Mess up the signature by replacing a known byte
-        jwt_sig = base64.b64decode(ensure_bytes(
+        sig = base64.b64decode(ensure_bytes(
             'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
             '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
             '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
             'zJ8hSJmbw=='.replace('r', 's')))
 
         with open(key_path('testkey_ec.pub'), 'r') as keyfile:
-            jwt_pub_key = algo.prepare_key(keyfile.read())
+            pub_key = algo.prepare_key(keyfile.read())
 
-        result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
+        result = algo.verify(message, pub_key, sig)
         self.assertFalse(result)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_ec_verify_should_return_true_if_signature_valid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        jwt_message = ensure_bytes('Hello World!')
+        message = ensure_bytes('Hello World!')
 
-        jwt_sig = base64.b64decode(ensure_bytes(
+        sig = base64.b64decode(ensure_bytes(
             'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
             '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
             '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
             'zJ8hSJmbw=='))
 
         with open(key_path('testkey_ec.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        self.assertTrue(result)
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_rsa_pss_sign_then_verify_should_return_true(self):
+        algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
+
+        message = ensure_bytes('Hello World!')
+
+        with open(key_path('testkey_rsa'), 'r') as keyfile:
+            priv_key = algo.prepare_key(keyfile.read())
+            sig = algo.sign(message, priv_key)
+
+        with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        self.assertTrue(result)
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_rsa_pss_verify_should_return_false_if_signature_invalid(self):
+        algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
+
+        jwt_message = ensure_bytes('Hello World!')
+
+        jwt_sig = base64.b64decode(ensure_bytes(
+            'ywKAUGRIDC//6X+tjvZA96yEtMqpOrSppCNfYI7NKyon3P7doud5v65oWNu'
+            'vQsz0fzPGfF7mQFGo9Cm9Vn0nljm4G6PtqZRbz5fXNQBH9k10gq34AtM02c'
+            '/cveqACQ8gF3zxWh6qr9jVqIpeMEaEBIkvqG954E0HT9s9ybHShgHX9mlWk'
+            '186/LopP4xe5c/hxOQjwhv6yDlTiwJFiqjNCvj0GyBKsc4iECLGIIO+4mC4'
+            'daOCWqbpZDuLb1imKpmm8Nsm56kAxijMLZnpCcnPgyb7CqG+B93W9GHglA5'
+            'drUeR1gRtO7vqbZMsCAQ4bpjXxwbYyjQlEVuMl73UL6sOWg=='))
+
+        jwt_sig += ensure_bytes('123')  # Signature is now invalid
+
+        with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
+            jwt_pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
+        self.assertFalse(result)
+
+    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    def test_rsa_pss_verify_should_return_true_if_signature_valid(self):
+        algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
+
+        jwt_message = ensure_bytes('Hello World!')
+
+        jwt_sig = base64.b64decode(ensure_bytes(
+            'ywKAUGRIDC//6X+tjvZA96yEtMqpOrSppCNfYI7NKyon3P7doud5v65oWNu'
+            'vQsz0fzPGfF7mQFGo9Cm9Vn0nljm4G6PtqZRbz5fXNQBH9k10gq34AtM02c'
+            '/cveqACQ8gF3zxWh6qr9jVqIpeMEaEBIkvqG954E0HT9s9ybHShgHX9mlWk'
+            '186/LopP4xe5c/hxOQjwhv6yDlTiwJFiqjNCvj0GyBKsc4iECLGIIO+4mC4'
+            'daOCWqbpZDuLb1imKpmm8Nsm56kAxijMLZnpCcnPgyb7CqG+B93W9GHglA5'
+            'drUeR1gRtO7vqbZMsCAQ4bpjXxwbYyjQlEVuMl73UL6sOWg=='))
+
+        with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
