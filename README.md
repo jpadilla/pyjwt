@@ -62,6 +62,34 @@ except jwt.InvalidTokenError:
     pass  # do something sensible here, e.g. return HTTP 403 status code
 ```
 
+You may also override exception checking via an `options` dictionary.  The default
+options are as follows: 
+
+```python
+options = {
+   'verify_signature': True,
+   'verify_exp': True,
+   'verify_nbf': True,
+   'verify_iat': True,
+   'verify_aud`: True
+}
+```
+
+You can skip individual checks by passing an `options` dictionary with certain keys set to `False`.
+For example, if you want to verify the signature of a JWT that has already expired.
+
+```python
+options = {
+   'verify_exp': True,
+}
+
+jwt.decode('someJWTstring', 'secret', options=options)
+```
+
+**NOTE**: *Changing the default behavior is done at your own risk, and almost certainly will make your
+application less secure.  Doing so should only be done with a very clear understanding of what you
+are doing.*
+
 ## Tests
 
 You can run tests from the project root after cloning with:

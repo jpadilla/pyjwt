@@ -71,6 +71,27 @@ class TestAPI(unittest.TestCase):
         self.assertNotIn('none', self.jwt.get_algorithms())
         self.assertIn('HS256', self.jwt.get_algorithms())
 
+    def test_default_options(self):
+        self.assertEqual(self.jwt.default_options, self.jwt.options)
+
+    def test_override_options(self):
+        self.jwt = PyJWT(options={'verify_exp': False, 'verify_nbf': False})
+        expected_options = self.jwt.default_options
+        expected_options['verify_exp'] = False
+        expected_options['verify_nbf'] = False
+        self.assertEqual(expected_options, self.jwt.options)
+
+    def test_non_default_options_persist(self):
+        self.jwt = PyJWT(options={'verify_iat': False, 'foobar': False})
+        expected_options = self.jwt.default_options
+        expected_options['verify_iat'] = False
+        expected_options['foobar'] = False
+        self.assertEqual(expected_options, self.jwt.options)
+
+    def test_options_must_be_dict(self):
+        self.assertRaises(TypeError, PyJWT, options=object())
+        self.assertRaises(TypeError, PyJWT, options=('something'))
+
     def test_encode_decode(self):
         secret = 'secret'
         jwt_message = self.jwt.encode(self.payload, secret)
@@ -467,14 +488,14 @@ class TestAPI(unittest.TestCase):
         secret = 'secret'
         jwt_message = self.jwt.encode(self.payload, secret)
 
-        self.jwt.decode(jwt_message, secret, verify_expiration=False)
+        self.jwt.decode(jwt_message, secret, options={'verify_exp': False})
 
     def test_decode_skip_notbefore_verification(self):
         self.payload['nbf'] = time.time() + 10
         secret = 'secret'
         jwt_message = self.jwt.encode(self.payload, secret)
 
-        self.jwt.decode(jwt_message, secret, verify_expiration=False)
+        self.jwt.decode(jwt_message, secret, options={'verify_nbf': False})
 
     def test_decode_with_expiration_with_leeway(self):
         self.payload['exp'] = utc_timestamp() - 2
@@ -764,6 +785,52 @@ class TestAPI(unittest.TestCase):
 
         with self.assertRaises(InvalidIssuerError):
             self.jwt.decode(token, 'secret', issuer=issuer)
+
+    def test_skip_check_audience(self):
+        payload = {
+            'some': 'payload',
+            'aud': 'urn:me',
+        }
+        token = self.jwt.encode(payload, 'secret')
+        self.jwt.decode(token, 'secret', options={'verify_aud': False})
+
+    def test_skip_check_exp(self):
+        payload = {
+            'some': 'payload',
+            'exp': datetime.utcnow() - timedelta(days=1)
+        }
+        token = self.jwt.encode(payload, 'secret')
+        self.jwt.decode(token, 'secret', options={'verify_exp': False})
+
+    def test_skip_check_signature(self):
+        token = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+                 ".eyJzb21lIjoicGF5bG9hZCJ9"
+                 ".4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZA")
+        self.jwt.decode(token, 'secret', options={'verify_signature': False})
+
+    def test_skip_check_iat(self):
+        payload = {
+            'some': 'payload',
+            'iat': datetime.utcnow() + timedelta(days=1)
+        }
+        token = self.jwt.encode(payload, 'secret')
+        self.jwt.decode(token, 'secret', options={'verify_iat': False})
+
+    def test_skip_check_nbf(self):
+        payload = {
+            'some': 'payload',
+            'nbf': datetime.utcnow() + timedelta(days=1)
+        }
+        token = self.jwt.encode(payload, 'secret')
+        self.jwt.decode(token, 'secret', options={'verify_nbf': False})
+
+    def test_decode_options_must_be_dict(self):
+        payload = {
+            'some': 'payload',
+        }
+        token = self.jwt.encode(payload, 'secret')
+        self.assertRaises(TypeError, self.jwt.decode, token, 'secret', options=object())
+        self.assertRaises(TypeError, self.jwt.decode, token, 'secret', options='something')
 
     def test_custom_json_encoder(self):
 
