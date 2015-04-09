@@ -84,7 +84,7 @@ class PyJWT(object):
 
         # Header
         header = {'typ': 'JWT', 'alg': algorithm}
-        
+
         if headers:
             header.update(headers)
 

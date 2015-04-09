@@ -13,8 +13,9 @@ from jwt.exceptions import (
     InvalidAlgorithmError, InvalidAudienceError, InvalidIssuedAtError,
     InvalidIssuerError
 )
+from jwt.utils import base64url_decode
 
-from .compat import text_type, unittest
+from .compat import string_types, text_type, unittest
 from .utils import ensure_bytes
 
 try:
@@ -855,6 +856,24 @@ class TestAPI(unittest.TestCase):
         token = self.jwt.encode(data, 'secret', json_encoder=CustomJSONEncoder)
         payload = self.jwt.decode(token, 'secret')
         self.assertEqual(payload, {'some_decimal': 'it worked'})
+
+    def test_encode_headers_parameter_adds_headers(self):
+        headers = {'testheader': True}
+        token = self.jwt.encode({'msg': 'hello world'}, 'secret', headers=headers)
+
+        if not isinstance(token, string_types):
+            token = token.decode()
+
+        header = token[0:token.index('.')].encode()
+        header = base64url_decode(header)
+
+        if not isinstance(header, text_type):
+            header = header.decode()
+
+        header_obj = json.loads(header)
+
+        self.assertIn('testheader', header_obj)
+        self.assertEqual(header_obj['testheader'], headers['testheader'])
 
 
 if __name__ == '__main__':

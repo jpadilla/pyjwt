@@ -113,9 +113,9 @@ class TestAlgorithms(unittest.TestCase):
     def test_rsa_verify_should_return_false_if_signature_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        jwt_message = ensure_bytes('Hello World!')
+        message = ensure_bytes('Hello World!')
 
-        jwt_sig = base64.b64decode(ensure_bytes(
+        sig = base64.b64decode(ensure_bytes(
             'yS6zk9DBkuGTtcBzLUzSpo9gGJxJFOGvUqN01iLhWHrzBQ9ZEz3+Ae38AXp'
             '10RWwscp42ySC85Z6zoN67yGkLNWnfmCZSEv+xqELGEvBJvciOKsrhiObUl'
             '2mveSc1oeO/2ujkGDkkkJ2epn0YliacVjZF5+/uDmImUfAAj8lzjnHlzYix'
@@ -123,21 +123,21 @@ class TestAlgorithms(unittest.TestCase):
             'fHJnNUzAEUOXS0WahHVb57D30pcgIji9z923q90p5c7E2cU8V+E1qe8NdCA'
             'APCDzZZ9zQ/dgcMVaBrGrgimrcLbPjueOKFgSO+SSjIElKA=='))
 
-        jwt_sig += ensure_bytes('123')  # Signature is now invalid
+        sig += ensure_bytes('123')  # Signature is now invalid
 
         with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
-            jwt_pub_key = algo.prepare_key(keyfile.read())
+            pub_key = algo.prepare_key(keyfile.read())
 
-        result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
+        result = algo.verify(message, pub_key, sig)
         self.assertFalse(result)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
     def test_rsa_verify_should_return_true_if_signature_valid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        jwt_message = ensure_bytes('Hello World!')
+        message = ensure_bytes('Hello World!')
 
-        jwt_sig = base64.b64decode(ensure_bytes(
+        sig = base64.b64decode(ensure_bytes(
             'yS6zk9DBkuGTtcBzLUzSpo9gGJxJFOGvUqN01iLhWHrzBQ9ZEz3+Ae38AXp'
             '10RWwscp42ySC85Z6zoN67yGkLNWnfmCZSEv+xqELGEvBJvciOKsrhiObUl'
             '2mveSc1oeO/2ujkGDkkkJ2epn0YliacVjZF5+/uDmImUfAAj8lzjnHlzYix'
@@ -146,9 +146,9 @@ class TestAlgorithms(unittest.TestCase):
             'APCDzZZ9zQ/dgcMVaBrGrgimrcLbPjueOKFgSO+SSjIElKA=='))
 
         with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
-            jwt_pub_key = algo.prepare_key(keyfile.read())
+            pub_key = algo.prepare_key(keyfile.read())
 
-        result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
+        result = algo.verify(message, pub_key, sig)
         self.assertTrue(result)
 
     @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
