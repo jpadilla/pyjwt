@@ -28,7 +28,7 @@ class PyJWT(object):
         if not options:
             options = {}
 
-        self.default_options = {
+        default_options = {
             'verify_signature': True,
             'verify_exp': True,
             'verify_nbf': True,
@@ -36,7 +36,7 @@ class PyJWT(object):
             'verify_aud': True,
         }
 
-        self.options = self._merge_options(self.default_options, options)
+        self.options = self._merge_options(default_options, options)
 
     def register_algorithm(self, alg_id, alg_obj):
         """
@@ -127,7 +127,7 @@ class PyJWT(object):
         payload, signing_input, header, signature = self._load(jwt)
 
         if verify:
-            merged_options = self._merge_options(override_options=options)
+            merged_options = self._merge_options(self.options, override_options=options)
             if merged_options.get('verify_signature'):
                 self._verify_signature(payload, signing_input, header, signature,
                                        key, algorithms)
@@ -256,7 +256,7 @@ class PyJWT(object):
             override_options = {}
 
         try:
-            merged_options = self.default_options.copy()
+            merged_options = default_options.copy()
             merged_options.update(override_options)
         except (AttributeError, ValueError) as e:
             raise TypeError('options must be a dictionary: %s' % e)
