@@ -63,7 +63,7 @@ except jwt.InvalidTokenError:
 ```
 
 You may also override exception checking via an `options` dictionary.  The default
-options are as follows: 
+options are as follows:
 
 ```python
 options = {
@@ -112,6 +112,9 @@ currently supports:
 * RS256 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-256 hash algorithm
 * RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm
 * RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm
+* PS256 - RSASSA-PSS signature using SHA-256 and MGF1 padding with SHA-256  
+* PS384 - RSASSA-PSS signature using SHA-384 and MGF1 padding with SHA-384
+* PS512 - RSASSA-PSS signature using SHA-512 and MGF1 padding with SHA-512
 
 ### Encoding
 You can specify which algorithm you would like to use to sign the JWT

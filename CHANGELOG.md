@@ -7,8 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
+- Added flexible and complete verification options during decode #131
+- Added support for PS256, PS384, and PS512 algorithms. #132
 - Added this CHANGELOG.md file
-- Added flexible and complete verification options. #131
+
 
 ### Fixed
 - Placeholder

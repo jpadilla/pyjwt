@@ -42,7 +42,10 @@ def get_default_algorithms():
             'RS512': RSAAlgorithm(RSAAlgorithm.SHA512),
             'ES256': ECAlgorithm(ECAlgorithm.SHA256),
             'ES384': ECAlgorithm(ECAlgorithm.SHA384),
-            'ES512': ECAlgorithm(ECAlgorithm.SHA512)
+            'ES512': ECAlgorithm(ECAlgorithm.SHA512),
+            'PS256': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
+            'PS384': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
+            'PS512': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512)
         })
 
     return default_algorithms
@@ -145,7 +148,7 @@ if has_crypto:
         SHA512 = hashes.SHA512
 
         def __init__(self, hash_alg):
-            self.hash_alg = hash_alg()
+            self.hash_alg = hash_alg
 
         def prepare_key(self, key):
             if isinstance(key, RSAPrivateKey) or \
@@ -171,7 +174,7 @@ if has_crypto:
         def sign(self, msg, key):
             signer = key.signer(
                 padding.PKCS1v15(),
-                self.hash_alg
+                self.hash_alg()
             )
 
             signer.update(msg)
@@ -181,7 +184,7 @@ if has_crypto:
             verifier = key.verifier(
                 sig,
                 padding.PKCS1v15(),
-                self.hash_alg
+                self.hash_alg()
             )
 
             verifier.update(msg)
@@ -202,7 +205,7 @@ if has_crypto:
         SHA512 = hashes.SHA512
 
         def __init__(self, hash_alg):
-            self.hash_alg = hash_alg()
+            self.hash_alg = hash_alg
 
         def prepare_key(self, key):
             if isinstance(key, EllipticCurvePrivateKey) or \
@@ -227,13 +230,48 @@ if has_crypto:
             return key
 
         def sign(self, msg, key):
-            signer = key.signer(ec.ECDSA(self.hash_alg))
+            signer = key.signer(ec.ECDSA(self.hash_alg()))
 
             signer.update(msg)
             return signer.finalize()
 
         def verify(self, msg, key, sig):
-            verifier = key.verifier(sig, ec.ECDSA(self.hash_alg))
+            verifier = key.verifier(sig, ec.ECDSA(self.hash_alg()))
+
+            verifier.update(msg)
+
+            try:
+                verifier.verify()
+                return True
+            except InvalidSignature:
+                return False
+
+    class RSAPSSAlgorithm(RSAAlgorithm):
+        """
+        Performs a signature using RSASSA-PSS with MGF1
+        """
+
+        def sign(self, msg, key):
+            signer = key.signer(
+                padding.PSS(
+                    mgf=padding.MGF1(self.hash_alg()),
+                    salt_length=padding.PSS.MAX_LENGTH
+                ),
+                self.hash_alg()
+            )
+
+            signer.update(msg)
+            return signer.finalize()
+
+        def verify(self, msg, key, sig):
+            verifier = key.verifier(
+                sig,
+                padding.PSS(
+                    mgf=padding.MGF1(self.hash_alg()),
+                    salt_length=padding.PSS.MAX_LENGTH
+                ),
+                self.hash_alg()
+            )
 
             verifier.update(msg)
 

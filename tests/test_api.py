@@ -615,10 +615,17 @@ class TestAPI(unittest.TestCase):
             self.assertTrue('RS256' in jwt_algorithms)
             self.assertTrue('RS384' in jwt_algorithms)
             self.assertTrue('RS512' in jwt_algorithms)
+            self.assertTrue('PS256' in jwt_algorithms)
+            self.assertTrue('PS384' in jwt_algorithms)
+            self.assertTrue('PS512' in jwt_algorithms)
+
         else:
             self.assertFalse('RS256' in jwt_algorithms)
             self.assertFalse('RS384' in jwt_algorithms)
             self.assertFalse('RS512' in jwt_algorithms)
+            self.assertFalse('PS256' in jwt_algorithms)
+            self.assertFalse('PS384' in jwt_algorithms)
+            self.assertFalse('PS512' in jwt_algorithms)
 
     @unittest.skipIf(not has_crypto, "Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha256(self):
