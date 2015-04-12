@@ -1,5 +1,6 @@
 import binascii
 import json
+import warnings
 
 from calendar import timegm
 from collections import Mapping
@@ -133,6 +134,8 @@ class PyJWT(object):
                                        key, algorithms)
 
             self._validate_claims(payload, options=merged_options, **kwargs)
+        else:
+            warnings.warn("The verify parameter is deprecated. Please use options instead.", DeprecationWarning)
 
         return payload
 
