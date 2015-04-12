@@ -127,7 +127,7 @@ class PyJWT(object):
         payload, signing_input, header, signature = self._load(jwt)
 
         if verify:
-            merged_options = self._merge_options(self.options, override_options=options)
+            merged_options = self._merge_options(self.options, options)
             if merged_options.get('verify_signature'):
                 self._verify_signature(payload, signing_input, header, signature,
                                        key, algorithms)
@@ -248,16 +248,16 @@ class PyJWT(object):
             if payload.get('iss') != issuer:
                 raise InvalidIssuerError('Invalid issuer')
 
-    def _merge_options(self, default_options=None, override_options=None):
-        if not default_options:
-            default_options = {}
+    def _merge_options(self, original=None, updates=None):
+        if not original:
+            original = {}
 
-        if not override_options:
-            override_options = {}
+        if not updates:
+            return original
 
         try:
-            merged_options = default_options.copy()
-            merged_options.update(override_options)
+            merged_options = original.copy()
+            merged_options.update(updates)
         except (AttributeError, ValueError) as e:
             raise TypeError('options must be a dictionary: %s' % e)
 
