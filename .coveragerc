@@ -1,3 +1,5 @@
 [run]
-append = True
-source = jwt
+omit =
+    tests/*
+    .tox/*
+    setup.py
