@@ -1,5 +1,8 @@
 import os
 
+from calendar import timegm
+from datetime import datetime
+
 from .compat import text_type
 
 
@@ -15,6 +18,10 @@ def ensure_unicode(key):
         key = key.decode()
 
     return key
+
+
+def utc_timestamp():
+    return timegm(datetime.utcnow().utctimetuple())
 
 
 def key_path(key_name):

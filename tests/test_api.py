@@ -19,7 +19,7 @@ from jwt.utils import base64url_decode
 import pytest
 
 from .compat import string_types, text_type, unittest
-from .utils import ensure_bytes
+from .utils import ensure_bytes, utc_timestamp
 
 try:
     from cryptography.hazmat.backends import default_backend
@@ -30,10 +30,6 @@ try:
     has_crypto = True
 except ImportError:
     has_crypto = False
-
-
-def utc_timestamp():
-    return timegm(datetime.utcnow().utctimetuple())
 
 
 class TestAPI(unittest.TestCase):

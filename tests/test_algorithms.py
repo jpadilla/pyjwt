@@ -17,9 +17,6 @@ except ImportError:
 
 
 class TestAlgorithms(unittest.TestCase):
-    def setUp(self):  # noqa
-        pass
-
     def test_algorithm_should_throw_exception_if_prepare_key_not_impl(self):
         algo = Algorithm()
 
