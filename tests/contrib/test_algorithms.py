@@ -2,7 +2,6 @@ import base64
 
 import pytest
 
-from ..compat import unittest
 from ..utils import ensure_bytes, ensure_unicode, key_path
 
 try:
@@ -19,10 +18,7 @@ except ImportError:
 
 
 @pytest.mark.skipif(not has_pycrypto, reason='Not supported without PyCrypto library')
-class TestPycryptoAlgorithms(unittest.TestCase):
-    def setUp(self):  # noqa
-        pass
-
+class TestPycryptoAlgorithms:
     def test_rsa_should_parse_pem_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -115,7 +111,7 @@ class TestPycryptoAlgorithms(unittest.TestCase):
 
 
 @pytest.mark.skipif(not has_ecdsa, reason='Not supported without ecdsa library')
-class TestEcdsaAlgorithms(unittest.TestCase):
+class TestEcdsaAlgorithms:
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 

@@ -5,7 +5,6 @@ from jwt.exceptions import InvalidKeyError
 
 import pytest
 
-from .compat import unittest
 from .utils import ensure_bytes, ensure_unicode, key_path
 
 try:
@@ -16,7 +15,7 @@ except ImportError:
     has_crypto = False
 
 
-class TestAlgorithms(unittest.TestCase):
+class TestAlgorithms:
     def test_algorithm_should_throw_exception_if_prepare_key_not_impl(self):
         algo = Algorithm()
 
@@ -148,7 +147,7 @@ class TestAlgorithms(unittest.TestCase):
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
-        self.assertTrue(result)
+        assert result
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_should_reject_non_string_key(self):
