@@ -3,3 +3,4 @@ omit =
     tests/*
     .tox/*
     setup.py
+    *.egg/*
