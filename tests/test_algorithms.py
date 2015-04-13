@@ -3,6 +3,8 @@ import base64
 from jwt.algorithms import Algorithm, HMACAlgorithm, NoneAlgorithm
 from jwt.exceptions import InvalidKeyError
 
+import pytest
+
 from .compat import unittest
 from .utils import ensure_bytes, ensure_unicode, key_path
 
@@ -21,95 +23,95 @@ class TestAlgorithms(unittest.TestCase):
     def test_algorithm_should_throw_exception_if_prepare_key_not_impl(self):
         algo = Algorithm()
 
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             algo.prepare_key('test')
 
     def test_algorithm_should_throw_exception_if_sign_not_impl(self):
         algo = Algorithm()
 
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             algo.sign('message', 'key')
 
     def test_algorithm_should_throw_exception_if_verify_not_impl(self):
         algo = Algorithm()
 
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             algo.verify('message', 'key', 'signature')
 
     def test_none_algorithm_should_throw_exception_if_key_is_not_none(self):
         algo = NoneAlgorithm()
 
-        with self.assertRaises(InvalidKeyError):
+        with pytest.raises(InvalidKeyError):
             algo.prepare_key('123')
 
     def test_hmac_should_reject_nonstring_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with self.assertRaises(TypeError) as context:
+        with pytest.raises(TypeError) as context:
             algo.prepare_key(object())
 
-        exception = context.exception
-        self.assertEqual(str(exception), 'Expecting a string- or bytes-formatted key.')
+        exception = context.value
+        assert str(exception) == 'Expecting a string- or bytes-formatted key.'
 
     def test_hmac_should_accept_unicode_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         algo.prepare_key(ensure_unicode('awesome'))
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_pem_public_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with self.assertRaises(InvalidKeyError):
+        with pytest.raises(InvalidKeyError):
             with open(key_path('testkey2_rsa.pub.pem'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_x509_certificate(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with self.assertRaises(InvalidKeyError):
+        with pytest.raises(InvalidKeyError):
             with open(key_path('testkey_rsa.cer'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_ssh_public_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with self.assertRaises(InvalidKeyError):
+        with pytest.raises(InvalidKeyError):
             with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_x509_cert(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with self.assertRaises(InvalidKeyError):
+        with pytest.raises(InvalidKeyError):
             with open(key_path('testkey2_rsa.pub.pem'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_should_parse_pem_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path('testkey2_rsa.pub.pem'), 'r') as pem_key:
             algo.prepare_key(pem_key.read())
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_should_accept_unicode_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path('testkey_rsa'), 'r') as rsa_key:
             algo.prepare_key(ensure_unicode(rsa_key.read()))
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_should_reject_non_string_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             algo.prepare_key(None)
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_verify_should_return_false_if_signature_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -129,9 +131,9 @@ class TestAlgorithms(unittest.TestCase):
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
-        self.assertFalse(result)
+        assert not result
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_verify_should_return_true_if_signature_valid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -151,21 +153,21 @@ class TestAlgorithms(unittest.TestCase):
         result = algo.verify(message, pub_key, sig)
         self.assertTrue(result)
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             algo.prepare_key(None)
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_should_accept_unicode_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with open(key_path('testkey_ec'), 'r') as ec_key:
             algo.prepare_key(ensure_unicode(ec_key.read()))
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_verify_should_return_false_if_signature_invalid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
@@ -182,9 +184,9 @@ class TestAlgorithms(unittest.TestCase):
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
-        self.assertFalse(result)
+        assert not result
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_verify_should_return_true_if_signature_valid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
@@ -200,9 +202,9 @@ class TestAlgorithms(unittest.TestCase):
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
-        self.assertTrue(result)
+        assert result
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_pss_sign_then_verify_should_return_true(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
@@ -216,9 +218,9 @@ class TestAlgorithms(unittest.TestCase):
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
-        self.assertTrue(result)
+        assert result
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_pss_verify_should_return_false_if_signature_invalid(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
@@ -238,9 +240,9 @@ class TestAlgorithms(unittest.TestCase):
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
-        self.assertFalse(result)
+        assert not result
 
-    @unittest.skipIf(not has_crypto, 'Not supported without cryptography library')
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_pss_verify_should_return_true_if_signature_valid(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
@@ -258,4 +260,4 @@ class TestAlgorithms(unittest.TestCase):
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
-        self.assertTrue(result)
+        assert result

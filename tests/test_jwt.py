@@ -26,8 +26,4 @@ class TestJWT(unittest.TestCase):
         jwt_message = jwt.encode(self.payload, secret)
         decoded_payload = jwt.decode(jwt_message, secret)
 
-        self.assertEqual(decoded_payload, self.payload)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert decoded_payload == self.payload
