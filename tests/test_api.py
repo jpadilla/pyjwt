@@ -1,7 +1,6 @@
 
 import json
 import time
-import warnings
 
 from calendar import timegm
 from datetime import datetime, timedelta
@@ -35,6 +34,7 @@ except ImportError:
 @pytest.fixture
 def jwt():
     return PyJWT()
+
 
 @pytest.fixture
 def payload():
@@ -81,7 +81,6 @@ class TestAPI:
 
     def test_override_options(self):
         jwt = PyJWT(options={'verify_exp': False, 'verify_nbf': False})
-        expected_options = jwt.options
 
         assert not jwt.options['verify_exp']
         assert not jwt.options['verify_nbf']
@@ -873,7 +872,6 @@ class TestAPI:
         payload = jwt.decode(token, 'secret')
 
         assert payload == {'some_decimal': 'it worked'}
-
 
     def test_encode_headers_parameter_adds_headers(self, jwt):
         headers = {'testheader': True}
