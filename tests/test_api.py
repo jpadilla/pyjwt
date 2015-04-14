@@ -79,23 +79,19 @@ class TestAPI:
         assert 'none' not in jwt.get_algorithms()
         assert 'HS256' in jwt.get_algorithms()
 
-    def test_override_options(self, jwt):
-        # TODO: Does this test make sense?
+    def test_override_options(self):
         jwt = PyJWT(options={'verify_exp': False, 'verify_nbf': False})
         expected_options = jwt.options
 
-        expected_options['verify_exp'] = False
-        expected_options['verify_nbf'] = False
-        assert expected_options == jwt.options
+        assert not jwt.options['verify_exp']
+        assert not jwt.options['verify_nbf']
 
-    def test_non_object_options_persist(self):
-        # TODO: Does this test make sense
-        jwt = PyJWT(options={'verify_iat': False, 'foobar': False})
-        expected_options = jwt.options
+    def test_non_object_options_dont_persist(self, jwt):
+        token = jwt.encode({'hello': 'world'}, 'secret')
 
-        expected_options['verify_iat'] = False
-        expected_options['foobar'] = False
-        assert expected_options == jwt.options
+        jwt.decode(token, 'secret', options={'verify_iat': False})
+
+        assert jwt.options['verify_iat']
 
     def test_options_must_be_dict(self, jwt):
         pytest.raises(TypeError, PyJWT, options=object())
