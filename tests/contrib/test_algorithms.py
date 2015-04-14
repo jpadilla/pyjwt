@@ -1,6 +1,7 @@
 import base64
 
-from ..compat import unittest
+import pytest
+
 from ..utils import ensure_bytes, ensure_unicode, key_path
 
 try:
@@ -16,11 +17,8 @@ except ImportError:
     has_ecdsa = False
 
 
-@unittest.skipIf(not has_pycrypto, 'Not supported without PyCrypto library')
-class TestPycryptoAlgorithms(unittest.TestCase):
-    def setUp(self):  # noqa
-        pass
-
+@pytest.mark.skipif(not has_pycrypto, reason='Not supported without PyCrypto library')
+class TestPycryptoAlgorithms:
     def test_rsa_should_parse_pem_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -36,7 +34,7 @@ class TestPycryptoAlgorithms(unittest.TestCase):
     def test_rsa_should_reject_non_string_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             algo.prepare_key(None)
 
     def test_rsa_sign_should_generate_correct_signature_value(self):
@@ -60,7 +58,7 @@ class TestPycryptoAlgorithms(unittest.TestCase):
 
         algo.sign(jwt_message, jwt_key)
         result = algo.verify(jwt_message, jwt_pub_key, expected_sig)
-        self.assertTrue(result)
+        assert result
 
     def test_rsa_verify_should_return_false_if_signature_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
@@ -81,7 +79,7 @@ class TestPycryptoAlgorithms(unittest.TestCase):
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
-        self.assertFalse(result)
+        assert not result
 
     def test_rsa_verify_should_return_true_if_signature_valid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
@@ -100,7 +98,7 @@ class TestPycryptoAlgorithms(unittest.TestCase):
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
-        self.assertTrue(result)
+        assert result
 
     def test_rsa_prepare_key_should_be_idempotent(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
@@ -109,15 +107,15 @@ class TestPycryptoAlgorithms(unittest.TestCase):
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
-        self.assertEqual(jwt_pub_key_first, jwt_pub_key_second)
+        assert jwt_pub_key_first == jwt_pub_key_second
 
 
-@unittest.skipIf(not has_ecdsa, 'Not supported without ecdsa library')
-class TestEcdsaAlgorithms(unittest.TestCase):
+@pytest.mark.skipif(not has_ecdsa, reason='Not supported without ecdsa library')
+class TestEcdsaAlgorithms:
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             algo.prepare_key(None)
 
     def test_ec_should_accept_unicode_key(self):
@@ -145,7 +143,7 @@ class TestEcdsaAlgorithms(unittest.TestCase):
 
         algo.sign(jwt_message, jwt_key)
         result = algo.verify(jwt_message, jwt_pub_key, expected_sig)
-        self.assertTrue(result)
+        assert result
 
     def test_ec_verify_should_return_false_if_signature_invalid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
@@ -164,7 +162,7 @@ class TestEcdsaAlgorithms(unittest.TestCase):
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
-        self.assertFalse(result)
+        assert not result
 
     def test_ec_verify_should_return_true_if_signature_valid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
@@ -181,7 +179,7 @@ class TestEcdsaAlgorithms(unittest.TestCase):
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
-        self.assertTrue(result)
+        assert result
 
     def test_ec_prepare_key_should_be_idempotent(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
@@ -190,4 +188,4 @@ class TestEcdsaAlgorithms(unittest.TestCase):
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
-        self.assertEqual(jwt_pub_key_first, jwt_pub_key_second)
+        assert jwt_pub_key_first == jwt_pub_key_second
