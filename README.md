@@ -161,6 +161,7 @@ be used. PyJWT supports these registered claim names:
  - "nbf" (Not Before Time) Claim
  - "iss" (Issuer) Claim
  - "aud" (Audience) Claim
+ - "iat" (Issued At) Claim
 
 ### Expiration Time Claim
 
@@ -301,6 +302,21 @@ decoded = jwt.decode(token, 'secret', audience='urn:foo')
 ```
 
 If the audience claim is incorrect, `jwt.InvalidAudienceError` will be raised.
+
+### Issued At Claim
+
+> The iat (issued at) claim identifies the time at which the JWT was issued.
+> This claim can be used to determine the age of the JWT. Its value MUST be a
+> number containing a NumericDate value. Use of this claim is OPTIONAL.
+
+If the `iat` claim is in the future, an `jwt.InvalidIssuedAtError` exception
+will be raised.
+
+```python
+jwt.encode({'iat': 1371720939}, 'secret')
+
+jwt.encode({'iat': datetime.utcnow()}, 'secret')
+```
 
 ## Frequently Asked Questions
 
