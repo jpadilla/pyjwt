@@ -13,7 +13,7 @@ from .exceptions import (
     InvalidAlgorithmError, InvalidAudienceError, InvalidIssuedAtError,
     InvalidIssuerError
 )
-from .utils import base64url_decode, base64url_encode
+from .utils import base64url_decode, base64url_encode, merge_dict
 
 
 class PyJWT(object):
@@ -29,7 +29,7 @@ class PyJWT(object):
         if not options:
             options = {}
 
-        self.default_options = {
+        default_options = {
             'verify_signature': True,
             'verify_exp': True,
             'verify_nbf': True,
@@ -37,7 +37,7 @@ class PyJWT(object):
             'verify_aud': True,
         }
 
-        self.options = self._merge_options(self.default_options, options)
+        self.options = merge_dict(default_options, options)
 
     def register_algorithm(self, alg_id, alg_obj):
         """
@@ -85,6 +85,7 @@ class PyJWT(object):
 
         # Header
         header = {'typ': 'JWT', 'alg': algorithm}
+
         if headers:
             header.update(headers)
 
@@ -128,7 +129,7 @@ class PyJWT(object):
         payload, signing_input, header, signature = self._load(jwt)
 
         if verify:
-            merged_options = self._merge_options(override_options=options)
+            merged_options = merge_dict(self.options, options)
             if merged_options.get('verify_signature'):
                 self._verify_signature(payload, signing_input, header, signature,
                                        key, algorithms)
@@ -250,21 +251,6 @@ class PyJWT(object):
         if issuer is not None:
             if payload.get('iss') != issuer:
                 raise InvalidIssuerError('Invalid issuer')
-
-    def _merge_options(self, default_options=None, override_options=None):
-        if not default_options:
-            default_options = {}
-
-        if not override_options:
-            override_options = {}
-
-        try:
-            merged_options = self.default_options.copy()
-            merged_options.update(override_options)
-        except (AttributeError, ValueError) as e:
-            raise TypeError('options must be a dictionary: %s' % e)
-
-        return merged_options
 
 
 _jwt_global_obj = PyJWT()

@@ -14,8 +14,9 @@ from jwt.exceptions import (
     InvalidAlgorithmError, InvalidAudienceError, InvalidIssuedAtError,
     InvalidIssuerError
 )
+from jwt.utils import base64url_decode
 
-from .compat import text_type, unittest
+from .compat import string_types, text_type, unittest
 from .utils import ensure_bytes
 
 try:
@@ -80,19 +81,16 @@ class TestAPI(unittest.TestCase):
         self.assertNotIn('none', self.jwt.get_algorithms())
         self.assertIn('HS256', self.jwt.get_algorithms())
 
-    def test_default_options(self):
-        self.assertEqual(self.jwt.default_options, self.jwt.options)
-
     def test_override_options(self):
         self.jwt = PyJWT(options={'verify_exp': False, 'verify_nbf': False})
-        expected_options = self.jwt.default_options
+        expected_options = self.jwt.options
         expected_options['verify_exp'] = False
         expected_options['verify_nbf'] = False
         self.assertEqual(expected_options, self.jwt.options)
 
-    def test_non_default_options_persist(self):
+    def test_non_object_options_persist(self):
         self.jwt = PyJWT(options={'verify_iat': False, 'foobar': False})
-        expected_options = self.jwt.default_options
+        expected_options = self.jwt.options
         expected_options['verify_iat'] = False
         expected_options['foobar'] = False
         self.assertEqual(expected_options, self.jwt.options)
@@ -879,6 +877,24 @@ class TestAPI(unittest.TestCase):
         token = self.jwt.encode(data, 'secret', json_encoder=CustomJSONEncoder)
         payload = self.jwt.decode(token, 'secret')
         self.assertEqual(payload, {'some_decimal': 'it worked'})
+
+    def test_encode_headers_parameter_adds_headers(self):
+        headers = {'testheader': True}
+        token = self.jwt.encode({'msg': 'hello world'}, 'secret', headers=headers)
+
+        if not isinstance(token, string_types):
+            token = token.decode()
+
+        header = token[0:token.index('.')].encode()
+        header = base64url_decode(header)
+
+        if not isinstance(header, text_type):
+            header = header.decode()
+
+        header_obj = json.loads(header)
+
+        self.assertIn('testheader', header_obj)
+        self.assertEqual(header_obj['testheader'], headers['testheader'])
 
 
 if __name__ == '__main__':
