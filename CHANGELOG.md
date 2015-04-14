@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 - Added flexible and complete verification options during decode #131
+- Deprecated usage of the .decode(..., verify=False) parameter
 - Added support for PS256, PS384, and PS512 algorithms. #132
 - Added this CHANGELOG.md file
 

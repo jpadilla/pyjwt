@@ -1,6 +1,7 @@
 
 import json
 import time
+import warnings
 
 from calendar import timegm
 from datetime import datetime, timedelta
@@ -35,9 +36,17 @@ def utc_timestamp():
 class TestAPI(unittest.TestCase):
 
     def setUp(self):  # noqa
+        self.warnings_context = warnings.catch_warnings(record=True)
+        self.warnings = self.warnings_context.__enter__()
+
+        warnings.simplefilter('always', DeprecationWarning)
+
         self.payload = {'iss': 'jeff', 'exp': utc_timestamp() + 15,
                         'claim': 'insanity'}
         self.jwt = PyJWT()
+
+    def tearDown(self):  # noqa
+        self.warnings_context.__exit__()
 
     def test_register_algorithm_does_not_allow_duplicate_registration(self):
         self.jwt.register_algorithm('AAA', Algorithm())
@@ -355,6 +364,18 @@ class TestAPI(unittest.TestCase):
         decoded_payload = self.jwt.decode(jwt_message, verify=False)
 
         self.assertEqual(decoded_payload, self.payload)
+
+    def test_verify_false_deprecated(self):
+        example_jwt = (
+            b'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+            b'.eyJoZWxsbyI6ICJ3b3JsZCJ9'
+            b'.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+
+        self.assertEqual(len(self.warnings), 0)
+        self.jwt.decode(example_jwt, verify=False)
+
+        self.assertEqual(len(self.warnings), 1)
+        self.assertEqual(self.warnings[-1].category, DeprecationWarning)
 
     def test_load_no_verification(self):
         right_secret = 'foo'
