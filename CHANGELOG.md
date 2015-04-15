@@ -7,11 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
-- Placeholder
-
-
 ### Fixed
-- Placeholder
 
 [v1.1.0][1.1.0]
 -------------------------------------------------------------------------
