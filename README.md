@@ -27,31 +27,31 @@ If you're system doesn't allow installing `cryptography` like on Google App Engi
 ## Usage
 
 ```python
-import jwt
-encoded = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256')
-# 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg'
+>>> import jwt
+>>> encoded = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256')
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg'
 ```
 
 Additional headers may also be specified.
 
 ```python
-jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
-# 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJzb21lIjoicGF5bG9hZCJ9.DogbDGmMHgA_bU05TAB-R6geQ2nMU2BRM-LnYEtefwg'
+>>> jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJzb21lIjoicGF5bG9hZCJ9.DogbDGmMHgA_bU05TAB-R6geQ2nMU2BRM-LnYEtefwg'
 ```
 
 Note the resulting JWT will not be encrypted, but verifiable with a secret key.
 
 ```python
-jwt.decode(encoded, 'secret', algorithms=['HS256'])
-# {u'some': u'payload'}
+>>> jwt.decode(encoded, 'secret', algorithms=['HS256'])
+{u'some': u'payload'}
 ```
 
 If the secret is wrong, it will raise a `jwt.DecodeError` telling you as such.
 You can still get the payload by setting the `verify` argument to `False`.
 
 ```python
-jwt.decode(encoded, verify=False)
-# {u'some': u'payload'}
+>>> jwt.decode(encoded, verify=False)
+{u'some': u'payload'}
 ```
 
 The `decode()` function can raise other exceptions, e.g. for invalid issuer or
@@ -61,9 +61,9 @@ use this approach to catch any issues relating to invalid tokens:
 
 ```python
 try:
-    payload = jwt.decode(encoded)
+     payload = jwt.decode(encoded)
 except jwt.InvalidTokenError:
-    pass  # do something sensible here, e.g. return HTTP 403 status code
+     pass  # do something sensible here, e.g. return HTTP 403 status code
 ```
 
 You may also override exception checking via an `options` dictionary.  The default
@@ -83,12 +83,12 @@ You can skip individual checks by passing an `options` dictionary with certain k
 For example, if you want to verify the signature of a JWT that has already expired.
 
 ```python
-options = {
-   'verify_exp': True,
-}
+>>> options = {
+>>>    'verify_exp': True,
+>>> }
 
-jwt.decode(encoded, 'secret', options=options)
-# {u'some': u'payload'}
+>>> jwt.decode(encoded, 'secret', options=options)
+{u'some': u'payload'}
 ```
 
 **NOTE**: *Changing the default behavior is done at your own risk, and almost certainly will make your
@@ -126,8 +126,8 @@ You can specify which algorithm you would like to use to sign the JWT
 by using the `algorithm` parameter:
 
 ```python
-encoded = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS512')
-# 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.WTzLzFO079PduJiFIyzrOah54YaM8qoxH9fLMQoQhKtw3_fMGjImIOokijDkXVbyfBqhMo2GCNu4w9v7UXvnpA'
+>>> encoded = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS512')
+'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.WTzLzFO079PduJiFIyzrOah54YaM8qoxH9fLMQoQhKtw3_fMGjImIOokijDkXVbyfBqhMo2GCNu4w9v7UXvnpA'
 ```
 
 ### Decoding
@@ -136,8 +136,8 @@ when validating the JWT by using the `algorithms` parameter which takes a list
 of allowed algorithms:
 
 ```python
-jwt.decode(encoded, 'secret', algorithms=['HS512', 'HS256'])
-# {u'some': u'payload'}
+>>> jwt.decode(encoded, 'secret', algorithms=['HS512', 'HS256'])
+{u'some': u'payload'}
 ```
 
 In the above case, if the JWT has any value for its alg header other than
