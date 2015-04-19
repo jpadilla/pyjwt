@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from jwt.algorithms import Algorithm
-from jwt.api import PyJWT
+from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
     InvalidAlgorithmError, InvalidAudienceError, InvalidIssuedAtError,
@@ -146,9 +146,9 @@ class TestAPI:
 
     def test_decode_with_non_mapping_payload_throws_exception(self, jwt):
         secret = 'secret'
-        example_jwt = ('eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
-                       '.MQ'  # == 1
-                       '.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+        example_jwt = ('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.'
+                       'MQ.'  # == 1
+                       'AbcSR3DWum91KOgfKxUHm78rLs_DrrZ1CrDgpUFFzls')
 
         with pytest.raises(DecodeError) as context:
             jwt.decode(example_jwt, secret)
@@ -466,9 +466,9 @@ class TestAPI:
 
     def test_decode_invalid_payload_string(self, jwt):
         example_jwt = (
-            'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
-            '.eyJoZWxsb-kiOiAid29ybGQifQ=='
-            '.tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8')
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.aGVsb'
+            'G8gd29ybGQ.SIr03zM64awWRdPrAM_61QWsZchAtgDV'
+            '3pphfHPPWkI')
         example_secret = 'secret'
 
         with pytest.raises(DecodeError) as exc:
