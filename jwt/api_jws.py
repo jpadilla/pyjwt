@@ -88,10 +88,7 @@ class PyJWS(object):
         ).encode('utf-8')
 
         segments.append(base64url_encode(json_header))
-
-        json_payload = payload.encode('utf-8')
-
-        segments.append(base64url_encode(json_payload))
+        segments.append(base64url_encode(payload))
 
         # Segments
         signing_input = b'.'.join(segments)

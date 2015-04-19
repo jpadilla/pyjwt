@@ -19,6 +19,7 @@ __copyright__ = 'Copyright 2015 José Padilla'
 from .api_jwt import (
     encode, decode, register_algorithm, unregister_algorithm, PyJWT
 )
+from .api_jws import PyJWS
 from .exceptions import (
     InvalidTokenError, DecodeError, InvalidAudienceError,
     ExpiredSignatureError, ImmatureSignatureError, InvalidIssuedAtError,
