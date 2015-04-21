@@ -1,3 +1,6 @@
+# WARNING: This is the 2.x branch of pyjwt, currently under heavy development
+## Please do not use this branch in production
+
 # PyJWT
 
 [![travis-status-image]][travis]
