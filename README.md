@@ -207,8 +207,7 @@ Expiration time will be compared to the current UTC time (as given by
 `timegm(datetime.utcnow().utctimetuple())`), so be sure to use a UTC timestamp
 or datetime in encoding.
 
-You can turn off expiration time verification with the `verify_expiration`
-argument.
+You can turn off expiration time verification with the `verify_exp` parameter in the options argument.
 
 PyJWT also supports the leeway part of the expiration time definition, which
 means you can validate a expiration time which is in the past but not very far.

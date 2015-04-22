@@ -18,8 +18,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ### Deprecated
-- Deprecated usage of the .decode(..., verify=False) parameter.
-
+- Deprecated usage of the `verify` parameters to `PyJWT.decode()` in favor of the new options parameter
+- Removed the `verify_expiration` parameters to `PyJWT.decode()` in favor of then new options parameter
 
 ### Fixed
 - Fixed command line encoding. [#128][128]
