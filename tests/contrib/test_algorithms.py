@@ -2,7 +2,7 @@ import base64
 
 import pytest
 
-from ..utils import ensure_bytes, ensure_unicode, key_path
+from tests.utils import ensure_bytes, ensure_unicode, key_path
 
 try:
     from jwt.contrib.algorithms.pycrypto import RSAAlgorithm
