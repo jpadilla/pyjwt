@@ -8,9 +8,8 @@ Minimum implementation based on this spec:
 http://self-issued.info/docs/draft-jones-json-web-token-01.html
 """
 
-
 __title__ = 'pyjwt'
-__version__ = '1.4.0'
+from ._version import version as __version__
 __author__ = 'José Padilla'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2015 José Padilla'
