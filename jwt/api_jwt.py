@@ -1,4 +1,5 @@
 import json
+import warnings
 
 from calendar import timegm
 from collections import Mapping
@@ -74,6 +75,12 @@ class PyJWT(PyJWS):
 
     def _validate_claims(self, payload, audience=None, issuer=None, leeway=0,
                          options=None, **kwargs):
+
+        if 'verify_expiration' in kwargs:
+            options['verify_exp'] = kwargs.get('verify_expiration', True)
+            warnings.warn('The verify_expiration parameter is deprecated. '
+                          'Please use options instead.', DeprecationWarning)
+
         if isinstance(leeway, timedelta):
             leeway = timedelta_total_seconds(leeway)
 

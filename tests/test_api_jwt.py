@@ -419,3 +419,23 @@ class TestJWT:
         payload = jwt.decode(token, 'secret')
 
         assert payload == {'some_decimal': 'it worked'}
+
+    def test_decode_with_verify_expiration_kwarg(self, jwt, payload):
+        payload['exp'] = utc_timestamp() - 1
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret)
+
+        pytest.deprecated_call(
+            jwt.decode,
+            jwt_message,
+            secret,
+            verify_expiration=False
+        )
+
+        with pytest.raises(ExpiredSignatureError):
+            pytest.deprecated_call(
+                jwt.decode,
+                jwt_message,
+                secret,
+                verify_expiration=True
+            )
