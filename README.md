@@ -117,7 +117,7 @@ currently supports:
 * RS256 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-256 hash algorithm
 * RS384 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-384 hash algorithm
 * RS512 - RSASSA-PKCS1-v1_5 signature algorithm using SHA-512 hash algorithm
-* PS256 - RSASSA-PSS signature using SHA-256 and MGF1 padding with SHA-256  
+* PS256 - RSASSA-PSS signature using SHA-256 and MGF1 padding with SHA-256
 * PS384 - RSASSA-PSS signature using SHA-384 and MGF1 padding with SHA-384
 * PS512 - RSASSA-PSS signature using SHA-512 and MGF1 padding with SHA-512
 
@@ -207,8 +207,7 @@ Expiration time will be compared to the current UTC time (as given by
 `timegm(datetime.utcnow().utctimetuple())`), so be sure to use a UTC timestamp
 or datetime in encoding.
 
-You can turn off expiration time verification with the `verify_expiration`
-argument.
+You can turn off expiration time verification with the `verify_exp` parameter in the options argument.
 
 PyJWT also supports the leeway part of the expiration time definition, which
 means you can validate a expiration time which is in the past but not very far.
