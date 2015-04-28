@@ -6,8 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
-### Changed
 ### Fixed
+- Added back `verify_expiration=` argument to `jwt.decode()` that was erroneously removed in [v1.1.0][1.1.0].
+
+
+### Deprecated
+- `verify_expiration=` argument to `jwt.decode()` is now deprecated and will be removed in a future version. Use the `option=` argument instead.
 
 [v1.1.0][1.1.0]
 -------------------------------------------------------------------------
