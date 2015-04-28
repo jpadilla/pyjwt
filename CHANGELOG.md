@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
+
+[v1.2.0][1.2.0]
+-------------------------------------------------------------------------
 ### Fixed
 - Added back `verify_expiration=` argument to `jwt.decode()` that was erroneously removed in [v1.1.0][1.1.0].
 
@@ -52,6 +55,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [1.0.1]: https://github.com/jpadilla/pyjwt/compare/1.0.0...1.0.1
 [1.0.1]: https://github.com/jpadilla/pyjwt/compare/1.0.0...1.0.1
 [1.1.0]: https://github.com/jpadilla/pyjwt/compare/1.0.1...1.1.0
+[1.2.0]: https://github.com/jpadilla/pyjwt/compare/1.1.0...1.2.0
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
