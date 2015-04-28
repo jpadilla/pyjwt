@@ -1,0 +1,35 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27-x64"
+      TOX_ENV: "py27-crypto"
+
+    - PYTHON: "C:\\Python34-x64"
+      TOX_ENV: "py34-crypto"
+
+init:
+  - SET PATH=%PYTHON%;%PATH%
+  - python -c "import sys;sys.stdout.write(sys.version)"
+  - ECHO .
+  - python -m pip list
+
+# pip & virtualenv are pre-installed
+install:
+  - python -m pip install -U setuptools
+  - python -m pip install -U pip
+  - python -m pip install -U wheel
+  - python -m pip install -U tox
+
+build: false  # Not a C# project, build stuff at the test step instead.
+
+test_script:
+  - python -m tox -e %TOX_ENV%
+
+after_test:
+  - python setup.py bdist_wheel
+  - ps: "ls dist"
+
+artifacts:
+  - path: dist\*
+
+#on_success:
+#  - TODO: upload the content of dist/*.whl to a public wheelhouse
