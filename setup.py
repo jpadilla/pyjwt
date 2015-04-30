@@ -71,10 +71,5 @@ setup(
             'flake8-import-order',
             'pep8-naming'
         ]
-    ),
-    entry_points={
-        'console_scripts': [
-            'jwt = jwt.__main__:main'
-        ]
-    }
+    )
 )
