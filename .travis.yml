@@ -1,9 +1,9 @@
 language: python
+sudo: false
 env:
   - TOXENV=flake8
   - TOXENV=py26-crypto
   - TOXENV=py27-crypto
-  - TOXENV=py32-crypto
   - TOXENV=py33-crypto
   - TOXENV=py34-crypto
   - TOXENV=py34-nocrypto
