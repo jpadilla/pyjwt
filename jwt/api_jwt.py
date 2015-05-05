@@ -69,12 +69,12 @@ class PyJWT(PyJWS):
 
         if verify:
             merged_options = merge_dict(self.options, options)
-            self._validate_claims(payload, options=merged_options, **kwargs)
+            self._validate_claims(payload, merged_options, **kwargs)
 
         return payload
 
-    def _validate_claims(self, payload, audience=None, issuer=None, leeway=0,
-                         options=None, **kwargs):
+    def _validate_claims(self, payload, options, audience=None, issuer=None,
+                         leeway=0, **kwargs):
 
         if 'verify_expiration' in kwargs:
             options['verify_exp'] = kwargs.get('verify_expiration', True)
