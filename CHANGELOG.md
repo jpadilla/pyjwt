@@ -13,6 +13,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added back `verify_expiration=` argument to `jwt.decode()` that was erroneously removed in [v1.1.0][1.1.0].
 
 
+### Changed
+- Refactored JWS-specific logic out of PyJWT and into PyJWS superclass. [#141][141]
+
 ### Deprecated
 - `verify_expiration=` argument to `jwt.decode()` is now deprecated and will be removed in a future version. Use the `option=` argument instead.
 
@@ -68,3 +71,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [131]: https://github.com/jpadilla/pyjwt/pull/131
 [132]: https://github.com/jpadilla/pyjwt/pull/132
 [128]: https://github.com/jpadilla/pyjwt/pull/128
+[141]: https://github.com/jpadilla/pyjwt/pull/141
