@@ -50,11 +50,11 @@ class ECAlgorithm(Algorithm):
 
     def sign(self, msg, key):
         return key.sign(msg, hashfunc=self.hash_alg,
-                        sigencode=ecdsa.util.sigencode_der)
+                        sigencode=ecdsa.util.sigencode_string)
 
     def verify(self, msg, key, sig):
         try:
             return key.verify(sig, msg, hashfunc=self.hash_alg,
-                              sigdecode=ecdsa.util.sigdecode_der)
-        except ecdsa.der.UnexpectedDER:
+                              sigdecode=ecdsa.util.sigdecode_string)
+        except AssertionError:
             return False

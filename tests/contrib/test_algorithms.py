@@ -130,10 +130,9 @@ class TestEcdsaAlgorithms:
         jwt_message = ensure_bytes('Hello World!')
 
         expected_sig = base64.b64decode(ensure_bytes(
-            'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
-            '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
-            '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
-            'zJ8hSJmbw=='))
+            'AC+m4Jf/xI3guAC6w0w37t5zRpSCF6F4udEz5LiMiTIjCS4vcVe6dDOxK+M'
+            'mvkF8PxJuvqxP2CO3TR3okDPCl/NjATTO1jE+qBZ966CRQSSzcCM+tzcHzw'
+            'LZS5kbvKu0Acd/K6Ol2/W3B1NeV5F/gjvZn/jOwaLgWEUYsg0o4XVrAg65'))
 
         with open(key_path('testkey_ec'), 'r') as keyfile:
             jwt_key = algo.prepare_key(keyfile.read())
@@ -151,10 +150,9 @@ class TestEcdsaAlgorithms:
         jwt_message = ensure_bytes('Hello World!')
 
         jwt_sig = base64.b64decode(ensure_bytes(
-            'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
-            '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
-            '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
-            'zJ8hSJmbw=='))
+            'AC+m4Jf/xI3guAC6w0w37t5zRpSCF6F4udEz5LiMiTIjCS4vcVe6dDOxK+M'
+            'mvkF8PxJuvqxP2CO3TR3okDPCl/NjATTO1jE+qBZ966CRQSSzcCM+tzcHzw'
+            'LZS5kbvKu0Acd/K6Ol2/W3B1NeV5F/gjvZn/jOwaLgWEUYsg0o4XVrAg65'))
 
         jwt_sig += ensure_bytes('123')  # Signature is now invalid
 
@@ -170,10 +168,9 @@ class TestEcdsaAlgorithms:
         jwt_message = ensure_bytes('Hello World!')
 
         jwt_sig = base64.b64decode(ensure_bytes(
-            'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
-            '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
-            '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
-            'zJ8hSJmbw=='))
+            'AC+m4Jf/xI3guAC6w0w37t5zRpSCF6F4udEz5LiMiTIjCS4vcVe6dDOxK+M'
+            'mvkF8PxJuvqxP2CO3TR3okDPCl/NjATTO1jE+qBZ966CRQSSzcCM+tzcHzw'
+            'LZS5kbvKu0Acd/K6Ol2/W3B1NeV5F/gjvZn/jOwaLgWEUYsg0o4XVrAg65'))
 
         with open(key_path('testkey_ec.pub'), 'r') as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
