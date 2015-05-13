@@ -3,6 +3,7 @@ import hmac
 
 from .compat import constant_time_compare, string_types, text_type
 from .exceptions import InvalidKeyError
+from .utils import raw_to_der_signature, der_to_raw_signature
 
 try:
     from cryptography.hazmat.primitives import hashes
@@ -233,10 +234,17 @@ if has_crypto:
             signer = key.signer(ec.ECDSA(self.hash_alg()))
 
             signer.update(msg)
-            return signer.finalize()
+            der_sig = signer.finalize()
+
+            return der_to_raw_signature(der_sig, key.curve)
 
         def verify(self, msg, key, sig):
-            verifier = key.verifier(sig, ec.ECDSA(self.hash_alg()))
+            try:
+                der_sig = raw_to_der_signature(sig, key.curve)
+            except ValueError:
+                return False
+
+            verifier = key.verifier(der_sig, ec.ECDSA(self.hash_alg()))
 
             verifier.update(msg)
 
