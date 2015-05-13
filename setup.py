@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import re
 import sys
 
 from setuptools import find_packages, setup
 
-__version__ = None
-with open('jwt/__init__.py') as fp:
-    _locals = {}
-    for line in fp:
-        if line.startswith('__version__'):
-            exec(line, None, _locals)
-            __version__ = _locals['__version__']
-            break
+
+def get_version(package):
+    """
+    Return package version as listed in `__version__` in `init.py`.
+    """
+    with open(os.path.join(package, '__init__.py'), 'rb') as init_py:
+        src = init_py.read().decode('utf-8')
+        return re.search("__version__ = ['\"]([^'\"]+)['\"]", src).group(1)
+
+
+version = get_version('jwt')
 
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
     long_description = readme.read()
@@ -21,7 +25,7 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     os.system('python setup.py bdist_wheel upload')
     print('You probably want to also tag the version now:')
-    print(" git tag -a {0} -m 'version {0}'".format(__version__))
+    print(" git tag -a {0} -m 'version {0}'".format(version))
     print(' git push --tags')
     sys.exit()
 
@@ -33,7 +37,7 @@ tests_require = [
 
 setup(
     name='PyJWT',
-    version=__version__,
+    version=version,
     author='José Padilla',
     author_email='hello@jpadilla.com',
     description='JSON Web Token implementation in Python',
