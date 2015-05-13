@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
+### Added
+- Added a new `jwt.get_unverified_header()` to parse and return the header portion of a token prior to signature verification.
 
 [v1.2.0][1.2.0]
 -------------------------------------------------------------------------
