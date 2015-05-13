@@ -3,7 +3,7 @@ import hmac
 
 from .compat import constant_time_compare, string_types, text_type
 from .exceptions import InvalidKeyError
-from .utils import raw_to_der_signature, der_to_raw_signature
+from .utils import der_to_raw_signature, raw_to_der_signature
 
 try:
     from cryptography.hazmat.primitives import hashes

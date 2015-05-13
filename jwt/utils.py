@@ -47,7 +47,7 @@ def bytes_to_number(string):
 
 def der_to_raw_signature(der_sig, curve):
     num_bits = curve.key_size
-    num_bytes = (num_bits + 7) / 8
+    num_bytes = (num_bits + 7) // 8
 
     r, s = decode_rfc6979_signature(der_sig)
 
@@ -56,7 +56,7 @@ def der_to_raw_signature(der_sig, curve):
 
 def raw_to_der_signature(raw_sig, curve):
     num_bits = curve.key_size
-    num_bytes = (num_bits + 7) / 8
+    num_bytes = (num_bits + 7) // 8
 
     if len(raw_sig) != 2 * num_bytes:
         raise ValueError('Invalid signature')
