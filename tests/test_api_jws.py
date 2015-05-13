@@ -356,6 +356,15 @@ class TestJWS:
         jws_message = jws.encode(payload, key=None, algorithm=None)
         jws.decode(jws_message, verify=False)
 
+    def test_get_unverified_header_returns_header_values(self, jws, payload):
+        jws_message = jws.encode(payload, key='secret', algorithm='HS256',
+                                 headers={'kid': 123})
+
+        header = jws.get_unverified_header(jws_message)
+
+        assert 'kid' in header
+        assert header['kid'] == 123
+
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha256(self, jws, payload):
         # PEM-formatted RSA key
