@@ -182,6 +182,20 @@ class TestAlgorithms:
         assert not result
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_verify_should_return_false_if_signature_wrong_length(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        message = ensure_bytes('Hello World!')
+
+        sig = base64.b64decode(ensure_bytes('AC+m4Jf/xI3guAC6w0w3'))
+
+        with open(key_path('testkey_ec.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        assert not result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_verify_should_return_true_if_signature_valid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
