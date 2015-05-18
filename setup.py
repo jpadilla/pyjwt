@@ -60,7 +60,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Topic :: Utilities',
     ],
-    # install_requires=['cryptography'],
     test_suite='tests',
     setup_requires=['pytest-runner'],
     tests_require=tests_require,
