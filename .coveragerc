@@ -4,3 +4,4 @@ omit =
     .tox/*
     setup.py
     *.egg/*
+    */__main__.py

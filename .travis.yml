@@ -1,17 +1,18 @@
 language: python
 sudo: false
 env:
-  - TOXENV=pep8
-  - TOXENV=py26
-  - TOXENV=py27
-  - TOXENV=py33
-  - TOXENV=py34
+  - TOXENV=flake8
+  - TOXENV=py26-crypto
+  - TOXENV=py27-crypto
+  - TOXENV=py33-crypto
+  - TOXENV=py34-crypto
   - TOXENV=py34-nocrypto
   - TOXENV=py27-nocrypto
-  - TOXENV=py34-contrib-crypto
-  - TOXENV=py27-contrib-crypto
+  - TOXENV=py34-contrib_crypto
+  - TOXENV=py27-contrib_crypto
 install:
-  - pip install tox coveralls
+  - pip install -U pip
+  - pip install -U tox coveralls
 script:
   - tox
 after_success:
