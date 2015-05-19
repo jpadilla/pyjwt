@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
+### Fixed
+- ECDSA (ES256, ES384, ES512) signatures are now being properly serialized [#158][158]
+
 ### Added
 - Added a new `jwt.get_unverified_header()` to parse and return the header portion of a token prior to signature verification.
 
@@ -78,3 +81,4 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [132]: https://github.com/jpadilla/pyjwt/pull/132
 [128]: https://github.com/jpadilla/pyjwt/pull/128
 [141]: https://github.com/jpadilla/pyjwt/pull/141
+[158: https://github.com/jpadilla/pyjwt/pull/158

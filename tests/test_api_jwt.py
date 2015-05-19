@@ -190,11 +190,10 @@ class TestJWT:
         example_jwt = (
             b'eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9'
             b'.eyJoZWxsbyI6IndvcmxkIn0'
-            b'.MIGHAkEdh2kR7IRu5w0tGuY6Xz3Vqa7PHHY2DgXWeee'
-            b'LXotEqpn9udp2NfVL-XFG0TDoCakzXbIGAWg42S69GFl'
-            b'KZzxhXAJCAPLPuJoKyAixFnXPBkvkti-UzSIj4s6DePe'
-            b'uTu7102G_QIXiijY5bx6mdmZa3xUuKeu-zobOIOqR8Zw'
-            b'FqGjBLZum')
+            b'.AddMgkmRhzqptDYqlmy_f2dzM6O9YZmVo-txs_CeAJD'
+            b'NoD8LN7YiPeLmtIhkO5_VZeHHKvtQcGc4lsq-Y72c4dK'
+            b'pANr1f6HEYhjpBc03u_bv06PYMcr5N2-9k97-qf-JCSb'
+            b'zqW6R250Q7gNCX5R7NrCl7MTM4DTBZkGbUlqsFUleiGlj')
         decoded_payload = jwt.decode(example_jwt, example_pubkey)
 
         assert decoded_payload == example_payload

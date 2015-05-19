@@ -173,10 +173,23 @@ class TestAlgorithms:
 
         # Mess up the signature by replacing a known byte
         sig = base64.b64decode(ensure_bytes(
-            'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
-            '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
-            '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
-            'zJ8hSJmbw=='.replace('r', 's')))
+            'AC+m4Jf/xI3guAC6w0w37t5zRpSCF6F4udEz5LiMiTIjCS4vcVe6dDOxK+M'
+            'mvkF8PxJuvqxP2CO3TR3okDPCl/NjATTO1jE+qBZ966CRQSSzcCM+tzcHzw'
+            'LZS5kbvKu0Acd/K6Ol2/W3B1NeV5F/gjvZn/jOwaLgWEUYsg0o4XVrAg65'.replace('r', 's')))
+
+        with open(key_path('testkey_ec.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        assert not result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_verify_should_return_false_if_signature_wrong_length(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        message = ensure_bytes('Hello World!')
+
+        sig = base64.b64decode(ensure_bytes('AC+m4Jf/xI3guAC6w0w3'))
 
         with open(key_path('testkey_ec.pub'), 'r') as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
@@ -191,10 +204,9 @@ class TestAlgorithms:
         message = ensure_bytes('Hello World!')
 
         sig = base64.b64decode(ensure_bytes(
-            'MIGIAkIB9vYz+inBL8aOTA4auYz/zVuig7TT1bQgKROIQX9YpViHkFa4DT5'
-            '5FuFKn9XzVlk90p6ldEj42DC9YecXHbC2t+cCQgCicY+8f3f/KCNtWK7cif'
-            '6vdsVwm6Lrjs0Ag6ZqCf+olN11hVt1qKBC4lXppqB1gNWEmNQaiz1z2QRyc'
-            'zJ8hSJmbw=='))
+            'AC+m4Jf/xI3guAC6w0w37t5zRpSCF6F4udEz5LiMiTIjCS4vcVe6dDOxK+M'
+            'mvkF8PxJuvqxP2CO3TR3okDPCl/NjATTO1jE+qBZ966CRQSSzcCM+tzcHzw'
+            'LZS5kbvKu0Acd/K6Ol2/W3B1NeV5F/gjvZn/jOwaLgWEUYsg0o4XVrAg65'))
 
         with open(key_path('testkey_ec.pub'), 'r') as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
