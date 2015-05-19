@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
+### Added
+- Added a new `jwt.get_unverified_header()` to parse and return the header portion of a token prior to signature verification.
+
+### Removed
+- Python 3.2 is no longer a supported platform. This version of Python is
+rarely used. Users affected by this should upgrade to 3.3+.
 
 [v1.2.0][1.2.0]
 -------------------------------------------------------------------------

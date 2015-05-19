@@ -2,14 +2,16 @@ import base64
 
 from jwt.algorithms import Algorithm, HMACAlgorithm, NoneAlgorithm
 from jwt.exceptions import InvalidKeyError
+from jwt.utils import base64url_decode
 
 import pytest
 
+from .keys import load_hmac_key
 from .utils import ensure_bytes, ensure_unicode, key_path
 
 try:
     from jwt.algorithms import RSAAlgorithm, ECAlgorithm, RSAPSSAlgorithm
-
+    from .keys import load_rsa_pub_key, load_ec_pub_key
     has_crypto = True
 except ImportError:
     has_crypto = False
@@ -268,4 +270,103 @@ class TestAlgorithms:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
+        assert result
+
+
+class TestAlgorithmsCookbook:
+    """
+    These test vectors were taken from IETF JOSE Cookbook Draft
+    (https://www.ietf.org/id/draft-ietf-jose-cookbook-08.txt)
+    """
+
+    def test_hmac_verify_should_return_true_for_test_vector(self):
+        signing_input = ensure_bytes(
+            'eyJhbGciOiJIUzI1NiIsImtpZCI6IjAxOGMwYWU1LTRkOWItNDcxYi1iZmQ2LWVlZ'
+            'jMxNGJjNzAzNyJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ'
+            '29pbmcgb3V0IHlvdXIgZG9vci4gWW91IHN0ZXAgb250byB0aGUgcm9hZCwgYW5kIG'
+            'lmIHlvdSBkb24ndCBrZWVwIHlvdXIgZmVldCwgdGhlcmXigJlzIG5vIGtub3dpbmc'
+            'gd2hlcmUgeW91IG1pZ2h0IGJlIHN3ZXB0IG9mZiB0by4'
+        )
+
+        signature = base64url_decode(ensure_bytes(
+            's0h6KThzkfBBBkLspW1h84VsJZFTsPPqMDA7g1Md7p0'
+        ))
+
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = algo.prepare_key(load_hmac_key())
+
+        result = algo.verify(signing_input, key, signature)
+        assert result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_rsa_verify_should_return_true_for_test_vector(self):
+        signing_input = ensure_bytes(
+            'eyJhbGciOiJSUzI1NiIsImtpZCI6ImJpbGJvLmJhZ2dpbnNAaG9iYml0b24uZXhhb'
+            'XBsZSJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ29pbmcgb'
+            '3V0IHlvdXIgZG9vci4gWW91IHN0ZXAgb250byB0aGUgcm9hZCwgYW5kIGlmIHlvdS'
+            'Bkb24ndCBrZWVwIHlvdXIgZmVldCwgdGhlcmXigJlzIG5vIGtub3dpbmcgd2hlcmU'
+            'geW91IG1pZ2h0IGJlIHN3ZXB0IG9mZiB0by4'
+        )
+
+        signature = base64url_decode(ensure_bytes(
+            'MRjdkly7_-oTPTS3AXP41iQIGKa80A0ZmTuV5MEaHoxnW2e5CZ5NlKtainoFmKZop'
+            'dHM1O2U4mwzJdQx996ivp83xuglII7PNDi84wnB-BDkoBwA78185hX-Es4JIwmDLJ'
+            'K3lfWRa-XtL0RnltuYv746iYTh_qHRD68BNt1uSNCrUCTJDt5aAE6x8wW1Kt9eRo4'
+            'QPocSadnHXFxnt8Is9UzpERV0ePPQdLuW3IS_de3xyIrDaLGdjluPxUAhb6L2aXic'
+            '1U12podGU0KLUQSE_oI-ZnmKJ3F4uOZDnd6QZWJushZ41Axf_fcIe8u9ipH84ogor'
+            'ee7vjbU5y18kDquDg'
+        ))
+
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        key = algo.prepare_key(load_rsa_pub_key())
+
+        result = algo.verify(signing_input, key, signature)
+        assert result
+
+    @pytest.mark.skipif(True, "I'm not 100% sure if this test is correct")
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_rsapss_verify_should_return_true_for_test_vector(self):
+        signing_input = ensure_bytes(
+            'eyJhbGciOiJQUzM4NCIsImtpZCI6ImJpbGJvLmJhZ2dpbnNAaG9iYml0b24uZXhhb'
+            'XBsZSJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ29pbmcgb'
+            '3V0IHlvdXIgZG9vci4gWW91IHN0ZXAgb250byB0aGUgcm9hZCwgYW5kIGlmIHlvdS'
+            'Bkb24ndCBrZWVwIHlvdXIgZmVldCwgdGhlcmXigJlzIG5vIGtub3dpbmcgd2hlcmU'
+            'geW91IG1pZ2h0IGJlIHN3ZXB0IG9mZiB0by4'
+        )
+
+        signature = base64url_decode(ensure_bytes(
+            'cu22eBqkYDKgIlTpzDXGvaFfz6WGoz7fUDcfT0kkOy42miAh2qyBzk1xEsnk2IpN'
+            '6-tPid6VrklHkqsGqDqHCdP6O8TTB5dDDItllVo6_1OLPpcbUrhiUSMxbbXUvdvW'
+            'Xzg-UD8biiReQFlfz28zGWVsdiNAUf8ZnyPEgVFn442ZdNqiVJRmBqrYRXe8P_ij'
+            'Q7p8Vdz0TTrxUeT3lm8d9shnr2lfJT8ImUjvAA2Xez2Mlp8cBE5awDzT0qI0n6ui'
+            'P1aCN_2_jLAeQTlqRHtfa64QQSUmFAAjVKPbByi7xho0uTOcbH510a6GYmJUAfmW'
+            'jwZ6oD4ifKo8DYM-X72Eaw'
+        ))
+
+        algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384)
+        key = algo.prepare_key(load_rsa_pub_key())
+
+        result = algo.verify(signing_input, key, signature)
+        assert result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_verify_should_return_true_for_test_vector(self):
+        signing_input = ensure_bytes(
+            'eyJhbGciOiJFUzUxMiIsImtpZCI6ImJpbGJvLmJhZ2dpbnNAaG9iYml0b24uZXhhb'
+            'XBsZSJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ29pbmcgb'
+            '3V0IHlvdXIgZG9vci4gWW91IHN0ZXAgb250byB0aGUgcm9hZCwgYW5kIGlmIHlvdS'
+            'Bkb24ndCBrZWVwIHlvdXIgZmVldCwgdGhlcmXigJlzIG5vIGtub3dpbmcgd2hlcmU'
+            'geW91IG1pZ2h0IGJlIHN3ZXB0IG9mZiB0by4'
+        )
+
+        signature = base64url_decode(ensure_bytes(
+            'AE_R_YZCChjn4791jSQCrdPZCNYqHXCTZH0-JZGYNlaAjP2kqaluUIIUnC9qvbu9P'
+            'lon7KRTzoNEuT4Va2cmL1eJAQy3mtPBu_u_sDDyYjnAMDxXPn7XrT0lw-kvAD890j'
+            'l8e2puQens_IEKBpHABlsbEPX6sFY8OcGDqoRuBomu9xQ2'
+        ))
+
+        algo = ECAlgorithm(ECAlgorithm.SHA512)
+        key = algo.prepare_key(load_ec_pub_key())
+
+        result = algo.verify(signing_input, key, signature)
         assert result

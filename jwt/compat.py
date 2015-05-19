@@ -34,7 +34,7 @@ def timedelta_total_seconds(delta):
 try:
     constant_time_compare = hmac.compare_digest
 except AttributeError:
-    # Fallback for Python < 2.7.7 and Python < 3.3
+    # Fallback for Python < 2.7
     def constant_time_compare(val1, val2):
         """
         Returns True if the two strings are equal, False otherwise.
@@ -46,12 +46,7 @@ except AttributeError:
 
         result = 0
 
-        if sys.version_info >= (3, 0, 0):
-            # Bytes are numbers
-            for x, y in zip(val1, val2):
-                result |= x ^ y
-        else:
-            for x, y in zip(val1, val2):
-                result |= ord(x) ^ ord(y)
+        for x, y in zip(val1, val2):
+            result |= ord(x) ^ ord(y)
 
         return result == 0
