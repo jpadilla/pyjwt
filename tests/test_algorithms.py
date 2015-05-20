@@ -323,7 +323,6 @@ class TestAlgorithmsCookbook:
         result = algo.verify(signing_input, key, signature)
         assert result
 
-    @pytest.mark.skipif(True, "I'm not 100% sure if this test is correct")
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsapss_verify_should_return_true_for_test_vector(self):
         signing_input = ensure_bytes(
