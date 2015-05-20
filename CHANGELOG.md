@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Fixed
 - ECDSA (ES256, ES384, ES512) signatures are now being properly serialized [#158][158]
+- RSA-PSS (PS256, PS384, PS512) signatures now use the proper salt length for PSS padding.
 
 ### Added
 - Added a new `jwt.get_unverified_header()` to parse and return the header portion of a token prior to signature verification.
