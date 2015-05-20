@@ -132,26 +132,6 @@ class TestAlgorithms:
         assert not result
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
-    def test_rsa_verify_should_return_true_if_signature_valid(self):
-        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
-
-        message = ensure_bytes('Hello World!')
-
-        sig = base64.b64decode(ensure_bytes(
-            'yS6zk9DBkuGTtcBzLUzSpo9gGJxJFOGvUqN01iLhWHrzBQ9ZEz3+Ae38AXp'
-            '10RWwscp42ySC85Z6zoN67yGkLNWnfmCZSEv+xqELGEvBJvciOKsrhiObUl'
-            '2mveSc1oeO/2ujkGDkkkJ2epn0YliacVjZF5+/uDmImUfAAj8lzjnHlzYix'
-            'sn5jGz1H07jYYbi9diixN8IUhXeTafwFg02IcONhum29V40Wu6O5tAKWlJX'
-            'fHJnNUzAEUOXS0WahHVb57D30pcgIji9z923q90p5c7E2cU8V+E1qe8NdCA'
-            'APCDzZZ9zQ/dgcMVaBrGrgimrcLbPjueOKFgSO+SSjIElKA=='))
-
-        with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
-            pub_key = algo.prepare_key(keyfile.read())
-
-        result = algo.verify(message, pub_key, sig)
-        assert result
-
-    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
@@ -198,23 +178,6 @@ class TestAlgorithms:
         assert not result
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
-    def test_ec_verify_should_return_true_if_signature_valid(self):
-        algo = ECAlgorithm(ECAlgorithm.SHA256)
-
-        message = ensure_bytes('Hello World!')
-
-        sig = base64.b64decode(ensure_bytes(
-            'AC+m4Jf/xI3guAC6w0w37t5zRpSCF6F4udEz5LiMiTIjCS4vcVe6dDOxK+M'
-            'mvkF8PxJuvqxP2CO3TR3okDPCl/NjATTO1jE+qBZ966CRQSSzcCM+tzcHzw'
-            'LZS5kbvKu0Acd/K6Ol2/W3B1NeV5F/gjvZn/jOwaLgWEUYsg0o4XVrAg65'))
-
-        with open(key_path('testkey_ec.pub'), 'r') as keyfile:
-            pub_key = algo.prepare_key(keyfile.read())
-
-        result = algo.verify(message, pub_key, sig)
-        assert result
-
-    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_pss_sign_then_verify_should_return_true(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
@@ -252,34 +215,20 @@ class TestAlgorithms:
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert not result
 
-    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
-    def test_rsa_pss_verify_should_return_true_if_signature_valid(self):
-        algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
-        jwt_message = ensure_bytes('Hello World!')
-
-        jwt_sig = base64.b64decode(ensure_bytes(
-            'ywKAUGRIDC//6X+tjvZA96yEtMqpOrSppCNfYI7NKyon3P7doud5v65oWNu'
-            'vQsz0fzPGfF7mQFGo9Cm9Vn0nljm4G6PtqZRbz5fXNQBH9k10gq34AtM02c'
-            '/cveqACQ8gF3zxWh6qr9jVqIpeMEaEBIkvqG954E0HT9s9ybHShgHX9mlWk'
-            '186/LopP4xe5c/hxOQjwhv6yDlTiwJFiqjNCvj0GyBKsc4iECLGIIO+4mC4'
-            'daOCWqbpZDuLb1imKpmm8Nsm56kAxijMLZnpCcnPgyb7CqG+B93W9GHglA5'
-            'drUeR1gRtO7vqbZMsCAQ4bpjXxwbYyjQlEVuMl73UL6sOWg=='))
-
-        with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
-            jwt_pub_key = algo.prepare_key(keyfile.read())
-
-        result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
-        assert result
-
-
-class TestAlgorithmsCookbook:
+class TestAlgorithmsRFC7520:
     """
-    These test vectors were taken from IETF JOSE Cookbook Draft
-    (https://www.ietf.org/id/draft-ietf-jose-cookbook-08.txt)
+    These test vectors were taken from RFC 7520
+    (https://tools.ietf.org/html/rfc7520)
     """
 
     def test_hmac_verify_should_return_true_for_test_vector(self):
+        """
+        This test verifies that HMAC verification works with a known good
+        signature and key.
+
+        Reference: https://tools.ietf.org/html/rfc7520#section-4.4
+        """
         signing_input = ensure_bytes(
             'eyJhbGciOiJIUzI1NiIsImtpZCI6IjAxOGMwYWU1LTRkOWItNDcxYi1iZmQ2LWVlZ'
             'jMxNGJjNzAzNyJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ'
@@ -300,6 +249,12 @@ class TestAlgorithmsCookbook:
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_verify_should_return_true_for_test_vector(self):
+        """
+        This test verifies that RSA PKCS v1.5 verification works with a known
+        good signature and key.
+
+        Reference: https://tools.ietf.org/html/rfc7520#section-4.1
+        """
         signing_input = ensure_bytes(
             'eyJhbGciOiJSUzI1NiIsImtpZCI6ImJpbGJvLmJhZ2dpbnNAaG9iYml0b24uZXhhb'
             'XBsZSJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ29pbmcgb'
@@ -325,6 +280,12 @@ class TestAlgorithmsCookbook:
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsapss_verify_should_return_true_for_test_vector(self):
+        """
+        This test verifies that RSA-PSS verification works with a known good
+        signature and key.
+
+        Reference: https://tools.ietf.org/html/rfc7520#section-4.2
+        """
         signing_input = ensure_bytes(
             'eyJhbGciOiJQUzM4NCIsImtpZCI6ImJpbGJvLmJhZ2dpbnNAaG9iYml0b24uZXhhb'
             'XBsZSJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ29pbmcgb'
@@ -334,12 +295,12 @@ class TestAlgorithmsCookbook:
         )
 
         signature = base64url_decode(ensure_bytes(
-            'cu22eBqkYDKgIlTpzDXGvaFfz6WGoz7fUDcfT0kkOy42miAh2qyBzk1xEsnk2IpN'
-            '6-tPid6VrklHkqsGqDqHCdP6O8TTB5dDDItllVo6_1OLPpcbUrhiUSMxbbXUvdvW'
-            'Xzg-UD8biiReQFlfz28zGWVsdiNAUf8ZnyPEgVFn442ZdNqiVJRmBqrYRXe8P_ij'
-            'Q7p8Vdz0TTrxUeT3lm8d9shnr2lfJT8ImUjvAA2Xez2Mlp8cBE5awDzT0qI0n6ui'
-            'P1aCN_2_jLAeQTlqRHtfa64QQSUmFAAjVKPbByi7xho0uTOcbH510a6GYmJUAfmW'
-            'jwZ6oD4ifKo8DYM-X72Eaw'
+            'cu22eBqkYDKgIlTpzDXGvaFfz6WGoz7fUDcfT0kkOy42miAh2qyBzk1xEsnk2IpN6'
+            '-tPid6VrklHkqsGqDqHCdP6O8TTB5dDDItllVo6_1OLPpcbUrhiUSMxbbXUvdvWXz'
+            'g-UD8biiReQFlfz28zGWVsdiNAUf8ZnyPEgVFn442ZdNqiVJRmBqrYRXe8P_ijQ7p'
+            '8Vdz0TTrxUeT3lm8d9shnr2lfJT8ImUjvAA2Xez2Mlp8cBE5awDzT0qI0n6uiP1aC'
+            'N_2_jLAeQTlqRHtfa64QQSUmFAAjVKPbByi7xho0uTOcbH510a6GYmJUAfmWjwZ6o'
+            'D4ifKo8DYM-X72Eaw'
         ))
 
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384)
@@ -350,6 +311,12 @@ class TestAlgorithmsCookbook:
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_verify_should_return_true_for_test_vector(self):
+        """
+        This test verifies that ECDSA verification works with a known good
+        signature and key.
+
+        Reference: https://tools.ietf.org/html/rfc7520#section-4.3
+        """
         signing_input = ensure_bytes(
             'eyJhbGciOiJFUzUxMiIsImtpZCI6ImJpbGJvLmJhZ2dpbnNAaG9iYml0b24uZXhhb'
             'XBsZSJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ29pbmcgb'
