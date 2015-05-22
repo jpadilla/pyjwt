@@ -263,7 +263,7 @@ if has_crypto:
             signer = key.signer(
                 padding.PSS(
                     mgf=padding.MGF1(self.hash_alg()),
-                    salt_length=padding.PSS.MAX_LENGTH
+                    salt_length=self.hash_alg.digest_size
                 ),
                 self.hash_alg()
             )
@@ -276,7 +276,7 @@ if has_crypto:
                 sig,
                 padding.PSS(
                     mgf=padding.MGF1(self.hash_alg()),
-                    salt_length=padding.PSS.MAX_LENGTH
+                    salt_length=self.hash_alg.digest_size
                 ),
                 self.hash_alg()
             )
