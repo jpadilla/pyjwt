@@ -4,11 +4,11 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-[Unreleased][unreleased]
+[v1.3][1.3.0]
 -------------------------------------------------------------------------
 ### Fixed
 - ECDSA (ES256, ES384, ES512) signatures are now being properly serialized [#158][158]
-- RSA-PSS (PS256, PS384, PS512) signatures now use the proper salt length for PSS padding.
+- RSA-PSS (PS256, PS384, PS512) signatures now use the proper salt length for PSS padding. [#163][163]
 
 ### Added
 - Added a new `jwt.get_unverified_header()` to parse and return the header portion of a token prior to signature verification.
@@ -64,11 +64,15 @@ rarely used. Users affected by this should upgrade to 3.3+.
 - Fixed a security vulnerability by adding support for a whitelist of allowed `alg` values `jwt.decode(algorithms=[])`. [#110][110]
 
 
-[unreleased]: https://github.com/jpadilla/pyjwt/compare/1.1.0...HEAD
+[unreleased]: https://github.com/jpadilla/pyjwt/compare/1.3.0...HEAD
+[1.0.0]: https://github.com/jpadilla/pyjwt/compare/0.4.3...1.0.0
+[1.0.1]: https://github.com/jpadilla/pyjwt/compare/1.0.0...1.0.1
 [1.0.1]: https://github.com/jpadilla/pyjwt/compare/1.0.0...1.0.1
 [1.0.1]: https://github.com/jpadilla/pyjwt/compare/1.0.0...1.0.1
 [1.1.0]: https://github.com/jpadilla/pyjwt/compare/1.0.1...1.1.0
 [1.2.0]: https://github.com/jpadilla/pyjwt/compare/1.1.0...1.2.0
+[1.3.0]: https://github.com/jpadilla/pyjwt/compare/1.2.0...1.3.0
+
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
@@ -82,4 +86,5 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [132]: https://github.com/jpadilla/pyjwt/pull/132
 [128]: https://github.com/jpadilla/pyjwt/pull/128
 [141]: https://github.com/jpadilla/pyjwt/pull/141
-[158: https://github.com/jpadilla/pyjwt/pull/158
+[158]: https://github.com/jpadilla/pyjwt/pull/158
+[163]: https://github.com/jpadilla/pyjwt/pull/163
