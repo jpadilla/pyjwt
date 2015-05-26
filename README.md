@@ -343,7 +343,7 @@ private_key = cert_obj.private_key()
 
 [travis-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.png?branch=master
 [travis]: http://travis-ci.org/jpadilla/pyjwt?branch=master
-[pypi-version-image]: https://pypip.in/version/pyjwt/badge.svg
+[pypi-version-image]: https://img.shields.io/pypi/v/pyjwt.svg
 [pypi]: https://pypi.python.org/pypi/pyjwt
 [coveralls-status-image]: https://coveralls.io/repos/jpadilla/pyjwt/badge.svg?branch=master
 [coveralls]: https://coveralls.io/r/jpadilla/pyjwt?branch=master
