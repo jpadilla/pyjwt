@@ -4,6 +4,12 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+[Unreleased][unreleased]
+-------------------------------------------------------------------------
+### Fixed
+- Exclude Python cache files from PyPI releases.
+
+
 [v1.3][1.3.0]
 -------------------------------------------------------------------------
 ### Fixed

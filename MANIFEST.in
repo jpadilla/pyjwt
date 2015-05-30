@@ -3,4 +3,6 @@ include CHANGELOG.md
 include LICENSE
 include AUTHORS
 include tox.ini
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
 graft tests
