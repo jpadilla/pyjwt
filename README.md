@@ -342,7 +342,7 @@ public_key = cert_obj.public_key()
 private_key = cert_obj.private_key()
 ```
 
-[travis-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.png?branch=master
+[travis-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.svg?branch=master
 [travis]: http://travis-ci.org/jpadilla/pyjwt?branch=master
 [appveyor-status-image]: https://ci.appveyor.com/api/projects/status/h8nt70aqtwhht39t?svg=true
 [appveyor]: https://ci.appveyor.com/project/jpadilla/pyjwt
