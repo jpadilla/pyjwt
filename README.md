@@ -1,6 +1,7 @@
 # PyJWT
 
 [![travis-status-image]][travis]
+[![appveyor-status-image]][appveyor]
 [![pypi-version-image]][pypi]
 [![coveralls-status-image]][coveralls]
 
@@ -343,6 +344,8 @@ private_key = cert_obj.private_key()
 
 [travis-status-image]: https://secure.travis-ci.org/jpadilla/pyjwt.png?branch=master
 [travis]: http://travis-ci.org/jpadilla/pyjwt?branch=master
+[appveyor-status-image]: https://ci.appveyor.com/api/projects/status/h8nt70aqtwhht39t?svg=true
+[appveyor]: https://ci.appveyor.com/project/jpadilla/pyjwt
 [pypi-version-image]: https://img.shields.io/pypi/v/pyjwt.svg
 [pypi]: https://pypi.python.org/pypi/pyjwt
 [coveralls-status-image]: https://coveralls.io/repos/jpadilla/pyjwt/badge.svg?branch=master
