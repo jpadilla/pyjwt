@@ -34,6 +34,14 @@ class InvalidAlgorithmError(InvalidTokenError):
     pass
 
 
+class MissingRequiredClaimError(InvalidTokenError):
+    def __init__(self, claim):
+        self.claim = claim
+
+    def __str__(self):
+        return 'Token is missing the "%s" claim' % self.claim
+
+
 # Compatibility aliases (deprecated)
 ExpiredSignature = ExpiredSignatureError
 InvalidAudience = InvalidAudienceError

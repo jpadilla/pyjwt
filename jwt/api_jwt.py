@@ -11,7 +11,7 @@ from .compat import string_types, timedelta_total_seconds
 from .exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
     InvalidAudienceError, InvalidIssuedAtError,
-    InvalidIssuerError
+    InvalidIssuerError, MissingRequiredClaimError
 )
 from .utils import merge_dict
 
@@ -27,7 +27,10 @@ class PyJWT(PyJWS):
             'verify_nbf': True,
             'verify_iat': True,
             'verify_aud': True,
-            'verify_iss': True
+            'verify_iss': True,
+            'require_exp': False,
+            'require_iat': False,
+            'require_nbf': False
         }
 
     def encode(self, payload, key, algorithm='HS256', headers=None,
@@ -87,6 +90,8 @@ class PyJWT(PyJWS):
         if not isinstance(audience, (string_types, type(None))):
             raise TypeError('audience must be a string or None')
 
+        self._validate_required_claims(payload, options)
+
         now = timegm(datetime.utcnow().utctimetuple())
 
         if 'iat' in payload and options.get('verify_iat'):
@@ -103,6 +108,16 @@ class PyJWT(PyJWS):
 
         if options.get('verify_aud'):
             self._validate_aud(payload, audience)
+
+    def _validate_required_claims(self, payload, options):
+        if options.get('require_exp') and payload.get('exp') is None:
+            raise MissingRequiredClaimError('exp')
+
+        if options.get('require_iat') and payload.get('iat') is None:
+            raise MissingRequiredClaimError('iat')
+
+        if options.get('require_nbf') and payload.get('nbf') is None:
+            raise MissingRequiredClaimError('nbf')
 
     def _validate_iat(self, payload, now, leeway):
         try:
@@ -140,7 +155,7 @@ class PyJWT(PyJWS):
         if audience is not None and 'aud' not in payload:
             # Application specified an audience, but it could not be
             # verified since the token does not contain a claim.
-            raise InvalidAudienceError('No audience claim in token')
+            raise MissingRequiredClaimError('aud')
 
         audience_claims = payload['aud']
 
@@ -158,7 +173,7 @@ class PyJWT(PyJWS):
             return
 
         if 'iss' not in payload:
-            raise InvalidIssuerError('Token does not contain an iss claim')
+            raise MissingRequiredClaimError('iss')
 
         if payload['iss'] != issuer:
             raise InvalidIssuerError('Invalid issuer')
