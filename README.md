@@ -23,7 +23,7 @@ using any of those algorithms, you'll need to install it as well.
 $ pip install cryptography
 ```
 
-If you're system doesn't allow installing `cryptography` like on Google App Engine, you can install `PyCrypto` for RSA signatures and `ecdsa` for ECDSA signatures.
+If your system doesn't allow installing `cryptography` like on Google App Engine, you can install `PyCrypto` for RSA signatures and `ecdsa` for ECDSA signatures.
 
 ## Usage
 
