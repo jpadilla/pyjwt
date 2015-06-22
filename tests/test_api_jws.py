@@ -277,7 +277,7 @@ class TestJWS:
             b'.KEh186CjVw_Q8FadjJcaVnE7hO5Z9nHBbU8TgbhHcBY'
         )
 
-        with pytest.raises(InvalidAlgorithmError) as exc:
+        with pytest.raises(InvalidAlgorithmError):
             jws.decode(example_jws, 'secret')
 
     def test_invalid_crypto_alg(self, jws, payload):
