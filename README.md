@@ -55,10 +55,12 @@ You can still get the payload by setting the `verify` argument to `False`.
 {u'some': u'payload'}
 ```
 
-The `decode()` function can raise other exceptions, e.g. for invalid issuer or
-audience (see below). All exceptions that signify that the token is invalid
-extend from the base `InvalidTokenError` exception class, so applications can
-use this approach to catch any issues relating to invalid tokens:
+## Validation
+Exceptions can be raised during `decode()` for other errors besides an
+invalid signature (e.g. for invalid issuer or audience (see below). All
+exceptions that signify that the token is invalid extend from the base
+`InvalidTokenError` exception class, so applications can use this approach to
+catch any issues relating to invalid tokens:
 
 ```python
 try:
@@ -67,8 +69,9 @@ except jwt.InvalidTokenError:
      pass  # do something sensible here, e.g. return HTTP 403 status code
 ```
 
-You may also override exception checking via an `options` dictionary.  The default
-options are as follows:
+### Skipping Claim Verification
+You may also override claim verification via the `options` dictionary.  The
+default options are:
 
 ```python
 options = {
@@ -77,24 +80,49 @@ options = {
    'verify_nbf': True,
    'verify_iat': True,
    'verify_aud': True
+   'require_exp': False,
+   'require_iat': False,
+   'require_nbf': False
 }
 ```
 
-You can skip individual checks by passing an `options` dictionary with certain keys set to `False`.
-For example, if you want to verify the signature of a JWT that has already expired.
+You can skip validation of individual claims by passing an `options` dictionary
+with the "verify_<claim_name>" key set to `False` when you call `jwt.decode()`.
+For example, if you want to verify the signature of a JWT that has already
+expired, you could do so by setting `verify_exp` to `False`.
 
 ```python
 >>> options = {
->>>    'verify_exp': True,
+>>>    'verify_exp': False,
 >>> }
 
+>>> encoded = '...' # JWT with an expired exp claim
 >>> jwt.decode(encoded, 'secret', options=options)
 {u'some': u'payload'}
 ```
 
-**NOTE**: *Changing the default behavior is done at your own risk, and almost certainly will make your
-application less secure.  Doing so should only be done with a very clear understanding of what you
-are doing.*
+**NOTE**: *Changing the default behavior is done at your own risk, and almost
+certainly will make your application less secure.  Doing so should only be done
+with a very clear understanding of what you are doing.*
+
+### Requiring Optional Claims
+In addition to skipping certain validations, you may also specify that certain
+optional claims are required by setting the appropriate `require_<claim_name>`
+option to True. If the claim is not present, PyJWT will raise a
+`jwt.exceptions.MissingRequiredClaimError`.
+
+For instance, the following code would require that the token has a 'exp'
+claim and raise an error if it is not present:
+
+```python
+>>> options = {
+>>>     'require_exp': True
+>>> }
+
+>>> encoded =  '...' # JWT without an exp claim
+>>> jwt.decode(encoded, 'secret', options=options)
+jwt.exceptions.MissingRequiredClaimError: Token is missing the "exp" claim
+```
 
 ## Tests
 
