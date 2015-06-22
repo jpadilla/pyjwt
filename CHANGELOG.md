@@ -9,6 +9,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Exclude Python cache files from PyPI releases.
 
+### Added
+- Added new options to require certain claims
+  (require_nbf, require_iat, require_exp) and raise `MissingRequiredClaimError`
+  if they are not present.
+- If `audience=` or `issuer=` is specified but the claim is not present,
+  `MissingRequiredClaimError` is now raised instead of `InvalidAudienceError`
+  and `InvalidIssuerError`
 
 [v1.3][1.3.0]
 -------------------------------------------------------------------------

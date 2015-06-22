@@ -9,7 +9,8 @@ from decimal import Decimal
 from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
-    InvalidAudienceError, InvalidIssuedAtError, InvalidIssuerError
+    InvalidAudienceError, InvalidIssuedAtError, InvalidIssuerError,
+    MissingRequiredClaimError
 )
 
 import pytest
@@ -317,14 +318,30 @@ class TestJWT:
         with pytest.raises(InvalidAudienceError):
             jwt.decode(token, 'secret', audience='urn:me')
 
+    def test_raise_exception_token_without_issuer(self, jwt):
+        issuer = 'urn:wrong'
+
+        payload = {
+            'some': 'payload'
+        }
+
+        token = jwt.encode(payload, 'secret')
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, 'secret', issuer=issuer)
+
+        assert exc.value.claim == 'iss'
+
     def test_raise_exception_token_without_audience(self, jwt):
         payload = {
             'some': 'payload',
         }
         token = jwt.encode(payload, 'secret')
 
-        with pytest.raises(InvalidAudienceError):
+        with pytest.raises(MissingRequiredClaimError) as exc:
             jwt.decode(token, 'secret', audience='urn:me')
+
+        assert exc.value.claim == 'aud'
 
     def test_check_issuer_when_valid(self, jwt):
         issuer = 'urn:foo'
@@ -348,18 +365,6 @@ class TestJWT:
         with pytest.raises(InvalidIssuerError):
             jwt.decode(token, 'secret', issuer=issuer)
 
-    def test_raise_exception_token_without_issuer(self, jwt):
-        issuer = 'urn:wrong'
-
-        payload = {
-            'some': 'payload',
-        }
-
-        token = jwt.encode(payload, 'secret')
-
-        with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, 'secret', issuer=issuer)
-
     def test_skip_check_audience(self, jwt):
         payload = {
             'some': 'payload',
@@ -375,6 +380,42 @@ class TestJWT:
         }
         token = jwt.encode(payload, 'secret')
         jwt.decode(token, 'secret', options={'verify_exp': False})
+
+    def test_decode_should_raise_error_if_exp_required_but_not_present(self, jwt):
+        payload = {
+            'some': 'payload',
+            # exp not present
+        }
+        token = jwt.encode(payload, 'secret')
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, 'secret', options={'require_exp': True})
+
+        assert exc.value.claim == 'exp'
+
+    def test_decode_should_raise_error_if_iat_required_but_not_present(self, jwt):
+        payload = {
+            'some': 'payload',
+            # iat not present
+        }
+        token = jwt.encode(payload, 'secret')
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, 'secret', options={'require_iat': True})
+
+        assert exc.value.claim == 'iat'
+
+    def test_decode_should_raise_error_if_nbf_required_but_not_present(self, jwt):
+        payload = {
+            'some': 'payload',
+            # nbf not present
+        }
+        token = jwt.encode(payload, 'secret')
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, 'secret', options={'require_nbf': True})
+
+        assert exc.value.claim == 'nbf'
 
     def test_skip_check_signature(self, jwt):
         token = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
