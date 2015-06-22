@@ -165,7 +165,7 @@ class PyJWS(object):
     def _verify_signature(self, payload, signing_input, header, signature,
                           key='', algorithms=None):
 
-        alg = header['alg']
+        alg = header.get('alg')
 
         if algorithms is not None and alg not in algorithms:
             raise InvalidAlgorithmError('The specified alg value is not allowed')
