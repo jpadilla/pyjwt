@@ -270,7 +270,7 @@ class TestJWS:
 
         assert 'Signature verification' in str(exc.value)
 
-    def test_verify_signature_with_algo_none_throws_exception(self, jws, payload):
+    def test_verify_signature_with_no_algo_header_throws_exception(self, jws, payload):
         example_jws = (
             b'e30'
             b'.eyJhIjo1fQ'
