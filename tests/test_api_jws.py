@@ -270,6 +270,16 @@ class TestJWS:
 
         assert 'Signature verification' in str(exc.value)
 
+    def test_verify_signature_with_no_algo_header_throws_exception(self, jws, payload):
+        example_jws = (
+            b'e30'
+            b'.eyJhIjo1fQ'
+            b'.KEh186CjVw_Q8FadjJcaVnE7hO5Z9nHBbU8TgbhHcBY'
+        )
+
+        with pytest.raises(InvalidAlgorithmError):
+            jws.decode(example_jws, 'secret')
+
     def test_invalid_crypto_alg(self, jws, payload):
         with pytest.raises(NotImplementedError):
             jws.encode(payload, 'secret', algorithm='HS1024')
