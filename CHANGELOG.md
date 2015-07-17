@@ -4,7 +4,7 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-[Unreleased][unreleased]
+[v1.4][1.4.0]
 -------------------------------------------------------------------------
 ### Fixed
 - Exclude Python cache files from PyPI releases.
@@ -85,6 +85,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.1.0]: https://github.com/jpadilla/pyjwt/compare/1.0.1...1.1.0
 [1.2.0]: https://github.com/jpadilla/pyjwt/compare/1.1.0...1.2.0
 [1.3.0]: https://github.com/jpadilla/pyjwt/compare/1.2.0...1.3.0
+[1.4.0]: https://github.com/jpadilla/pyjwt/compare/1.3.0...1.4.0
 
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
