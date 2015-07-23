@@ -6,7 +6,7 @@ from decimal import Decimal
 from jwt.algorithms import Algorithm
 from jwt.api_jws import PyJWS
 from jwt.exceptions import (
-    DecodeError, InvalidAlgorithmError
+    DecodeError, InvalidAlgorithmError, InvalidTokenError
 )
 from jwt.utils import base64url_decode
 
@@ -381,7 +381,7 @@ class TestJWS:
             '.eyJzdWIiOiIxMjM0NTY3ODkwIn0'
             '.vs2WY54jfpKP3JGC73Vq5YlMsqM5oTZ1ZydT77SiZSk')
 
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(InvalidTokenError) as exc:
             jws.get_unverified_header(example_jws)
 
         assert 'Key ID header parameter must be a string' == str(exc.value)
@@ -611,12 +611,12 @@ class TestJWS:
         assert header_obj['testheader'] == headers['testheader']
 
     def test_encode_fails_on_invalid_kid_types(self, jws, payload):
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(InvalidTokenError) as exc:
             jws.encode(payload, 'secret', headers={'kid': 123})
 
         assert 'Key ID header parameter must be a string' == str(exc.value)
 
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(InvalidTokenError) as exc:
             jws.encode(payload, 'secret', headers={'kid': None})
 
         assert 'Key ID header parameter must be a string' == str(exc.value)
