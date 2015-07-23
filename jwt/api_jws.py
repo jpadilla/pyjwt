@@ -5,8 +5,8 @@ import warnings
 from collections import Mapping
 
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
-from .compat import text_type
-from .exceptions import DecodeError, InvalidAlgorithmError
+from .compat import string_types, text_type
+from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
 from .utils import base64url_decode, base64url_encode, merge_dict
 
 
@@ -79,6 +79,7 @@ class PyJWS(object):
         header = {'typ': self.header_typ, 'alg': algorithm}
 
         if headers:
+            self._validate_headers(headers)
             header.update(headers)
 
         json_header = json.dumps(
@@ -125,7 +126,10 @@ class PyJWS(object):
         Note: The signature is not verified so the header parameters
         should not be fully trusted until signature verification is complete
         """
-        return self._load(jwt)[2]
+        headers = self._load(jwt)[2]
+        self._validate_headers(headers)
+
+        return headers
 
     def _load(self, jwt):
         if isinstance(jwt, text_type):
@@ -180,6 +184,13 @@ class PyJWS(object):
         except KeyError:
             raise InvalidAlgorithmError('Algorithm not supported')
 
+    def _validate_headers(self, headers):
+        if 'kid' in headers:
+            self._validate_kid(headers['kid'])
+
+    def _validate_kid(self, kid):
+        if not isinstance(kid, string_types):
+            raise InvalidTokenError('Key ID header parameter must be a string')
 
 _jws_global_obj = PyJWS()
 encode = _jws_global_obj.encode

@@ -6,7 +6,7 @@ from decimal import Decimal
 from jwt.algorithms import Algorithm
 from jwt.api_jws import PyJWS
 from jwt.exceptions import (
-    DecodeError, InvalidAlgorithmError
+    DecodeError, InvalidAlgorithmError, InvalidTokenError
 )
 from jwt.utils import base64url_decode
 
@@ -367,12 +367,24 @@ class TestJWS:
 
     def test_get_unverified_header_returns_header_values(self, jws, payload):
         jws_message = jws.encode(payload, key='secret', algorithm='HS256',
-                                 headers={'kid': 123})
+                                 headers={'kid': 'toomanysecrets'})
 
         header = jws.get_unverified_header(jws_message)
 
         assert 'kid' in header
-        assert header['kid'] == 123
+        assert header['kid'] == 'toomanysecrets'
+
+    def test_get_unverified_header_fails_on_bad_header_types(self, jws, payload):
+        # Contains a bad kid value (int 123 instead of string)
+        example_jws = (
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MTIzfQ'
+            '.eyJzdWIiOiIxMjM0NTY3ODkwIn0'
+            '.vs2WY54jfpKP3JGC73Vq5YlMsqM5oTZ1ZydT77SiZSk')
+
+        with pytest.raises(InvalidTokenError) as exc:
+            jws.get_unverified_header(example_jws)
+
+        assert 'Key ID header parameter must be a string' == str(exc.value)
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha256(self, jws, payload):
@@ -597,3 +609,14 @@ class TestJWS:
 
         assert 'testheader' in header_obj
         assert header_obj['testheader'] == headers['testheader']
+
+    def test_encode_fails_on_invalid_kid_types(self, jws, payload):
+        with pytest.raises(InvalidTokenError) as exc:
+            jws.encode(payload, 'secret', headers={'kid': 123})
+
+        assert 'Key ID header parameter must be a string' == str(exc.value)
+
+        with pytest.raises(InvalidTokenError) as exc:
+            jws.encode(payload, 'secret', headers={'kid': None})
+
+        assert 'Key ID header parameter must be a string' == str(exc.value)
