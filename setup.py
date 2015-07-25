@@ -1,33 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import re
-import sys
 
 from setuptools import find_packages, setup
 
-
-def get_version(package):
-    """
-    Return package version as listed in `__version__` in `init.py`.
-    """
-    with open(os.path.join(package, '__init__.py'), 'rb') as init_py:
-        src = init_py.read().decode('utf-8')
-        return re.search("__version__ = ['\"]([^'\"]+)['\"]", src).group(1)
-
-
-version = get_version('jwt')
-
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
     long_description = readme.read()
-
-if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
-    os.system('python setup.py bdist_wheel upload')
-    print('You probably want to also tag the version now:')
-    print(" git tag -a {0} -m 'version {0}'".format(version))
-    print(' git push --tags')
-    sys.exit()
 
 tests_require = [
     'pytest',
@@ -37,7 +15,11 @@ tests_require = [
 
 setup(
     name='PyJWT',
-    version=version,
+    use_scm_version={
+        'local_scheme': 'dirty-tag',
+        'version_scheme': 'guess-next-dev',
+        'write_to': 'jwt/_version.py'
+    },
     author='José Padilla',
     author_email='hello@jpadilla.com',
     description='JSON Web Token implementation in Python',
@@ -61,7 +43,7 @@ setup(
         'Topic :: Utilities',
     ],
     test_suite='tests',
-    setup_requires=['pytest-runner'],
+    setup_requires=['pytest-runner', 'setuptools-scm>1.5.4'],
     tests_require=tests_require,
     extras_require=dict(
         test=tests_require,
