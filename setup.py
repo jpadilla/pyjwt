@@ -35,6 +35,9 @@ tests_require = [
     'pytest-runner',
 ]
 
+needs_pytest = set(('pytest', 'test', 'ptr')).intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
+
 setup(
     name='PyJWT',
     version=version,
@@ -61,7 +64,7 @@ setup(
         'Topic :: Utilities',
     ],
     test_suite='tests',
-    setup_requires=['pytest-runner'],
+    setup_requires=pytest_runner,
     tests_require=tests_require,
     extras_require=dict(
         test=tests_require,
