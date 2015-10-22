@@ -138,6 +138,9 @@ class PyJWS(object):
         try:
             signing_input, crypto_segment = jwt.rsplit(b'.', 1)
             header_segment, payload_segment = signing_input.split(b'.', 1)
+        except AttributeError:
+            raise DecodeError('Invalid payload type. It should be a {} not {}'.format(
+                text_type, type(jwt)))
         except ValueError:
             raise DecodeError('Not enough segments')
 
