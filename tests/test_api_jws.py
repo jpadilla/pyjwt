@@ -122,6 +122,26 @@ class TestJWS:
         exception = context.value
         assert str(exception) == 'Not enough segments'
 
+    def test_decode_invalid_token_type_is_none(self, jws):
+        example_jws = None
+        example_secret = 'secret'
+
+        with pytest.raises(DecodeError) as context:
+            jws.decode(example_jws, example_secret)
+
+        exception = context.value
+        assert 'Invalid token type' in str(exception)
+
+    def test_decode_invalid_token_type_is_int(self, jws):
+        example_jws = 123
+        example_secret = 'secret'
+
+        with pytest.raises(DecodeError) as context:
+            jws.decode(example_jws, example_secret)
+
+        exception = context.value
+        assert 'Invalid token type' in str(exception)
+
     def test_decode_with_non_mapping_header_throws_exception(self, jws):
         secret = 'secret'
         example_jws = ('MQ'  # == 1

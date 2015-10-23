@@ -5,7 +5,7 @@ import warnings
 from collections import Mapping
 
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
-from .compat import string_types, text_type
+from .compat import binary_type, string_types, text_type
 from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
 from .utils import base64url_decode, base64url_encode, merge_dict
 
@@ -134,6 +134,10 @@ class PyJWS(object):
     def _load(self, jwt):
         if isinstance(jwt, text_type):
             jwt = jwt.encode('utf-8')
+
+        if not issubclass(type(jwt), binary_type):
+            raise DecodeError("Invalid token type. Token must be a {0}".format(
+                binary_type))
 
         try:
             signing_input, crypto_segment = jwt.rsplit(b'.', 1)
