@@ -13,9 +13,11 @@ PY3 = sys.version_info[0] == 3
 if PY3:
     string_types = str,
     text_type = str
+    binary_type = bytes
 else:
     string_types = basestring,
     text_type = unicode
+    binary_type = str
 
 
 def timedelta_total_seconds(delta):
