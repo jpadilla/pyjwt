@@ -43,8 +43,8 @@ for RSA with SHA256 and EC with SHA256 signatures.
 .. code-block:: python
 
     import jwt
-    import jwt.contrib.algorithms.pycrypto import RSAAlgorithm
-    import jwt.contrib.algorithms.py_ecdsa import ECAlgorithm
+    from jwt.contrib.algorithms.pycrypto import RSAAlgorithm
+    from jwt.contrib.algorithms.py_ecdsa import ECAlgorithm
 
     jwt.register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256))
     jwt.register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256))
