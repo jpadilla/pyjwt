@@ -125,10 +125,6 @@ class PyJWT(PyJWS):
         except ValueError:
             raise DecodeError('Issued At claim (iat) must be an integer.')
 
-        if iat > (now + leeway):
-            raise InvalidIssuedAtError('Issued At claim (iat) cannot be in'
-                                       ' the future.')
-
     def _validate_nbf(self, payload, now, leeway):
         try:
             nbf = int(payload['nbf'])
