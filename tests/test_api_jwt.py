@@ -10,7 +10,7 @@ from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
     InvalidAudienceError, InvalidIssuedAtError, InvalidIssuerError,
-    MissingRequiredClaimError
+    MissingRequiredClaimError, IssuedAtFromFutureError
 )
 
 import pytest
@@ -158,6 +158,13 @@ class TestJWT:
         now = datetime.utcnow()
         token = jwt.encode({'iat': now + timedelta(days=1)}, key='secret')
         jwt.decode(token, 'secret')
+
+    def test_decode_raises_with_verify_iat_future(self, jwt):
+        now = datetime.utcnow()
+        token = jwt.encode({'iat': now + timedelta(days=1)}, key='secret')
+        with pytest.raises(IssuedAtFromFutureError):
+            jwt.decode(token, 'secret',
+                       options=dict(verify_iat_not_from_future=True))
 
     def test_encode_datetime(self, jwt):
         secret = 'secret'
