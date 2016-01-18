@@ -40,7 +40,7 @@ The exp key is special and can take an offset to current Unix time.\
         action='store_false',
         dest='verify',
         default=True,
-        help='ignore signature verification on decode'
+        help='ignore signature and claims verification on decode'
     )
 
     p.add_option(
