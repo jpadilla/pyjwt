@@ -185,3 +185,4 @@ decode = _jwt_global_obj.decode
 register_algorithm = _jwt_global_obj.register_algorithm
 unregister_algorithm = _jwt_global_obj.unregister_algorithm
 get_unverified_header = _jwt_global_obj.get_unverified_header
+get_unverified_headers = _jwt_global_obj.get_unverified_header
