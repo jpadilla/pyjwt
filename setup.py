@@ -41,7 +41,7 @@ pytest_runner = ['pytest-runner'] if needs_pytest else []
 setup(
     name='PyJWT',
     version=version,
-    author='José Padilla',
+    author='Jose Padilla',
     author_email='hello@jpadilla.com',
     description='JSON Web Token implementation in Python',
     license='MIT',
