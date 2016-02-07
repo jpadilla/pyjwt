@@ -6,8 +6,8 @@ Encoding & Decoding HS256 Tokens
 
 .. code-block:: python
 
-    >>import jwt
-    >>encoded = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256')
+    >> import jwt
+    >> encoded = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256')
     >> encoded
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg'
     >> jwt.decode(encoded, 'secret', algorithms=['HS256'])
@@ -72,7 +72,7 @@ Specifying Additional Headers
 
 .. code-block:: python
 
-    >>jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    >> jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJzb21lIjoicGF5bG9hZCJ9.DogbDGmMHgA_bU05TAB-R6geQ2nMU2BRM-LnYEtefwg'
 
 
@@ -89,7 +89,7 @@ the integrity or authenticity of the claimset cannot be trusted.
 
 .. code-block:: python
 
-    >>jwt.decode(encoded, verify=False)
+    >> jwt.decode(encoded, verify=False)
     {u'some': u'payload'}
 
 Registered Claim Names
