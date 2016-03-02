@@ -212,7 +212,6 @@ class TestAlgorithms:
         result = algo.verify(message, pub_key, sig)
         assert result
 
-
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_pss_sign_then_verify_should_return_true(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
