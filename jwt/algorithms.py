@@ -56,7 +56,7 @@ class Algorithm(object):
     """
     The interface for an algorithm used to sign and verify tokens.
     """
-    def prepare_key(self, key):
+    def prepare_key(self, key, password=None):
         """
         Performs necessary validation and conversions on the key and returns
         the key value in the proper format for sign() and verify().
@@ -83,7 +83,7 @@ class NoneAlgorithm(Algorithm):
     Placeholder for use when no signing or verification
     operations are required.
     """
-    def prepare_key(self, key):
+    def prepare_key(self, key, password=None):
         if key == '':
             key = None
 
@@ -111,7 +111,7 @@ class HMACAlgorithm(Algorithm):
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
 
-    def prepare_key(self, key):
+    def prepare_key(self, key, password=None):
         if not isinstance(key, string_types) and not isinstance(key, bytes):
             raise TypeError('Expecting a string- or bytes-formatted key.')
 
@@ -151,7 +151,7 @@ if has_crypto:
         def __init__(self, hash_alg):
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key):
+        def prepare_key(self, key, password=None):
             if isinstance(key, RSAPrivateKey) or \
                isinstance(key, RSAPublicKey):
                 return key
@@ -164,7 +164,7 @@ if has_crypto:
                     if key.startswith(b'ssh-rsa'):
                         key = load_ssh_public_key(key, backend=default_backend())
                     else:
-                        key = load_pem_private_key(key, password=None, backend=default_backend())
+                        key = load_pem_private_key(key, password=password, backend=default_backend())
                 except ValueError:
                     key = load_pem_public_key(key, backend=default_backend())
             else:
@@ -208,7 +208,7 @@ if has_crypto:
         def __init__(self, hash_alg):
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key):
+        def prepare_key(self, key, password=None):
             if isinstance(key, EllipticCurvePrivateKey) or \
                isinstance(key, EllipticCurvePublicKey):
                 return key
@@ -223,7 +223,7 @@ if has_crypto:
                 try:
                     key = load_pem_public_key(key, backend=default_backend())
                 except ValueError:
-                    key = load_pem_private_key(key, password=None, backend=default_backend())
+                    key = load_pem_private_key(key, password=password, backend=default_backend())
 
             else:
                 raise TypeError('Expecting a PEM-formatted key.')
