@@ -160,6 +160,10 @@ if has_crypto:
                 if isinstance(key, text_type):
                     key = key.encode('utf-8')
 
+            if isinstance(password, string_types):
+                if isinstance(password, text_type):
+                    password = password.encode('utf-8')
+
                 try:
                     if key.startswith(b'ssh-rsa'):
                         key = load_ssh_public_key(key, backend=default_backend())
@@ -216,6 +220,10 @@ if has_crypto:
             if isinstance(key, string_types):
                 if isinstance(key, text_type):
                     key = key.encode('utf-8')
+
+            if isinstance(password, string_types):
+                if isinstance(password, text_type):
+                    password = password.encode('utf-8')
 
                 # Attempt to load key. We don't know if it's
                 # a Signing Key or a Verifying Key, so we try
