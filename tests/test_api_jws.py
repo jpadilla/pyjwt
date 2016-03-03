@@ -437,7 +437,7 @@ class TestJWS:
         # PEM-formatted RSA key, encrypted
         with open('tests/keys/testkey_rsa_encrypted', 'r') as rsa_priv_file:
             priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
-                                               password=password, backend=default_backend())
+                                               password=ensure_bytes(password), backend=default_backend())
             jws_message = jws.encode(payload, priv_rsakey, algorithm='RS256')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
@@ -527,7 +527,7 @@ class TestJWS:
         # PEM-formatted EC key
         with open('tests/keys/testkey_ec_encrypted', 'r') as ec_priv_file:
             priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
-                                              password=password, backend=default_backend())
+                                              password=ensure_bytes(password), backend=default_backend())
             jws_message = jws.encode(payload, priv_eckey, algorithm='ES256')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
