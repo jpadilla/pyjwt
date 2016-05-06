@@ -1,5 +1,8 @@
 import base64
 import binascii
+import struct
+
+from .compat import binary_type, bytes_from_int, text_type
 
 try:
     from cryptography.hazmat.primitives.asymmetric.utils import (
@@ -9,7 +12,28 @@ except ImportError:
     pass
 
 
+def force_unicode(value):
+    if isinstance(value, binary_type):
+        return value.decode('utf-8')
+    elif isinstance(value, text_type):
+        return value
+    else:
+        raise TypeError('Expected a string value')
+
+
+def force_bytes(value):
+    if isinstance(value, text_type):
+        return value.encode('utf-8')
+    elif isinstance(value, binary_type):
+        return value
+    else:
+        raise TypeError('Expected a string value')
+
+
 def base64url_decode(input):
+    if isinstance(input, text_type):
+        input = input.encode('ascii')
+
     rem = len(input) % 4
 
     if rem > 0:
@@ -20,6 +44,28 @@ def base64url_decode(input):
 
 def base64url_encode(input):
     return base64.urlsafe_b64encode(input).replace(b'=', b'')
+
+
+def to_base64url_uint(val):
+    if val < 0:
+        raise ValueError('Must be a positive integer')
+
+    int_bytes = bytes_from_int(val)
+
+    if len(int_bytes) == 0:
+        int_bytes = b'\x00'
+
+    return base64url_encode(int_bytes)
+
+
+def from_base64url_uint(val):
+    if isinstance(val, text_type):
+        val = val.encode('ascii')
+
+    data = base64url_decode(val)
+
+    buf = struct.unpack('%sB' % len(data), data)
+    return int(''.join(["%02x" % byte for byte in buf]), 16)
 
 
 def merge_dict(original, updates):
