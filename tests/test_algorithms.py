@@ -56,7 +56,6 @@ class TestAlgorithms:
 
         algo.prepare_key(ensure_unicode('awesome'))
 
-    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_pem_public_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
@@ -64,7 +63,6 @@ class TestAlgorithms:
             with open(key_path('testkey2_rsa.pub.pem'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
-    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_x509_certificate(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
@@ -72,7 +70,6 @@ class TestAlgorithms:
             with open(key_path('testkey_rsa.cer'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
-    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_ssh_public_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
@@ -80,7 +77,6 @@ class TestAlgorithms:
             with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
-    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_hmac_should_throw_exception_if_key_is_x509_cert(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
