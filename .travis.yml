@@ -1,4 +1,6 @@
 language: python
+python:
+  - "3.5"
 sudo: false
 env:
   - TOXENV=flake8
@@ -6,9 +8,11 @@ env:
   - TOXENV=py27-crypto
   - TOXENV=py33-crypto
   - TOXENV=py34-crypto
+  - TOXENV=py35-crypto
   - TOXENV=py34-nocrypto
+  - TOXENV=py35-nocrypto
   - TOXENV=py27-nocrypto
-  - TOXENV=py34-contrib_crypto
+  - TOXENV=py35-contrib_crypto
   - TOXENV=py27-contrib_crypto
 install:
   - pip install -U pip
