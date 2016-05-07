@@ -3,8 +3,8 @@ environment:
     - PYTHON: "C:\\Python27-x64"
       TOX_ENV: "py27-crypto"
 
-    - PYTHON: "C:\\Python34-x64"
-      TOX_ENV: "py34-crypto"
+    - PYTHON: "C:\\Python35-x64"
+      TOX_ENV: "py35-crypto"
 
 init:
   - SET PATH=%PYTHON%;%PATH%
