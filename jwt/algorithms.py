@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 
-from .compat import constant_time_compare, string_types, text_type
+from .compat import binary_type, constant_time_compare, is_string_type
 from .exceptions import InvalidKeyError
 from .utils import der_to_raw_signature, raw_to_der_signature
 
@@ -112,10 +112,10 @@ class HMACAlgorithm(Algorithm):
         self.hash_alg = hash_alg
 
     def prepare_key(self, key):
-        if not isinstance(key, string_types) and not isinstance(key, bytes):
+        if not is_string_type(key):
             raise TypeError('Expecting a string- or bytes-formatted key.')
 
-        if isinstance(key, text_type):
+        if not isinstance(key, binary_type):
             key = key.encode('utf-8')
 
         invalid_strings = [
@@ -156,8 +156,8 @@ if has_crypto:
                isinstance(key, RSAPublicKey):
                 return key
 
-            if isinstance(key, string_types):
-                if isinstance(key, text_type):
+            if is_string_type(key):
+                if not isinstance(key, binary_type):
                     key = key.encode('utf-8')
 
                 try:
@@ -213,8 +213,8 @@ if has_crypto:
                isinstance(key, EllipticCurvePublicKey):
                 return key
 
-            if isinstance(key, string_types):
-                if isinstance(key, text_type):
+            if is_string_type(key):
+                if not isinstance(key, binary_type):
                     key = key.encode('utf-8')
 
                 # Attempt to load key. We don't know if it's

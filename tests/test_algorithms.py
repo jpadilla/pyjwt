@@ -92,6 +92,13 @@ class TestAlgorithms:
             algo.prepare_key(pem_key.read())
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_rsa_should_accept_pem_private_key_bytes(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+
+        with open(key_path('testkey_rsa'), 'rb') as pem_key:
+            algo.prepare_key(pem_key.read())
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_should_accept_unicode_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -140,6 +147,13 @@ class TestAlgorithms:
 
         with open(key_path('testkey_ec'), 'r') as ec_key:
             algo.prepare_key(ensure_unicode(ec_key.read()))
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_should_accept_pem_private_key_bytes(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path('testkey_ec'), 'rb') as ec_key:
+            algo.prepare_key(ec_key.read())
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_verify_should_return_false_if_signature_invalid(self):
