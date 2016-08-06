@@ -430,6 +430,32 @@ class TestJWS:
             jws.decode(jws_message, pub_rsakey)
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_encode_decode_with_rsa_password_sha256(self, jws, payload):
+        with open('tests/keys/testkey_rsa_encrypted.password', 'r') as pw:
+            password = pw.read().rstrip()
+
+        # PEM-formatted RSA key, encrypted
+        with open('tests/keys/testkey_rsa_encrypted', 'r') as rsa_priv_file:
+            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
+                                               password=ensure_bytes(password), backend=default_backend())
+            jws_message = jws.encode(payload, priv_rsakey, algorithm='RS256')
+
+        with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
+            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
+                                             backend=default_backend())
+
+            jws.decode(jws_message, pub_rsakey)
+
+        # string-formatted key
+        with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
+            priv_rsakey = rsa_priv_file.read()
+            jws_message = jws.encode(payload, priv_rsakey, algorithm='RS256')
+
+        with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
+            pub_rsakey = rsa_pub_file.read()
+            jws.decode(jws_message, pub_rsakey)
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_encode_decode_with_rsa_sha384(self, jws, payload):
         # PEM-formatted RSA key
         with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
@@ -492,6 +518,31 @@ class TestJWS:
             assert 'PS256' not in jws_algorithms
             assert 'PS384' not in jws_algorithms
             assert 'PS512' not in jws_algorithms
+
+    @pytest.mark.skipif(not has_crypto, reason="Can't run without cryptography library")
+    def test_encode_decode_with_ecdsa_password_sha256(self, jws, payload):
+        with open('tests/keys/testkey_ec_encrypted.password', 'r') as pw:
+            password = pw.read().rstrip()
+
+        # PEM-formatted EC key
+        with open('tests/keys/testkey_ec_encrypted', 'r') as ec_priv_file:
+            priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
+                                              password=ensure_bytes(password), backend=default_backend())
+            jws_message = jws.encode(payload, priv_eckey, algorithm='ES256')
+
+        with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
+            pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()),
+                                            backend=default_backend())
+            jws.decode(jws_message, pub_eckey)
+
+        # string-formatted key
+        with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
+            priv_eckey = ec_priv_file.read()
+            jws_message = jws.encode(payload, priv_eckey, algorithm='ES256')
+
+        with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
+            pub_eckey = ec_pub_file.read()
+            jws.decode(jws_message, pub_eckey)
 
     @pytest.mark.skipif(not has_crypto, reason="Can't run without cryptography library")
     def test_encode_decode_with_ecdsa_sha256(self, jws, payload):

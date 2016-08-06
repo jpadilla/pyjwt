@@ -25,7 +25,7 @@ class ECAlgorithm(Algorithm):
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
 
-    def prepare_key(self, key):
+    def prepare_key(self, key, password=None):
 
         if isinstance(key, ecdsa.SigningKey) or \
            isinstance(key, ecdsa.VerifyingKey):

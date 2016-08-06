@@ -174,6 +174,41 @@ class TestAlgorithms:
         assert not result
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_sign_then_verify_should_return_true(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        message = ensure_bytes('Hello World!')
+
+        with open(key_path('testkey_ec'), 'r') as keyfile:
+            priv_key = algo.prepare_key(keyfile.read())
+            sig = algo.sign(message, priv_key)
+
+        with open(key_path('testkey_ec.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        assert result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_with_password_sign_then_verify_should_return_true(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        message = ensure_bytes('Hello World!')
+
+        with open(key_path('testkey_ec_encrypted.password'), 'r') as pw:
+            password = pw.read().rstrip()
+
+        with open(key_path('testkey_ec_encrypted'), 'r') as keyfile:
+            priv_key = algo.prepare_key(keyfile.read(), password=password)
+            sig = algo.sign(message, priv_key)
+
+        with open(key_path('testkey_ec.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        assert result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_pss_sign_then_verify_should_return_true(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
@@ -181,6 +216,25 @@ class TestAlgorithms:
 
         with open(key_path('testkey_rsa'), 'r') as keyfile:
             priv_key = algo.prepare_key(keyfile.read())
+            sig = algo.sign(message, priv_key)
+
+        with open(key_path('testkey_rsa.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        assert result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_rsa_pss_with_password_sign_then_verify_should_return_true(self):
+        algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
+
+        message = ensure_bytes('Hello World!')
+
+        with open(key_path('testkey_rsa_encrypted.password'), 'r') as pw:
+            password = pw.read().rstrip()
+
+        with open(key_path('testkey_rsa_encrypted'), 'r') as keyfile:
+            priv_key = algo.prepare_key(keyfile.read(), password=password)
             sig = algo.sign(message, priv_key)
 
         with open(key_path('testkey_rsa.pub'), 'r') as keyfile:

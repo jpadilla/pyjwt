@@ -25,7 +25,7 @@ class RSAAlgorithm(Algorithm):
     def __init__(self, hash_alg):
         self.hash_alg = hash_alg
 
-    def prepare_key(self, key):
+    def prepare_key(self, key, password=None):
 
         if isinstance(key, RSA._RSAobj):
             return key
@@ -34,7 +34,7 @@ class RSAAlgorithm(Algorithm):
             if isinstance(key, text_type):
                 key = key.encode('utf-8')
 
-            key = RSA.importKey(key)
+            key = RSA.importKey(key, passphrase=password)
         else:
             raise TypeError('Expecting a PEM- or RSA-formatted key.')
 
