@@ -4,6 +4,18 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+[v1.4.2][1.4.2]
+-------------------------------------------------------------------------
+### Fixed
+- A PEM-formatted key encoded as bytes could cause a `TypeError` to be raised [#213][213]
+
+[v1.4.1][1.4.1]
+-------------------------------------------------------------------------
+### Fixed
+- Newer versions of Pytest could not detect warnings properly [#182][182]
+- Non-string 'kid' value now raises `InvalidTokenError` [#174][174]
+- `jwt.decode(None)` now gracefully fails with `InvalidTokenError` [#183][183]
+
 [v1.4][1.4.0]
 -------------------------------------------------------------------------
 ### Fixed
@@ -86,6 +98,9 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.2.0]: https://github.com/jpadilla/pyjwt/compare/1.1.0...1.2.0
 [1.3.0]: https://github.com/jpadilla/pyjwt/compare/1.2.0...1.3.0
 [1.4.0]: https://github.com/jpadilla/pyjwt/compare/1.3.0...1.4.0
+[1.4.1]: https://github.com/jpadilla/pyjwt/compare/1.4.0...1.4.1
+[1.4.2]: https://github.com/jpadilla/pyjwt/compare/1.4.1...1.4.2
+
 
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
@@ -102,3 +117,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [141]: https://github.com/jpadilla/pyjwt/pull/141
 [158]: https://github.com/jpadilla/pyjwt/pull/158
 [163]: https://github.com/jpadilla/pyjwt/pull/163
+[174]: https://github.com/jpadilla/pyjwt/pull/174
+[182]: https://github.com/jpadilla/pyjwt/pull/182
+[183]: https://github.com/jpadilla/pyjwt/pull/183
+[213]: https://github.com/jpadilla/pyjwt/pull/214
