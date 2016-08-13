@@ -151,7 +151,7 @@ if has_crypto:
         def __init__(self, hash_alg):
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key):
+        def prepare_key(self, key, password=None):
             if isinstance(key, RSAPrivateKey) or \
                isinstance(key, RSAPublicKey):
                 return key
@@ -164,7 +164,7 @@ if has_crypto:
                     if key.startswith(b'ssh-rsa'):
                         key = load_ssh_public_key(key, backend=default_backend())
                     else:
-                        key = load_pem_private_key(key, password=None, backend=default_backend())
+                        key = load_pem_private_key(key, password=password, backend=default_backend())
                 except ValueError:
                     key = load_pem_public_key(key, backend=default_backend())
             else:

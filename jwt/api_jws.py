@@ -66,7 +66,7 @@ class PyJWS(object):
         return list(self._valid_algs)
 
     def encode(self, payload, key, algorithm='HS256', headers=None,
-               json_encoder=None):
+               json_encoder=None, **kwargs):
         segments = []
 
         if algorithm is None:
@@ -95,7 +95,7 @@ class PyJWS(object):
         signing_input = b'.'.join(segments)
         try:
             alg_obj = self._algorithms[algorithm]
-            key = alg_obj.prepare_key(key)
+            key = alg_obj.prepare_key(key, **kwargs)
             signature = alg_obj.sign(signing_input, key)
 
         except KeyError:
