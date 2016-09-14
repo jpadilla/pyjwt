@@ -9,6 +9,7 @@
 A Python implementation of [RFC 7519][jwt-spec].
 Original implementation was written by [@progrium][progrium].
 
+
 ## Installing
 
 ```
@@ -25,6 +26,10 @@ $ pip install PyJWT
 >>> jwt.decode(encoded, 'secret', algorithms=['HS256'])
 {'some': 'payload'}
 ```
+
+## Documentation
+
+View the full docs online at https://pyjwt.readthedocs.io/en/latest/
 
 ## Tests
 
