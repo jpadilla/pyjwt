@@ -544,7 +544,7 @@ class TestJWS:
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
             priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
                                               password=None, backend=default_backend())
-            jws_message = jws.encode(payload, priv_eckey, algorithm='ES512')
+            jws_message = jws.encode(payload, priv_eckey, algorithm='ES521')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()), backend=default_backend())
@@ -553,7 +553,7 @@ class TestJWS:
         # string-formatted key
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
             priv_eckey = ec_priv_file.read()
-            jws_message = jws.encode(payload, priv_eckey, algorithm='ES512')
+            jws_message = jws.encode(payload, priv_eckey, algorithm='ES521')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
             pub_eckey = ec_pub_file.read()
