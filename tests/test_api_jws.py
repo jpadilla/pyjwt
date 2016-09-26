@@ -566,11 +566,11 @@ class TestJWS:
         if has_crypto:
             assert 'ES256' in jws_algorithms
             assert 'ES384' in jws_algorithms
-            assert 'ES512' in jws_algorithms
+            assert 'ES521' in jws_algorithms
         else:
             assert 'ES256' not in jws_algorithms
             assert 'ES384' not in jws_algorithms
-            assert 'ES512' not in jws_algorithms
+            assert 'ES521' not in jws_algorithms
 
     def test_skip_check_signature(self, jws):
         token = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
