@@ -48,6 +48,6 @@ $ python setup.py test
 [coveralls-status-image]: https://coveralls.io/repos/jpadilla/pyjwt/badge.svg?branch=master
 [coveralls]: https://coveralls.io/r/jpadilla/pyjwt?branch=master
 [docs-status-image]: https://readthedocs.org/projects/pyjwt/badge/?version=latest
-[docs]: http://pyjwt.readthedocs.org
+[docs]: https://pyjwt.readthedocs.io
 [jwt-spec]: https://tools.ietf.org/html/rfc7519
 [progrium]: https://github.com/progrium
