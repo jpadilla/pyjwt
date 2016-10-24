@@ -31,7 +31,7 @@ The exp key is special and can take an offset to current Unix time.\
 '''
     p = optparse.OptionParser(
         usage=usage,
-        prog=__package__,
+        prog='pyjwt',
         version='%s %s' % (__package__, __version__),
     )
 
