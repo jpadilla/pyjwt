@@ -8,12 +8,11 @@ from jwt.api_jws import PyJWS
 from jwt.exceptions import (
     DecodeError, InvalidAlgorithmError, InvalidTokenError
 )
-from jwt.utils import base64url_decode
+from jwt.utils import base64url_decode, force_bytes, force_unicode
 
 import pytest
 
 from .compat import string_types, text_type
-from .utils import ensure_bytes, ensure_unicode
 
 try:
     from cryptography.hazmat.backends import default_backend
@@ -34,7 +33,7 @@ def jws():
 @pytest.fixture
 def payload():
     """ Creates a sample jws claimset for use as a payload during tests """
-    return ensure_bytes('hello world')
+    return force_bytes('hello world')
 
 
 class TestJWS:
@@ -211,7 +210,7 @@ class TestJWS:
             b'HAG0_zxxu0JyINOFT2iqF3URYl9HZ8kZWMeZAtXmn6Cw'
             b'PXRJD2f7N-f7bJ5JeL9VT5beI2XD3FlK3GgRvI-eE-2Ik')
         decoded_payload = jws.decode(example_jws, example_pubkey)
-        json_payload = json.loads(ensure_unicode(decoded_payload))
+        json_payload = json.loads(force_unicode(decoded_payload))
 
         assert json_payload == example_payload
 
@@ -236,7 +235,7 @@ class TestJWS:
             b'uwmrtSWCBUjiN8sqJ00CDgycxKqHfUndZbEAOjcCAhBr'
             b'qWW3mSVivUfubsYbwUdUG3fSRPjaUPcpe8A')
         decoded_payload = jws.decode(example_jws, example_pubkey)
-        json_payload = json.loads(ensure_unicode(decoded_payload))
+        json_payload = json.loads(force_unicode(decoded_payload))
 
         assert json_payload == example_payload
 
@@ -410,12 +409,12 @@ class TestJWS:
     def test_encode_decode_with_rsa_sha256(self, jws, payload):
         # PEM-formatted RSA key
         with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
+            priv_rsakey = load_pem_private_key(force_bytes(rsa_priv_file.read()),
                                                password=None, backend=default_backend())
             jws_message = jws.encode(payload, priv_rsakey, algorithm='RS256')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
+            pub_rsakey = load_ssh_public_key(force_bytes(rsa_pub_file.read()),
                                              backend=default_backend())
 
             jws.decode(jws_message, pub_rsakey)
@@ -433,12 +432,12 @@ class TestJWS:
     def test_encode_decode_with_rsa_sha384(self, jws, payload):
         # PEM-formatted RSA key
         with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
+            priv_rsakey = load_pem_private_key(force_bytes(rsa_priv_file.read()),
                                                password=None, backend=default_backend())
             jws_message = jws.encode(payload, priv_rsakey, algorithm='RS384')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
+            pub_rsakey = load_ssh_public_key(force_bytes(rsa_pub_file.read()),
                                              backend=default_backend())
             jws.decode(jws_message, pub_rsakey)
 
@@ -455,12 +454,12 @@ class TestJWS:
     def test_encode_decode_with_rsa_sha512(self, jws, payload):
         # PEM-formatted RSA key
         with open('tests/keys/testkey_rsa', 'r') as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(ensure_bytes(rsa_priv_file.read()),
+            priv_rsakey = load_pem_private_key(force_bytes(rsa_priv_file.read()),
                                                password=None, backend=default_backend())
             jws_message = jws.encode(payload, priv_rsakey, algorithm='RS512')
 
         with open('tests/keys/testkey_rsa.pub', 'r') as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(ensure_bytes(rsa_pub_file.read()),
+            pub_rsakey = load_ssh_public_key(force_bytes(rsa_pub_file.read()),
                                              backend=default_backend())
             jws.decode(jws_message, pub_rsakey)
 
@@ -497,12 +496,12 @@ class TestJWS:
     def test_encode_decode_with_ecdsa_sha256(self, jws, payload):
         # PEM-formatted EC key
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
+            priv_eckey = load_pem_private_key(force_bytes(ec_priv_file.read()),
                                               password=None, backend=default_backend())
             jws_message = jws.encode(payload, priv_eckey, algorithm='ES256')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()),
+            pub_eckey = load_pem_public_key(force_bytes(ec_pub_file.read()),
                                             backend=default_backend())
             jws.decode(jws_message, pub_eckey)
 
@@ -520,12 +519,12 @@ class TestJWS:
 
         # PEM-formatted EC key
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
+            priv_eckey = load_pem_private_key(force_bytes(ec_priv_file.read()),
                                               password=None, backend=default_backend())
             jws_message = jws.encode(payload, priv_eckey, algorithm='ES384')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()),
+            pub_eckey = load_pem_public_key(force_bytes(ec_pub_file.read()),
                                             backend=default_backend())
             jws.decode(jws_message, pub_eckey)
 
@@ -542,12 +541,12 @@ class TestJWS:
     def test_encode_decode_with_ecdsa_sha512(self, jws, payload):
         # PEM-formatted EC key
         with open('tests/keys/testkey_ec', 'r') as ec_priv_file:
-            priv_eckey = load_pem_private_key(ensure_bytes(ec_priv_file.read()),
+            priv_eckey = load_pem_private_key(force_bytes(ec_priv_file.read()),
                                               password=None, backend=default_backend())
             jws_message = jws.encode(payload, priv_eckey, algorithm='ES512')
 
         with open('tests/keys/testkey_ec.pub', 'r') as ec_pub_file:
-            pub_eckey = load_pem_public_key(ensure_bytes(ec_pub_file.read()), backend=default_backend())
+            pub_eckey = load_pem_public_key(force_bytes(ec_pub_file.read()), backend=default_backend())
             jws.decode(jws_message, pub_eckey)
 
         # string-formatted key
@@ -606,8 +605,8 @@ class TestJWS:
         token = jws.encode(payload, 'secret', headers=data,
                            json_encoder=CustomJSONEncoder)
 
-        header = ensure_bytes(ensure_unicode(token).split('.')[0])
-        header = json.loads(ensure_unicode(base64url_decode(header)))
+        header = force_bytes(force_unicode(token).split('.')[0])
+        header = json.loads(force_unicode(base64url_decode(header)))
 
         assert 'some_decimal' in header
         assert header['some_decimal'] == 'it worked'

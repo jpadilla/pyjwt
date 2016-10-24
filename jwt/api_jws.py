@@ -7,7 +7,7 @@ from collections import Mapping
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .compat import binary_type, string_types, text_type
 from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
-from .utils import base64url_decode, base64url_encode, merge_dict
+from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict
 
 
 class PyJWS(object):
@@ -82,11 +82,13 @@ class PyJWS(object):
             self._validate_headers(headers)
             header.update(headers)
 
-        json_header = json.dumps(
-            header,
-            separators=(',', ':'),
-            cls=json_encoder
-        ).encode('utf-8')
+        json_header = force_bytes(
+            json.dumps(
+                header,
+                separators=(',', ':'),
+                cls=json_encoder
+            )
+        )
 
         segments.append(base64url_encode(json_header))
         segments.append(base64url_encode(payload))
