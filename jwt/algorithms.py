@@ -51,6 +51,7 @@ def get_default_algorithms():
             'ES256': ECAlgorithm(ECAlgorithm.SHA256),
             'ES384': ECAlgorithm(ECAlgorithm.SHA384),
             'ES521': ECAlgorithm(ECAlgorithm.SHA512),
+            'ES512': ECAlgorithm(ECAlgorithm.SHA512),  # Backward compat for #219 fix
             'PS256': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
             'PS384': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
             'PS512': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512)
