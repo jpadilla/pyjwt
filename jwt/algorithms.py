@@ -61,7 +61,6 @@ def _get_crypto_algorithms():
     return crypto_algorithms
 
 
-
 def get_default_algorithms():
     """
     Returns the algorithms that are implemented by the library.
@@ -87,7 +86,6 @@ def get_crypto_algorithms():
     """
     crypto_algorithms = _get_crypto_algorithms().keys()
     return set(crypto_algorithms)
-
 
 
 class Algorithm(object):
@@ -200,6 +198,7 @@ class HMACAlgorithm(Algorithm):
 
     def verify(self, msg, key, sig):
         return constant_time_compare(sig, self.sign(msg, key))
+
 
 if has_crypto:
 

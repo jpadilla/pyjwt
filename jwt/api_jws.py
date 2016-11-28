@@ -5,7 +5,7 @@ import warnings
 from collections import Mapping
 
 from .algorithms import (
-    Algorithm, get_default_algorithms, has_crypto, get_crypto_algorithms  # NOQA
+    Algorithm, get_crypto_algorithms, get_default_algorithms, has_crypto  # NOQA
 )
 from .compat import binary_type, string_types, text_type
 from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
@@ -203,6 +203,7 @@ class PyJWS(object):
     def _validate_kid(self, kid):
         if not isinstance(kid, string_types):
             raise InvalidTokenError('Key ID header parameter must be a string')
+
 
 _jws_global_obj = PyJWS()
 encode = _jws_global_obj.encode
