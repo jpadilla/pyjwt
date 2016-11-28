@@ -4,6 +4,13 @@ Change Log
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+[Unreleased][unreleased]
+-------------------------------------------------------------------------
+### Changed
+- Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances.
+
+### Fixed
+
 [v1.4.2][1.4.2]
 -------------------------------------------------------------------------
 ### Fixed
@@ -89,7 +96,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 - Fixed a security vulnerability by adding support for a whitelist of allowed `alg` values `jwt.decode(algorithms=[])`. [#110][110]
 
 
-[unreleased]: https://github.com/jpadilla/pyjwt/compare/1.3.0...HEAD
+[unreleased]: https://github.com/jpadilla/pyjwt/compare/1.4.2...HEAD
 [1.0.0]: https://github.com/jpadilla/pyjwt/compare/0.4.3...1.0.0
 [1.0.1]: https://github.com/jpadilla/pyjwt/compare/1.0.0...1.0.1
 [1.0.1]: https://github.com/jpadilla/pyjwt/compare/1.0.0...1.0.1

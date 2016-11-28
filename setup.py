@@ -18,7 +18,7 @@ def get_version(package):
 
 version = get_version('jwt')
 
-with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
+with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     long_description = readme.read()
 
 if sys.argv[-1] == 'publish':
@@ -41,7 +41,7 @@ pytest_runner = ['pytest-runner'] if needs_pytest else []
 setup(
     name='PyJWT',
     version=version,
-    author='José Padilla',
+    author='Jose Padilla',
     author_email='hello@jpadilla.com',
     description='JSON Web Token implementation in Python',
     license='MIT',
@@ -78,7 +78,7 @@ setup(
     ),
     entry_points={
         'console_scripts': [
-            'jwt = jwt.__main__:main'
+            'pyjwt = jwt.__main__:main'
         ]
     }
 )
