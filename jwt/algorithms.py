@@ -25,6 +25,34 @@ except ImportError:
     has_crypto = False
 
 
+def _get_crypto_algorithms():
+    crypto_algorithms = {
+        'RS256': None,
+        'RS384': None,
+        'RS512': None,
+        'ES256': None,
+        'ES384': None,
+        'ES512': None,
+        'PS256': None,
+        'PS384': None,
+        'PS512': None
+    }
+
+    if has_crypto:
+        crypto_algorithms['RS256'] = RSAAlgorithm(RSAAlgorithm.SHA256)
+        crypto_algorithms['RS384'] = RSAAlgorithm(RSAAlgorithm.SHA384)
+        crypto_algorithms['RS512'] = RSAAlgorithm(RSAAlgorithm.SHA512)
+        crypto_algorithms['ES256'] = ECAlgorithm(ECAlgorithm.SHA256)
+        crypto_algorithms['ES384'] = ECAlgorithm(ECAlgorithm.SHA384)
+        crypto_algorithms['ES512'] = ECAlgorithm(ECAlgorithm.SHA512)
+        crypto_algorithms['PS256'] = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
+        crypto_algorithms['PS384'] = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384)
+        crypto_algorithms['PS512'] = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512)
+
+    return crypto_algorithms
+
+
+
 def get_default_algorithms():
     """
     Returns the algorithms that are implemented by the library.
@@ -37,19 +65,20 @@ def get_default_algorithms():
     }
 
     if has_crypto:
-        default_algorithms.update({
-            'RS256': RSAAlgorithm(RSAAlgorithm.SHA256),
-            'RS384': RSAAlgorithm(RSAAlgorithm.SHA384),
-            'RS512': RSAAlgorithm(RSAAlgorithm.SHA512),
-            'ES256': ECAlgorithm(ECAlgorithm.SHA256),
-            'ES384': ECAlgorithm(ECAlgorithm.SHA384),
-            'ES512': ECAlgorithm(ECAlgorithm.SHA512),
-            'PS256': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
-            'PS384': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
-            'PS512': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512)
-        })
+        crypto_algorithms = _get_crypto_algorithms()
+        default_algorithms.update(crypto_algorithms)
 
     return default_algorithms
+
+
+def get_crypto_algorithms():
+    """
+    Returns a set of algorithm names that require the cryptography package to
+    be installed in order to use.
+    """
+    crypto_algorithms = _get_crypto_algorithms().keys()
+    return set(crypto_algorithms)
+
 
 
 class Algorithm(object):

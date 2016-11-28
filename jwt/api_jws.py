@@ -4,7 +4,9 @@ import warnings
 
 from collections import Mapping
 
-from .algorithms import Algorithm, get_default_algorithms  # NOQA
+from .algorithms import (
+    Algorithm, get_default_algorithms, has_crypto, get_crypto_algorithms  # NOQA
+)
 from .compat import binary_type, string_types, text_type
 from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
 from .utils import base64url_decode, base64url_encode, merge_dict
@@ -99,7 +101,11 @@ class PyJWS(object):
             signature = alg_obj.sign(signing_input, key)
 
         except KeyError:
-            raise NotImplementedError('Algorithm not supported')
+            if not has_crypto and algorithm in get_crypto_algorithms():
+                raise NotImplementedError('"cryptography" package must be '
+                                          'installed to use this algorithm')
+            else:
+                raise NotImplementedError('Algorithm not supported')
 
         segments.append(base64url_encode(signature))
 
