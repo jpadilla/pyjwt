@@ -52,7 +52,7 @@ def _get_crypto_algorithms():
         crypto_algorithms['RS512'] = RSAAlgorithm(RSAAlgorithm.SHA512)
         crypto_algorithms['ES256'] = ECAlgorithm(ECAlgorithm.SHA256)
         crypto_algorithms['ES384'] = ECAlgorithm(ECAlgorithm.SHA384)
-        crypto_algorithms['ES521'] = ECAlgorithm(ECAlgorithm.SHA512),
+        crypto_algorithms['ES521'] = ECAlgorithm(ECAlgorithm.SHA512)
         crypto_algorithms['ES512'] = ECAlgorithm(ECAlgorithm.SHA512)
         crypto_algorithms['PS256'] = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
         crypto_algorithms['PS384'] = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384)
