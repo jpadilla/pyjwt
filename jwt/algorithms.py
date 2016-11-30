@@ -31,8 +31,8 @@ try:
 except ImportError:
     has_crypto = False
 
-requires_cryptography = {'RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES521',
-                         'ES512', 'PS256', 'PS384', 'PS512'}
+requires_cryptography = set(['RS256', 'RS384', 'RS512', 'ES256', 'ES384',
+                             'ES521', 'ES512', 'PS256', 'PS384', 'PS512'])
 
 
 def get_default_algorithms():
