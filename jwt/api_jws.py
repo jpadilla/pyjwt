@@ -5,7 +5,7 @@ import warnings
 from collections import Mapping
 
 from .algorithms import (
-    Algorithm, get_crypto_algorithms, get_default_algorithms, has_crypto  # NOQA
+    Algorithm, get_default_algorithms, has_crypto, requires_cryptography  # NOQA
 )
 from .compat import binary_type, string_types, text_type
 from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
@@ -103,9 +103,11 @@ class PyJWS(object):
             signature = alg_obj.sign(signing_input, key)
 
         except KeyError:
-            if not has_crypto and algorithm in get_crypto_algorithms():
-                raise NotImplementedError('"cryptography" package must be '
-                                          'installed to use this algorithm')
+            if not has_crypto and algorithm in requires_cryptography:
+                raise NotImplementedError(
+                    "Algorithm '%s' could not be found. Do you have cryptography "
+                    "installed?" % algorithm
+                )
             else:
                 raise NotImplementedError('Algorithm not supported')
 
