@@ -4,7 +4,9 @@ import warnings
 
 from collections import Mapping
 
-from .algorithms import Algorithm, get_default_algorithms  # NOQA
+from .algorithms import (
+    Algorithm, get_default_algorithms, has_crypto, requires_cryptography  # NOQA
+)
 from .compat import binary_type, string_types, text_type
 from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
 from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict
@@ -101,7 +103,13 @@ class PyJWS(object):
             signature = alg_obj.sign(signing_input, key)
 
         except KeyError:
-            raise NotImplementedError('Algorithm not supported')
+            if not has_crypto and algorithm in requires_cryptography:
+                raise NotImplementedError(
+                    "Algorithm '%s' could not be found. Do you have cryptography "
+                    "installed?" % algorithm
+                )
+            else:
+                raise NotImplementedError('Algorithm not supported')
 
         segments.append(base64url_encode(signature))
 
@@ -197,6 +205,7 @@ class PyJWS(object):
     def _validate_kid(self, kid):
         if not isinstance(kid, string_types):
             raise InvalidTokenError('Key ID header parameter must be a string')
+
 
 _jws_global_obj = PyJWS()
 encode = _jws_global_obj.encode

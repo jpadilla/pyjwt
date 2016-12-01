@@ -13,6 +13,7 @@ def key_path(key_name):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         'keys', key_name)
 
+
 # Borrowed from `cryptography`
 if hasattr(int, "from_bytes"):
     int_from_bytes = int.from_bytes

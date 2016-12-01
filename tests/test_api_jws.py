@@ -303,6 +303,12 @@ class TestJWS:
         with pytest.raises(NotImplementedError):
             jws.encode(payload, 'secret', algorithm='HS1024')
 
+    @pytest.mark.skipif(has_crypto, reason='Scenario requires cryptography to not be installed')
+    def test_missing_crypto_library_better_error_messages(self, jws, payload):
+        with pytest.raises(NotImplementedError) as excinfo:
+            jws.encode(payload, 'secret', algorithm='RS256')
+            assert 'cryptography' in str(excinfo.value)
+
     def test_unicode_secret(self, jws, payload):
         secret = '\xc2'
         jws_message = jws.encode(payload, secret)

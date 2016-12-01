@@ -19,6 +19,7 @@ def load_hmac_key():
 
     return base64url_decode(force_bytes(keyobj['k']))
 
+
 try:
     from cryptography.hazmat.primitives.asymmetric import ec
     from cryptography.hazmat.backends import default_backend

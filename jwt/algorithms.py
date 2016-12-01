@@ -31,6 +31,9 @@ try:
 except ImportError:
     has_crypto = False
 
+requires_cryptography = set(['RS256', 'RS384', 'RS512', 'ES256', 'ES384',
+                             'ES521', 'ES512', 'PS256', 'PS384', 'PS512'])
+
 
 def get_default_algorithms():
     """
@@ -170,6 +173,7 @@ class HMACAlgorithm(Algorithm):
 
     def verify(self, msg, key, sig):
         return constant_time_compare(sig, self.sign(msg, key))
+
 
 if has_crypto:
 

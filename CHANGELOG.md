@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 - Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances.
+- Better error messages when using an algorithm that requires the cryptography package, but it isn't available [#230][230]
 
 ### Fixed
 
