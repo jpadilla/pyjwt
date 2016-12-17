@@ -69,7 +69,7 @@ setup(
     tests_require=tests_require,
     extras_require=dict(
         test=tests_require,
-        crypto=['cryptography'],
+        crypto=['cryptography >= 1.0'],
         flake8=[
             'flake8',
             'flake8-import-order',
