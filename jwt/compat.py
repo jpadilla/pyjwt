@@ -49,8 +49,12 @@ except AttributeError:
 
         result = 0
 
+        compare_char = lambda x,y: ord(x) ^ ord(y)
+        if PY3:
+            compare_char = lambda x,y: x ^ y
+
         for x, y in zip(val1, val2):
-            result |= ord(x) ^ ord(y)
+            result |= compare_char(x, y)
 
         return result == 0
 
