@@ -2,8 +2,8 @@
 
 from __future__ import absolute_import, print_function
 
-import json
 import argparse
+import json
 import sys
 import time
 
