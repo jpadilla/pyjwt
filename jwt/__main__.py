@@ -60,6 +60,7 @@ def encode_payload(args):
         print(e)
         sys.exit(1)
 
+
 def decode_payload(args):
     try:
         if not sys.stdin.isatty():
@@ -75,6 +76,7 @@ def decode_payload(args):
     except DecodeError as e:
         print(e)
         sys.exit(1)
+
 
 def main():
 
@@ -161,6 +163,7 @@ def main():
         print('There was an unforseen error: ', e)
         arg_parser.print_help()
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
