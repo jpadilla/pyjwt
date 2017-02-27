@@ -13,8 +13,7 @@ from . import DecodeError, __version__, decode, encode
 def encode_payload(args):
     # Try to encode
     if args.key is None:
-        print('Key is required when encoding. See --help for usage.')
-        sys.exit(1)
+        raise ValueError('Key is required when encoding. See --help for usage.')
 
     # Build payload object to encode
     payload = {}
@@ -45,8 +44,7 @@ def encode_payload(args):
 
             payload[k] = v
         except ValueError:
-            print('Invalid encoding input at {}'.format(arg))
-            sys.exit(1)
+            raise ValueError('Invalid encoding input at {}'.format(arg))
 
     try:
         token = encode(
@@ -57,13 +55,12 @@ def encode_payload(args):
 
         return token.decode('utf-8')
     except Exception as e:
-        print(e)
-        sys.exit(1)
+        raise Exception(e)
 
 
 def decode_payload(args):
     try:
-        if not sys.stdin.isatty():
+        if sys.stdin.isatty():
             token = sys.stdin.read()
         else:
             token = args.token
@@ -74,11 +71,10 @@ def decode_payload(args):
         return json.dumps(data)
 
     except DecodeError as e:
-        print(e)
-        sys.exit(1)
+        raise DecodeError('There was an error decoding the token: {}'.format(e))
 
 
-def main():
+def build_argparser():
 
     usage = '''
     Encodes or decodes JSON Web Tokens based on input.
@@ -155,10 +151,15 @@ def main():
 
     decode_parser.set_defaults(func=decode_payload)
 
+    return arg_parser
+
+def main(args):
+    arg_parser = build_argparser()
+
     try:
-        arguments = arg_parser.parse_args()
-        print(arguments.func(arguments))
-        sys.exit(0)
+        arguments = arg_parser.parse_args(args)
+
+        return arguments.func(arguments)
     except Exception as e:
         print('There was an unforseen error: ', e)
         arg_parser.print_help()
@@ -166,4 +167,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    output = main(sys.argv[1:])
+
+    print(output)
