@@ -1,16 +1,22 @@
+
 import json
-import pytest
 from jwt import DecodeError
 from jwt.__main__ import build_argparser, decode_payload, encode_payload, main
+import pytest
 
 
 @pytest.fixture
 def token():
-    return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiVmFkZXIiLCJqb2IiOiJTaXRoIn0.eS5n_fxbLSpzHNY19fcEXj4GCU7c4Pog4jv2qq-cKgo'
+    return '{}.{}.{}'.format(
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9',
+        'eyJuYW1lIjoiVmFkZXIiLCJqb2IiOiJTaXRoIn0',
+        'eS5n_fxbLSpzHNY19fcEXj4GCU7c4Pog4jv2qq-cKgo')
+
 
 @pytest.fixture
 def decode_args(token):
     return ['--key', '1234', 'decode', token]
+
 
 class TestCli:
 
