@@ -44,7 +44,7 @@ def encode_payload(args):
 
             payload[k] = v
         except ValueError:
-            raise ValueError('Invalid encoding input at {}'.format(arg))
+            raise ValueError('Invalid encoding input at %s' % arg)
 
     try:
         token = encode(
@@ -71,7 +71,7 @@ def decode_payload(args):
         return json.dumps(data)
 
     except DecodeError as e:
-        raise DecodeError('There was an error decoding the token: {}'.format(e))
+        raise DecodeError('There was an error decoding the token: %s' % e)
 
 
 def build_argparser():
