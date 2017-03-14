@@ -376,6 +376,13 @@ class TestAlgorithms:
             algo.prepare_key(ec_key.read())
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_should_accept_ssh_public_key_bytes(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path('testkey_ec_ssh.pub'), 'r') as ec_key:
+            algo.prepare_key(ec_key.read())
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ec_verify_should_return_false_if_signature_invalid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
