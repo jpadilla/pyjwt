@@ -7,6 +7,7 @@ import ecdsa
 
 from jwt.algorithms import Algorithm
 from jwt.compat import string_types, text_type
+from jwt.exceptions import InvalidAsymmetricKeyError
 
 
 class ECAlgorithm(Algorithm):
@@ -44,7 +45,7 @@ class ECAlgorithm(Algorithm):
                 key = ecdsa.SigningKey.from_pem(key)
 
         else:
-            raise TypeError('Expecting a PEM-formatted key.')
+            raise InvalidAsymmetricKeyError('Expecting a PEM-formatted key.')
 
         return key
 

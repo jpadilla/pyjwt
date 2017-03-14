@@ -26,8 +26,16 @@ class ImmatureSignatureError(InvalidTokenError):
     pass
 
 
-class InvalidKeyError(Exception):
+class InvalidKeyError(ValueError):
     pass
+
+
+class InvalidAsymmetricKeyError(InvalidKeyError):
+    message = 'Invalid key: Keys must be in PEM or RFC 4253 format.'
+
+
+class InvalidJwkError(InvalidKeyError):
+    message = 'Invalid key: Keys must be in JWK format.'
 
 
 class InvalidAlgorithmError(InvalidTokenError):
