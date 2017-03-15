@@ -87,8 +87,13 @@ class PyJWT(PyJWS):
         if isinstance(leeway, timedelta):
             leeway = timedelta_total_seconds(leeway)
 
-        if not isinstance(audience, (string_types, type(None))):
-            raise TypeError('audience must be a string or None')
+        if not isinstance(audience, (string_types, type(None), list)):
+            if not isinstance(audience, list):
+                raise TypeError('audience must be a string or None')
+
+            for aud in audience:
+                if not isinstance(aud, (string_types, type(None))):
+                    raise TypeError('audience list can only have string')
 
         self._validate_required_claims(payload, options)
 
@@ -165,8 +170,17 @@ class PyJWT(PyJWS):
             raise InvalidAudienceError('Invalid claim format in token')
         if any(not isinstance(c, string_types) for c in audience_claims):
             raise InvalidAudienceError('Invalid claim format in token')
-        if audience not in audience_claims:
-            raise InvalidAudienceError('Invalid audience')
+
+        if isinstance(audience, string_types):
+            audience = [audience]
+
+        if not isinstance(audience, list):
+            raise InvalidAudienceError('Invalid audience format')
+
+        for aud in audience:
+            if aud in audience_claims:
+                return
+        raise InvalidAudienceError('Invalid audience')
 
     def _validate_iss(self, payload, issuer):
         if issuer is None:

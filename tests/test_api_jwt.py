@@ -288,6 +288,24 @@ class TestJWT:
         token = jwt.encode(payload, 'secret')
         jwt.decode(token, 'secret', audience='urn:me')
 
+    def test_check_audience_list_when_valid(self, jwt):
+        payload = {
+            'some': 'payload',
+            'aud': 'urn:me'
+        }
+        token = jwt.encode(payload, 'secret')
+        jwt.decode(token, 'secret', audience=['urn:you', 'urn:me'])
+
+
+    def test_raise_exception_invalid_audience_list(self, jwt):
+        payload = {
+            'some': 'payload',
+            'aud': 'urn:me'
+        }
+        token = jwt.encode(payload, 'secret')
+        with pytest.raises(InvalidAudienceError):
+            jwt.decode(token, 'secret', audience=['urn:you', 'urn:him'])
+
     def test_check_audience_in_array_when_valid(self, jwt):
         payload = {
             'some': 'payload',

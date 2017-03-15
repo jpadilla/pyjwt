@@ -12,6 +12,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Better error messages when using an algorithm that requires the cryptography package, but it isn't available [#230][230]
 
 ### Fixed
+- Allow a list of valid audiences to be configured [#205][205]
+
+[v1.4.3][1.4.3]
+-------------------------------------------------------------------------
+
+### Fixed
 
 [v1.4.2][1.4.2]
 -------------------------------------------------------------------------
