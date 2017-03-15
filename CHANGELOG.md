@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
+- Add support for ECDSA public keys in RFC 4253 (OpenSSH) format [#244][244]
 - Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances.
 - Better error messages when using an algorithm that requires the cryptography package, but it isn't available [#230][230]
 
@@ -129,3 +130,4 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [182]: https://github.com/jpadilla/pyjwt/pull/182
 [183]: https://github.com/jpadilla/pyjwt/pull/183
 [213]: https://github.com/jpadilla/pyjwt/pull/214
+[244]: https://github.com/jpadilla/pyjwt/pull/244
