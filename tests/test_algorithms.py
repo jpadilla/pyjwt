@@ -58,11 +58,11 @@ class TestAlgorithms:
     def test_hmac_should_reject_nonstring_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with pytest.raises(TypeError) as context:
+        with pytest.raises(InvalidKeyError) as context:
             algo.prepare_key(object())
 
         exception = context.value
-        assert str(exception) == 'Expected a string value'
+        assert str(exception) == 'HMAC secret key must be a string type.'
 
     def test_hmac_should_accept_unicode_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
@@ -144,7 +144,7 @@ class TestAlgorithms:
     def test_rsa_should_reject_non_string_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(InvalidKeyError):
             algo.prepare_key(None)
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
@@ -358,7 +358,7 @@ class TestAlgorithms:
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(InvalidKeyError):
             algo.prepare_key(None)
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')

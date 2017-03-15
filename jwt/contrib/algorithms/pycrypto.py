@@ -7,6 +7,7 @@ from Crypto.Signature import PKCS1_v1_5
 
 from jwt.algorithms import Algorithm
 from jwt.compat import string_types, text_type
+from jwt.exceptions import InvalidAsymmetricKeyError
 
 
 class RSAAlgorithm(Algorithm):
@@ -36,7 +37,7 @@ class RSAAlgorithm(Algorithm):
 
             key = RSA.importKey(key)
         else:
-            raise TypeError('Expecting a PEM- or RSA-formatted key.')
+            raise InvalidAsymmetricKeyError
 
         return key
 

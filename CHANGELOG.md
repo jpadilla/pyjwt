@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 - Add support for ECDSA public keys in RFC 4253 (OpenSSH) format [#244][244]
+- All Algorithm.prepare_key() calls now return either a valid key value or raise  InvalidKeyError
 - Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances.
 - Better error messages when using an algorithm that requires the cryptography package, but it isn't available [#230][230]
 

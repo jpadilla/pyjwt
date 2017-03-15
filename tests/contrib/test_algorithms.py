@@ -1,5 +1,6 @@
 import base64
 
+from jwt.exceptions import InvalidAsymmetricKeyError
 from jwt.utils import force_bytes, force_unicode
 
 import pytest
@@ -36,7 +37,7 @@ class TestPycryptoAlgorithms:
     def test_rsa_should_reject_non_string_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(InvalidAsymmetricKeyError):
             algo.prepare_key(None)
 
     def test_rsa_sign_should_generate_correct_signature_value(self):
@@ -117,7 +118,7 @@ class TestEcdsaAlgorithms:
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(InvalidAsymmetricKeyError):
             algo.prepare_key(None)
 
     def test_ec_should_accept_unicode_key(self):
