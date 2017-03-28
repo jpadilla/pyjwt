@@ -17,6 +17,11 @@ extract the public or private keys from a x509 certificate in PEM format.
     public_key = cert_obj.public_key()
     private_key = cert_obj.private_key()
 
+.. note:: These instructions are for Python 2.
+    For Python 3, call ``encode()`` on ``cert_str`` to convert it
+    into bytes before calling ``load_pem_x509_certificate``.
+
+
 I'm using Google App Engine and can't install `cryptography`, what can I do?
 ----------------------------------------------------------------------------
 
