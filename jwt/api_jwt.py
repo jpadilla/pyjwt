@@ -10,7 +10,7 @@ from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .compat import string_types, timedelta_total_seconds
 from .exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
-    InvalidAudienceError, InvalidIssuedAtError,
+    InvalidAudienceError, InvalidIssuedAtError, IssuedAtFromFutureError,
     InvalidIssuerError, MissingRequiredClaimError
 )
 from .utils import merge_dict
@@ -26,6 +26,7 @@ class PyJWT(PyJWS):
             'verify_exp': True,
             'verify_nbf': True,
             'verify_iat': True,
+            'verify_iat_not_from_future': False,
             'verify_aud': True,
             'verify_iss': True,
             'require_exp': False,
@@ -97,6 +98,9 @@ class PyJWT(PyJWS):
         if 'iat' in payload and options.get('verify_iat'):
             self._validate_iat(payload, now, leeway)
 
+        if 'iat' in payload and options.get('verify_iat_not_from_future'):
+            self._validate_iat_not_from_future(payload, now, leeway)
+
         if 'nbf' in payload and options.get('verify_nbf'):
             self._validate_nbf(payload, now, leeway)
 
@@ -120,14 +124,36 @@ class PyJWT(PyJWS):
             raise MissingRequiredClaimError('nbf')
 
     def _validate_iat(self, payload, now, leeway):
+        """
+        Validate according tohttps://tools.ietf.org/html/rfc7519#section-4.1.6.
+
+        The "iat" (issued at) claim identifies the time at which the JWT was
+        issued.  This claim can be used to determine the age of the JWT.
+        """
+
+        # Use of this claim is OPTIONAL.
+        if 'iat' not in payload:
+            return
+
+        # Its value MUST be a number containing a NumericDate value.
         try:
             iat = int(payload['iat'])
         except ValueError:
             raise DecodeError('Issued At claim (iat) must be an integer.')
 
+    def _validate_iat_not_from_future(self, payload, now, leeway):
+        # Validate that iat, if present, is not from the future
+        # This validation is not in rfc7519, but seems like a good idea
+        # Use of this claim is OPTIONAL.
+        if 'iat' not in payload:
+            return
+
+        iat = int(payload['iat'])
+
         if iat > (now + leeway):
-            raise InvalidIssuedAtError('Issued At claim (iat) cannot be in'
-                                       ' the future.')
+            raise IssuedAtFromFutureError('Issued At claim (iat) cannot be in'
+                                          ' the future.')
+
 
     def _validate_nbf(self, payload, now, leeway):
         try:
