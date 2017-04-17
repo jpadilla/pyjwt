@@ -154,13 +154,6 @@ class TestJWT:
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, 'secret')
 
-    def test_decode_raises_exception_if_iat_in_the_future(self, jwt):
-        now = datetime.utcnow()
-        token = jwt.encode({'iat': now + timedelta(days=1)}, key='secret')
-
-        with pytest.raises(InvalidIssuedAtError):
-            jwt.decode(token, 'secret')
-
     def test_encode_datetime(self, jwt):
         secret = 'secret'
         current_datetime = datetime.utcnow()
