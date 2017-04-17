@@ -7,14 +7,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
+
+### Fixed
+
+[v1.5.0][1.5.0]
+-------------------------------------------------------------------------
+### Changed
 - Add support for ECDSA public keys in RFC 4253 (OpenSSH) format [#244][244]
 - Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances.
 - Better error messages when using an algorithm that requires the cryptography package, but it isn't available [#230][230]
 - Tokens with future 'iat' values are no longer rejected [#190][190]
 - Non-numeric 'iat' values now raise InvalidIssuedAtError instead of DecodeError
-
-
-### Fixed
 
 [v1.4.2][1.4.2]
 -------------------------------------------------------------------------
@@ -112,8 +115,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.4.0]: https://github.com/jpadilla/pyjwt/compare/1.3.0...1.4.0
 [1.4.1]: https://github.com/jpadilla/pyjwt/compare/1.4.0...1.4.1
 [1.4.2]: https://github.com/jpadilla/pyjwt/compare/1.4.1...1.4.2
-
-
+[1.5.0]: https://github.com/jpadilla/pyjwt/compare/1.4.2...1.5.0
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
