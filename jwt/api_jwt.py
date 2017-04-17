@@ -123,7 +123,7 @@ class PyJWT(PyJWS):
         try:
             int(payload['iat'])
         except ValueError:
-            raise DecodeError('Issued At claim (iat) must be an integer.')
+            raise InvalidIssuedAtError('Issued At claim (iat) must be an integer.')
 
     def _validate_nbf(self, payload, now, leeway):
         try:

@@ -142,7 +142,7 @@ class TestJWT:
                        'eyJpYXQiOiJub3QtYW4taW50In0.'
                        'H1GmcQgSySa5LOKYbzGm--b1OmRbHFkyk8pq811FzZM')
 
-        with pytest.raises(DecodeError):
+        with pytest.raises(InvalidIssuedAtError):
             jwt.decode(example_jwt, 'secret')
 
     def test_decode_raises_exception_if_nbf_is_not_int(self, jwt):

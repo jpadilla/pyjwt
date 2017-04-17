@@ -180,6 +180,8 @@ Issued At Claim (iat)
     This claim can be used to determine the age of the JWT. Its value MUST be a
     number containing a NumericDate value. Use of this claim is OPTIONAL.
 
+    If the `iat` claim is not a number, an `jwt.InvalidIssuedAtError` exception will be raised.
+
 .. code-block:: python
 
     jwt.encode({'iat': 1371720939}, 'secret')

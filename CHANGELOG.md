@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances.
 - Better error messages when using an algorithm that requires the cryptography package, but it isn't available [#230][230]
 - Tokens with future 'iat' values are no longer rejected [#190][190]
+- Non-numeric 'iat' values now raise InvalidIssuedAtError instead of DecodeError
+
 
 ### Fixed
 
