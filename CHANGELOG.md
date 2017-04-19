@@ -14,10 +14,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 - Add support for ECDSA public keys in RFC 4253 (OpenSSH) format [#244][244]
-- Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances.
+- Renamed commandline script `jwt` to `jwt-cli` to avoid issues with the script clobbering the `jwt` module in some circumstances. [#187][187]
 - Better error messages when using an algorithm that requires the cryptography package, but it isn't available [#230][230]
 - Tokens with future 'iat' values are no longer rejected [#190][190]
 - Non-numeric 'iat' values now raise InvalidIssuedAtError instead of DecodeError
+- Remove rejection of future 'iat' claims [#252][252]
+
+### Fixed
+- Add back 'ES512' for backward compatibility (for now) [#225][225]
+- Fix incorrectly named ECDSA algorithm [#219][219]
+- Fix rpm build [#196][196]
+
+### Added
+- Add JWK support for HMAC and RSA keys [#202][202]
 
 [v1.4.2][1.4.2]
 -------------------------------------------------------------------------
@@ -137,3 +146,10 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [190]: https://github.com/jpadilla/pyjwt/pull/190
 [213]: https://github.com/jpadilla/pyjwt/pull/214
 [244]: https://github.com/jpadilla/pyjwt/pull/244
+[202]: https://github.com/jpadilla/pyjwt/pull/202
+[252]: https://github.com/jpadilla/pyjwt/pull/252
+[225]: https://github.com/jpadilla/pyjwt/pull/225
+[219]: https://github.com/jpadilla/pyjwt/pull/219
+[196]: https://github.com/jpadilla/pyjwt/pull/196
+[187]: https://github.com/jpadilla/pyjwt/pull/187
+[230]: https://github.com/jpadilla/pyjwt/pull/230
