@@ -87,14 +87,6 @@ class PyJWT(PyJWS):
         if isinstance(leeway, timedelta):
             leeway = timedelta_total_seconds(leeway)
 
-        if not isinstance(audience, (string_types, type(None), list)):
-            if not isinstance(audience, list):
-                raise TypeError('audience must be a string or None')
-
-            for aud in audience:
-                if not isinstance(aud, (string_types, type(None))):
-                    raise TypeError('audience list can only have string')
-
         self._validate_required_claims(payload, options)
 
         now = timegm(datetime.utcnow().utctimetuple())
