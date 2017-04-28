@@ -9,6 +9,7 @@ extract the public or private keys from a x509 certificate in PEM format.
 
 .. code-block:: python
 
+    # Python 2
     from cryptography.x509 import load_pem_x509_certificate
     from cryptography.hazmat.backends import default_backend
 
@@ -16,6 +17,18 @@ extract the public or private keys from a x509 certificate in PEM format.
     cert_obj = load_pem_x509_certificate(cert_str, default_backend())
     public_key = cert_obj.public_key()
     private_key = cert_obj.private_key()
+
+.. code-block:: python
+
+    # Python 3
+    from cryptography.x509 import load_pem_x509_certificate
+    from cryptography.hazmat.backends import default_backend
+
+    cert_str = "-----BEGIN CERTIFICATE-----MIIDETCCAfm...".encode()
+    cert_obj = load_pem_x509_certificate(cert_str, default_backend())
+    public_key = cert_obj.public_key()
+    private_key = cert_obj.private_key()
+
 
 I'm using Google App Engine and can't install `cryptography`, what can I do?
 ----------------------------------------------------------------------------
