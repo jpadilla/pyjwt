@@ -29,6 +29,7 @@ Install with **pip**:
 
     $ pip install PyJWT
 
+
 Usage
 -----
 
@@ -41,10 +42,27 @@ Usage
     >>> jwt.decode(encoded, 'secret', algorithms=['HS256'])
     {'some': 'payload'}
 
+
+Command line
+------------
+
+Usage::
+
+    pyjwt [options] INPUT
+
+Decoding examples::
+
+    pyjwt --key=secret TOKEN
+    pyjwt --no-verify TOKEN
+
+See more options executing ``pyjwt --help``.
+
+
 Documentation
 -------------
 
 View the full docs online at https://pyjwt.readthedocs.io/en/latest/
+
 
 Tests
 -----
