@@ -1,22 +1,10 @@
 
-import json
+from  __future__ import unicode_literals
+import time
 
-from jwt import DecodeError
+import jwt
 from jwt.__main__ import build_argparser, decode_payload, encode_payload, main
-
 import pytest
-
-
-@pytest.fixture
-def token():
-    return '%s.%s.%s' % ('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9',
-                         'eyJuYW1lIjoiVmFkZXIiLCJqb2IiOiJTaXRoIn0',
-                         'eS5n_fxbLSpzHNY19fcEXj4GCU7c4Pog4jv2qq-cKgo')
-
-
-@pytest.fixture
-def decode_args(token):
-    return ['--key', '1234', 'decode', token]
 
 
 class TestCli:
@@ -27,14 +15,6 @@ class TestCli:
         parsed_args = parser.parse_args(args)
 
         assert parsed_args.key == '1234'
-
-    def test_encode_payload(self, token):
-        encode_args = ['--key', '1234', 'encode', 'name=Vader', 'job=Sith']
-        parser = build_argparser()
-
-        args = parser.parse_args(encode_args)
-
-        assert encode_payload(args) == token
 
     def test_encode_payload_raises_value_error_key_is_required(self):
         encode_args = ['encode', 'name=Vader', 'job=Sith']
@@ -47,25 +27,34 @@ class TestCli:
 
         assert 'Key is required when encoding' in str(excinfo.value)
 
-    def test_decode_payload(self, decode_args):
-        parser = build_argparser()
-
-        args = parser.parse_args(decode_args)
-
-        assert decode_payload(args) == json.dumps({'name': 'Vader', 'job': 'Sith'})
-
     def test_decode_payload_raises_decoded_error(self):
         decode_args = ['--key', '1234', 'decode', 'wrong-token']
         parser = build_argparser()
 
         args = parser.parse_args(decode_args)
 
-        with pytest.raises(DecodeError) as excinfo:
+        with pytest.raises(jwt.DecodeError) as excinfo:
             decode_payload(args)
 
         assert 'There was an error decoding the token' in str(excinfo.value)
 
-    def test_main_run(self, token):
-        args = ['--key', '1234', 'encode', 'name=Vader', 'job=Sith']
+    @pytest.mark.parametrize('key,name,job', [
+        ('1234', 'Vader', 'Sith'),
+        ('4567', 'Anakin', 'Jedi'),
+    ])
+    def test_main_run(self, key, name, job):
+        args = [
+            '--key', key,
+            'encode',
+            'name={}'.format(name),
+            'job={}'.format(job)
+        ]
 
-        assert main(args) == token
+        token = main(args)
+        actual = jwt.decode(token, key)
+        expected = {
+            'job': job,
+            'name': name,
+        }
+
+        assert actual == expected
