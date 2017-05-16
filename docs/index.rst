@@ -1,5 +1,5 @@
 Welcome to ``PyJWT``
-===========================
+====================
 
 ``PyJWT`` is a Python library which allows you to encode and decode JSON Web
 Tokens (JWT). JWT is an open, industry-standard (`RFC 7519`_) for representing
@@ -16,7 +16,7 @@ You can install ``pyjwt`` with ``pip``:
 See :doc:`Installation <installation>` for more information.
 
 Example Usage
-------------
+-------------
 
 .. code-block:: python
 
@@ -28,8 +28,24 @@ Example Usage
     >>> jwt.decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg', 'secret')
     {'some': 'payload'}
 
-
 See :doc:`Usage Examples <usage>` for more examples.
+
+Command line
+------------
+
+Usage::
+
+    pyjwt [options] INPUT
+
+Decoding examples::
+
+    pyjwt --key=secret TOKEN
+    pyjwt --no-verify TOKEN
+
+See more options executing ``pyjwt --help``.
+
+Index
+-----
 
 .. toctree::
     :maxdepth: 2
