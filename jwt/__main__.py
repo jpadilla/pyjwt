@@ -148,20 +148,16 @@ def build_argparser():
     return arg_parser
 
 
-def main(args):
+def main():
     arg_parser = build_argparser()
 
     try:
-        arguments = arg_parser.parse_args(args)
+        arguments = arg_parser.parse_args(sys.argv[1:])
 
-        return arguments.func(arguments)
+        output = arguments.func(arguments)
+
+        print(output)
     except Exception as e:
         print('There was an unforseen error: ', e)
         arg_parser.print_help()
         sys.exit(1)
-
-
-if __name__ == '__main__':
-    output = main(sys.argv[1:])
-
-    print(output)
