@@ -19,43 +19,37 @@ def encode_payload(args):
     payload = {}
 
     for arg in args.payload:
-        try:
-            k, v = arg.split('=', 1)
+        k, v = arg.split('=', 1)
 
-            # exp +offset special case?
-            if k == 'exp' and v[0] == '+' and len(v) > 1:
-                v = str(int(time.time()+int(v[1:])))
+        # exp +offset special case?
+        if k == 'exp' and v[0] == '+' and len(v) > 1:
+            v = str(int(time.time()+int(v[1:])))
 
-            # Cast to integer?
-            if v.isdigit():
-                v = int(v)
-            else:
-                # Cast to float?
-                try:
-                    v = float(v)
-                except ValueError:
-                    pass
+        # Cast to integer?
+        if v.isdigit():
+            v = int(v)
+        else:
+            # Cast to float?
+            try:
+                v = float(v)
+            except ValueError:
+                pass
 
-            # Cast to true, false, or null?
-            constants = {'true': True, 'false': False, 'null': None}
+        # Cast to true, false, or null?
+        constants = {'true': True, 'false': False, 'null': None}
 
-            if v in constants:
-                v = constants[v]
+        if v in constants:
+            v = constants[v]
 
-            payload[k] = v
-        except ValueError:
-            raise ValueError('Invalid encoding input at %s' % arg)
+        payload[k] = v
 
-    try:
-        token = encode(
-            payload,
-            key=args.key,
-            algorithm=args.algorithm
-        )
+    token = encode(
+        payload,
+        key=args.key,
+        algorithm=args.algorithm
+    )
 
-        return token.decode('utf-8')
-    except Exception as e:
-        raise Exception(e)
+    return token.decode('utf-8')
 
 
 def decode_payload(args):
