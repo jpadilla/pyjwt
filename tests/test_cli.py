@@ -1,9 +1,9 @@
 
-from  __future__ import unicode_literals
-import time
+from __future__ import unicode_literals
 
 import jwt
 from jwt.__main__ import build_argparser, decode_payload, encode_payload, main
+
 import pytest
 
 
@@ -46,8 +46,8 @@ class TestCli:
         args = [
             '--key', key,
             'encode',
-            'name={}'.format(name),
-            'job={}'.format(job)
+            'name={0}'.format(name),
+            'job={0}'.format(job)
         ]
 
         token = main(args)
