@@ -38,17 +38,22 @@ class TestCli:
 
         assert 'There was an error decoding the token' in str(excinfo.value)
 
-    @pytest.mark.parametrize('key,name,job', [
-        ('1234', 'Vader', 'Sith'),
-        ('4567', 'Anakin', 'Jedi'),
+    @pytest.mark.parametrize('key,name,job,exp,verify', [
+        ('1234', 'Vader', 'Sith', None, None),
+        ('4567', 'Anakin', 'Jedi', '+1', None),
+        ('4321', 'Padme', 'Queen', '4070926800', 'true'),
     ])
-    def test_main_run(self, key, name, job):
+    def test_main_run(self, key, name, job, exp, verify):
         args = [
             '--key', key,
             'encode',
             'name={0}'.format(name),
-            'job={0}'.format(job)
+            'job={0}'.format(job),
         ]
+        if exp:
+            args.append('exp={0}'.format(exp))
+        if verify:
+            args.append('verify={0}'.format(verify))
 
         token = main(args)
         actual = jwt.decode(token, key)
@@ -57,4 +62,5 @@ class TestCli:
             'name': name,
         }
 
-        assert actual == expected
+        assert actual['name'] == expected['name']
+        assert actual['job'] == expected['job']
