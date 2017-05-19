@@ -1,11 +1,12 @@
 
 import argparse
 import json
-import pytest
 import sys
 
 import jwt
 from jwt.__main__ import build_argparser, decode_payload, encode_payload, main
+
+import pytest
 
 
 class TestCli:
