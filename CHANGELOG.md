@@ -8,7 +8,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 
+- Change optparse for argparse. [#238][238]
+
 ### Fixed
+
+### Added
+
+- Support for Python 3.6 [#262][262]
+- Expose jwt.InvalidAlgorithmError [#264][264]
 
 [v1.5.0][1.5.0]
 -------------------------------------------------------------------------
@@ -153,3 +160,6 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [196]: https://github.com/jpadilla/pyjwt/pull/196
 [187]: https://github.com/jpadilla/pyjwt/pull/187
 [230]: https://github.com/jpadilla/pyjwt/pull/230
+[238]: https://github.com/jpadilla/pyjwt/pull/238
+[262]: https://github.com/jpadilla/pyjwt/pull/262
+[264]: https://github.com/jpadilla/pyjwt/pull/264
