@@ -1,12 +1,11 @@
 
+import argparse
 import json
-
+import pytest
 import sys
 
 import jwt
 from jwt.__main__ import build_argparser, decode_payload, encode_payload, main
-
-import pytest
 
 
 class TestCli:
@@ -34,6 +33,23 @@ class TestCli:
         parser = build_argparser()
 
         args = parser.parse_args(decode_args)
+
+        with pytest.raises(jwt.DecodeError) as excinfo:
+            decode_payload(args)
+
+        assert 'There was an error decoding the token' in str(excinfo.value)
+
+    def test_decode_payload_raises_decoded_error_isatty(self, monkeypatch):
+        def patched_sys_stdin_read():
+            raise jwt.DecodeError()
+
+        decode_args = ['--key', '1234', 'decode', 'wrong-token']
+        parser = build_argparser()
+
+        args = parser.parse_args(decode_args)
+
+        monkeypatch.setattr(sys.stdin, 'isatty', lambda: True)
+        monkeypatch.setattr(sys.stdin, 'read', patched_sys_stdin_read)
 
         with pytest.raises(jwt.DecodeError) as excinfo:
             decode_payload(args)
@@ -98,3 +114,13 @@ class TestCli:
             args.append('verify={0}'.format(verify))
         monkeypatch.setattr(sys, 'argv', args)
         main()
+
+    def test_main_throw_exception(self, monkeypatch, capsys):
+        def patched_argparser_parse_args(self, args):
+            raise Exception('NOOOOOOOOOOO!')
+
+        monkeypatch.setattr(argparse.ArgumentParser, 'parse_args', patched_argparser_parse_args)
+        main()
+        out, _ = capsys.readouterr()
+
+        assert 'NOOOOOOOOOOO!' in out
