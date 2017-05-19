@@ -160,4 +160,3 @@ def main():
     except Exception as e:
         print('There was an unforseen error: ', e)
         arg_parser.print_help()
-        sys.exit(1)
