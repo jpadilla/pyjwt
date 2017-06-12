@@ -82,7 +82,8 @@ class PyJWT(PyJWS):
         if 'verify_expiration' in kwargs:
             options['verify_exp'] = kwargs.get('verify_expiration', True)
             warnings.warn('The verify_expiration parameter is deprecated. '
-                          'Please use options instead.', DeprecationWarning)
+                          'Please use verify_exp in options instead.',
+                          DeprecationWarning)
 
         if isinstance(leeway, timedelta):
             leeway = timedelta_total_seconds(leeway)
