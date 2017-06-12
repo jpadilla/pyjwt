@@ -60,8 +60,12 @@ class PyJWT(PyJWS):
                **kwargs):
         payload, signing_input, header, signature = self._load(jwt)
 
-        decoded = super(PyJWT, self).decode(jwt, key, verify, algorithms,
-                                            options, **kwargs)
+        if options is None:
+            options = {'verify_signature': verify}
+        else:
+            options.setdefault('verify_signature', verify)
+        decoded = super(PyJWT, self).decode(jwt, key, algorithms, options,
+                                            **kwargs)
 
         try:
             payload = json.loads(decoded.decode('utf-8'))

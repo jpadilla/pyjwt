@@ -127,7 +127,7 @@ class PyJWS(object):
         else:
             warnings.warn('The verify parameter is deprecated. '
                           'Please use verify_signature in options instead.',
-                          DeprecationWarning)
+                          DeprecationWarning, stacklevel=2)
 
         return payload
 
