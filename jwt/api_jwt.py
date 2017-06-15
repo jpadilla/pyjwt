@@ -34,7 +34,7 @@ class PyJWT(PyJWS):
         }
 
     def encode(self, payload, key, algorithm='HS256', headers=None,
-               json_encoder=None):
+               json_encoder=None, sort_json=False):
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
             raise TypeError('Expecting a mapping object, as JWT only supports '
@@ -49,11 +49,12 @@ class PyJWT(PyJWS):
         json_payload = json.dumps(
             payload,
             separators=(',', ':'),
-            cls=json_encoder
+            cls=json_encoder,
+            sort_keys=sort_json
         ).encode('utf-8')
 
         return super(PyJWT, self).encode(
-            json_payload, key, algorithm, headers, json_encoder
+            json_payload, key, algorithm, headers, json_encoder, sort_json
         )
 
     def decode(self, jwt, key='', verify=True, algorithms=None, options=None,
