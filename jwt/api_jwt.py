@@ -166,10 +166,10 @@ class PyJWT(PyJWS):
             raise InvalidAudienceError('Invalid audience')
 
     def _validate_iss(self, payload, issuer):
-        if issuer is None:
+        if issuer is None and 'iss' not in payload:
             return
 
-        if 'iss' not in payload:
+        if issuer is not None and 'iss' not in payload:
             raise MissingRequiredClaimError('iss')
 
         if payload['iss'] != issuer:
