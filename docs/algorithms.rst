@@ -26,7 +26,7 @@ If you are unfamiliar, you may want to read
 
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 ``jwt.encode()`` and ``jwt.decode()`` (``"secret"`` in the examples) is expected to
-be either an RSA public or private key in PEM or SSH format. The type of key
+be either an RSA public or private key in PEM (should include the `--BEGIN PRIVATE/PUBLIC KEY--` and `--END BEGIN PRIVATE/PUBLIC KEY--` lines along with newline characters) or SSH format. The type of key
 (private or public) depends on whether you are signing or verifying a token.
 
 When using the ECDSA algorithms, the ``key`` argument is expected to
