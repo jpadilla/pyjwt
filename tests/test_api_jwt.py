@@ -472,3 +472,13 @@ class TestJWT:
                 secret,
                 verify_expiration=True
             )
+
+    def test_decode_with_optional_algorithms(self, jwt, payload):
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret)
+
+        pytest.deprecated_call(
+            jwt.decode,
+            jwt_message,
+            secret
+        )
