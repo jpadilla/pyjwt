@@ -265,6 +265,16 @@ class TestJWS:
 
         pytest.deprecated_call(jws.decode, example_jws, verify=False)
 
+    def test_decode_with_optional_algorithms(self, jws):
+        example_secret = 'secret'
+        example_jws = (
+            b'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+            b'aGVsbG8gd29ybGQ.'
+            b'SIr03zM64awWRdPrAM_61QWsZchAtgDV3pphfHPPWkI'
+        )
+
+        pytest.deprecated_call(jws.decode, example_jws, key=example_secret)
+
     def test_load_no_verification(self, jws, payload):
         right_secret = 'foo'
         jws_message = jws.encode(payload, right_secret)
