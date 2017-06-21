@@ -172,12 +172,12 @@ class PyJWS(object):
         try:
             payload = base64url_decode(payload_segment)
         except (TypeError, binascii.Error):
-            raise DecodeError('Invalid payload padding')
+            raise DecodeError('Invalid payload segment padding in supplied token')
 
         try:
             signature = base64url_decode(crypto_segment)
         except (TypeError, binascii.Error):
-            raise DecodeError('Invalid crypto padding')
+            raise DecodeError('Invalid crypto segment padding in supplied token')
 
         return (payload, signing_input, header, signature)
 
