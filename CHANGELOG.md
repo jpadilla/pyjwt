@@ -7,10 +7,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
+### Fixed
+### Added
+
+[v1.5.1][1.5.1]
+-------------------------------------------------------------------------
+### Changed
 
 - Change optparse for argparse. [#238][238]
 
 ### Fixed
+
+- Guard against PKCS1 PEM encododed public keys
+- Add deprecation warning when decoding without specifying `algorithms`
 
 ### Added
 
@@ -132,6 +141,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.4.1]: https://github.com/jpadilla/pyjwt/compare/1.4.0...1.4.1
 [1.4.2]: https://github.com/jpadilla/pyjwt/compare/1.4.1...1.4.2
 [1.5.0]: https://github.com/jpadilla/pyjwt/compare/1.4.2...1.5.0
+[1.5.1]: https://github.com/jpadilla/pyjwt/compare/1.5.0...1.5.1
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
