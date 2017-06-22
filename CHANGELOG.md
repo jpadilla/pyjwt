@@ -18,8 +18,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- Guard against PKCS1 PEM encododed public keys
-- Add deprecation warning when decoding without specifying `algorithms`
+- Guard against PKCS1 PEM encododed public keys [#277][277]
+- Add deprecation warning when decoding without specifying `algorithms` [#277][277]
+- Improve deprecation messages [#270][270]
+- PyJWT.decode: move verify param into options [#271][271]
 
 ### Added
 
@@ -173,3 +175,6 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [238]: https://github.com/jpadilla/pyjwt/pull/238
 [262]: https://github.com/jpadilla/pyjwt/pull/262
 [264]: https://github.com/jpadilla/pyjwt/pull/264
+[270]: https://github.com/jpadilla/pyjwt/pull/270
+[271]: https://github.com/jpadilla/pyjwt/pull/271
+[277]: https://github.com/jpadilla/pyjwt/pull/277
