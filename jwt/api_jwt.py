@@ -26,10 +26,11 @@ except ImportError:
 
 class PyJWT(PyJWS):
     header_type = "JWT"
+    deprecated_requires = ["require_exp", "require_iat", "require_nbf"]
 
     @staticmethod
     def _get_default_options():
-        # type: () -> Dict[str, bool]
+        # type: () -> Dict[str, Union[bool, List[str]]]
         return {
             "verify_signature": True,
             "verify_exp": True,
@@ -37,9 +38,7 @@ class PyJWT(PyJWS):
             "verify_iat": True,
             "verify_aud": True,
             "verify_iss": True,
-            "require_exp": False,
-            "require_iat": False,
-            "require_nbf": False,
+            "require": [],
         }
 
     def encode(
@@ -128,6 +127,22 @@ class PyJWT(PyJWS):
                 DeprecationWarning,
             )
 
+        verify_claims = {
+            required
+            for required in self.deprecated_requires
+            if required in options
+        }
+        require_options = options.setdefault("require", [])
+        for opt in verify_claims:
+            opt_claim = opt.split("require_", 1)[1]
+            if options[opt]:
+                require_options.append(opt_claim)
+            warnings.warn(
+                "The {0} parameter is deprecated. Please add {1} to"
+                " the require list in options instead".format(opt, opt_claim),
+                DeprecationWarning,
+            )
+
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
 
@@ -154,14 +169,9 @@ class PyJWT(PyJWS):
             self._validate_aud(payload, audience)
 
     def _validate_required_claims(self, payload, options):
-        if options.get("require_exp") and payload.get("exp") is None:
-            raise MissingRequiredClaimError("exp")
-
-        if options.get("require_iat") and payload.get("iat") is None:
-            raise MissingRequiredClaimError("iat")
-
-        if options.get("require_nbf") and payload.get("nbf") is None:
-            raise MissingRequiredClaimError("nbf")
+        for claim in options.get("require", []):
+            if payload.get(claim) is None:
+                raise MissingRequiredClaimError(claim)
 
     def _validate_iat(self, payload, now, leeway):
         try:
