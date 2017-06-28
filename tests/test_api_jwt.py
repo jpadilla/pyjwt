@@ -437,6 +437,21 @@ class TestJWT:
 
         assert exc.value.claim == "nbf"
 
+    def test_decode_should_raise_error_if_claim_required_but_not_present(
+        self, jwt
+    ):
+        claim = "sub"
+        payload = {
+            "some": "payload",
+            # claim not present
+        }
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, "secret", options={"require": [claim]})
+
+        assert exc.value.claim == claim
+
     def test_skip_check_signature(self, jwt):
         token = (
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
