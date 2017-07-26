@@ -73,7 +73,7 @@ Expiration time is automatically verified in `jwt.decode()` and raises
 .. code-block:: python
 
     try:
-        jwt.decode('JWT_STRING', 'secret')
+        jwt.decode('JWT_STRING', 'secret', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         # Signature has expired
 
@@ -99,14 +99,14 @@ you can set a leeway of 10 seconds in order to have some margin:
 
     # JWT payload is now expired
     # But with some leeway, it will still validate
-    jwt.decode(jwt_payload, 'secret', leeway=10)
+    jwt.decode(jwt_payload, 'secret', leeway=10, algorithms=['HS256'])
 
 Instead of specifying the leeway as a number of seconds, a `datetime.timedelta`
 instance can be used. The last line in the example above is equivalent to:
 
 .. code-block:: python
 
-    jwt.decode(jwt_payload, 'secret', leeway=datetime.timedelta(seconds=10))
+    jwt.decode(jwt_payload, 'secret', leeway=datetime.timedelta(seconds=10), algorithms=['HS256'])
 
 Not Before Time Claim (nbf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -142,7 +142,7 @@ Issuer Claim (iss)
     }
 
     token = jwt.encode(payload, 'secret')
-    decoded = jwt.decode(token, 'secret', issuer='urn:foo')
+    decoded = jwt.decode(token, 'secret', issuer='urn:foo', algorithms=['HS256'])
 
 If the issuer claim is incorrect, `jwt.InvalidIssuerError` will be raised.
 
@@ -169,7 +169,7 @@ Audience Claim (aud)
     }
 
     token = jwt.encode(payload, 'secret')
-    decoded = jwt.decode(token, 'secret', audience='urn:foo')
+    decoded = jwt.decode(token, 'secret', audience='urn:foo', algorithms=['HS256'])
 
 If the audience claim is incorrect, `jwt.InvalidAudienceError` will be raised.
 
