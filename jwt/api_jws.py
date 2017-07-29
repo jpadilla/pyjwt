@@ -68,7 +68,7 @@ class PyJWS(object):
         return list(self._valid_algs)
 
     def encode(self, payload, key, algorithm='HS256', headers=None,
-               json_encoder=None):
+               json_encoder=None, sort_json=False):
         segments = []
 
         if algorithm is None:
@@ -88,7 +88,8 @@ class PyJWS(object):
             json.dumps(
                 header,
                 separators=(',', ':'),
-                cls=json_encoder
+                cls=json_encoder,
+                sort_keys=sort_json
             )
         )
 

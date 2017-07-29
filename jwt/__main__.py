@@ -46,7 +46,8 @@ def encode_payload(args):
     token = encode(
         payload,
         key=args.key,
-        algorithm=args.algorithm
+        algorithm=args.algorithm,
+        sort_json=args.sort_payload
     )
 
     return token.decode('utf-8')
@@ -129,6 +130,15 @@ def build_argparser():
     pairs separated by equals (=) sign."""
 
     encode_parser.add_argument('payload', nargs='+', help=payload_help)
+
+    encode_parser.add_argument(
+        '-s', '--sort-payload',
+        dest='sort_payload',
+        action='store_true',
+        default=False,
+        help='Enforce lexicographic sorting of payload.'
+    )
+
     encode_parser.set_defaults(func=encode_payload)
 
     # Decode subcommand
