@@ -7,7 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
+- Increase required version of the cryptography package to >=1.4.0.
 ### Fixed
+- Remove uses of deprecated functions from the cryptography package.
 ### Added
 
 [v1.5.2][1.5.2]
