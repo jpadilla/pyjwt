@@ -59,7 +59,7 @@ class PyJWT(PyJWS):
     def decode(self, jwt, key='', verify=True, algorithms=None, options=None,
                **kwargs):
 
-        if not algorithms:
+        if verify and not algorithms:
             warnings.warn(
                 'It is strongly recommended that you pass in a ' +
                 'value for the "algorithms" argument when calling decode(). ' +

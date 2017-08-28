@@ -118,7 +118,10 @@ class PyJWS(object):
     def decode(self, jws, key='', verify=True, algorithms=None, options=None,
                **kwargs):
 
-        if not algorithms:
+        merged_options = merge_dict(self.options, options)
+        verify_signature = merged_options['verify_signature']
+
+        if verify_signature and not algorithms:
             warnings.warn(
                 'It is strongly recommended that you pass in a ' +
                 'value for the "algorithms" argument when calling decode(). ' +
@@ -128,15 +131,13 @@ class PyJWS(object):
 
         payload, signing_input, header, signature = self._load(jws)
 
-        if verify:
-            merged_options = merge_dict(self.options, options)
-            if merged_options.get('verify_signature'):
-                self._verify_signature(payload, signing_input, header, signature,
-                                       key, algorithms)
-        else:
+        if not verify:
             warnings.warn('The verify parameter is deprecated. '
                           'Please use verify_signature in options instead.',
                           DeprecationWarning, stacklevel=2)
+        elif verify_signature:
+            self._verify_signature(payload, signing_input, header, signature,
+                                   key, algorithms)
 
         return payload
 
