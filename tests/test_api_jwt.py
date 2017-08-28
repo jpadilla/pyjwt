@@ -482,3 +482,16 @@ class TestJWT:
             jwt_message,
             secret
         )
+
+    def test_decode_no_algorithms_verify_false(self, jwt, payload):
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret)
+
+        try:
+            pytest.deprecated_call(
+                jwt.decode, jwt_message, secret, verify=False,
+            )
+        except AssertionError:
+            pass
+        else:
+            assert False, "Unexpected DeprecationWarning raised."

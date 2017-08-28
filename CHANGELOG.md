@@ -7,9 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
+
 - Increase required version of the cryptography package to >=1.4.0.
+
 ### Fixed
+
 - Remove uses of deprecated functions from the cryptography package.
+- Warn about missing `algorithms` param to `decode()` only when `verify` param is `True` [#281][281]
+
 ### Added
 
 [v1.5.2][1.5.2]
@@ -187,4 +192,5 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [270]: https://github.com/jpadilla/pyjwt/pull/270
 [271]: https://github.com/jpadilla/pyjwt/pull/271
 [277]: https://github.com/jpadilla/pyjwt/pull/277
+[281]: https://github.com/jpadilla/pyjwt/pull/281
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
