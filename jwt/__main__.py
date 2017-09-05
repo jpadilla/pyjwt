@@ -54,10 +54,13 @@ def encode_payload(args):
 
 def decode_payload(args):
     try:
-        if sys.stdin.isatty():
-            token = sys.stdin.read()
-        else:
+        if args.token:
             token = args.token
+        else:
+            if sys.stdin.isatty():
+                token = sys.stdin.readline().strip()
+            else:
+                raise IOError('Cannot read from stdin: terminal not a TTY')
 
         token = token.encode('utf-8')
         data = decode(token, key=args.key, verify=args.verify)
@@ -133,7 +136,10 @@ def build_argparser():
 
     # Decode subcommand
     decode_parser = subparsers.add_parser('decode', help='use to decode a supplied JSON web token')
-    decode_parser.add_argument('token', help='JSON web token to decode.')
+    decode_parser.add_argument(
+        'token',
+        help='JSON web token to decode.',
+        nargs='?')
 
     decode_parser.add_argument(
         '-n', '--no-verify',
