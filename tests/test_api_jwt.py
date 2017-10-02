@@ -9,8 +9,8 @@ from decimal import Decimal
 from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
-    InvalidAudienceError, InvalidIssuedAtError, InvalidIssuerError,
-    MissingRequiredClaimError
+    InvalidAccessTokenHashError, InvalidAudienceError, InvalidIssuedAtError,
+    InvalidIssuerError, MissingRequiredClaimError
 )
 
 import pytest
@@ -57,6 +57,14 @@ class TestJWT:
         decoded_payload = jwt.decode(example_jwt, key=example_secret)
 
         assert decoded_payload == example_payload
+
+    def test_verify_fails_missing_athash(self, jwt, payload):
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(jwt_message, key=secret, access_token='foobar')
+        assert 'at_hash' in str(exc.value)
 
     def test_decode_invalid_payload_string(self, jwt):
         example_jwt = (
@@ -117,6 +125,19 @@ class TestJWT:
 
         exception = context.value
         assert str(exception) == 'Invalid claim format in token'
+
+    def test_decode_with_wrong_access_token_throws_exception(self, jwt, payload):
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret, access_token='foobar')
+
+        with pytest.raises(InvalidAccessTokenHashError):
+            jwt.decode(jwt_message, key=secret, access_token='foobar2')
+
+    def test_decode_with_no_access_token_skips_at_hash(self, jwt, payload):
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret, access_token='foobar')
+
+        jwt.decode(jwt_message, key=secret)
 
     def test_encode_bad_type(self, jwt):
 
@@ -495,3 +516,26 @@ class TestJWT:
             pass
         else:
             assert False, "Unexpected DeprecationWarning raised."
+
+    @pytest.mark.skipif(not has_crypto,
+                        reason="Can't run without cryptography library")
+    def test_at_hashes_match(self, jwt):
+        """
+        Check that HS256 and RS256 at_hash values match.
+        These are different implementations of the at_hash computation, one in
+        terms of hashlib.sha256 and one in terms of cryptography..hashes.SHA256
+
+        They should produce identical values, and both should evaluate
+        successfully.
+
+        Checks
+        - Evaluation works for both methods (doesn't crash)
+        - Evaluation of cryptography hash digests is accurate (use of
+          finalize()). Assumes that the simpler hashlib evaluation is
+          "obviously correct"
+        """
+        # this is just garbage to feed in
+        token = "abc123" * 20
+
+        assert (jwt.compute_at_hash(token, 'HS256') ==
+                jwt.compute_at_hash(token, 'RS256'))
