@@ -38,6 +38,8 @@ class PyJWT(PyJWS):
             'verify_iat': True,
             'verify_aud': True,
             'verify_iss': True,
+            # TODO: in v2.0, make this default to True
+            'verify_at_hash': False,
             'require_exp': False,
             'require_iat': False,
             'require_nbf': False
@@ -173,7 +175,7 @@ class PyJWT(PyJWS):
         if 'exp' in payload and options.get('verify_exp'):
             self._validate_exp(payload, now, leeway)
 
-        if access_token:
+        if options.get('verify_at_hash'):
             self._validate_at_hash(payload, header, access_token)
 
         if options.get('verify_iss'):
@@ -248,11 +250,16 @@ class PyJWT(PyJWS):
             raise InvalidIssuerError('Invalid issuer')
 
     def _validate_at_hash(self, payload, header, access_token):
-        try:
-            at_hash = payload['at_hash']
-        except KeyError:
-            raise MissingRequiredClaimError('at_hash')
+        if 'at_hash' not in payload:
+            if access_token is None:
+                return
+            else:
+                raise MissingRequiredClaimError('at_hash')
+        elif access_token is None:
+            raise InvalidAccessTokenHashError(
+                "access_token=None can't be hashed")
 
+        at_hash = payload['at_hash']
         alg = header.get('alg')
 
         if at_hash != self.compute_at_hash(access_token, alg):

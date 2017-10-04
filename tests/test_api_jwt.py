@@ -58,12 +58,31 @@ class TestJWT:
 
         assert decoded_payload == example_payload
 
+    def test_verify_athash_with_no_access_token(self, jwt, payload):
+        """
+        Checks that the default (False) on verify_at_hash can be changed safely
+        for tokens which don't include at_hash
+
+        There's no at_hash here, but we're asking for verification anyway,
+        while not passing an access_token
+        It's known to be a breaking change to set it to True for tokens which
+        include at_hash
+        """
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret)
+
+        decoded_payload = jwt.decode(jwt_message, key=secret,
+                                     options={'verify_at_hash': True})
+
+        assert decoded_payload == payload
+
     def test_verify_fails_missing_athash(self, jwt, payload):
         secret = 'secret'
         jwt_message = jwt.encode(payload, secret)
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(jwt_message, key=secret, access_token='foobar')
+            jwt.decode(jwt_message, key=secret, access_token='foobar',
+                       options={'verify_at_hash': True})
         assert 'at_hash' in str(exc.value)
 
     def test_decode_invalid_payload_string(self, jwt):
@@ -131,13 +150,27 @@ class TestJWT:
         jwt_message = jwt.encode(payload, secret, access_token='foobar')
 
         with pytest.raises(InvalidAccessTokenHashError):
-            jwt.decode(jwt_message, key=secret, access_token='foobar2')
+            jwt.decode(jwt_message, key=secret, access_token='foobar2',
+                       options={'verify_at_hash': True})
 
     def test_decode_with_no_access_token_skips_at_hash(self, jwt, payload):
+        """
+        This is a backwards-compatibility test to ensure that decoding in
+        ignorance of the at_hash claim won't be broken by the addition of
+        at_hash verification
+        """
         secret = 'secret'
         jwt_message = jwt.encode(payload, secret, access_token='foobar')
 
         jwt.decode(jwt_message, key=secret)
+
+    def test_decode_with_no_access_token_fails(self, jwt, payload):
+        secret = 'secret'
+        jwt_message = jwt.encode(payload, secret, access_token='foobar')
+
+        with pytest.raises(InvalidAccessTokenHashError):
+            jwt.decode(jwt_message, key=secret,
+                       options={'verify_at_hash': True})
 
     def test_encode_bad_type(self, jwt):
 
