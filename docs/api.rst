@@ -34,7 +34,7 @@ Exceptions
 
 .. class:: InvalidIssuedAtError
 
-    Raised when a token's ``iat`` claim is in the future
+    Raised when a token's ``iat`` claim value is not an integer
 
 .. class:: ImmatureSignatureError
 
