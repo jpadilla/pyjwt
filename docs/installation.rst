@@ -8,7 +8,7 @@ You can install ``PyJWT`` with ``pip``:
     $ pip install pyjwt
 
 Cryptographic Dependencies (Optional)
--------------------
+-------------------------------------
 
 If you are planning on encoding or decoding tokens using certain digital
 signature algorithms (like RSA or ECDSA), you will need to install the
