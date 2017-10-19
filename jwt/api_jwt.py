@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 from .api_jws import PyJWS
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
-from .compat import string_types, timedelta_total_seconds
+from .compat import string_types
 from .exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
     InvalidAudienceError, InvalidIssuedAtError,
@@ -101,7 +101,7 @@ class PyJWT(PyJWS):
                           DeprecationWarning)
 
         if isinstance(leeway, timedelta):
-            leeway = timedelta_total_seconds(leeway)
+            leeway = leeway.total_seconds()
 
         if not isinstance(audience, (string_types, type(None))):
             raise TypeError('audience must be a string or None')
