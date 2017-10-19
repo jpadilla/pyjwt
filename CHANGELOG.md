@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased][unreleased]
 -------------------------------------------------------------------------
 ### Changed
+
+- Dropped support for python 2.6 and 3.3 [#297][297]
+
 ### Fixed
 ### Added
 
