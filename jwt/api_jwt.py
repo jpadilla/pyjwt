@@ -67,7 +67,7 @@ class PyJWT(PyJWS):
                 DeprecationWarning
             )
 
-        payload, signing_input, header, signature = self._load(jwt)
+        payload, signing_input, header, signature = self._load(jwt, verify=verify)
 
         if options is None:
             options = {'verify_signature': verify}
