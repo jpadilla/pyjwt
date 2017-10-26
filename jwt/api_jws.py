@@ -129,7 +129,7 @@ class PyJWS(object):
                 DeprecationWarning
             )
 
-        payload, signing_input, header, signature = self._load(jws)
+        payload, signing_input, header, signature = self._load(jws, verify=verify)
 
         if not verify:
             warnings.warn('The verify parameter is deprecated. '
@@ -152,7 +152,7 @@ class PyJWS(object):
 
         return headers
 
-    def _load(self, jwt):
+    def _load(self, jwt, verify=True):
         if isinstance(jwt, text_type):
             jwt = jwt.encode('utf-8')
 
@@ -187,7 +187,8 @@ class PyJWS(object):
         try:
             signature = base64url_decode(crypto_segment)
         except (TypeError, binascii.Error):
-            raise DecodeError('Invalid crypto padding')
+            if verify:
+                raise DecodeError('Invalid crypto padding')
 
         return (payload, signing_input, header, signature)
 
