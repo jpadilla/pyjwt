@@ -177,6 +177,58 @@ class TestAlgorithms:
         assert not result
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_jwk_public_and_private_keys_should_parse_and_verify(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA512)
+
+        with open(key_path('jwk_ec_pub.json'), 'r') as keyfile:
+            pub_key = algo.from_jwk(keyfile.read())
+
+        with open(key_path('jwk_ec_key.json'), 'r') as keyfile:
+            priv_key = algo.from_jwk(keyfile.read())
+
+        signature = algo.sign(force_bytes('Hello World!'), priv_key)
+        assert algo.verify(force_bytes('Hello World!'), pub_key, signature)
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ec_jwk_fails_on_invalid_json(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA512)
+
+        # Invalid JSON
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('<this isn\'t json>')
+
+        # Bad key type
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "RSA"}')
+
+        # Missing data
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "EC"}')
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "EC", x: "1"}')
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "EC", y: "1"}')
+
+        # Missing curve
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "EC", x: "1", y: "2"}')
+
+        # EC coordinates not equally long
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "EC", x: "1", y: "12", crv: "P-256"}')
+
+        # EC coordinates length invalid
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "EC", x: "123", y: "123", crv: "P-256"}')
+
+        # EC private key length invalid
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{kty: "EC", d: "123", '
+                          'x: "12345678901234567890123456789012", '
+                          'y: "12345678901234567890123456789012", '
+                          'crv: "P-256"}')
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_jwk_public_and_private_keys_should_parse_and_verify(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
