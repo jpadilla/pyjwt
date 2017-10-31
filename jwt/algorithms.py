@@ -377,22 +377,22 @@ if has_crypto:
         @staticmethod
         def from_jwk(jwk):
 
-            ASN1_TAG_SEQUENCE = 0b10000
-            ASN1_TAG_OBJECT_IDENTIFIER = 0b110
-            ASN1_TAG_INTEGER = 0b10
-            ASN1_TAG_BITSTRING = 0b11
-            ASN1_TAG_OCTETSTRING = 0b100
-            ASN1_CONTEXT_SPECIFIC = 0b10000000
-            ASN1_CONSTRUCTED = 0b100000
+            asn1_tag_sequence = 0b10000
+            asn1_tag_object_identifier = 0b110
+            asn1_tag_integer = 0b10
+            asn1_tag_bitstring = 0b11
+            asn1_tag_octetstring = 0b100
+            asn1_context_specific = 0b10000000
+            asn1_constructed = 0b100000
 
             # ASN.1 Object Identifiers for EC public key and curves
-            ASN1_OID_PUBKEY = b'\x2a\x86\x48\xce\x3d\x02\x01'
+            asn1_oid_pubkey = b'\x2a\x86\x48\xce\x3d\x02\x01'
             # 1.2.840.10045.2.1
-            ASN1_OID_CURVE_P256 = b'\x2a\x86\x48\xce\x3d\x03\x01\x07'
+            asn1_oid_curve_p256 = b'\x2a\x86\x48\xce\x3d\x03\x01\x07'
             # 1.2.840.10045.3.1.7
-            ASN1_OID_CURVE_P384 = b'\x2b\x81\x04\x00\x22'
+            asn1_oid_curve_p384 = b'\x2b\x81\x04\x00\x22'
             # 1.3.132.0.34
-            ASN1_OID_CURVE_P521 = b'\x2b\x81\x04\x00\x23'
+            asn1_oid_curve_p521 = b'\x2b\x81\x04\x00\x23'
             # 1.3.132.0.35
 
             def encode_length(length):
@@ -431,24 +431,24 @@ if has_crypto:
             curve = obj.get('crv')
             if curve == 'P-256':
                 if len(x) == len(y) == 32:
-                    curve_oid = ASN1_OID_CURVE_P256
+                    curve_oid = asn1_oid_curve_p256
                 else:
                     raise InvalidKeyError("X should be 32 bytes for curve P-256")
             elif curve == 'P-384':
                 if len(x) == len(y) == 48:
-                    curve_oid = ASN1_OID_CURVE_P384
+                    curve_oid = asn1_oid_curve_p384
                 else:
                     raise InvalidKeyError("X should be 48 bytes for curve P-384")
             elif curve == 'P-521':
                 if len(x) == len(y) == 66:
-                    curve_oid = ASN1_OID_CURVE_P521
+                    curve_oid = asn1_oid_curve_p521
                 else:
                     raise InvalidKeyError("X should be 66 bytes for curve P-521")
             else:
                 raise InvalidKeyError("Invalid curve: {}".format(curve))
 
             ec_point = bytearray()
-            ec_point.append(ASN1_TAG_BITSTRING)
+            ec_point.append(asn1_tag_bitstring)
             ec_point.extend(encode_length(2 + len(x)*2))
             ec_point.append(0)  # no unused bits
             ec_point.append(4)  # no compression
@@ -473,34 +473,34 @@ if has_crypto:
                     )
 
                 version = bytearray()
-                version.append(ASN1_TAG_INTEGER)
+                version.append(asn1_tag_integer)
                 version.extend(encode_length(0x01))
                 version.append(1)
 
                 privatekey = bytearray()
-                privatekey.append(ASN1_TAG_OCTETSTRING)
+                privatekey.append(asn1_tag_octetstring)
                 privatekey.extend(encode_length(len(d)))
                 privatekey.extend(d)
 
                 parameters = bytearray()
-                parameters.append(ASN1_CONTEXT_SPECIFIC | ASN1_CONSTRUCTED)
+                parameters.append(asn1_context_specific | asn1_constructed)
                 # context specific, constructed because OPTIONAL [0]
                 parameters.extend(encode_length(len(curve_oid) + 2))
-                parameters.append(ASN1_TAG_OBJECT_IDENTIFIER)
+                parameters.append(asn1_tag_object_identifier)
                 parameters.extend(encode_length(len(curve_oid)))
                 parameters.extend(curve_oid)
 
                 publickey = bytearray()
-                publickey.append(ASN1_CONTEXT_SPECIFIC | ASN1_CONSTRUCTED | 1)
+                publickey.append(asn1_context_specific | asn1_constructed | 1)
                 # context specific, constructed because OPTIONAL [1]
                 publickey.extend(encode_length(len(ec_point)))
                 publickey.extend(ec_point)
 
                 sequence_length = len(version) + len(privatekey) + \
-                                  len(parameters) + len(publickey)
+                    len(parameters) + len(publickey)
 
                 ec_privatekey = bytearray()
-                ec_privatekey.append(ASN1_CONSTRUCTED | ASN1_TAG_SEQUENCE)
+                ec_privatekey.append(asn1_constructed | asn1_tag_sequence)
                 ec_privatekey.extend(encode_length(sequence_length))
                 ec_privatekey.extend(version)
                 ec_privatekey.extend(privatekey)
@@ -525,22 +525,22 @@ if has_crypto:
             #     parameters      ANY DEFINED BY algorithm OPTIONAL
             #   }
             algorithm_identifier = bytearray()
-            algorithm_identifier.append(ASN1_TAG_OBJECT_IDENTIFIER)
-            algorithm_identifier.extend(encode_length(len(ASN1_OID_PUBKEY)))
-            algorithm_identifier.extend(ASN1_OID_PUBKEY)
-            algorithm_identifier.append(ASN1_TAG_OBJECT_IDENTIFIER)
+            algorithm_identifier.append(asn1_tag_object_identifier)
+            algorithm_identifier.extend(encode_length(len(asn1_oid_pubkey)))
+            algorithm_identifier.extend(asn1_oid_pubkey)
+            algorithm_identifier.append(asn1_tag_object_identifier)
             algorithm_identifier.extend(encode_length(len(curve_oid)))
             algorithm_identifier.extend(curve_oid)
 
             algorithm = bytearray()
-            algorithm.append(ASN1_CONSTRUCTED | ASN1_TAG_SEQUENCE)
+            algorithm.append(asn1_constructed | asn1_tag_sequence)
             algorithm.extend(encode_length(len(algorithm_identifier)))
 
             sequence_length = len(algorithm_identifier) + \
-                              len(algorithm) + len(ec_point)
+                len(algorithm) + len(ec_point)
 
             publickey_info = bytearray()
-            publickey_info.append(ASN1_CONSTRUCTED | ASN1_TAG_SEQUENCE)
+            publickey_info.append(asn1_constructed | asn1_tag_sequence)
             publickey_info.extend(encode_length(sequence_length))
             publickey_info.extend(algorithm)
             publickey_info.extend(algorithm_identifier)
@@ -549,7 +549,6 @@ if has_crypto:
             return load_der_public_key(
                 bytes(publickey_info), default_backend()
             )
-
 
     class RSAPSSAlgorithm(RSAAlgorithm):
         """
