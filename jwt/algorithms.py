@@ -425,8 +425,8 @@ if has_crypto:
             if 'x' not in obj or 'y' not in obj:
                 raise InvalidKeyError('Not an Elliptic curve key')
 
-            x = base64.urlsafe_b64decode(obj.get('x'))
-            y = base64.urlsafe_b64decode(obj.get('y'))
+            x = base64.urlsafe_b64decode(force_bytes(obj.get('x')))
+            y = base64.urlsafe_b64decode(force_bytes(obj.get('y')))
 
             curve = obj.get('crv')
             if curve == 'P-256':
@@ -466,7 +466,7 @@ if has_crypto:
                 #     parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
                 #     publicKey  [1] BIT STRING OPTIONAL
                 #   }
-                d = base64.urlsafe_b64decode(obj.get('d'))
+                d = base64.urlsafe_b64decode(force_bytes(obj.get('d')))
                 if len(d) != len(x):
                     raise InvalidKeyError(
                         "D should be {} bytes for curve {}", len(x), curve
