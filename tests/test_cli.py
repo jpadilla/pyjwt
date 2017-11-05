@@ -57,6 +57,37 @@ class TestCli:
 
         assert 'There was an error decoding the token' in str(excinfo.value)
 
+    def test_decode_payload_terminal_tty(self, monkeypatch):
+        encode_args = [
+            '--key=secret-key',
+            'encode',
+            'name=hello-world',
+        ]
+        parser = build_argparser()
+        parsed_encode_args = parser.parse_args(encode_args)
+        token = encode_payload(parsed_encode_args)
+
+        decode_args = ['--key=secret-key', 'decode']
+        parsed_decode_args = parser.parse_args(decode_args)
+
+        monkeypatch.setattr(sys.stdin, 'isatty', lambda: True)
+        monkeypatch.setattr(sys.stdin, 'readline', lambda:  token)
+
+        actual = json.loads(decode_payload(parsed_decode_args))
+        assert actual['name'] == 'hello-world'
+
+    def test_decode_payload_raises_terminal_not_a_tty(self, monkeypatch):
+        decode_args = ['--key', '1234', 'decode']
+        parser = build_argparser()
+        args = parser.parse_args(decode_args)
+
+        monkeypatch.setattr(sys.stdin, 'isatty', lambda: False)
+
+        with pytest.raises(IOError) as excinfo:
+            decode_payload(args)
+            assert 'Cannot read from stdin: terminal not a TTY' \
+                in str(excinfo.value)
+
     @pytest.mark.parametrize('key,name,job,exp,verify', [
         ('1234', 'Vader', 'Sith', None, None),
         ('4567', 'Anakin', 'Jedi', '+1', None),
