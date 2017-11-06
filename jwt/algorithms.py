@@ -407,9 +407,6 @@ if has_crypto:
                     while length > 0:
                         lengthbytes.append(length & 0xFF)
                         length = length >> 8
-                    if len(lengthbytes) > 127:
-                        raise Exception("Cannot encode objects this long in ASN.1")
-                        # Not sure what to raise here
                     res.append(0b10000000 | len(lengthbytes))
                     res.extend(lengthbytes)
                 return bytes(res)
@@ -433,17 +430,17 @@ if has_crypto:
                 if len(x) == len(y) == 32:
                     curve_oid = asn1_oid_curve_p256
                 else:
-                    raise InvalidKeyError("X should be 32 bytes for curve P-256")
+                    raise InvalidKeyError("Coords should be 32 bytes for curve P-256")
             elif curve == 'P-384':
                 if len(x) == len(y) == 48:
                     curve_oid = asn1_oid_curve_p384
                 else:
-                    raise InvalidKeyError("X should be 48 bytes for curve P-384")
+                    raise InvalidKeyError("Coords should be 48 bytes for curve P-384")
             elif curve == 'P-521':
                 if len(x) == len(y) == 66:
                     curve_oid = asn1_oid_curve_p521
                 else:
-                    raise InvalidKeyError("X should be 66 bytes for curve P-521")
+                    raise InvalidKeyError("Coords should be 66 bytes for curve P-521")
             else:
                 raise InvalidKeyError("Invalid curve: {}".format(curve))
 
