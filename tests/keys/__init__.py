@@ -43,11 +43,11 @@ if has_crypto:
 
         return ec.EllipticCurvePrivateNumbers(
             private_value=decode_value(keyobj['d']),
-            public_numbers=load_ec_pub_key().public_numbers()
+            public_numbers=load_ec_pub_key_P_521().public_numbers()
         )
 
-    def load_ec_pub_key():
-        with open(os.path.join(BASE_PATH, 'jwk_ec_pub.json'), 'r') as infile:
+    def load_ec_pub_key_P_521():
+        with open(os.path.join(BASE_PATH, 'jwk_ec_pub_P-521.json'), 'r') as infile:
             keyobj = json.load(infile)
 
         return ec.EllipticCurvePublicNumbers(
