@@ -22,6 +22,10 @@ class InvalidIssuedAtError(InvalidTokenError):
     pass
 
 
+class InvalidAccessTokenHashError(InvalidTokenError):
+    pass
+
+
 class ImmatureSignatureError(InvalidTokenError):
     pass
 
