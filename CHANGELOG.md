@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Dropped support for python 2.6 and 3.3 [#297][297]
 
 ### Fixed
+
+- Audience parameter now supports lists in compliance with RFC 7519 [#306][306]
+
 ### Added
 
 [v1.5.3][1.5.3]
