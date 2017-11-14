@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 from .api_jws import PyJWS
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
-from .compat import string_types, timedelta_total_seconds
+from .compat import string_types
 from .exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
     InvalidAudienceError, InvalidIssuedAtError,
@@ -58,10 +58,25 @@ class PyJWT(PyJWS):
 
     def decode(self, jwt, key='', verify=True, algorithms=None, options=None,
                **kwargs):
+
+        if verify and not algorithms:
+            warnings.warn(
+                'It is strongly recommended that you pass in a ' +
+                'value for the "algorithms" argument when calling decode(). ' +
+                'This argument will be mandatory in a future version.',
+                DeprecationWarning
+            )
+
         payload, signing_input, header, signature = self._load(jwt)
 
-        decoded = super(PyJWT, self).decode(jwt, key, verify, algorithms,
-                                            options, **kwargs)
+        if options is None:
+            options = {'verify_signature': verify}
+        else:
+            options.setdefault('verify_signature', verify)
+
+        decoded = super(PyJWT, self).decode(
+            jwt, key=key, algorithms=algorithms, options=options, **kwargs
+        )
 
         try:
             payload = json.loads(decoded.decode('utf-8'))
@@ -82,10 +97,11 @@ class PyJWT(PyJWS):
         if 'verify_expiration' in kwargs:
             options['verify_exp'] = kwargs.get('verify_expiration', True)
             warnings.warn('The verify_expiration parameter is deprecated. '
-                          'Please use options instead.', DeprecationWarning)
+                          'Please use verify_exp in options instead.',
+                          DeprecationWarning)
 
         if isinstance(leeway, timedelta):
-            leeway = timedelta_total_seconds(leeway)
+            leeway = leeway.total_seconds()
 
         if not isinstance(audience, (string_types, type(None), list)):
             raise TypeError('audience must be a string, list of strings, or None')

@@ -142,6 +142,7 @@ class HMACAlgorithm(Algorithm):
         invalid_strings = [
             b'-----BEGIN PUBLIC KEY-----',
             b'-----BEGIN CERTIFICATE-----',
+            b'-----BEGIN RSA PUBLIC KEY-----',
             b'ssh-rsa'
         ]
 
@@ -230,7 +231,7 @@ if has_crypto:
                     'qi': force_unicode(to_base64url_uint(numbers.iqmp))
                 }
 
-            elif getattr(key_obj, 'verifier', None):
+            elif getattr(key_obj, 'verify', None):
                 # Public key
                 numbers = key_obj.public_numbers()
 
@@ -309,25 +310,11 @@ if has_crypto:
                 raise InvalidKeyError('Not a public or private key')
 
         def sign(self, msg, key):
-            signer = key.signer(
-                padding.PKCS1v15(),
-                self.hash_alg()
-            )
-
-            signer.update(msg)
-            return signer.finalize()
+            return key.sign(msg, padding.PKCS1v15(), self.hash_alg())
 
         def verify(self, msg, key, sig):
-            verifier = key.verifier(
-                sig,
-                padding.PKCS1v15(),
-                self.hash_alg()
-            )
-
-            verifier.update(msg)
-
             try:
-                verifier.verify()
+                key.verify(sig, msg, padding.PKCS1v15(), self.hash_alg())
                 return True
             except InvalidSignature:
                 return False
@@ -369,10 +356,7 @@ if has_crypto:
             return key
 
         def sign(self, msg, key):
-            signer = key.signer(ec.ECDSA(self.hash_alg()))
-
-            signer.update(msg)
-            der_sig = signer.finalize()
+            der_sig = key.sign(msg, ec.ECDSA(self.hash_alg()))
 
             return der_to_raw_signature(der_sig, key.curve)
 
@@ -382,12 +366,8 @@ if has_crypto:
             except ValueError:
                 return False
 
-            verifier = key.verifier(der_sig, ec.ECDSA(self.hash_alg()))
-
-            verifier.update(msg)
-
             try:
-                verifier.verify()
+                key.verify(der_sig, msg, ec.ECDSA(self.hash_alg()))
                 return True
             except InvalidSignature:
                 return False
@@ -398,31 +378,26 @@ if has_crypto:
         """
 
         def sign(self, msg, key):
-            signer = key.signer(
+            return key.sign(
+                msg,
                 padding.PSS(
                     mgf=padding.MGF1(self.hash_alg()),
                     salt_length=self.hash_alg.digest_size
                 ),
                 self.hash_alg()
             )
-
-            signer.update(msg)
-            return signer.finalize()
 
         def verify(self, msg, key, sig):
-            verifier = key.verifier(
-                sig,
-                padding.PSS(
-                    mgf=padding.MGF1(self.hash_alg()),
-                    salt_length=self.hash_alg.digest_size
-                ),
-                self.hash_alg()
-            )
-
-            verifier.update(msg)
-
             try:
-                verifier.verify()
+                key.verify(
+                    sig,
+                    msg,
+                    padding.PSS(
+                        mgf=padding.MGF1(self.hash_alg()),
+                        salt_length=self.hash_alg.digest_size
+                    ),
+                    self.hash_alg()
+                )
                 return True
             except InvalidSignature:
                 return False

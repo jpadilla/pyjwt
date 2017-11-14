@@ -8,7 +8,45 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 
+- Dropped support for python 2.6 and 3.3 [#297][297]
+
 ### Fixed
+### Added
+
+[v1.5.3][1.5.3]
+-------------------------------------------------------------------------
+### Changed
+
+- Increase required version of the cryptography package to >=1.4.0.
+
+### Fixed
+
+- Remove uses of deprecated functions from the cryptography package.
+- Warn about missing `algorithms` param to `decode()` only when `verify` param is `True` [#281][281]
+
+[v1.5.2][1.5.2]
+-------------------------------------------------------------------------
+### Fixed
+
+- Ensure correct arguments order in decode super call [7c1e61d][7c1e61d]
+
+[v1.5.1][1.5.1]
+-------------------------------------------------------------------------
+### Changed
+
+- Change optparse for argparse. [#238][238]
+
+### Fixed
+
+- Guard against PKCS1 PEM encododed public keys [#277][277]
+- Add deprecation warning when decoding without specifying `algorithms` [#277][277]
+- Improve deprecation messages [#270][270]
+- PyJWT.decode: move verify param into options [#271][271]
+
+### Added
+
+- Support for Python 3.6 [#262][262]
+- Expose jwt.InvalidAlgorithmError [#264][264]
 
 [v1.5.0][1.5.0]
 -------------------------------------------------------------------------
@@ -125,6 +163,9 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.4.1]: https://github.com/jpadilla/pyjwt/compare/1.4.0...1.4.1
 [1.4.2]: https://github.com/jpadilla/pyjwt/compare/1.4.1...1.4.2
 [1.5.0]: https://github.com/jpadilla/pyjwt/compare/1.4.2...1.5.0
+[1.5.1]: https://github.com/jpadilla/pyjwt/compare/1.5.0...1.5.1
+[1.5.2]: https://github.com/jpadilla/pyjwt/compare/1.5.1...1.5.2
+[1.5.3]: https://github.com/jpadilla/pyjwt/compare/1.5.2...1.5.3
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
@@ -153,3 +194,11 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [196]: https://github.com/jpadilla/pyjwt/pull/196
 [187]: https://github.com/jpadilla/pyjwt/pull/187
 [230]: https://github.com/jpadilla/pyjwt/pull/230
+[238]: https://github.com/jpadilla/pyjwt/pull/238
+[262]: https://github.com/jpadilla/pyjwt/pull/262
+[264]: https://github.com/jpadilla/pyjwt/pull/264
+[270]: https://github.com/jpadilla/pyjwt/pull/270
+[271]: https://github.com/jpadilla/pyjwt/pull/271
+[277]: https://github.com/jpadilla/pyjwt/pull/277
+[281]: https://github.com/jpadilla/pyjwt/pull/281
+[7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742

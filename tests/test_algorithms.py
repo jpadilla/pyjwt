@@ -97,6 +97,13 @@ class TestAlgorithms:
             with open(key_path('testkey2_rsa.pub.pem'), 'r') as keyfile:
                 algo.prepare_key(keyfile.read())
 
+    def test_hmac_should_throw_exception_if_key_is_pkcs1_pem_public(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError):
+            with open(key_path('testkey_pkcs1.pub.pem'), 'r') as keyfile:
+                algo.prepare_key(keyfile.read())
+
     def test_hmac_jwk_should_parse_and_verify(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
