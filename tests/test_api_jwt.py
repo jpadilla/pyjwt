@@ -92,7 +92,7 @@ class TestJWT:
             jwt.decode(example_jwt, secret, audience=1)
 
         exception = context.value
-        assert str(exception) == 'audience must be a string or None'
+        assert str(exception) == 'audience must be a string, list of strings, or None'
 
     def test_decode_with_nonlist_aud_claim_throws_exception(self, jwt):
         secret = 'secret'
@@ -288,7 +288,6 @@ class TestJWT:
         }
         token = jwt.encode(payload, 'secret')
         jwt.decode(token, 'secret', audience=['urn:you', 'urn:me'])
-
 
     def test_raise_exception_invalid_audience_list(self, jwt):
         payload = {
