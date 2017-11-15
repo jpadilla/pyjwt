@@ -1,6 +1,5 @@
 import json
 import warnings
-
 from calendar import timegm
 from collections import Mapping
 from datetime import datetime, timedelta
