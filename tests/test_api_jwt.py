@@ -361,6 +361,14 @@ class TestJWT:
         token = jwt.encode(payload, 'secret')
         jwt.decode(token, 'secret', issuer=issuer)
 
+    def test_check_issuer_list_when_valid(self, jwt):
+        payload = {
+            'some': 'payload',
+            'iss': 'urn:me'
+        }
+        token = jwt.encode(payload, 'secret')
+        jwt.decode(token, 'secret', issuer=['urn:you', 'urn:me'])
+
     def test_raise_exception_invalid_issuer(self, jwt):
         issuer = 'urn:wrong'
 
@@ -373,6 +381,15 @@ class TestJWT:
 
         with pytest.raises(InvalidIssuerError):
             jwt.decode(token, 'secret', issuer=issuer)
+
+    def test_raise_exception_invalid_issuer_list(self, jwt):
+        payload = {
+            'some': 'payload',
+            'iss': 'urn:me'
+        }
+        token = jwt.encode(payload, 'secret')
+        with pytest.raises(InvalidIssuerError):
+            jwt.decode(token, 'secret', issuer=['urn:you', 'urn:him'])
 
     def test_skip_check_audience(self, jwt):
         payload = {
