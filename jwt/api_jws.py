@@ -67,6 +67,18 @@ class PyJWS(object):
         """
         return list(self._valid_algs)
 
+    def get_algorithm(self, algorithm):
+        try:
+            return self._algorithms[algorithm]
+        except KeyError:
+            if not has_crypto and algorithm in requires_cryptography:
+                raise NotImplementedError(
+                    "Algorithm '%s' could not be found. Do you have cryptography "
+                    "installed?" % algorithm
+                )
+            else:
+                raise NotImplementedError('Algorithm not supported')
+
     def encode(self, payload, key, algorithm='HS256', headers=None,
                json_encoder=None):
         segments = []
@@ -97,19 +109,10 @@ class PyJWS(object):
 
         # Segments
         signing_input = b'.'.join(segments)
-        try:
-            alg_obj = self._algorithms[algorithm]
-            key = alg_obj.prepare_key(key)
-            signature = alg_obj.sign(signing_input, key)
 
-        except KeyError:
-            if not has_crypto and algorithm in requires_cryptography:
-                raise NotImplementedError(
-                    "Algorithm '%s' could not be found. Do you have cryptography "
-                    "installed?" % algorithm
-                )
-            else:
-                raise NotImplementedError('Algorithm not supported')
+        alg_obj = self.get_algorithm(algorithm)
+        key = alg_obj.prepare_key(key)
+        signature = alg_obj.sign(signing_input, key)
 
         segments.append(base64url_encode(signature))
 

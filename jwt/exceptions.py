@@ -42,6 +42,10 @@ class MissingRequiredClaimError(InvalidTokenError):
         return 'Token is missing the "%s" claim' % self.claim
 
 
+class InvalidKeySetError(Exception):
+    pass
+
+
 # Compatibility aliases (deprecated)
 ExpiredSignature = ExpiredSignatureError
 InvalidAudience = InvalidAudienceError

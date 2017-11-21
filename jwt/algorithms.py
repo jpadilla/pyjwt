@@ -154,11 +154,16 @@ class HMACAlgorithm(Algorithm):
         return key
 
     @staticmethod
-    def to_jwk(key_obj):
-        return json.dumps({
+    def to_jwk(key_obj, kid=None):
+        obj = {
             'k': force_unicode(base64url_encode(force_bytes(key_obj))),
             'kty': 'oct'
-        })
+        }
+
+        if kid:
+            obj['kid'] = kid
+
+        return json.dumps(obj)
 
     @staticmethod
     def from_jwk(jwk):
@@ -211,7 +216,7 @@ if has_crypto:
             return key
 
         @staticmethod
-        def to_jwk(key_obj):
+        def to_jwk(key_obj, kid=None):
             obj = None
 
             if getattr(key_obj, 'private_numbers', None):
@@ -243,6 +248,9 @@ if has_crypto:
                 }
             else:
                 raise InvalidKeyError('Not a public or private key')
+
+            if kid:
+                obj['kid'] = kid
 
             return json.dumps(obj)
 

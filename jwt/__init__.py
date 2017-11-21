@@ -21,6 +21,8 @@ from .api_jwt import (
     get_unverified_header, PyJWT
 )
 from .api_jws import PyJWS
+from .api_jwk_set import PyJWKSet
+
 from .exceptions import (
     InvalidTokenError, DecodeError, InvalidAlgorithmError,
     InvalidAudienceError, ExpiredSignatureError, ImmatureSignatureError,
