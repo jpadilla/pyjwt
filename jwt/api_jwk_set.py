@@ -3,7 +3,7 @@ import json
 from .api_jwt import PyJWT, get_unverified_header
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .exceptions import (
-    InvalidTokenError, InvalidKeySetError, InvalidAlgorithmError
+    InvalidAlgorithmError, InvalidKeySetError, InvalidTokenError
 )
 
 

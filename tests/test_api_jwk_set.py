@@ -1,5 +1,8 @@
 import json
+
+from jwt import decode, encode
 from jwt.api_jwk_set import PyJWKSet
+from jwt.exceptions import InvalidAlgorithmError, InvalidKeySetError
 
 import pytest
 
@@ -11,8 +14,7 @@ except ImportError:
 
 from .keys import load_hmac_key
 from .utils import key_path, utc_timestamp
-from jwt import decode, encode
-from jwt.exceptions import InvalidKeySetError, InvalidAlgorithmError
+
 
 @pytest.fixture
 def jwks():
@@ -52,7 +54,7 @@ class TestJWKSet:
 
         try:
             jwk = jwks.get_jwk('rsa_pub_1')
-        except:
+        except InvalidKeySetError:
             pass
         else:
             assert not jwk

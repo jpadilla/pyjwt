@@ -1,7 +1,6 @@
 import binascii
 import json
 import warnings
-
 from collections import Mapping
 
 from .algorithms import (
