@@ -115,9 +115,9 @@ class TestAlgorithms:
 
     def test_hmac_to_jwk_returns_correct_values(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
-        key = algo.to_jwk('secret')
+        key = algo.to_jwk('secret', kid='some_id')
 
-        assert json.loads(key) == {'kty': 'oct', 'k': 'c2VjcmV0'}
+        assert json.loads(key) == {'kty': 'oct', 'k': 'c2VjcmV0', 'kid': 'some_id'}
 
     def test_hmac_from_jwk_should_raise_exception_if_not_hmac_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
