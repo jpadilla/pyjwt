@@ -11,6 +11,8 @@ from .keys import load_hmac_key
 from .utils import key_path
 
 try:
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.x509 import load_pem_x509_certificate
     from jwt.algorithms import RSAAlgorithm, ECAlgorithm, RSAPSSAlgorithm
     from .keys import load_rsa_pub_key, load_ec_pub_key
     has_crypto = True
@@ -209,6 +211,26 @@ class TestAlgorithms:
 
         parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
         assert parsed_key.public_numbers() == orig_key.public_numbers()
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_rsa_cert_to_jwk_works_with_from_jwk(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+
+        with open(key_path('testkey_rsa.cer'), 'r') as rsa_key:
+            cert = load_pem_x509_certificate(
+                force_bytes(rsa_key.read()),
+                default_backend()
+            )
+
+        parsed_key = algo.from_jwk(algo.to_jwk(cert))
+        assert parsed_key.public_numbers() == cert.public_key().public_numbers()
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_rsa_jwk_works_with_from_jwk(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+
+        with open(key_path('jwk_rsa_cert.json'), 'r') as certfile:
+            algo.from_jwk(certfile.read())
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_rsa_jwk_private_key_with_other_primes_is_invalid(self):

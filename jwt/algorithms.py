@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import hmac
 import json
@@ -14,7 +15,8 @@ from .utils import (
 try:
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.serialization import (
-        load_pem_private_key, load_pem_public_key, load_ssh_public_key
+        load_pem_private_key, load_pem_public_key, load_ssh_public_key,
+        Encoding
     )
     from cryptography.hazmat.primitives.asymmetric.rsa import (
         RSAPrivateKey, RSAPublicKey, RSAPrivateNumbers, RSAPublicNumbers,
@@ -26,6 +28,7 @@ try:
     from cryptography.hazmat.primitives.asymmetric import ec, padding
     from cryptography.hazmat.backends import default_backend
     from cryptography.exceptions import InvalidSignature
+    from cryptography.x509 import load_der_x509_certificate, Certificate
 
     has_crypto = True
 except ImportError:
@@ -162,7 +165,7 @@ class HMACAlgorithm(Algorithm):
 
     @staticmethod
     def from_jwk(jwk):
-        obj = json.loads(jwk)
+        obj = jwk if isinstance(jwk, dict) else json.loads(jwk)
 
         if obj.get('kty') != 'oct':
             raise InvalidKeyError('Not an HMAC key')
@@ -213,6 +216,11 @@ if has_crypto:
         @staticmethod
         def to_jwk(key_obj):
             obj = None
+            cert = None
+
+            if isinstance(key_obj, Certificate):
+                cert = key_obj
+                key_obj = key_obj.public_key()
 
             if getattr(key_obj, 'private_numbers', None):
                 # Private key
@@ -241,6 +249,18 @@ if has_crypto:
                     'n': force_unicode(to_base64url_uint(numbers.n)),
                     'e': force_unicode(to_base64url_uint(numbers.e))
                 }
+
+                if cert:
+                    obj.update({
+                        'x5c': [
+                            force_unicode(
+                                base64.b64encode(cert.public_bytes(Encoding.DER))
+                            )
+                        ],
+                        'x5t': force_unicode(
+                            base64.b64encode(cert.fingerprint(hashes.SHA1()))
+                        )
+                    })
             else:
                 raise InvalidKeyError('Not a public or private key')
 
@@ -248,8 +268,9 @@ if has_crypto:
 
         @staticmethod
         def from_jwk(jwk):
+
             try:
-                obj = json.loads(jwk)
+                obj = jwk if isinstance(jwk, dict) else json.loads(jwk)
             except ValueError:
                 raise InvalidKeyError('Key is not valid JSON')
 
@@ -299,6 +320,11 @@ if has_crypto:
                     )
 
                 return numbers.private_key(default_backend())
+            elif 'x5c' in obj:
+                return load_der_x509_certificate(
+                    force_bytes(base64.b64decode(obj['x5c'][0])),
+                    default_backend()
+                ).public_key()
             elif 'n' in obj and 'e' in obj:
                 # Public key
                 numbers = RSAPublicNumbers(
