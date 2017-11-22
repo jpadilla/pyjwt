@@ -2,7 +2,9 @@ import json
 
 from jwt import decode, encode
 from jwt.api_jwk_set import PyJWKSet
-from jwt.exceptions import InvalidAlgorithmError, InvalidKeySetError
+from jwt.exceptions import (
+    InvalidAlgorithmError, InvalidKeySetError, InvalidTokenError
+)
 
 import pytest
 
@@ -67,12 +69,34 @@ class TestJWKSet:
     def test_jwk_set_decodes_by_kid(self, jwks, payload):
         jwt = encode(payload, load_hmac_key(), headers={'kid': 'hmac_1'})
 
-        assert jwks.decode(jwt) == payload
+        assert jwks.decode(jwt, algorithms=['HS256']) == payload
 
     def test_jwk_set_get_non_existant_jwk(self, jwks):
         with pytest.raises(InvalidKeySetError):
             jwks.get_jwk('not_here')
 
-    def test_jwk_encode_algorithm_mismatch(self, jwks):
+    def test_jwk_encode_algorithm_mismatch(self, jwks, payload):
         with pytest.raises(InvalidAlgorithmError):
             jwks.encode(payload, algorithm='RS256', headers={'kid': 'hmac_1'})
+
+    def test_jwk_decode_algorithms_missing(self, jwks, payload):
+        with pytest.raises(TypeError):
+            jwks.decode('foo', headers={'kid': 'rsa_pub_1'})
+
+    def test_jwk_decode_kid_missing(self, jwks, payload):
+        token = (
+            b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
+            b'.eyJpc3MiOiJqZWZmIiwiZXhwIjoxNTExMzYwODc5LCJjbGFpbSI6Imluc2FuaXR5In0'
+            b'.FeQY_aWhriMjsCt7dDTtKqh83jpmEjJpvDtoCflD69M')
+
+        with pytest.raises(InvalidTokenError):
+            jwks.decode(token, algorithms=['HS256'], headers={'kid': 'hmac_1'})
+
+    def test_jwk_decode_algorithm_tampered_with(self, jwks, payload):
+        token = (
+            b'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIiwia2lkIjoiaG1hY18xIn0='
+            b'.eyJpc3MiOiJqZWZmIiwiZXhwIjoxNTExMzYwODc5LCJjbGFpbSI6Imluc2FuaXR5In0'
+            b'.FeQY_aWhriMjsCt7dDTtKqh83jpmEjJpvDtoCflD69M')
+
+        with pytest.raises(InvalidAlgorithmError):
+            jwks.decode(token, algorithms=['RS256'], headers={'kid': 'rsa_pub_1'})

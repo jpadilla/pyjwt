@@ -39,11 +39,12 @@ class PyJWKSet(PyJWT):
         raise InvalidKeySetError("There is no JWK matching this Key ID.")
 
     def add_key(self, key_obj, kid, algorithm):
-        algo = self.get_algorithm(algorithm)
+        alg_obj = self.get_algorithm(algorithm)
 
-        self._keys.append(
-            json.loads(algo.to_jwk(key_obj, kid))
-        )
+        jwk = json.loads(alg_obj.to_jwk(key_obj, kid))
+        jwk['alg'] = algorithm
+
+        self._keys.append(jwk)
 
     def remove_key(self, kid):
         self._keys = [key for key in self._keys if key['kid'] != kid]
@@ -68,14 +69,20 @@ class PyJWKSet(PyJWT):
             payload, key, algorithm, headers, **kwargs
         )
 
-    def decode(self, jwt, **kwargs):
+    def decode(self, jwt, algorithms, **kwargs):
         unverified_header = get_unverified_header(jwt)
 
         if 'kid' not in unverified_header:
             raise InvalidTokenError('Key ID header parameter is missing')
 
         jwk = self.get_jwk(unverified_header['kid'])
-        key = self.get_key(jwk, unverified_header.get('alg'))
+
+        alg = jwk['alg'] if 'alg' in jwk else unverified_header.get('alg')
+
+        if alg not in algorithms:
+            raise InvalidAlgorithmError('The specified alg value is not allowed')
+
+        key = self.get_key(jwk, alg)
 
         return super(PyJWKSet, self).decode(jwt, key, **kwargs)
 
