@@ -180,10 +180,10 @@ class PyJWT(PyJWS):
         if isinstance(audience, string_types):
             audience = [audience]
 
-        if any(aud in audience_claims for aud in audience):
-            return
+        if not any(aud in audience_claims for aud in audience):
+            raise InvalidAudienceError('Invalid audience')
 
-        raise InvalidAudienceError('Invalid audience')
+        return
 
     def _validate_iss(self, payload, issuer):
         if issuer is None:
