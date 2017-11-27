@@ -1,8 +1,7 @@
 import json
 import warnings
-
 from calendar import timegm
-from collections import Mapping
+from collections import Iterable, Mapping
 from datetime import datetime, timedelta
 
 from .api_jws import PyJWS
@@ -103,8 +102,8 @@ class PyJWT(PyJWS):
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
 
-        if not isinstance(audience, (string_types, type(None))):
-            raise TypeError('audience must be a string or None')
+        if not isinstance(audience, (string_types, type(None), Iterable)):
+            raise TypeError('audience must be a string, iterable, or None')
 
         self._validate_required_claims(payload, options)
 
@@ -177,7 +176,11 @@ class PyJWT(PyJWS):
             raise InvalidAudienceError('Invalid claim format in token')
         if any(not isinstance(c, string_types) for c in audience_claims):
             raise InvalidAudienceError('Invalid claim format in token')
-        if audience not in audience_claims:
+
+        if isinstance(audience, string_types):
+            audience = [audience]
+
+        if not any(aud in audience_claims for aud in audience):
             raise InvalidAudienceError('Invalid audience')
 
     def _validate_iss(self, payload, issuer):

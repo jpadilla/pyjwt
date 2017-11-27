@@ -10,7 +10,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Dropped support for python 2.6 and 3.3 [#297][297]
 
+- Audience parameter now supports iterables [#205][205]
+
 ### Fixed
+
 ### Added
 
 [v1.5.3][1.5.3]

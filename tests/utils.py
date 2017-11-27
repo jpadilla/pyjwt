@@ -1,6 +1,5 @@
 import os
 import struct
-
 from calendar import timegm
 from datetime import datetime
 
