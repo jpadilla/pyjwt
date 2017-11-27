@@ -103,7 +103,7 @@ class PyJWT(PyJWS):
             leeway = leeway.total_seconds()
 
         if not isinstance(audience, (string_types, type(None), Iterable)):
-            raise TypeError('audience must be a string, Iterable, or None')
+            raise TypeError('audience must be a string, iterable, or None')
 
         self._validate_required_claims(payload, options)
 
@@ -182,8 +182,6 @@ class PyJWT(PyJWS):
 
         if not any(aud in audience_claims for aud in audience):
             raise InvalidAudienceError('Invalid audience')
-
-        return
 
     def _validate_iss(self, payload, issuer):
         if issuer is None:
