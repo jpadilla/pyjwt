@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Audience parameter now supports iterables [#205][205]
 
+- Issuer parameter now supports iterables [#308][308]
+
 ### Fixed
 
 ### Added
@@ -205,3 +207,6 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [277]: https://github.com/jpadilla/pyjwt/pull/277
 [281]: https://github.com/jpadilla/pyjwt/pull/281
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
+[297]: https://github.com/jpadilla/pyjwt/pull/297
+[205]: https://github.com/jpadilla/pyjwt/pull/205
+[308]: https://github.com/jpadilla/pyjwt/pull/308
