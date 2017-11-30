@@ -5,7 +5,8 @@ from decimal import Decimal
 from jwt.algorithms import Algorithm
 from jwt.api_jws import PyJWS
 from jwt.exceptions import (
-    DecodeError, InvalidAlgorithmError, InvalidTokenError
+    DecodeError, InvalidAlgorithmError, InvalidSignatureError,
+    InvalidTokenError
 )
 from jwt.utils import base64url_decode, force_bytes, force_unicode
 
@@ -178,8 +179,14 @@ class TestJWS:
         bad_secret = 'bar'
         jws_message = jws.encode(payload, right_secret)
 
-        with pytest.raises(DecodeError):
+        with pytest.raises(DecodeError) as excinfo:
+            # Backward compat for ticket #315
             jws.decode(jws_message, bad_secret)
+        assert 'Signature verification failed' == str(excinfo.value)
+
+        with pytest.raises(InvalidSignatureError) as excinfo:
+            jws.decode(jws_message, bad_secret)
+        assert 'Signature verification failed' == str(excinfo.value)
 
     def test_decodes_valid_jws(self, jws, payload):
         example_secret = 'secret'

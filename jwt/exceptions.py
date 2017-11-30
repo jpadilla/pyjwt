@@ -6,6 +6,10 @@ class DecodeError(InvalidTokenError):
     pass
 
 
+class InvalidSignatureError(DecodeError):
+    pass
+
+
 class ExpiredSignatureError(InvalidTokenError):
     pass
 
