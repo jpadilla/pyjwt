@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Audience parameter now supports iterables [#205][205]
 
+- An invalid signature now raises an `InvalidSignatureError` instead of `DecodeError` [#315][315]
+
 ### Fixed
 
 ### Added
@@ -204,4 +206,5 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [271]: https://github.com/jpadilla/pyjwt/pull/271
 [277]: https://github.com/jpadilla/pyjwt/pull/277
 [281]: https://github.com/jpadilla/pyjwt/pull/281
+[315]: https://github.com/jpadilla/pyjwt/pull/315
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742

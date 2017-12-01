@@ -19,6 +19,11 @@ Exceptions
 
     Raised when a token cannot be decoded because it failed validation
 
+.. class:: InvalidSignatureError
+
+    Raised when a token's signature doesn't match the one provided as part of
+    the token.
+
 .. class:: ExpiredSignatureError
 
     Raised when a token's ``exp`` claim indicates that it has expired

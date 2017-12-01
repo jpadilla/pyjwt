@@ -7,7 +7,10 @@ from .algorithms import (
     Algorithm, get_default_algorithms, has_crypto, requires_cryptography  # NOQA
 )
 from .compat import binary_type, string_types, text_type
-from .exceptions import DecodeError, InvalidAlgorithmError, InvalidTokenError
+from .exceptions import (
+    DecodeError, InvalidAlgorithmError, InvalidSignatureError,
+    InvalidTokenError
+)
 from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict
 
 
@@ -203,7 +206,7 @@ class PyJWS(object):
             key = alg_obj.prepare_key(key)
 
             if not alg_obj.verify(signing_input, key, signature):
-                raise DecodeError('Signature verification failed')
+                raise InvalidSignatureError('Signature verification failed')
 
         except KeyError:
             raise InvalidAlgorithmError('Algorithm not supported')
