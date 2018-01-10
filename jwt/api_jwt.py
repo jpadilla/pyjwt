@@ -15,6 +15,7 @@ from .exceptions import (
     InvalidIssuerError,
     MissingRequiredClaimError,
 )
+from .jwt_payload import JWTPayload
 from .utils import merge_dict
 
 try:
@@ -91,7 +92,7 @@ class PyJWT(PyJWS):
                 DeprecationWarning,
             )
 
-        payload, _, _, _ = self._load(jwt)
+        payload, signing_input, header, signature = self._load(jwt)
 
         if options is None:
             options = {"verify_signature": verify}
@@ -113,7 +114,7 @@ class PyJWT(PyJWS):
             merged_options = merge_dict(self.options, options)
             self._validate_claims(payload, merged_options, **kwargs)
 
-        return payload
+        return JWTPayload(self, payload, signing_input, header, signature)
 
     def _validate_claims(
         self, payload, options, audience=None, issuer=None, leeway=0, **kwargs

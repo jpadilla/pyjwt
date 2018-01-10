@@ -1,3 +1,4 @@
+import hashlib
 import json
 import time
 from calendar import timegm
@@ -16,9 +17,20 @@ from jwt.exceptions import (
     InvalidIssuerError,
     MissingRequiredClaimError,
 )
+from jwt.utils import force_bytes
 
-from .test_api_jws import has_crypto
 from .utils import utc_timestamp
+
+try:
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives.serialization import (
+        load_pem_private_key,
+        load_ssh_public_key,
+    )
+
+    has_crypto = True
+except ImportError:
+    has_crypto = False
 
 
 @pytest.fixture
@@ -525,3 +537,38 @@ class TestJWT:
             pass
         else:
             assert False, "Unexpected DeprecationWarning raised."
+
+    def test_decoded_payload_can_compute_hash(self, jwt, payload):
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret, algorithm="HS256")
+        decoded_payload = jwt.decode(jwt_message, secret)
+
+        assert (
+            decoded_payload.compute_hash_digest(b"abc")
+            == hashlib.sha256(b"abc").digest()
+        )
+
+    @pytest.mark.skipif(
+        not has_crypto, reason="Can't run without cryptography library"
+    )
+    def test_decoded_payload_can_compute_hash_rsa(self, jwt, payload):
+        with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
+            priv_rsakey = load_pem_private_key(
+                force_bytes(rsa_priv_file.read()),
+                password=None,
+                backend=default_backend(),
+            )
+
+        with open("tests/keys/testkey_rsa.pub", "r") as rsa_pub_file:
+            pub_rsakey = load_ssh_public_key(
+                force_bytes(rsa_pub_file.read()), backend=default_backend()
+            )
+        jwt_message = jwt.encode(payload, priv_rsakey, algorithm="RS256")
+        decoded_payload = jwt.decode(jwt_message, pub_rsakey)
+
+        # RSA-256 still means sha256 hashing, but using the cryptography
+        # provided value
+        assert (
+            decoded_payload.compute_hash_digest(b"abc")
+            == hashlib.sha256(b"abc").digest()
+        )

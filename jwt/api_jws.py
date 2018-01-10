@@ -110,11 +110,17 @@ class PyJWS(object):
 
         # Segments
         signing_input = b".".join(segments)
-        try:
-            alg_obj = self._algorithms[algorithm]
-            key = alg_obj.prepare_key(key)
-            signature = alg_obj.sign(signing_input, key)
+        alg_obj = self.get_algo_by_name(algorithm)
+        key = alg_obj.prepare_key(key)
+        signature = alg_obj.sign(signing_input, key)
 
+        segments.append(base64url_encode(signature))
+
+        return b".".join(segments)
+
+    def get_algo_by_name(self, algorithm):
+        try:
+            return self._algorithms[algorithm]
         except KeyError:
             if not has_crypto and algorithm in requires_cryptography:
                 raise NotImplementedError(
@@ -123,10 +129,6 @@ class PyJWS(object):
                 )
             else:
                 raise NotImplementedError("Algorithm not supported")
-
-        segments.append(base64url_encode(signature))
-
-        return b".".join(segments)
 
     def decode(
         self,
