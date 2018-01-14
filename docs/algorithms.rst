@@ -22,7 +22,7 @@ Asymmetric (Public-key) Algorithms
 Usage of RSA (RS\*) and EC (EC\*) algorithms require a basic understanding
 of how public-key cryptography is used with regards to digital signatures.
 If you are unfamiliar, you may want to read
-[this article](http://en.wikipedia.org/wiki/Public-key_cryptography).
+`this article <https://en.wikipedia.org/wiki/Public-key_cryptography>`_.
 
 When using the RSASSA-PKCS1-v1_5 algorithms, the `key` argument in both
 ``jwt.encode()`` and ``jwt.decode()`` (``"secret"`` in the examples) is expected to
