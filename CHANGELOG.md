@@ -8,15 +8,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 
-- Dropped support for python 2.6 and 3.3 [#297][297]
-
-- Audience parameter now supports iterables [#205][205]
-
-- An invalid signature now raises an `InvalidSignatureError` instead of `DecodeError` [#315][315]
-
 ### Fixed
 
 ### Added
+
+[v1.6.0][1.6.0]
+-------------------------------------------------------------------------
+### Changed
+
+- Dropped support for python 2.6 and 3.3 [#301][301]
+- An invalid signature now raises an `InvalidSignatureError` instead of `DecodeError` [#316][316]
+
+### Fixed
+
+- Fix over-eager fallback to stdin [#304][304]
+
+### Added
+
+- Audience parameter now supports iterables [#306][306]
 
 [v1.5.3][1.5.3]
 -------------------------------------------------------------------------
@@ -206,5 +215,8 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [271]: https://github.com/jpadilla/pyjwt/pull/271
 [277]: https://github.com/jpadilla/pyjwt/pull/277
 [281]: https://github.com/jpadilla/pyjwt/pull/281
+[301]: https://github.com/jpadilla/pyjwt/pull/301
+[304]: https://github.com/jpadilla/pyjwt/pull/304
+[306]: https://github.com/jpadilla/pyjwt/pull/306
 [315]: https://github.com/jpadilla/pyjwt/pull/315
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
