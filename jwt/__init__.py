@@ -25,5 +25,6 @@ from .exceptions import (
     InvalidTokenError, DecodeError, InvalidAlgorithmError,
     InvalidAudienceError, ExpiredSignatureError, ImmatureSignatureError,
     InvalidIssuedAtError, InvalidIssuerError, ExpiredSignature,
-    InvalidAudience, InvalidIssuer, MissingRequiredClaimError
+    InvalidAudience, InvalidIssuer, MissingRequiredClaimError,
+    InvalidSignatureError,
 )
