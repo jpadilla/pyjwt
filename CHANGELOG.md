@@ -180,6 +180,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.5.1]: https://github.com/jpadilla/pyjwt/compare/1.5.0...1.5.1
 [1.5.2]: https://github.com/jpadilla/pyjwt/compare/1.5.1...1.5.2
 [1.5.3]: https://github.com/jpadilla/pyjwt/compare/1.5.2...1.5.3
+[1.6.0]: https://github.com/jpadilla/pyjwt/compare/1.5.3...1.6.0
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
@@ -219,4 +220,5 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [304]: https://github.com/jpadilla/pyjwt/pull/304
 [306]: https://github.com/jpadilla/pyjwt/pull/306
 [315]: https://github.com/jpadilla/pyjwt/pull/315
+[316]: https://github.com/jpadilla/pyjwt/pull/316
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
