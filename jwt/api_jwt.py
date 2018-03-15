@@ -171,7 +171,7 @@ class PyJWT(PyJWS):
         if audience is None and 'aud' in payload:
             # Application did not specify an audience, but
             # the token has the 'aud' claim
-            raise InvalidAudienceError('Audience is specified in the payload, but not the application')
+            raise InvalidAudienceError('Invalid audience')
 
         audience_claims = payload['aud']
 
