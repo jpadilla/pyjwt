@@ -168,6 +168,11 @@ class PyJWT(PyJWS):
             # verified since the token does not contain a claim.
             raise MissingRequiredClaimError('aud')
 
+        if audience is None and 'aud' in payload:
+            # Application did not specify an audience, but
+            # the token has the 'aud' claim
+            raise InvalidAudienceError('Invalid audience')
+
         audience_claims = payload['aud']
 
         if isinstance(audience_claims, string_types):

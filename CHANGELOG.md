@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Audience parameter throws `InvalidAudienceError` when application does not specify an audience, but the token does. [#336][336]
+
 ### Added
 
 [v1.6.0][1.6.0]
@@ -222,3 +224,4 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [315]: https://github.com/jpadilla/pyjwt/pull/315
 [316]: https://github.com/jpadilla/pyjwt/pull/316
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
+[336]: https://github.com/jpadilla/pyjwt/pull/336
