@@ -56,7 +56,7 @@ class PyJWT(PyJWS):
         )
 
     def decode(self, jwt, key='', verify=True, algorithms=None, options=None,
-            json_object_hook=None, **kwargs):
+               **kwargs):
 
         if verify and not algorithms:
             warnings.warn(
@@ -77,15 +77,18 @@ class PyJWT(PyJWS):
             jwt, key=key, algorithms=algorithms, options=options, **kwargs
         )
 
+        merged_options = merge_dict(self.options, options)
+        json_object_hook = merged_options.get('json_object_hook')
+
         try:
-            payload = json.loads(decoded.decode('utf-8'), object_hook=json_object_hook)
+            payload = json.loads(decoded.decode('utf-8'),
+                                 object_hook=json_object_hook)
         except ValueError as e:
             raise DecodeError('Invalid payload string: %s' % e)
         if not isinstance(payload, Mapping):
             raise DecodeError('Invalid payload string: must be a json object')
 
         if verify:
-            merged_options = merge_dict(self.options, options)
             self._validate_claims(payload, merged_options, **kwargs)
 
         return payload
