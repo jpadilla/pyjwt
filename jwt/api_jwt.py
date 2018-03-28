@@ -56,7 +56,7 @@ class PyJWT(PyJWS):
         )
 
     def decode(self, jwt, key='', verify=True, algorithms=None, options=None,
-               **kwargs):
+            json_object_hook=None, **kwargs):
 
         if verify and not algorithms:
             warnings.warn(
@@ -78,7 +78,7 @@ class PyJWT(PyJWS):
         )
 
         try:
-            payload = json.loads(decoded.decode('utf-8'))
+            payload = json.loads(decoded.decode('utf-8'), object_hook=json_object_hook)
         except ValueError as e:
             raise DecodeError('Invalid payload string: %s' % e)
         if not isinstance(payload, Mapping):
