@@ -27,4 +27,5 @@ from .exceptions import (
     InvalidIssuedAtError, InvalidIssuerError, ExpiredSignature,
     InvalidAudience, InvalidIssuer, MissingRequiredClaimError,
     InvalidSignatureError,
+    PyJWTError,
 )
