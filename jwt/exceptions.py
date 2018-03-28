@@ -1,11 +1,11 @@
-class PyJwtError(Exception):
+class PyJWTError(Exception):
     """
     Base class for all exceptions
     """
     pass
 
 
-class InvalidTokenError(PyJwtError):
+class InvalidTokenError(PyJWTError):
     pass
 
 
@@ -37,7 +37,7 @@ class ImmatureSignatureError(InvalidTokenError):
     pass
 
 
-class InvalidKeyError(PyJwtError):
+class InvalidKeyError(PyJWTError):
     pass
 
 
