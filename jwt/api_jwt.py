@@ -4,7 +4,7 @@ from calendar import timegm
 from collections import Iterable, Mapping
 from datetime import datetime, timedelta
 try:
-    from typing import Dict
+    from typing import Dict # NOQA
 except ImportError:
     pass
 
