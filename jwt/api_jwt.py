@@ -3,6 +3,10 @@ import warnings
 from calendar import timegm
 from collections import Iterable, Mapping
 from datetime import datetime, timedelta
+try:
+    from typing import Dict
+except ImportError:
+    pass
 
 from .api_jws import PyJWS
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
@@ -20,6 +24,7 @@ class PyJWT(PyJWS):
 
     @staticmethod
     def _get_default_options():
+        # type: () -> Dict[str, bool]
         return {
             'verify_signature': True,
             'verify_exp': True,
