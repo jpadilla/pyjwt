@@ -4,7 +4,8 @@ from calendar import timegm
 from collections import Iterable, Mapping
 from datetime import datetime, timedelta
 try:
-    from typing import Dict # NOQA
+    # import required by mypy to perform type checking, not used for normal execution
+    from typing import Callable, Dict, List, Optional # NOQA
 except ImportError:
     pass
 
@@ -37,8 +38,13 @@ class PyJWT(PyJWS):
             'require_nbf': False
         }
 
-    def encode(self, payload, key, algorithm='HS256', headers=None,
-               json_encoder=None):
+    def encode(self,
+               payload,  # type: Dict
+               key,  # type: str
+               algorithm='HS256',  # type: str
+               headers=None,  # type: Optional[Dict]
+               json_encoder=None  # type: Optional[Callable]
+               ):
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
             raise TypeError('Expecting a mapping object, as JWT only supports '
@@ -56,11 +62,16 @@ class PyJWT(PyJWS):
             cls=json_encoder
         ).encode('utf-8')
 
-        return super(PyJWT, self).encode(
+        return super(PyJWT, self).encode_bytes(
             json_payload, key, algorithm, headers, json_encoder
         )
 
-    def decode(self, jwt, key='', verify=True, algorithms=None, options=None,
+    def decode(self,
+               token,  # type: str
+               key='',   # type: str
+               verify=True,  # type: bool
+               algorithms=None,  # type: List[str]
+               options=None,  # type: Dict
                **kwargs):
 
         if verify and not algorithms:
@@ -71,7 +82,7 @@ class PyJWT(PyJWS):
                 DeprecationWarning
             )
 
-        payload, signing_input, header, signature = self._load(jwt)
+        payload, _, _, _ = self._load(token)
 
         if options is None:
             options = {'verify_signature': verify}
@@ -79,7 +90,7 @@ class PyJWT(PyJWS):
             options.setdefault('verify_signature', verify)
 
         decoded = super(PyJWT, self).decode(
-            jwt, key=key, algorithms=algorithms, options=options, **kwargs
+            token, key=key, algorithms=algorithms, options=options, **kwargs
         )
 
         try:
