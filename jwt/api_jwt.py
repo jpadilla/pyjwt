@@ -5,7 +5,7 @@ from collections import Iterable, Mapping
 from datetime import datetime, timedelta
 try:
     # import required by mypy to perform type checking, not used for normal execution
-    from typing import Callable, Dict, List, Optional # NOQA
+    from typing import Callable, Dict, List, Optional, Union # NOQA
 except ImportError:
     pass
 
@@ -39,7 +39,7 @@ class PyJWT(PyJWS):
         }
 
     def encode(self,
-               payload,  # type: Dict
+               payload,  # type: Union[Dict, bytes]
                key,  # type: str
                algorithm='HS256',  # type: str
                headers=None,  # type: Optional[Dict]
@@ -54,7 +54,7 @@ class PyJWT(PyJWS):
         for time_claim in ['exp', 'iat', 'nbf']:
             # Convert datetime to a intDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
-                payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+                payload[time_claim] = timegm(payload[time_claim].utctimetuple())  # type: ignore
 
         json_payload = json.dumps(
             payload,
@@ -62,7 +62,7 @@ class PyJWT(PyJWS):
             cls=json_encoder
         ).encode('utf-8')
 
-        return super(PyJWT, self).encode_bytes(
+        return super(PyJWT, self).encode(
             json_payload, key, algorithm, headers, json_encoder
         )
 

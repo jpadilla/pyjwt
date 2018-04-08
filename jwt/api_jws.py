@@ -4,7 +4,7 @@ import warnings
 from collections import Mapping
 try:
     # import required by mypy to perform type checking, not used for normal execution
-    from typing import Callable, Dict, List, Optional # NOQA
+    from typing import Callable, Dict, List, Optional, Union # NOQA
 except ImportError:
     pass
 
@@ -74,13 +74,13 @@ class PyJWS(object):
         """
         return list(self._valid_algs)
 
-    def encode_bytes(self,
-                     payload,  # type: bytes
-                     key,  # type: str
-                     algorithm='HS256',  # type: str
-                     headers=None,  # type: Optional[Dict]
-                     json_encoder=None  # type: Optional[Callable]
-                     ):
+    def encode(self,
+               payload,  # type: Union[Dict, bytes]
+               key,  # type: str
+               algorithm='HS256',  # type: str
+               headers=None,  # type: Optional[Dict]
+               json_encoder=None  # type: Optional[Callable]
+               ):
         segments = []
 
         if algorithm is None:
@@ -236,7 +236,7 @@ class PyJWS(object):
 
 
 _jws_global_obj = PyJWS()
-encode = _jws_global_obj.encode_bytes
+encode = _jws_global_obj.encode
 decode = _jws_global_obj.decode
 register_algorithm = _jws_global_obj.register_algorithm
 unregister_algorithm = _jws_global_obj.unregister_algorithm
