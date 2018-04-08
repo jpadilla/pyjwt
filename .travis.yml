@@ -25,7 +25,9 @@ env:
 install:
   - pip install -U pip
   - pip install -U tox coveralls
+  - pip install -U mypy
 script:
   - tox
+  - mypy --ignore-missing-imports jwt
 after_success:
   - coveralls
