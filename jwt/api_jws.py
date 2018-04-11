@@ -75,11 +75,11 @@ class PyJWS(object):
         return list(self._valid_algs)
 
     def encode(self,
-               payload,  # type: Union[Dict, bytes]
-               key,  # type: str
-               algorithm='HS256',  # type: str
-               headers=None,  # type: Optional[Dict]
-               json_encoder=None  # type: Optional[Callable]
+               payload,
+               key,
+               algorithm='HS256',
+               headers=None,
+               json_encoder=None
                ):
         segments = []
 
@@ -127,6 +127,8 @@ class PyJWS(object):
 
         return b'.'.join(segments)
 
+    decode.__annotations__ = {'payload': Union[Dict, bytes], 'key': str, 'algorithm': str, 'headers': Optional[Dict], 'json_encoder': Optional[Callable]}
+
     def decode(self,
                token: str,
                key: str='',
@@ -157,6 +159,8 @@ class PyJWS(object):
                                    key, algorithms)
 
         return payload
+
+    decode.__annotations__ = {'token': str, 'key': str, 'verify': bool, 'algorithms': List[str], 'options': Dict}
 
     def get_unverified_header(self, jwt):
         """Returns back the JWT header parameters as a dict()
