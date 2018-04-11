@@ -24,8 +24,7 @@ class PyJWT(PyJWS):
     header_type = 'JWT'
 
     @staticmethod
-    def _get_default_options():
-        # type: () -> Dict[str, bool]
+    def _get_default_options() -> Dict[str, bool]:
         return {
             'verify_signature': True,
             'verify_exp': True,
@@ -39,11 +38,11 @@ class PyJWT(PyJWS):
         }
 
     def encode(self,
-               payload,  # type: Union[Dict, bytes]
-               key,  # type: str
-               algorithm='HS256',  # type: str
-               headers=None,  # type: Optional[Dict]
-               json_encoder=None  # type: Optional[Callable]
+               payload:  Union[Dict, bytes],
+               key: str,
+               algorithm: str='HS256',
+               headers: Optional[Dict]=None,
+               json_encoder: Optional[Callable]=None
                ):
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
@@ -67,11 +66,11 @@ class PyJWT(PyJWS):
         )
 
     def decode(self,
-               token,  # type: str
-               key='',   # type: str
-               verify=True,  # type: bool
-               algorithms=None,  # type: List[str]
-               options=None,  # type: Dict
+               token: str,
+               key: str='',
+               verify: bool=True,
+               algorithms: List[str]=None,
+               options: Dict=None,
                **kwargs):
 
         if verify and not algorithms:

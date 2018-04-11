@@ -128,11 +128,11 @@ class PyJWS(object):
         return b'.'.join(segments)
 
     def decode(self,
-               token,  # type: str
-               key='',   # type: str
-               verify=True,  # type: bool
-               algorithms=None,  # type: List[str]
-               options=None,  # type: Dict
+               token: str,
+               key: str='',
+               verify: bool=True,
+               algorithms: List[str]=None,
+               options: Dict=None,
                **kwargs):
 
         merged_options = merge_dict(self.options, options)
