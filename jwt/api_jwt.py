@@ -25,7 +25,6 @@ class PyJWT(PyJWS):
 
     @staticmethod
     def _get_default_options():
-        # type: () -> Dict[str, bool]
         return {
             'verify_signature': True,
             'verify_exp': True,
@@ -39,11 +38,11 @@ class PyJWT(PyJWS):
         }
 
     def encode(self,
-               payload,  # type: Union[Dict, bytes]
-               key,  # type: str
-               algorithm='HS256',  # type: str
-               headers=None,  # type: Optional[Dict]
-               json_encoder=None  # type: Optional[Callable]
+               payload,
+               key,
+               algorithm='HS256',
+               headers=None,
+               json_encoder=None
                ):
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
@@ -66,12 +65,14 @@ class PyJWT(PyJWS):
             json_payload, key, algorithm, headers, json_encoder
         )
 
+    decode.__annotations__ = {'payload': Union[Dict, bytes], 'key': str, 'algorithm': str, 'headers': Optional[Dict], 'json_encoder': Optional[Callable]}
+
     def decode(self,
-               token,  # type: str
-               key='',   # type: str
-               verify=True,  # type: bool
-               algorithms=None,  # type: List[str]
-               options=None,  # type: Dict
+               token,
+               key='',
+               verify=True,
+               algorithms=None,
+               options=None,
                **kwargs):
 
         if verify and not algorithms:
@@ -105,6 +106,8 @@ class PyJWT(PyJWS):
             self._validate_claims(payload, merged_options, **kwargs)
 
         return payload
+
+    decode.__annotations__ = {'token': str, 'key': str, 'verify': bool, 'algorithms': List[str], 'options': Dict}
 
     def _validate_claims(self, payload, options, audience=None, issuer=None,
                          leeway=0, **kwargs):
