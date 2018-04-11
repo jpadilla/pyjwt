@@ -127,7 +127,7 @@ class PyJWS(object):
 
         return b'.'.join(segments)
 
-    decode.__annotations__ = {'payload': Union[Dict, bytes], 'key': str, 'algorithm': str, 'headers': Optional[Dict], 'json_encoder': Optional[Callable]}
+    decode.__annotations__ = {'payload': Union[Dict, bytes], 'key': str, 'algorithm': str, 'headers': Optional[Dict], 'json_encoder': Optional[Callable], 'return': None}
 
     def decode(self,
                token: str,

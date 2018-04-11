@@ -24,7 +24,7 @@ class PyJWT(PyJWS):
     header_type = 'JWT'
 
     @staticmethod
-    def _get_default_options() -> Dict[str, bool]:
+    def _get_default_options():
         return {
             'verify_signature': True,
             'verify_exp': True,
