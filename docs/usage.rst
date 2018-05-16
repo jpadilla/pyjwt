@@ -35,6 +35,15 @@ Specifying Additional Headers
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJzb21lIjoicGF5bG9hZCJ9.DogbDGmMHgA_bU05TAB-R6geQ2nMU2BRM-LnYEtefwg'
 
 
+If you wish to read the header from the token, You can use the ``jwt.get_unverified_header(token)`` method
+to retrieve the values parsed from the header. The method simply takes the header portion of the JWT
+from the token and returns a dictionary of the values contained in the header.
+
+Please observe caution when using this method since it parses and returns the header values without
+validating the signature. As a result, you should always make sure that you either reject the token based
+on the information in the header or continue processing it with ``jwt.decode()``
+to ensure that signature validation takes place.
+
 Reading the Claimset without Validation
 -----------------------------------------
 
