@@ -51,6 +51,20 @@ the integrity or authenticity of the claimset cannot be trusted.
     >>jwt.decode(encoded, verify=False)
     {u'some': u'payload'}
 
+Reading Headers without Validation
+----------------------------------
+
+Some APIs require you to read a JWT header without validation. For example,
+in situations where the token issuer uses multiple keys and you have no
+way of knowing in advance which one of the issuer's public keys or shared
+secrets to use for validation, the issuer may include an identifier for the
+key in the header.
+
+.. code-block:: python
+
+    >>jwt.get_unverified_header(encoded)
+    {u'alg': u'RS256', u'typ': u'JWT', u'kid': u'key-id-12345...'}
+
 Registered Claim Names
 ----------------------
 
