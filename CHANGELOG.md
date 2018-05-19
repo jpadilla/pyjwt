@@ -12,6 +12,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+[v1.6.2][1.6.2]
+-------------------------------------------------------------------------
+### Changed
+
+- All exceptions inherit from PyJWTError [#340][340]
+
+### Added
+
+- Add type hints [#344][344]
+
+### Docs
+
+- Added section to usage docs for jwt.get_unverified_header() [#350][350]
+- Update legacy instructions for using pycrypto [#337][337]
+
 [v1.6.1][1.6.1]
 -------------------------------------------------------------------------
 ### Fixed
@@ -188,6 +203,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.5.3]: https://github.com/jpadilla/pyjwt/compare/1.5.2...1.5.3
 [1.6.0]: https://github.com/jpadilla/pyjwt/compare/1.5.3...1.6.0
 [1.6.1]: https://github.com/jpadilla/pyjwt/compare/1.6.0...1.6.1
+[1.6.2]: https://github.com/jpadilla/pyjwt/compare/1.6.1...1.6.2
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
@@ -229,4 +245,8 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [315]: https://github.com/jpadilla/pyjwt/pull/315
 [316]: https://github.com/jpadilla/pyjwt/pull/316
 [336]: https://github.com/jpadilla/pyjwt/pull/336
+[337]: https://github.com/jpadilla/pyjwt/pull/337
+[340]: https://github.com/jpadilla/pyjwt/pull/340
+[344]: https://github.com/jpadilla/pyjwt/pull/344
+[350]: https://github.com/jpadilla/pyjwt/pull/350
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
