@@ -23,5 +23,5 @@ import jwt
 <paste here>
 ```
 
-This command is only available on PyJWT v1.6.2 and greater. Otherwise,
+This command is only available on PyJWT v1.6.3 and greater. Otherwise,
 please provide some basic information about your system.

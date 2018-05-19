@@ -12,7 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-[v1.6.2][1.6.2]
+[v1.6.3][1.6.3]
 -------------------------------------------------------------------------
 ### Changed
 
@@ -203,7 +203,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.5.3]: https://github.com/jpadilla/pyjwt/compare/1.5.2...1.5.3
 [1.6.0]: https://github.com/jpadilla/pyjwt/compare/1.5.3...1.6.0
 [1.6.1]: https://github.com/jpadilla/pyjwt/compare/1.6.0...1.6.1
-[1.6.2]: https://github.com/jpadilla/pyjwt/compare/1.6.1...1.6.2
+[1.6.3]: https://github.com/jpadilla/pyjwt/compare/1.6.1...1.6.3
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
