@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Add type hints [#344][344]
+- Add help module [7ca41e][7ca41e]
 
 ### Docs
 
@@ -250,3 +251,4 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [344]: https://github.com/jpadilla/pyjwt/pull/344
 [350]: https://github.com/jpadilla/pyjwt/pull/350
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
+[7ca41e]: https://github.com/jpadilla/pyjwt/commit/7ca41e53b3d7d9f5cd31bdd8a2b832d192006239
