@@ -67,7 +67,7 @@ class PyJWT(PyJWS):
         )
 
     def decode(self,
-               token,  # type: str
+               jwt,  # type: str
                key='',   # type: str
                verify=True,  # type: bool
                algorithms=None,  # type: List[str]
@@ -82,7 +82,7 @@ class PyJWT(PyJWS):
                 DeprecationWarning
             )
 
-        payload, _, _, _ = self._load(token)
+        payload, _, _, _ = self._load(jwt)
 
         if options is None:
             options = {'verify_signature': verify}
@@ -90,7 +90,7 @@ class PyJWT(PyJWS):
             options.setdefault('verify_signature', verify)
 
         decoded = super(PyJWT, self).decode(
-            token, key=key, algorithms=algorithms, options=options, **kwargs
+            jwt, key=key, algorithms=algorithms, options=options, **kwargs
         )
 
         try:

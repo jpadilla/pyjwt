@@ -128,7 +128,7 @@ class PyJWS(object):
         return b'.'.join(segments)
 
     def decode(self,
-               token,  # type: str
+               jwt,  # type: str
                key='',   # type: str
                verify=True,  # type: bool
                algorithms=None,  # type: List[str]
@@ -146,7 +146,7 @@ class PyJWS(object):
                 DeprecationWarning
             )
 
-        payload, signing_input, header, signature = self._load(token)
+        payload, signing_input, header, signature = self._load(jwt)
 
         if not verify:
             warnings.warn('The verify parameter is deprecated. '
