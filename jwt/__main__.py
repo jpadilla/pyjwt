@@ -41,7 +41,14 @@ def encode_payload(args):
         if v in constants:
             v = constants[v]
 
-        payload[k] = v
+        # allow multiple values per key
+        payload[k] = payload.get(k, []) + [v, ]
+
+    # if the key is single-valued, revert back to string or numeral
+    # (we assume that single values are not lists with a single element)
+    for k in payload:
+        if len(payload[k]) == 1:
+            payload[k] = payload[k][0]
 
     token = encode(
         payload,
