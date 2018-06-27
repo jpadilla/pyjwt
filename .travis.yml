@@ -1,31 +1,20 @@
 language: python
-python:
-  - "3.6"
-addons:
-  apt:
-    sources:
-      - deadsnakes
-    packages:
-      - python3.5 python3.5-dev
-sudo: false
-env:
-  - TOXENV=flake8
-  - TOXENV=py27-crypto
-  - TOXENV=py34-crypto
-  - TOXENV=py35-crypto
-  - TOXENV=py36-crypto
-  - TOXENV=py34-nocrypto
-  - TOXENV=py35-nocrypto
-  - TOXENV=py36-nocrypto
-  - TOXENV=py27-nocrypto
-  - TOXENV=py35-contrib_crypto
-  - TOXENV=py36-contrib_crypto
-  - TOXENV=py27-contrib_crypto
-  
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=flake8,py27-crypto,py27-nocrypto,py27-contrib_crypto
+    - python: 3.4
+      env: TOXENV=flake8,py34-crypto,py34-nocrypto
+    - python: 3.5
+      env: TOXENV=flake8,py35-crypto,py35-nocrypto,py35-contrib_crypto
+    - python: 3.6
+      env: TOXENV=flake8,py36-crypto,py36-nocrypto,py36-contrib_crypto
+before_install:
+  - sudo apt-get install python3-pip # required to install mypy
 install:
   - pip install -U pip
   - pip install -U tox coveralls
-  - pip install -U mypy
+  - sudo python3 -m pip install -U mypy # python3.4+ required to run mypy
 script:
   - tox
   - mypy --ignore-missing-imports jwt
