@@ -68,7 +68,7 @@ key in the header.
 Registered Claim Names
 ----------------------
 
-The JWT specificaftion defines some registered claim names and defines
+The JWT specification defines some registered claim names and defines
 how they should be used. PyJWT supports these registered claim names:
 
  - "exp" (Expiration Time) Claim
