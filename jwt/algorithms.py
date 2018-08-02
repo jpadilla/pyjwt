@@ -144,7 +144,9 @@ class HMACAlgorithm(Algorithm):
             b'-----BEGIN CERTIFICATE-----',
             b'-----BEGIN RSA PUBLIC KEY-----',
             b'ssh-rsa',
-            b'ecdsa-sha2'
+            b'ecdsa-sha2',
+            b'ssh-ed25519',
+            b'ssh-dss'
         ]
 
         if any([string_value in key for string_value in invalid_strings]):
