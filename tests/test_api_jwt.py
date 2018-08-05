@@ -540,11 +540,11 @@ class TestJWT:
     def test_decode_with_non_callable_custom_utcnow_throws_exception(self, jwt, payload):
         token = jwt.encode(payload, 'secret')
 
-        with pytest.raises(TypeError) as context:
+        with pytest.raises(TypeError):
             jwt.decode(token, 'secret', options={'utcnow': datetime.utcnow()})
 
     def test_decode_with_invalid_returning_type_custom_utcnow_throws_exception(self, jwt, payload):
         token = jwt.encode(payload, 'secret')
 
-        with pytest.raises(TypeError) as context:
+        with pytest.raises(TypeError):
             jwt.decode(token, 'secret', options={'utcnow': utc_timestamp})
