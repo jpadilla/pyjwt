@@ -215,3 +215,13 @@ Issued At Claim (iat)
 
     jwt.encode({'iat': 1371720939}, 'secret')
     jwt.encode({'iat': datetime.utcnow()}, 'secret')
+
+Custom UTC Current Time
+-----------------------
+
+    During the verification of `exp`, `nbf` and `iat` that is possible to set a custom UTC current time value
+    instead of using built-in `datetime.datetime.utcnow()`.
+
+    Function to provide custom UTC current time is set through `utcnow` parameter in the options argument.
+
+    if the `utcnow` option is not callable or does not return `datetime.datetime` type, an `TypeError` exception will be raised.

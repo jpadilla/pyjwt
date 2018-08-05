@@ -123,7 +123,15 @@ class PyJWT(PyJWS):
 
         self._validate_required_claims(payload, options)
 
-        now = timegm(datetime.utcnow().utctimetuple())
+        utcnow_func = options.get('utcnow', datetime.utcnow)
+        if not callable(utcnow_func):
+            raise TypeError('utcnow must be a callable, returning datetime')
+
+        current_utc_time = utcnow_func()
+        if not isinstance(current_utc_time, datetime):
+            raise TypeError('time returned by utcnow must be a datetime')
+
+        now = timegm(current_utc_time.utctimetuple())
 
         if 'iat' in payload and options.get('verify_iat'):
             self._validate_iat(payload, now, leeway)

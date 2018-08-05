@@ -520,3 +520,31 @@ class TestJWT:
             pass
         else:
             assert False, "Unexpected DeprecationWarning raised."
+
+    def test_decode_with_custom_utcnow(self, jwt):
+        custom_now = datetime.utcnow() - timedelta(days=1)
+
+        payload = {
+            'exp': custom_now,
+            'iat': custom_now,
+            'nbf': custom_now
+        }
+
+        token = jwt.encode(payload, 'secret')
+        decoded_payload = jwt.decode(token, 'secret', options={'utcnow': lambda: custom_now})
+
+        assert (decoded_payload['exp'] == timegm(custom_now.utctimetuple()))
+        assert (decoded_payload['iat'] == timegm(custom_now.utctimetuple()))
+        assert (decoded_payload['nbf'] == timegm(custom_now.utctimetuple()))
+
+    def test_decode_with_non_callable_custom_utcnow_throws_exception(self, jwt, payload):
+        token = jwt.encode(payload, 'secret')
+
+        with pytest.raises(TypeError) as context:
+            jwt.decode(token, 'secret', options={'utcnow': datetime.utcnow()})
+
+    def test_decode_with_invalid_returning_type_custom_utcnow_throws_exception(self, jwt, payload):
+        token = jwt.encode(payload, 'secret')
+
+        with pytest.raises(TypeError) as context:
+            jwt.decode(token, 'secret', options={'utcnow': utc_timestamp})
