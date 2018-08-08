@@ -206,7 +206,7 @@ class PyJWS(object):
         except (TypeError, binascii.Error):
             raise DecodeError('Invalid crypto padding')
 
-        return (payload, signing_input, header, signature)
+        return payload, signing_input, header, signature
 
     def _verify_signature(self, payload, signing_input, header, signature,
                           key='', algorithms=None):
