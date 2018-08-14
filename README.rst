@@ -59,8 +59,8 @@ Usage::
 
 Decoding examples::
 
-    pyjwt --key=secret TOKEN
-    pyjwt --no-verify TOKEN
+    pyjwt --key=secret decode TOKEN
+    pyjwt decode --no-verify TOKEN
 
 See more options executing ``pyjwt --help``.
 
