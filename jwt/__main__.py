@@ -43,11 +43,19 @@ def encode_payload(args):
 
         payload[k] = v
 
-    token = encode(
-        payload,
-        key=args.key,
-        algorithm=args.algorithm
-    )
+    if args.kid:
+        token = encode(
+            payload,
+            key=args.key,
+            algorithm=args.algorithm,
+            headers={'kid': args.kid}
+        )
+    else:
+        token = encode(
+            payload,
+            key=args.key,
+            algorithm=args.algorithm
+        )
 
     return token.decode('utf-8')
 
@@ -88,6 +96,7 @@ def build_argparser():
 
     %(prog)s --key=secret encode iss=me exp=1302049071
     %(prog)s --key=secret encode foo=bar exp=+10
+    %(prog)s --key=secret encode --kid=mykeyid foo=bar
 
     The exp key is special and can take an offset to current Unix time.
     '''
@@ -131,6 +140,12 @@ def build_argparser():
     payload_help = """Payload to encode. Must be a space separated list of key/value
     pairs separated by equals (=) sign."""
 
+    encode_parser.add_argument(
+        '--kid',
+        dest='kid',
+        metavar='KEYID',
+        default=None,
+        help='set the optional kid header value')
     encode_parser.add_argument('payload', nargs='+', help=payload_help)
     encode_parser.set_defaults(func=encode_payload)
 
