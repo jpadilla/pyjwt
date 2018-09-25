@@ -1,8 +1,12 @@
 import json
 import warnings
 from calendar import timegm
-from collections import Iterable, Mapping
 from datetime import datetime, timedelta
+try:
+    # Importing ABCs from collections will be removed in PY3.8
+    from collections.abc import Iterable, Mapping
+except ImportError:
+    from collections import Iterable, Mapping
 try:
     # import required by mypy to perform type checking, not used for normal execution
     from typing import Callable, Dict, List, Optional, Union # NOQA
