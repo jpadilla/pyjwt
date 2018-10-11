@@ -162,7 +162,15 @@ class HMACAlgorithm(Algorithm):
 
     @staticmethod
     def from_jwk(jwk):
-        obj = json.loads(jwk)
+        try:
+            if isinstance(jwk, str):
+                obj = json.loads(jwk)
+            elif isinstance(jwk, dict):
+                obj = jwk
+            else:
+                raise ValueError
+        except ValueError:
+            raise InvalidKeyError('Not an HMAC key')
 
         if obj.get('kty') != 'oct':
             raise InvalidKeyError('Not an HMAC key')
@@ -249,7 +257,12 @@ if has_crypto:
         @staticmethod
         def from_jwk(jwk):
             try:
-                obj = json.loads(jwk)
+                if isinstance(jwk, str):
+                    obj = json.loads(jwk)
+                elif isinstance(jwk, dict):
+                    obj = jwk
+                else:
+                    raise ValueError
             except ValueError:
                 raise InvalidKeyError('Key is not valid JSON')
 
