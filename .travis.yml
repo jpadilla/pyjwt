@@ -9,6 +9,9 @@ matrix:
       env: TOXENV=flake8,py35-crypto,py35-nocrypto,py35-contrib_crypto
     - python: 3.6
       env: TOXENV=flake8,py36-crypto,py36-nocrypto,py36-contrib_crypto
+    - python: 3.7
+      env: TOXENV=flake8,py37-crypto,py37-nocrypto,py37-contrib_crypto
+      dist: xenial
 before_install:
   - sudo apt-get install python3-pip # required to install mypy
 install:
