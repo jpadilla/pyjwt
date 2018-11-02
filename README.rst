@@ -1,8 +1,8 @@
 PyJWT
 =====
 
-.. image:: https://secure.travis-ci.org/jpadilla/pyjwt.svg?branch=master
-   :target: http://travis-ci.org/jpadilla/pyjwt?branch=master
+.. image:: https://secure.travis-ci.com/jpadilla/pyjwt.svg?branch=master
+   :target: http://travis-ci.com/jpadilla/pyjwt?branch=master
 
 .. image:: https://ci.appveyor.com/api/projects/status/h8nt70aqtwhht39t?svg=true
    :target: https://ci.appveyor.com/project/jpadilla/pyjwt
