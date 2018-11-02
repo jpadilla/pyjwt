@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Support for Python 3.7
+
 [v1.6.4][1.6.4]
 -------------------------------------------------------------------------
 ### Fixed
