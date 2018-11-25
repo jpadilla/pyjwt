@@ -1,7 +1,6 @@
 import binascii
 import json
 import warnings
-from collections import Mapping
 try:
     # import required by mypy to perform type checking, not used for normal execution
     from typing import Callable, Dict, List, Optional, Union # NOQA
@@ -11,7 +10,7 @@ except ImportError:
 from .algorithms import (
     Algorithm, get_default_algorithms, has_crypto, requires_cryptography  # NOQA
 )
-from .compat import binary_type, string_types, text_type
+from .compat import Mapping, binary_type, string_types, text_type
 from .exceptions import (
     DecodeError, InvalidAlgorithmError, InvalidSignatureError,
     InvalidTokenError
