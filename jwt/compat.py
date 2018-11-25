@@ -20,6 +20,11 @@ else:
 
 string_types = (text_type, binary_type)
 
+try:
+    # Importing ABCs from collections will be removed in PY3.8
+    from collections.abc import Iterable, Mapping
+except ImportError:
+    from collections import Iterable, Mapping
 
 try:
     constant_time_compare = hmac.compare_digest

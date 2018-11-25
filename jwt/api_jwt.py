@@ -3,11 +3,6 @@ import warnings
 from calendar import timegm
 from datetime import datetime, timedelta
 try:
-    # Importing ABCs from collections will be removed in PY3.8
-    from collections.abc import Iterable, Mapping
-except ImportError:
-    from collections import Iterable, Mapping
-try:
     # import required by mypy to perform type checking, not used for normal execution
     from typing import Callable, Dict, List, Optional, Union # NOQA
 except ImportError:
@@ -15,7 +10,7 @@ except ImportError:
 
 from .api_jws import PyJWS
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
-from .compat import string_types
+from .compat import Iterable, Mapping, string_types
 from .exceptions import (
     DecodeError, ExpiredSignatureError, ImmatureSignatureError,
     InvalidAudienceError, InvalidIssuedAtError,
