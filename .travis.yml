@@ -1,25 +1,45 @@
 language: python
+
 matrix:
   include:
-    - python: 2.7
+    - os: linux
+      python: 2.7
       env: TOXENV=flake8,py27-crypto,py27-nocrypto,py27-contrib_crypto
-    - python: 3.4
+    - os: linux
+      python: 3.4
       env: TOXENV=flake8,py34-crypto,py34-nocrypto
-    - python: 3.5
+    - os: linux
+      python: 3.5
       env: TOXENV=flake8,py35-crypto,py35-nocrypto,py35-contrib_crypto
-    - python: 3.6
+    - os: linux
+      python: 3.6
       env: TOXENV=flake8,py36-crypto,py36-nocrypto,py36-contrib_crypto
-    - python: 3.7
+    - os: linux
+      python: 3.7
       env: TOXENV=flake8,py37-crypto,py37-nocrypto,py37-contrib_crypto
       dist: xenial
+    - os: windows
+      language: sh
+      python: 2.7
+      env: TOXENV=flake8,py27-crypto,py27-nocrypto,py27-contrib_crypto
+      before_install:
+        - choco install python --version 2.7.11
+        - export PATH="/c/Python27:/c/Python27/Scripts:$PATH"
+        - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+        - python get-pip.py
+        - python -m pip install --upgrade pip wheel
+
 before_install:
-  - sudo apt-get install python3-pip # required to install mypy
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install python3-pip; fi # required to install mypy
+
 install:
   - pip install -U pip
   - pip install -U tox coveralls
-  - sudo python3 -m pip install -U mypy # python3.4+ required to run mypy
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo python3 -m pip install -U mypy; fi # python3.4+ required to run mypy
+
 script:
   - tox
   - mypy --ignore-missing-imports jwt
+
 after_success:
   - coveralls
