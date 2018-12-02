@@ -12,7 +12,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Support for Python 3.7
+[v1.7.0][1.7.0]
+-------------------------------------------------------------------------
+
+### Changed
+
+- Remove CRLF line endings [#353][353]
+
+### Fixed
+
+- Update usage.rst [#360][360]
+
+### Added
+
+- Support for Python 3.7 [#375][375] [#379][379] [#384][384]
 
 [v1.6.4][1.6.4]
 -------------------------------------------------------------------------
@@ -214,6 +227,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.6.1]: https://github.com/jpadilla/pyjwt/compare/1.6.0...1.6.1
 [1.6.3]: https://github.com/jpadilla/pyjwt/compare/1.6.1...1.6.3
 [1.6.4]: https://github.com/jpadilla/pyjwt/compare/1.6.3...1.6.4
+[1.7.0]: https://github.com/jpadilla/pyjwt/compare/1.6.4...1.7.0
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
@@ -260,5 +274,10 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [344]: https://github.com/jpadilla/pyjwt/pull/344
 [350]: https://github.com/jpadilla/pyjwt/pull/350
 [352]: https://github.com/jpadilla/pyjwt/pull/352
+[353]: https://github.com/jpadilla/pyjwt/pull/353
+[360]: https://github.com/jpadilla/pyjwt/pull/360
+[375]: https://github.com/jpadilla/pyjwt/pull/375
+[379]: https://github.com/jpadilla/pyjwt/pull/379
+[384]: https://github.com/jpadilla/pyjwt/pull/384
 [7c1e61d]: https://github.com/jpadilla/pyjwt/commit/7c1e61dde27bafe16e7d1bb6e35199e778962742
 [7ca41e]: https://github.com/jpadilla/pyjwt/commit/7ca41e53b3d7d9f5cd31bdd8a2b832d192006239

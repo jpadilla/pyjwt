@@ -10,7 +10,7 @@ http://self-issued.info/docs/draft-jones-json-web-token-01.html
 
 
 __title__ = 'pyjwt'
-__version__ = '1.6.4'
+__version__ = '1.7.0'
 __author__ = 'José Padilla'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2015-2018 José Padilla'
