@@ -11,7 +11,7 @@ import pytest
     (255, b'_w'),
     (65537, b'AQAB'),
     (123456789, b'B1vNFQ'),
-    pytest.mark.xfail((-1, ''), raises=ValueError)
+    pytest.param(-1, '', marks=pytest.mark.xfail(raises=ValueError))
 ])
 def test_to_base64url_uint(inputval, expected):
     actual = to_base64url_uint(inputval)

@@ -294,7 +294,7 @@ class TestJWS:
                 jws.decode, example_jws, key=example_secret,
                 options={'verify_signature': False},
             )
-        except AssertionError:
+        except pytest.fail.Exception:
             pass
         else:
             assert False, "Unexpected DeprecationWarning raised."

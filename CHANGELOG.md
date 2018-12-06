@@ -12,6 +12,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+[v1.7.1][1.7.1]
+-------------------------------------------------------------------------
+
+### Fixed
+
+- Update test dependencies with pinned ranges
+- Fix pytest deprecation warnings
+
 [v1.7.0][1.7.0]
 -------------------------------------------------------------------------
 
@@ -228,6 +236,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.6.3]: https://github.com/jpadilla/pyjwt/compare/1.6.1...1.6.3
 [1.6.4]: https://github.com/jpadilla/pyjwt/compare/1.6.3...1.6.4
 [1.7.0]: https://github.com/jpadilla/pyjwt/compare/1.6.4...1.7.0
+[1.7.1]: https://github.com/jpadilla/pyjwt/compare/1.7.0...1.7.1
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110

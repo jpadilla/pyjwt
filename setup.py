@@ -33,9 +33,9 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 tests_require = [
-    'pytest==3.7.1',
-    'pytest-cov==2.5.1',
-    'pytest-runner==4.2',
+    'pytest>=4.0.1,<5.0.0',
+    'pytest-cov>=2.6.0,<3.0.0',
+    'pytest-runner>=4.2,<5.0.0',
 ]
 
 needs_pytest = set(('pytest', 'test', 'ptr')).intersection(sys.argv)

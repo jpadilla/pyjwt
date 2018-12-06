@@ -516,7 +516,7 @@ class TestJWT:
             pytest.deprecated_call(
                 jwt.decode, jwt_message, secret, verify=False,
             )
-        except AssertionError:
+        except pytest.fail.Exception:
             pass
         else:
             assert False, "Unexpected DeprecationWarning raised."
