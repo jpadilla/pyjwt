@@ -29,6 +29,21 @@ class TestCli:
 
         assert 'Key is required when encoding' in str(excinfo.value)
 
+    def test_encode_kid_header(self):
+        encode_args = ['--key=1234', 'encode', '--kid=0001', 'name=Vader']
+        parser = build_argparser()
+
+        parsed_encode_args = parser.parse_args(encode_args)
+
+        token = encode_payload(parsed_encode_args)
+
+        assert token is not None
+        assert token is not ''
+
+        actual = jwt.get_unverified_header(token)
+
+        assert actual['kid'] == '0001'
+
     def test_decode_payload_raises_decoded_error(self):
         decode_args = ['--key', '1234', 'decode', 'wrong-token']
         parser = build_argparser()
