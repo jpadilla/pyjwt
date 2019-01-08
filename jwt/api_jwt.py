@@ -175,7 +175,7 @@ class PyJWT(PyJWS):
             raise ExpiredSignatureError('Signature has expired')
 
     def _validate_aud(self, payload, audience):
-        if audience is None and 'aud' not in payload:
+        if audience is None and ('aud' not in payload or not payload['aud']):
             return
 
         if audience is not None and 'aud' not in payload:
