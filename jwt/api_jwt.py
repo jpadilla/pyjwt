@@ -72,7 +72,7 @@ class PyJWT(PyJWS):
                algorithms=None,  # type: List[str]
                options=None,  # type: Dict
                **kwargs):
-        # type: (...) -> Dict[Any, Any]
+        # type: (...) -> Dict[str, Any]
 
         if verify and not algorithms:
             warnings.warn(
