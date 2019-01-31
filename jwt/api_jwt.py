@@ -4,7 +4,7 @@ from calendar import timegm
 from datetime import datetime, timedelta
 try:
     # import required by mypy to perform type checking, not used for normal execution
-    from typing import Callable, Dict, List, Optional, Union # NOQA
+    from typing import Any, Callable, Dict, List, Optional, Union # NOQA
 except ImportError:
     pass
 
@@ -72,6 +72,7 @@ class PyJWT(PyJWS):
                algorithms=None,  # type: List[str]
                options=None,  # type: Dict
                **kwargs):
+        # type: (...) -> Dict[str, Any]
 
         if verify and not algorithms:
             warnings.warn(
@@ -96,7 +97,7 @@ class PyJWT(PyJWS):
             payload = json.loads(decoded.decode('utf-8'))
         except ValueError as e:
             raise DecodeError('Invalid payload string: %s' % e)
-        if not isinstance(payload, Mapping):
+        if not isinstance(payload, dict):
             raise DecodeError('Invalid payload string: must be a json object')
 
         if verify:
