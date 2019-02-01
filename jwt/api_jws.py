@@ -3,8 +3,7 @@ import json
 import warnings
 try:
     # import required by mypy to perform type checking, not used for normal execution
-    from typing import Any, Callable, Dict, List, Optional, Union # NOQA
-    from typing import Mapping_T  # NOQA
+    from typing import Callable, Dict, List, Optional, Union # NOQA
 except ImportError:
     pass
 
@@ -75,7 +74,7 @@ class PyJWS(object):
         return list(self._valid_algs)
 
     def encode(self,
-               payload,  # type: Mapping_T[str, Any]
+               payload,  # type: bytes
                key,  # type: str
                algorithm='HS256',  # type: str
                headers=None,  # type: Optional[Dict]
