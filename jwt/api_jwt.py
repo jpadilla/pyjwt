@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 try:
     # import required by mypy to perform type checking, not used for normal execution
     from typing import Any, Callable, Dict, List, Optional, Union # NOQA
+    from typing import Mapping as Mapping_T  # NOQA
 except ImportError:
     pass
 
@@ -38,7 +39,7 @@ class PyJWT(PyJWS):
         }
 
     def encode(self,
-               payload,  # type: Union[Dict, bytes]
+               payload,  # type: Mapping_T[str, Any]
                key,  # type: str
                algorithm='HS256',  # type: str
                headers=None,  # type: Optional[Dict]
