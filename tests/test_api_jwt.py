@@ -480,12 +480,10 @@ class TestJWT:
         assert payload == {'some_decimal': 'it worked'}
 
     def test_custom_json_separator(self, jwt):
-        payload = {'some_string': 'test'}
-        token = jwt.encode(payload, 'secret', json_separators=('y','x'))
-        token_header = base64url_decode(token.split('.')[0])
-        token_payload = base64url_decode(token.split('.')[1])
-        assert token_header == '{"alg"x"HS256"y"typ"x"JWT"}'
-        assert token_payload == '{"some_string"x"test"}'
+      payload = {'some_string': 'test'}
+      token = jwt.encode(payload, 'secret', json_separators=('y', 'x'))
+      token_payload = base64url_decode(token.split('.')[1].encode('utf-8'))
+      assert token_payload == '{"some_string"x"test"}'
 
     def test_decode_with_verify_expiration_kwarg(self, jwt, payload):
         payload['exp'] = utc_timestamp() - 1
