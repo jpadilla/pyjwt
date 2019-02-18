@@ -21,3 +21,16 @@ def test_encode_decode():
     decoded_payload = jwt.decode(jwt_message, secret)
 
     assert decoded_payload == payload
+
+
+
+def test_encode_header_only():
+
+    payload = {
+
+    }
+    secret = 'secret'
+    jwt_message = jwt.encode(payload, secret)
+    print(jwt_message)
+
+    #assert decoded_payload == payload

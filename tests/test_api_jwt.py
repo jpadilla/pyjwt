@@ -11,6 +11,7 @@ from jwt.exceptions import (
     InvalidAudienceError, InvalidIssuedAtError, InvalidIssuerError,
     MissingRequiredClaimError
 )
+from jwt.utils import base64url_decode
 
 import pytest
 
@@ -477,6 +478,14 @@ class TestJWT:
         payload = jwt.decode(token, 'secret')
 
         assert payload == {'some_decimal': 'it worked'}
+
+    def test_custom_json_separator(self, jwt):
+        payload = {'some_string': 'test'}
+        token = jwt.encode(payload, 'secret', json_separators=('y','x'))
+        token_header = base64url_decode(token.split('.')[0])
+        token_payload = base64url_decode(token.split('.')[1])
+        assert token_header == '{"alg"x"HS256"y"typ"x"JWT"}'
+        assert token_payload == '{"some_string"x"test"}'
 
     def test_decode_with_verify_expiration_kwarg(self, jwt, payload):
         payload['exp'] = utc_timestamp() - 1

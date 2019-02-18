@@ -42,7 +42,8 @@ class PyJWT(PyJWS):
                key,  # type: str
                algorithm='HS256',  # type: str
                headers=None,  # type: Optional[Dict]
-               json_encoder=None  # type: Optional[Callable]
+               json_encoder=None,  # type: Optional[Callable]
+               json_separators=(',', ':')
                ):
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
@@ -57,12 +58,12 @@ class PyJWT(PyJWS):
 
         json_payload = json.dumps(
             payload,
-            separators=(',', ':'),
+            separators=json_separators,
             cls=json_encoder
         ).encode('utf-8')
 
         return super(PyJWT, self).encode(
-            json_payload, key, algorithm, headers, json_encoder
+            json_payload, key, algorithm, headers, json_encoder, json_separators
         )
 
     def decode(self,

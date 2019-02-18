@@ -78,7 +78,8 @@ class PyJWS(object):
                key,  # type: str
                algorithm='HS256',  # type: str
                headers=None,  # type: Optional[Dict]
-               json_encoder=None  # type: Optional[Callable]
+               json_encoder=None,  # type: Optional[Callable]
+               json_separators=(',', ':')
                ):
         segments = []
 
@@ -98,7 +99,7 @@ class PyJWS(object):
         json_header = force_bytes(
             json.dumps(
                 header,
-                separators=(',', ':'),
+                separators=json_separators,
                 cls=json_encoder
             )
         )
