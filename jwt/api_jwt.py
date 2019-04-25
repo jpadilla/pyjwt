@@ -16,7 +16,7 @@ from .exceptions import (
     InvalidAudienceError, InvalidIssuedAtError,
     InvalidIssuerError, MissingRequiredClaimError
 )
-from .utils import merge_dict
+from .utils import merge_dict, order_dict
 
 
 class PyJWT(PyJWS):
@@ -44,6 +44,9 @@ class PyJWT(PyJWS):
                headers=None,  # type: Optional[Dict]
                json_encoder=None  # type: Optional[Callable]
                ):
+        payload = order_dict(payload)
+        if headers is not None:
+            headers = order_dict(headers)
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
             raise TypeError('Expecting a mapping object, as JWT only supports '

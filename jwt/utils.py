@@ -1,6 +1,7 @@
 import base64
 import binascii
 import struct
+from collections import OrderedDict
 
 from .compat import binary_type, bytes_from_int, text_type
 
@@ -111,3 +112,12 @@ def raw_to_der_signature(raw_sig, curve):
     s = bytes_to_number(raw_sig[num_bytes:])
 
     return encode_dss_signature(r, s)
+
+
+def order_dict(d):
+    if d.__class__ is list:
+        return [order_dict(e) for e in d]
+    elif d.__class__ is dict:
+        return OrderedDict([(k, order_dict(v)) for k, v in sorted(d.items(), key=lambda x: str(x[0]))])
+    else:
+        return d

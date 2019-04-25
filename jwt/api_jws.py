@@ -15,7 +15,7 @@ from .exceptions import (
     DecodeError, InvalidAlgorithmError, InvalidSignatureError,
     InvalidTokenError
 )
-from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict
+from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict, order_dict
 
 
 class PyJWS(object):
@@ -80,6 +80,7 @@ class PyJWS(object):
                headers=None,  # type: Optional[Dict]
                json_encoder=None  # type: Optional[Callable]
                ):
+        payload = order_dict(payload)
         segments = []
 
         if algorithm is None:
@@ -89,7 +90,7 @@ class PyJWS(object):
             pass
 
         # Header
-        header = {'typ': self.header_typ, 'alg': algorithm}
+        header = order_dict({'typ': self.header_typ, 'alg': algorithm})
 
         if headers:
             self._validate_headers(headers)
