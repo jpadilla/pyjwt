@@ -54,14 +54,7 @@ def encode_payload(args):
 
 def decode_payload(args):
     try:
-        if args.token:
-            token = args.token
-        else:
-            if sys.stdin.isatty():
-                token = sys.stdin.readline().strip()
-            else:
-                raise IOError('Cannot read from stdin: terminal not a TTY')
-
+        token = args.token or sys.stdin.readline().strip()
         token = token.encode('utf-8')
         data = decode(token, key=args.key, verify=args.verify)
 
