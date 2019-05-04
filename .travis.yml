@@ -6,20 +6,16 @@ matrix:
     - python: 3.4
       env: TOXENV=flake8,py34-crypto,py34-nocrypto
     - python: 3.5
-      env: TOXENV=flake8,py35-crypto,py35-nocrypto,py35-contrib_crypto
+      env: TOXENV=flake8,mypy,py35-crypto,py35-nocrypto,py35-contrib_crypto
     - python: 3.6
-      env: TOXENV=flake8,py36-crypto,py36-nocrypto,py36-contrib_crypto
+      env: TOXENV=flake8,mypy,py36-crypto,py36-nocrypto,py36-contrib_crypto
     - python: 3.7
-      env: TOXENV=flake8,py37-crypto,py37-nocrypto,py37-contrib_crypto
+      env: TOXENV=flake8,mypy,py37-crypto,py37-nocrypto,py37-contrib_crypto
       dist: xenial
-before_install:
-  - sudo apt-get install python3-pip # required to install mypy
 install:
   - pip install -U pip
   - pip install -U tox coveralls
-  - sudo python3 -m pip install -U mypy # python3.4+ required to run mypy
 script:
   - tox
-  - mypy --ignore-missing-imports jwt
 after_success:
   - coveralls
