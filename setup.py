@@ -77,6 +77,9 @@ setup(
             'flake8',
             'flake8-import-order',
             'pep8-naming'
+        ],
+        mypy=[
+            'mypy'
         ]
     ),
     entry_points={
