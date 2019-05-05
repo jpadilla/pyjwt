@@ -109,7 +109,7 @@ class TestCli:
         parsed_encode_args = parser.parse_args(encode_args)
         token = encode_payload(parsed_encode_args)
         assert token is not None
-        assert token is not ''
+        assert token != ''
 
         decode_args = [
             '--key={0}'.format(key),
