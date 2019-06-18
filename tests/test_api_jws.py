@@ -611,6 +611,38 @@ class TestJWS:
             assert 'ES384' not in jws_algorithms
             assert 'ES521' not in jws_algorithms
 
+    @pytest.mark.skipif(not has_crypto, reason="Can't run without cryptography library")
+    def test_encode_decode_with_ed25519(self, jws, payload):
+        # PEM-formatted EC key
+        with open('tests/keys/testkey_ed25519', 'r') as ed25519_priv_file:
+            priv_ed25519key = load_pem_private_key(force_bytes(ed25519_priv_file.read()),
+                                              password=None, backend=default_backend())
+            jws_message = jws.encode(payload, priv_ed25519key, algorithm='Ed25519')
+
+        with open('tests/keys/testkey_ed25519.pub', 'r') as ed25519_pub_file:
+            pub_ed25519key = load_pem_public_key(force_bytes(ed25519_pub_file.read()), backend=default_backend())
+            decoded = jws.decode(jws_message, pub_ed25519key)
+            assert decoded == payload
+
+        # string-formatted key
+        with open('tests/keys/testkey_ed25519', 'r') as ed25519_priv_file:
+            priv_ed25519key = ed25519_priv_file.read()
+            jws_message = jws.encode(payload, priv_ed25519key, algorithm='Ed25519')
+
+        with open('tests/keys/testkey_ed25519.pub', 'r') as ed25519_pub_file:
+            pub_ed25519key = ed25519_pub_file.read()
+            decoded = jws.decode(jws_message, pub_ed25519key)
+            assert decoded == payload
+
+    def test_ed25519_in_jws_algorithms(self):
+        jws = PyJWS()
+        jws_algorithms = jws.get_algorithms()
+
+        if has_crypto:
+            assert 'Ed25519' in jws_algorithms
+        else:
+            assert 'Ed25519' not in jws_algorithms
+
     def test_skip_check_signature(self, jws):
         token = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
                  ".eyJzb21lIjoicGF5bG9hZCJ9"

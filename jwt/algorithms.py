@@ -23,6 +23,10 @@ try:
     from cryptography.hazmat.primitives.asymmetric.ec import (
         EllipticCurvePrivateKey, EllipticCurvePublicKey
     )
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+        Ed25519PrivateKey, Ed25519PublicKey
+    )
+    from cryptography.hazmat.primitives.asymmetric import ed25519
     from cryptography.hazmat.primitives.asymmetric import ec, padding
     from cryptography.hazmat.backends import default_backend
     from cryptography.exceptions import InvalidSignature
@@ -32,7 +36,8 @@ except ImportError:
     has_crypto = False
 
 requires_cryptography = set(['RS256', 'RS384', 'RS512', 'ES256', 'ES384',
-                             'ES521', 'ES512', 'PS256', 'PS384', 'PS512'])
+                             'ES521', 'ES512', 'PS256', 'PS384', 'PS512',
+                             'Ed25519'])
 
 
 def get_default_algorithms():
@@ -57,7 +62,8 @@ def get_default_algorithms():
             'ES512': ECAlgorithm(ECAlgorithm.SHA512),  # Backward compat for #219 fix
             'PS256': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
             'PS384': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
-            'PS512': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512)
+            'PS512': RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
+            'Ed25519': Ed25519Algorithm(),
         })
 
     return default_algorithms
@@ -398,6 +404,46 @@ if has_crypto:
                     ),
                     self.hash_alg()
                 )
+                return True
+            except InvalidSignature:
+                return False
+
+    class Ed25519Algorithm(Algorithm):
+        """
+        Performs signing and verification operations using
+        Ed25519 algorithm
+        """
+
+        def prepare_key(self, key):
+            if isinstance(key, Ed25519PrivateKey) or \
+               isinstance(key, Ed25519PublicKey):
+                return key
+
+            if isinstance(key, string_types):
+                key = force_bytes(key)
+
+                # Attempt to load key. We don't know if it's
+                # a Signing Key or a Verifying Key, so we try
+                # the Verifying Key first.
+                try:
+                    if key.startswith(b'ssh-ed25519'):
+                        key = load_ssh_public_key(key, backend=default_backend())
+                    else:
+                        key = load_pem_public_key(key, backend=default_backend())
+                except ValueError:
+                    key = load_pem_private_key(key, password=None, backend=default_backend())
+
+            else:
+                raise TypeError('Expecting a PEM-formatted key.')
+
+            return key
+
+        def sign(self, msg, key):
+            return key.sign(msg)
+
+        def verify(self, msg, key, sig):
+            try:
+                key.verify(sig, msg)
                 return True
             except InvalidSignature:
                 return False

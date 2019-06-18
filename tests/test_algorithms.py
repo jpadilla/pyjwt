@@ -11,7 +11,7 @@ from .keys import load_hmac_key
 from .utils import key_path
 
 try:
-    from jwt.algorithms import RSAAlgorithm, ECAlgorithm, RSAPSSAlgorithm
+    from jwt.algorithms import RSAAlgorithm, ECAlgorithm, RSAPSSAlgorithm, Ed25519Algorithm
     from .keys import load_rsa_pub_key, load_ec_pub_key
     has_crypto = True
 except ImportError:
@@ -459,6 +459,64 @@ class TestAlgorithms:
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert not result
 
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ed25519_should_reject_non_string_key(self):
+        algo = Ed25519Algorithm()
+
+        with pytest.raises(TypeError):
+            algo.prepare_key(None)
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ed25519_should_accept_unicode_key(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path('testkey_ed25519'), 'r') as ec_key:
+            algo.prepare_key(force_unicode(ec_key.read()))
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ed25519_should_accept_pem_private_key_bytes(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path('testkey_ed25519'), 'rb') as ec_key:
+            algo.prepare_key(ec_key.read())
+
+    # @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    # def test_ed25519_should_accept_ssh_public_key_bytes(self):
+    #     algo = Ed25519Algorithm()
+    #
+    #     with open(key_path('testkey_ed25519_ssh.pub'), 'r') as ec_key:
+    #         algo.prepare_key(ec_key.read())
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ed25519_verify_should_return_false_if_signature_invalid(self):
+        algo = Ed25519Algorithm()
+
+        message = force_bytes('Hello World!')
+
+        # Mess up the signature by replacing a known byte
+        sig = base64.b64decode(force_bytes(
+            'jd6J+cO56Pi64Ud29RJCRK6R1uxkcgOIiG8K3+lKtTTZ'
+            'D2HTmNHe/1oa6jGGa7OZr6Q5rD2+4lArhkw92ps0AQ=='.replace('r', 's')))
+
+        with open(key_path('testkey_ed25519.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        assert not result
+
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ed25519_verify_should_return_false_if_signature_wrong_length(self):
+        algo = Ed25519Algorithm()
+
+        message = force_bytes('Hello World!')
+
+        sig = base64.b64decode(force_bytes('AC+m4Jf/xI3guAC6w0w3'))
+
+        with open(key_path('testkey_ed25519.pub'), 'r') as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        result = algo.verify(message, pub_key, sig)
+        assert not result
 
 class TestAlgorithmsRFC7520:
     """
