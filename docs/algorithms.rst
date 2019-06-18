@@ -16,10 +16,11 @@ This library currently supports:
 * PS256 - RSASSA-PSS signature using SHA-256 and MGF1 padding with SHA-256
 * PS384 - RSASSA-PSS signature using SHA-384 and MGF1 padding with SHA-384
 * PS512 - RSASSA-PSS signature using SHA-512 and MGF1 padding with SHA-512
+* Ed25519 - EdDSA signature algorithm that usesEd25519 curve
 
 Asymmetric (Public-key) Algorithms
 ----------------------------------
-Usage of RSA (RS\*) and EC (EC\*) algorithms require a basic understanding
+Usage of RSA (RS\*), EC (EC\*), and EdDSA algorithms require a basic understanding
 of how public-key cryptography is used with regards to digital signatures.
 If you are unfamiliar, you may want to read
 `this article <https://en.wikipedia.org/wiki/Public-key_cryptography>`_.
@@ -31,6 +32,10 @@ be either an RSA public or private key in PEM or SSH format. The type of key
 
 When using the ECDSA algorithms, the ``key`` argument is expected to
 be an Elliptic Curve public or private key in PEM format. The type of key
+(private or public) depends on whether you are signing or verifying.
+
+When using the EdDSA algorithm Ed25519, the ``key`` argument is expected to
+be an EdDSA public or private key in PEM format. The type of key
 (private or public) depends on whether you are signing or verifying.
 
 Specifying an Algorithm
