@@ -480,12 +480,12 @@ class TestAlgorithms:
         with open(key_path('testkey_ed25519'), 'rb') as ec_key:
             algo.prepare_key(ec_key.read())
 
-    # @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
-    # def test_ed25519_should_accept_ssh_public_key_bytes(self):
-    #     algo = Ed25519Algorithm()
-    #
-    #     with open(key_path('testkey_ed25519_ssh.pub'), 'r') as ec_key:
-    #         algo.prepare_key(ec_key.read())
+    @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
+    def test_ed25519_should_accept_ssh_public_key_bytes(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path('testkey_ed25519_ssh.pub'), 'r') as ec_key:
+            algo.prepare_key(ec_key.read())
 
     @pytest.mark.skipif(not has_crypto, reason='Not supported without cryptography library')
     def test_ed25519_verify_should_return_false_if_signature_invalid(self):
