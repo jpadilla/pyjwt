@@ -1,4 +1,3 @@
-
 import json
 from decimal import Decimal
 
@@ -616,7 +615,7 @@ class TestJWS:
         # PEM-formatted EC key
         with open('tests/keys/testkey_ed25519', 'r') as ed25519_priv_file:
             priv_ed25519key = load_pem_private_key(force_bytes(ed25519_priv_file.read()),
-                                              password=None, backend=default_backend())
+                                                   password=None, backend=default_backend())
             jws_message = jws.encode(payload, priv_ed25519key, algorithm='Ed25519')
 
         with open('tests/keys/testkey_ed25519.pub', 'r') as ed25519_pub_file:

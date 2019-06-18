@@ -518,6 +518,7 @@ class TestAlgorithms:
         result = algo.verify(message, pub_key, sig)
         assert not result
 
+
 class TestAlgorithmsRFC7520:
     """
     These test vectors were taken from RFC 7520
