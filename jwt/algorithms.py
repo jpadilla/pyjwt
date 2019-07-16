@@ -208,6 +208,10 @@ if has_crypto:
             else:
                 raise TypeError('Expecting a PEM-formatted key.')
 
+            # Issue #429:  improve exception clarity when key prepared from str or bytes does not match this class
+            if not (isinstance(key, RSAPrivateKey) or isinstance(key, RSAPublicKey)):
+                raise InvalidKeyError('Key mismatch:  {0} is not RSAPrivateKey or RSAPublicKey'.format(str(type(key))))
+
             return key
 
         @staticmethod
@@ -352,6 +356,10 @@ if has_crypto:
 
             else:
                 raise TypeError('Expecting a PEM-formatted key.')
+
+            # Issue #429:  improve exception clarity when key prepared from str or bytes does not match this class
+            if not (isinstance(key, EllipticCurvePrivateKey) or isinstance(key, EllipticCurvePublicKey)):
+                raise InvalidKeyError('Key mismatch:  {0} is not EllipticCurvePrivateKey or EllipticCurvePublicKey'.format(str(type(key))))
 
             return key
 
