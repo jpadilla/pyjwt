@@ -26,7 +26,7 @@ class RSAAlgorithm(Algorithm):
 
     def prepare_key(self, key):
 
-        if isinstance(key, RSA._RSAobj):
+        if hasattr(RSA, '_RSAobj') and isinstance(key, RSA._RSAobj):
             return key
 
         if isinstance(key, string_types):
