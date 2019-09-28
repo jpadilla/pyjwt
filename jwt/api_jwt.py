@@ -4,7 +4,7 @@ from calendar import timegm
 from datetime import datetime, timedelta
 try:
     # import required by mypy to perform type checking, not used for normal execution
-    from typing import Any, Callable, Dict, List, Optional, Union # NOQA
+    from typing import Any, Callable, Dict, List, Optional, Type, Union # NOQA
 except ImportError:
     pass
 
@@ -42,7 +42,7 @@ class PyJWT(PyJWS):
                key,  # type: str
                algorithm='HS256',  # type: str
                headers=None,  # type: Optional[Dict]
-               json_encoder=None  # type: Optional[Callable]
+               json_encoder=None  # type: Optional[Type[json.JSONEncoder]]
                ):
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
