@@ -49,7 +49,7 @@ setup(
     description='JSON Web Token implementation in Python',
     license='MIT',
     keywords='jwt json web token security signing',
-    url='http://github.com/jpadilla/pyjwt',
+    url='https://github.com/jpadilla/pyjwt',
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests"]
     ),
