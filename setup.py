@@ -32,15 +32,6 @@ if sys.argv[-1] == 'publish':
     print(' git push --tags')
     sys.exit()
 
-tests_require = [
-    'pytest>=4.0.1,<5.0.0',
-    'pytest-cov>=2.6.0,<3.0.0',
-    'pytest-runner>=4.2,<5.0.0',
-]
-
-needs_pytest = set(('pytest', 'test', 'ptr')).intersection(sys.argv)
-pytest_runner = ['pytest-runner'] if needs_pytest else []
-
 setup(
     name='PyJWT',
     version=version,
@@ -68,11 +59,11 @@ setup(
         'Topic :: Utilities',
     ],
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
-    test_suite='tests',
-    setup_requires=pytest_runner,
-    tests_require=tests_require,
     extras_require=dict(
-        test=tests_require,
+        test=[
+            'pytest>=4.0.1,<5.0.0',
+            'pytest-cov>=2.6.0,<3.0.0',
+        ],
         crypto=['cryptography >= 1.4'],
         flake8=[
             'flake8',
