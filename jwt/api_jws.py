@@ -3,7 +3,7 @@ import json
 import warnings
 try:
     # import required by mypy to perform type checking, not used for normal execution
-    from typing import Callable, Dict, List, Optional, Union # NOQA
+    from typing import Callable, Dict, List, Optional, Type, Union # NOQA
 except ImportError:
     pass
 
@@ -78,7 +78,7 @@ class PyJWS(object):
                key,  # type: str
                algorithm='HS256',  # type: str
                headers=None,  # type: Optional[Dict]
-               json_encoder=None  # type: Optional[Callable]
+               json_encoder=None  # type: Optional[Type[json.JSONEncoder]]
                ):
         segments = []
 
