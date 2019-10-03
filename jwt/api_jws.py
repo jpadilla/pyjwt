@@ -117,12 +117,12 @@ class PyJWS(object):
 
         except KeyError:
             if not has_crypto and algorithm in requires_cryptography:
-                raise NotImplementedError(
+                raise InvalidAlgorithmError(
                     "Algorithm '%s' could not be found. Do you have cryptography "
                     "installed?" % algorithm
                 )
             else:
-                raise NotImplementedError("Algorithm not supported")
+                raise InvalidAlgorithmError('Algorithm not supported')
 
         segments.append(base64url_encode(signature))
 
@@ -241,7 +241,13 @@ class PyJWS(object):
                 raise InvalidSignatureError("Signature verification failed")
 
         except KeyError:
-            raise InvalidAlgorithmError("Algorithm not supported")
+            if not has_crypto and algorithm in requires_cryptography:
+                raise InvalidAlgorithmError(
+                    "Algorithm '%s' could not be found. Do you have cryptography "
+                    "installed?" % algorithm
+                )
+            else:
+                raise InvalidAlgorithmError('Algorithm not supported')
 
     def _validate_headers(self, headers):
         if "kid" in headers:
