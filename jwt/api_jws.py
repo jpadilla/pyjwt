@@ -241,10 +241,10 @@ class PyJWS(object):
                 raise InvalidSignatureError("Signature verification failed")
 
         except KeyError:
-            if not has_crypto and algorithm in requires_cryptography:
+            if not has_crypto and alg in requires_cryptography:
                 raise InvalidAlgorithmError(
                     "Algorithm '%s' could not be found. Do you have cryptography "
-                    "installed?" % algorithm
+                    "installed?" % alg
                 )
             else:
                 raise InvalidAlgorithmError('Algorithm not supported')
