@@ -89,6 +89,17 @@ class PyJWT(PyJWS):
         else:
             options.setdefault('verify_signature', verify)
 
+        if verify:
+            verify_options = merge_dict(self.options, options)
+            audience = kwargs.pop("audience", None)
+            issuer = kwargs.pop("issuer", None)
+            leeway = kwargs.pop("leeway", 0)
+            if "verify_expiration" in kwargs:
+                verify_options['verify_exp'] = kwargs.pop("verify_expiration", True)
+                warnings.warn('The verify_expiration parameter is deprecated. '
+                              'Please use verify_exp in options instead.',
+                              DeprecationWarning)
+
         decoded = super(PyJWT, self).decode(
             jwt, key=key, algorithms=algorithms, options=options, **kwargs
         )
@@ -101,19 +112,12 @@ class PyJWT(PyJWS):
             raise DecodeError('Invalid payload string: must be a json object')
 
         if verify:
-            merged_options = merge_dict(self.options, options)
-            self._validate_claims(payload, merged_options, **kwargs)
+            self._validate_claims(payload, verify_options, audience, issuer, leeway)
 
         return payload
 
     def _validate_claims(self, payload, options, audience=None, issuer=None,
-                         leeway=0, **kwargs):
-
-        if 'verify_expiration' in kwargs:
-            options['verify_exp'] = kwargs.get('verify_expiration', True)
-            warnings.warn('The verify_expiration parameter is deprecated. '
-                          'Please use verify_exp in options instead.',
-                          DeprecationWarning)
+                         leeway=0):
 
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()

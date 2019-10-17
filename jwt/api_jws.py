@@ -132,7 +132,7 @@ class PyJWS(object):
                verify=True,  # type: bool
                algorithms=None,  # type: List[str]
                options=None,  # type: Dict
-               **kwargs):
+               ):
 
         merged_options = merge_dict(self.options, options)
         verify_signature = merged_options['verify_signature']
