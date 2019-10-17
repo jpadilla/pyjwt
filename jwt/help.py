@@ -9,7 +9,7 @@ from . import __version__ as pyjwt_version
 try:
     import cryptography
 except ImportError:
-    cryptography = None
+    cryptography = None  # type: ignore # https://github.com/python/mypy/issues/1297
 
 try:
     import ecdsa
