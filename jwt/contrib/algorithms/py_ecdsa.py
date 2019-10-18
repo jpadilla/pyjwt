@@ -56,5 +56,7 @@ class ECAlgorithm(Algorithm):
         try:
             return key.verify(sig, msg, hashfunc=self.hash_alg,
                               sigdecode=ecdsa.util.sigdecode_string)
-        except AssertionError:
+        # ecdsa <= 0.13.2 raises AssertionError on too long signatures,
+        # ecdsa >= 0.13.3 raises BadSignatureError for verification errors.
+        except (AssertionError, ecdsa.BadSignatureError):
             return False
