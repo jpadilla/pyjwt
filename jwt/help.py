@@ -7,14 +7,14 @@ import sys
 from . import __version__ as pyjwt_version
 
 try:
-    import cryptography
+    import cryptography  # type: ignore
 except ImportError:
-    cryptography = None
+    cryptography = None  # type: ignore
 
 try:
-    import ecdsa
+    import ecdsa  # type: ignore
 except ImportError:
-    ecdsa = None
+    ecdsa = None  # type: ignore
 
 
 def info():
