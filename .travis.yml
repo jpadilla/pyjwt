@@ -14,7 +14,7 @@ matrix:
       dist: xenial
 install:
   - pip install -U pip
-  - pip install -U tox coverallss
+  - pip install -U tox coveralls
 script:
   - tox
 after_success:
