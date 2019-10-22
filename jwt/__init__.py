@@ -9,23 +9,35 @@ https://self-issued.info/docs/draft-jones-json-web-token-01.html
 """
 
 
-__title__ = 'pyjwt'
-__version__ = '1.7.1'
-__author__ = 'José Padilla'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2015-2018 José Padilla'
+__title__ = "pyjwt"
+__version__ = "1.7.1"
+__author__ = "José Padilla"
+__license__ = "MIT"
+__copyright__ = "Copyright 2015-2018 José Padilla"
 
 
-from .api_jwt import (
-    encode, decode, register_algorithm, unregister_algorithm,
-    get_unverified_header, PyJWT
-)
 from .api_jws import PyJWS
+from .api_jwt import (
+    PyJWT,
+    decode,
+    encode,
+    get_unverified_header,
+    register_algorithm,
+    unregister_algorithm,
+)
 from .exceptions import (
-    InvalidTokenError, DecodeError, InvalidAlgorithmError,
-    InvalidAudienceError, ExpiredSignatureError, ImmatureSignatureError,
-    InvalidIssuedAtError, InvalidIssuerError, ExpiredSignature,
-    InvalidAudience, InvalidIssuer, MissingRequiredClaimError,
+    DecodeError,
+    ExpiredSignature,
+    ExpiredSignatureError,
+    ImmatureSignatureError,
+    InvalidAlgorithmError,
+    InvalidAudience,
+    InvalidAudienceError,
+    InvalidIssuedAtError,
+    InvalidIssuer,
+    InvalidIssuerError,
     InvalidSignatureError,
+    InvalidTokenError,
+    MissingRequiredClaimError,
     PyJWTError,
 )

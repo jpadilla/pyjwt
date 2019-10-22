@@ -23,7 +23,10 @@ def info():
     Based on the requests package help utility module.
     """
     try:
-        platform_info = {"system": platform.system(), "release": platform.release()}
+        platform_info = {
+            "system": platform.system(),
+            "release": platform.release(),
+        }
     except IOError:
         platform_info = {"system": "Unknown", "release": "Unknown"}
 
@@ -46,7 +49,10 @@ def info():
 
     return {
         "platform": platform_info,
-        "implementation": {"name": implementation, "version": implementation_version},
+        "implementation": {
+            "name": implementation,
+            "version": implementation_version,
+        },
         "cryptography": {"version": getattr(cryptography, "__version__", "")},
         "pyjwt": {"version": pyjwt_version},
     }

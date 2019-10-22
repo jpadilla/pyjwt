@@ -18,6 +18,7 @@ class ECAlgorithm(Algorithm):
 
     This is based off of the implementation in PyJWT 0.3.2
     """
+
     SHA256 = hashlib.sha256
     SHA384 = hashlib.sha384
     SHA512 = hashlib.sha512
@@ -27,13 +28,14 @@ class ECAlgorithm(Algorithm):
 
     def prepare_key(self, key):
 
-        if isinstance(key, ecdsa.SigningKey) or \
-           isinstance(key, ecdsa.VerifyingKey):
+        if isinstance(key, ecdsa.SigningKey) or isinstance(
+            key, ecdsa.VerifyingKey
+        ):
             return key
 
         if isinstance(key, string_types):
             if isinstance(key, text_type):
-                key = key.encode('utf-8')
+                key = key.encode("utf-8")
 
             # Attempt to load key. We don't know if it's
             # a Signing Key or a Verifying Key, so we try
@@ -44,18 +46,23 @@ class ECAlgorithm(Algorithm):
                 key = ecdsa.SigningKey.from_pem(key)
 
         else:
-            raise TypeError('Expecting a PEM-formatted key.')
+            raise TypeError("Expecting a PEM-formatted key.")
 
         return key
 
     def sign(self, msg, key):
-        return key.sign(msg, hashfunc=self.hash_alg,
-                        sigencode=ecdsa.util.sigencode_string)
+        return key.sign(
+            msg, hashfunc=self.hash_alg, sigencode=ecdsa.util.sigencode_string
+        )
 
     def verify(self, msg, key, sig):
         try:
-            return key.verify(sig, msg, hashfunc=self.hash_alg,
-                              sigdecode=ecdsa.util.sigdecode_string)
+            return key.verify(
+                sig,
+                msg,
+                hashfunc=self.hash_alg,
+                sigdecode=ecdsa.util.sigdecode_string,
+            )
         # ecdsa <= 0.13.2 raises AssertionError on too long signatures,
         # ecdsa >= 0.13.3 raises BadSignatureError for verification errors.
         except (AssertionError, ecdsa.BadSignatureError):

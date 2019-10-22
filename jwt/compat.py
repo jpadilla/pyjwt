@@ -7,7 +7,6 @@ import hmac
 import struct
 import sys
 
-
 PY3 = sys.version_info[0] == 3
 
 
@@ -46,8 +45,10 @@ except AttributeError:
 
         return result == 0
 
+
 # Use int.to_bytes if it exists (Python 3)
-if getattr(int, 'to_bytes', None):
+if getattr(int, "to_bytes", None):
+
     def bytes_from_int(val):
         remaining = val
         byte_length = 0
@@ -56,8 +57,11 @@ if getattr(int, 'to_bytes', None):
             remaining = remaining >> 8
             byte_length += 1
 
-        return val.to_bytes(byte_length, 'big', signed=False)
+        return val.to_bytes(byte_length, "big", signed=False)
+
+
 else:
+
     def bytes_from_int(val):
         buf = []
         while val:
@@ -65,4 +69,4 @@ else:
             buf.append(remainder)
 
         buf.reverse()
-        return struct.pack('%sB' % len(buf), *buf)
+        return struct.pack("%sB" % len(buf), *buf)

@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 79
+
+
+[tool.isort]
+atomic=true
+force_grid_wrap=0
+include_trailing_comma=true
+multi_line_output=3
+use_parentheses=true
+combine_as_imports=true
+
+known_first_party="jwt"
+known_third_party=["Crypto", "ecdsa", "pytest", "setuptools", "sphinx_rtd_theme"]
