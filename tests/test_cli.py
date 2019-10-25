@@ -28,7 +28,7 @@ class TestCli:
         assert "Key is required when encoding" in str(excinfo.value)
 
     def test_encode_header_raises_value_error_bad_dict(self):
-        encode_args = ['--key=secret', '--header=dfsfd', 'encode', 'name=Vader', 'job=Sith']
+        encode_args = ["--key=secret", "--header=dfsfd", "encode", "name=Vader", "job=Sith"]
         parser = build_argparser()
 
         args = parser.parse_args(encode_args)
@@ -36,7 +36,7 @@ class TestCli:
         with pytest.raises(ValueError) as excinfo:
             encode_payload(args)
 
-        assert 'Error loading header:' in str(excinfo.value)
+        assert "Error loading header:" in str(excinfo.value)
 
     def test_decode_payload_raises_decoded_error(self):
         decode_args = ["--key", "1234", "decode", "wrong-token"]
