@@ -28,7 +28,13 @@ class TestCli:
         assert "Key is required when encoding" in str(excinfo.value)
 
     def test_encode_header_raises_value_error_bad_dict(self):
-        encode_args = ["--key=secret", "--header=dfsfd", "encode", "name=Vader", "job=Sith"]
+        encode_args = [
+            "--key=secret",
+            "--header=dfsfd",
+            "encode",
+            "name=Vader",
+            "job=Sith",
+        ]
         parser = build_argparser()
 
         args = parser.parse_args(encode_args)
@@ -67,7 +73,12 @@ class TestCli:
         assert "There was an error decoding the token" in str(excinfo.value)
 
     def test_decode_payload_terminal_tty(self, monkeypatch):
-        encode_args = ["--key=secret-key", "--header={\"alg\":\"HS256\"}", "encode", "name=hello-world"]
+        encode_args = [
+            "--key=secret-key",
+            '--header={"alg":"HS256"}',
+            "encode",
+            "name=hello-world",
+        ]
         parser = build_argparser()
         parsed_encode_args = parser.parse_args(encode_args)
         token = encode_payload(parsed_encode_args)
@@ -98,7 +109,7 @@ class TestCli:
         "key,header,name,job,exp,verify",
         [
             ("1234", "{}", "Vader", "Sith", None, None),
-            ("4567", "{\"typ\":\"test\"}", "Anakin", "Jedi", "+1", None),
+            ("4567", '{"typ":"test"}', "Anakin", "Jedi", "+1", None),
             ("4321", "", "Padme", "Queen", "4070926800", "true"),
         ],
     )

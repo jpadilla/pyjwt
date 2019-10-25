@@ -51,9 +51,13 @@ def encode_payload(args):
         try:
             header = json.loads(args.header)
         except Exception as e:
-            raise ValueError("Error loading header: %s. See --help for usage." % e)
+            raise ValueError(
+                "Error loading header: %s. See --help for usage." % e
+            )
 
-    token = encode(payload, key=args.key, algorithm=args.algorithm, headers=header)
+    token = encode(
+        payload, key=args.key, algorithm=args.algorithm, headers=header
+    )
 
     return token.decode("utf-8")
 
@@ -131,7 +135,7 @@ def build_argparser():
         dest="header",
         metavar="HEADER",
         default=None,
-        help="set jwt header"
+        help="set jwt header",
     )
 
     subparsers = arg_parser.add_subparsers(
