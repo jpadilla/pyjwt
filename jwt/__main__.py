@@ -45,11 +45,11 @@ def encode_payload(args):
 
     # Build header object to encode
     header = {}
-    
-    try:
-        header = json.loads(args.header)
-    except Exception as e:
-        raise ValueError('Error loading header: %s. See --help for usage.' % e)
+    if args.header:
+        try:
+            header = json.loads(args.header)
+        except Exception as e:
+            raise ValueError('Error loading header: %s. See --help for usage.' % e)
 
     token = encode(
         payload,

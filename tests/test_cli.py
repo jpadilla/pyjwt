@@ -29,6 +29,17 @@ class TestCli:
 
         assert 'Key is required when encoding' in str(excinfo.value)
 
+    def test_encode_header_raises_value_error_bad_dict(self):
+        encode_args = ['--key=secret', '--header=dfsfd', 'encode', 'name=Vader', 'job=Sith']
+        parser = build_argparser()
+
+        args = parser.parse_args(encode_args)
+
+        with pytest.raises(ValueError) as excinfo:
+            encode_payload(args)
+
+        assert 'Error loading header:' in str(excinfo.value)
+
     def test_decode_payload_raises_decoded_error(self):
         decode_args = ['--key', '1234', 'decode', 'wrong-token']
         parser = build_argparser()
@@ -60,6 +71,7 @@ class TestCli:
     def test_decode_payload_terminal_tty(self, monkeypatch):
         encode_args = [
             '--key=secret-key',
+            '--header={"alg":"HS256"}',
             'encode',
             'name=hello-world',
         ]
@@ -88,14 +100,15 @@ class TestCli:
             assert 'Cannot read from stdin: terminal not a TTY' \
                 in str(excinfo.value)
 
-    @pytest.mark.parametrize('key,name,job,exp,verify', [
-        ('1234', 'Vader', 'Sith', None, None),
-        ('4567', 'Anakin', 'Jedi', '+1', None),
-        ('4321', 'Padme', 'Queen', '4070926800', 'true'),
+    @pytest.mark.parametrize('key,header,name,job,exp,verify', [
+        ('1234', '{}', 'Vader', 'Sith', None, None),
+        ('4567', '{"typ":"test"}', 'Anakin', 'Jedi', '+1', None),
+        ('4321', '', 'Padme', 'Queen', '4070926800', 'true'),
     ])
-    def test_encode_decode(self, key, name, job, exp, verify):
+    def test_encode_decode(self, key, header, name, job, exp, verify):
         encode_args = [
             '--key={0}'.format(key),
+            '--header={0}'.format(header),
             'encode',
             'name={0}'.format(name),
             'job={0}'.format(job),
