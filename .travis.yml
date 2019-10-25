@@ -2,15 +2,15 @@ language: python
 matrix:
   include:
     - python: 2.7
-      env: TOXENV=flake8,py27-crypto,py27-nocrypto,py27-contrib_crypto
+      env: TOXENV=py27-crypto,py27-nocrypto,py27-contrib_crypto
     - python: 3.4
-      env: TOXENV=flake8,py34-crypto,py34-nocrypto
+      env: TOXENV=py34-crypto,py34-nocrypto
     - python: 3.5
-      env: TOXENV=flake8,mypy,py35-crypto,py35-nocrypto,py35-contrib_crypto
+      env: TOXENV=py35-crypto,py35-nocrypto,py35-contrib_crypto
     - python: 3.6
-      env: TOXENV=flake8,mypy,py36-crypto,py36-nocrypto,py36-contrib_crypto
+      env: TOXENV=py36-crypto,py36-nocrypto,py36-contrib_crypto
     - python: 3.7
-      env: TOXENV=flake8,mypy,py37-crypto,py37-nocrypto,py37-contrib_crypto
+      env: TOXENV=lint,typing,py37-crypto,py37-nocrypto,py37-contrib_crypto
       dist: xenial
 install:
   - pip install -U pip

@@ -17,6 +17,7 @@ class RSAAlgorithm(Algorithm):
 
     This is based off of the implementation in PyJWT 0.3.2
     """
+
     SHA256 = Crypto.Hash.SHA256
     SHA384 = Crypto.Hash.SHA384
     SHA512 = Crypto.Hash.SHA512
@@ -31,11 +32,11 @@ class RSAAlgorithm(Algorithm):
 
         if isinstance(key, string_types):
             if isinstance(key, text_type):
-                key = key.encode('utf-8')
+                key = key.encode("utf-8")
 
             key = RSA.importKey(key)
         else:
-            raise TypeError('Expecting a PEM- or RSA-formatted key.')
+            raise TypeError("Expecting a PEM- or RSA-formatted key.")
 
         return key
 
