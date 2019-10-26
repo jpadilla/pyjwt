@@ -1,4 +1,5 @@
 import base64
+import warnings
 
 import pytest
 
@@ -19,6 +20,13 @@ try:
     has_ecdsa = True
 except ImportError:
     has_ecdsa = False
+
+try:
+    from jwt.contrib.algorithms.py_ed25519 import Ed25519Algorithm
+    
+    has_ed25519 = True
+except ImportError as e:
+    has_ed25519 = False
 
 
 @pytest.mark.skipif(
@@ -211,4 +219,82 @@ class TestEcdsaAlgorithms:
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
+        assert jwt_pub_key_first == jwt_pub_key_second
+
+
+@pytest.mark.skipif(
+    not has_ed25519, reason="Not supported without cryptography>=2.6 library"
+)
+class TestEd25519Algorithms:
+    hello_world_sig = 'Qxa47mk/azzUgmY2StAOguAd4P7YBLpyCfU3JdbaiWnXM4o4WibXwmIHvNYgN3frtE2fcyd8OYEaOiD/KiwkCg=='
+    hello_world = force_bytes('Hello World!')
+    
+    def test_ed25519_should_reject_non_string_key(self):
+        algo = Ed25519Algorithm()
+        
+        with pytest.raises(TypeError):
+            algo.prepare_key(None)
+
+        with open(key_path("testkey_ed25519"), "r") as keyfile:
+            jwt_key = algo.prepare_key(keyfile.read())
+
+        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+            jwt_pub_key = algo.prepare_key(keyfile.read())
+
+    def test_ed25519_should_accept_unicode_key(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path("testkey_ed25519"), "r") as ec_key:
+            algo.prepare_key(force_unicode(ec_key.read()))
+
+    def test_ed25519_sign_should_generate_correct_signature_value(self):
+        algo = Ed25519Algorithm()
+
+        jwt_message = self.hello_world
+    
+        expected_sig = base64.b64decode(force_bytes(self.hello_world_sig))
+
+        with open(key_path("testkey_ed25519"), "r") as keyfile:
+            jwt_key = algo.prepare_key(keyfile.read())
+
+        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+            jwt_pub_key = algo.prepare_key(keyfile.read())
+    
+        algo.sign(jwt_message, jwt_key)
+        result = algo.verify(jwt_message, jwt_pub_key, expected_sig)
+        assert result
+
+    def test_ed25519_verify_should_return_false_if_signature_invalid(self):
+        algo = Ed25519Algorithm()
+
+        jwt_message = self.hello_world
+        jwt_sig = base64.b64decode(force_bytes(self.hello_world_sig))
+    
+        jwt_sig += force_bytes("123")  # Signature is now invalid
+
+        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+            jwt_pub_key = algo.prepare_key(keyfile.read())
+    
+        result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
+        assert not result
+
+    def test_ed25519_verify_should_return_true_if_signature_valid(self):
+        algo = Ed25519Algorithm()
+
+        jwt_message = self.hello_world
+        jwt_sig = base64.b64decode(force_bytes(self.hello_world_sig))
+
+        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+            jwt_pub_key = algo.prepare_key(keyfile.read())
+    
+        result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
+        assert result
+
+    def test_ed25519_prepare_key_should_be_idempotent(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+            jwt_pub_key_first = algo.prepare_key(keyfile.read())
+            jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
+    
         assert jwt_pub_key_first == jwt_pub_key_second
