@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Fix mypy errors #449
 - Fix simple typo: encododed -> encoded #462
 - Correct test instructions in README
+- Fix algorithm tests
 
 ### Added
 

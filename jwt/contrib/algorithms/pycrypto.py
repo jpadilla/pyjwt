@@ -7,6 +7,11 @@ from Crypto.Signature import PKCS1_v1_5
 from jwt.algorithms import Algorithm
 from jwt.compat import string_types, text_type
 
+try:
+    RsaKey = RSA._RSAobj  # type: ignore
+except AttributeError:
+    RsaKey = RSA.RsaKey  # type: ignore
+
 
 class RSAAlgorithm(Algorithm):
     """
@@ -27,7 +32,7 @@ class RSAAlgorithm(Algorithm):
 
     def prepare_key(self, key):
 
-        if isinstance(key, RSA._RSAobj):
+        if isinstance(key, RsaKey):
             return key
 
         if isinstance(key, string_types):
