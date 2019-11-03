@@ -78,4 +78,5 @@ You can run tests from the project root after cloning with:
 
 .. code-block:: sh
 
-    $ python setup.py test
+    $ pip install -e '.[dev]'
+    $ py.test

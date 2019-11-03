@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Prefer https:// links where available #439
 - Fix mypy errors #449
 - Fix simple typo: encododed -> encoded #462
+- Correct test instructions in README
 
 ### Added
 
