@@ -30,6 +30,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - Document (and prefer) pyjwt[crypto] req format #426
 - Set headers when encoding via command line #406
+- Requiring arbitrary claim names with the ``require_`` options
 
 [v1.7.1][1.7.1]
 -------------------------------------------------------------------------

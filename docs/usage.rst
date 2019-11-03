@@ -215,3 +215,24 @@ Issued At Claim (iat)
 
     jwt.encode({'iat': 1371720939}, 'secret')
     jwt.encode({'iat': datetime.utcnow()}, 'secret')
+
+Requiring Arbitrary Claims
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``decode`` function requires claims by including a Boolean value with the
+claim name prefixed with ``require_`` in the options parameter.  None of the
+supported claim names are required by default.
+
+.. code-block:: pycon
+
+    >>> token = jwt.encode({'aud': 'me', 'sub': 'you'}, 'secret')
+    >>> jwt.decode(token, 'secret', audience='me', options={'require_foo': True})
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "/.../pyjwt/jwt/api_jwt.py", line 115, in decode
+        self._validate_claims(payload, merged_options, **kwargs)
+      File "/.../pyjwt/jwt/api_jwt.py", line 137, in _validate_claims
+        self._validate_required_claims(payload, options)
+      File "/.../pyjwt/jwt/api_jwt.py", line 164, in _validate_required_claims
+        raise MissingRequiredClaimError(claim_name)
+    jwt.exceptions.MissingRequiredClaimError: Token is missing the "foo" claim

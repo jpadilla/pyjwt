@@ -154,14 +154,14 @@ class PyJWT(PyJWS):
             self._validate_aud(payload, audience)
 
     def _validate_required_claims(self, payload, options):
-        if options.get("require_exp") and payload.get("exp") is None:
-            raise MissingRequiredClaimError("exp")
-
-        if options.get("require_iat") and payload.get("iat") is None:
-            raise MissingRequiredClaimError("iat")
-
-        if options.get("require_nbf") and payload.get("nbf") is None:
-            raise MissingRequiredClaimError("nbf")
+        required_claims = (
+            claim_name[8:]
+            for claim_name, is_required in options.items()
+            if claim_name.startswith("require_") and is_required
+        )
+        for claim_name in required_claims:
+            if payload.get(claim_name) is None:
+                raise MissingRequiredClaimError(claim_name)
 
     def _validate_iat(self, payload, now, leeway):
         try:
