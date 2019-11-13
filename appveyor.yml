@@ -1,10 +1,13 @@
 environment:
   matrix:
-    - PYTHON: "C:\\Python27-x64"
-      TOX_ENV: "py27-crypto"
-
     - PYTHON: "C:\\Python35-x64"
       TOX_ENV: "py35-crypto"
+
+    - PYTHON: "C:\\Python36-x64"
+      TOX_ENV: "py36-crypto"
+
+    - PYTHON: "C:\\Python37-x64"
+      TOX_ENV: "py37-crypto"
 
 init:
   - SET PATH=%PYTHON%;%PATH%

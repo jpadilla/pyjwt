@@ -13,8 +13,6 @@ from jwt.exceptions import (
 )
 from jwt.utils import base64url_decode, force_bytes, force_unicode
 
-from .compat import string_types, text_type
-
 try:
     from cryptography.hazmat.backends import default_backend
     from cryptography.hazmat.primitives.serialization import (
@@ -107,7 +105,7 @@ class TestJWS:
 
     def test_decode_works_with_unicode_token(self, jws):
         secret = "secret"
-        unicode_jws = text_type(
+        unicode_jws = (
             "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
             ".eyJoZWxsbyI6ICJ3b3JsZCJ9"
             ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
@@ -732,13 +730,13 @@ class TestJWS:
         headers = {"testheader": True}
         token = jws.encode(payload, "secret", headers=headers)
 
-        if not isinstance(token, string_types):
+        if not isinstance(token, str):
             token = token.decode()
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
 
-        if not isinstance(header, text_type):
+        if not isinstance(header, str):
             header = header.decode()
 
         header_obj = json.loads(header)
