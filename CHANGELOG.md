@@ -103,7 +103,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- Guard against PKCS1 PEM encododed public keys [#277][277]
+- Guard against PKCS1 PEM encoded public keys [#277][277]
 - Add deprecation warning when decoding without specifying `algorithms` [#277][277]
 - Improve deprecation messages [#270][270]
 - PyJWT.decode: move verify param into options [#271][271]
