@@ -7,6 +7,8 @@ matrix:
       env: TOXENV=py36-crypto,py36-nocrypto,py36-contrib_crypto
     - python: 3.7
       env: TOXENV=lint,typing,py37-crypto,py37-nocrypto,py37-contrib_crypto
+    - python: pypy3
+      env: TOXENV=pypy3-crypto,pypy3-nocrypto,pypy3-contrib_crypto
 install:
   - pip install -U pip
   - pip install -U tox coveralls
