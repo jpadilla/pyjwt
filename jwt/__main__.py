@@ -43,7 +43,19 @@ def encode_payload(args):
 
         payload[k] = v
 
-    token = encode(payload, key=args.key, algorithm=args.algorithm)
+    # Build header object to encode
+    header = {}
+    if args.header:
+        try:
+            header = json.loads(args.header)
+        except Exception as e:
+            raise ValueError(
+                "Error loading header: %s. See --help for usage." % e
+            )
+
+    token = encode(
+        payload, key=args.key, algorithm=args.algorithm, headers=header
+    )
 
     return token.decode("utf-8")
 
@@ -86,6 +98,12 @@ def build_argparser():
     %(prog)s --key=secret encode foo=bar exp=+10
 
     The exp key is special and can take an offset to current Unix time.
+
+    %(prog)s --key=secret --header='{"typ":"jwt", "alg":"RS256"}' encode is=me
+
+    The header option can be provided for input to encode in the jwt. The format
+    requires the header be enclosed in single quote and key/value pairs with double
+    quotes.
     """
 
     arg_parser = argparse.ArgumentParser(prog="pyjwt", usage=usage)
@@ -108,6 +126,14 @@ def build_argparser():
         metavar="ALG",
         default="HS256",
         help="set crypto algorithm to sign with. default=HS256",
+    )
+
+    arg_parser.add_argument(
+        "--header",
+        dest="header",
+        metavar="HEADER",
+        default=None,
+        help="set jwt header",
     )
 
     subparsers = arg_parser.add_subparsers(
