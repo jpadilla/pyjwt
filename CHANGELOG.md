@@ -8,9 +8,26 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 
+- Pass python_requires argument to setuptools #440
+- Rename [wheel] section to [bdist_wheel] as the former is legacy #441
+- Remove setup.py test command in favor of pytest and tox #442
+- DX Tweaks #450
+- Remove Python 2.7 compatibility #457
+
 ### Fixed
 
+- Decode return type is dict[str, Any] #393
+- Fix linter error in test_cli #414
+- Correct type for json_encoder argument #438
+- Run mypy with tox #421
+- Prefer https:// links where available #439
+- Fix mypy errors #449
+- Fix simple typo: encododed -> encoded #462
+
 ### Added
+
+- Document (and prefer) pyjwt[crypto] req format #426
+- Set headers when encoding via command line #406
 
 [v1.7.1][1.7.1]
 -------------------------------------------------------------------------
