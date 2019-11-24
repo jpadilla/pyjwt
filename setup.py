@@ -38,7 +38,9 @@ EXTRAS_REQUIRE = {
 }
 
 EXTRAS_REQUIRE["dev"] = (
-    EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["crypto"] + ["mypy", "pre-commit"]
+    EXTRAS_REQUIRE["tests"]
+    + EXTRAS_REQUIRE["crypto"]
+    + ["ecdsa", "mypy", "pre-commit", "pycryptodome", "tox"]
 )
 
 setup(

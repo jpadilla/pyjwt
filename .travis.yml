@@ -2,11 +2,11 @@ language: python
 matrix:
   include:
     - python: 3.5
-      env: TOXENV=py35-crypto,py35-nocrypto,py35-contrib_crypto
+      env: TOXENV=py35-crypto,py35-nocrypto,py35-contrib_crypto,py35-contrib_cryptodome
     - python: 3.6
-      env: TOXENV=py36-crypto,py36-nocrypto,py36-contrib_crypto
+      env: TOXENV=py36-crypto,py36-nocrypto,py36-contrib_crypto,py36-contrib_cryptodome
     - python: 3.7
-      env: TOXENV=lint,typing,py37-crypto,py37-nocrypto,py37-contrib_crypto
+      env: TOXENV=lint,typing,py37-crypto,py37-nocrypto,py37-contrib_crypto,py37-contrib_cryptodome
 install:
   - pip install -U pip
   - pip install -U tox coveralls
