@@ -9,6 +9,9 @@ environment:
     - PYTHON: "C:\\Python37-x64"
       TOX_ENV: "py37-crypto"
 
+    - PYTHON: "C:\\Python38-x64"
+      TOX_ENV: "py38-crypto"
+
 init:
   - SET PATH=%PYTHON%;%PATH%
   - python -c "import sys;sys.stdout.write(sys.version)"
