@@ -51,7 +51,7 @@ class PyJWT(PyJWS):
         json_encoder=None,  # type: Optional[Type[json.JSONEncoder]]
     ):
         # Check that we get a mapping
-        if not isinstance(payload, Mapping):
+        if not isinstance(payload, Mapping) and not isinstance(payload, list):
             raise TypeError(
                 "Expecting a mapping object, as JWT only supports "
                 "JSON objects as payloads."
@@ -59,8 +59,13 @@ class PyJWT(PyJWS):
 
         # Payload
         for time_claim in ["exp", "iat", "nbf"]:
+            try:
+                payload_time_claim = payload[time_claim]
+            except:
+                payload_time_claim = None
+
             # Convert datetime to a intDate value in known time-format claims
-            if isinstance(payload.get(time_claim), datetime):
+            if isinstance(payload_time_claim, datetime):
                 payload[time_claim] = timegm(
                     payload[time_claim].utctimetuple()
                 )  # type: ignore
