@@ -7,7 +7,7 @@ import hmac
 
 text_type = str
 binary_type = bytes
-string_types = (str, bytes)
+string_types = (str, bytes, list)
 
 try:
     # Importing ABCs from collections will be removed in PY3.8

@@ -44,7 +44,7 @@ class PyJWT(PyJWS):
 
     def encode(
         self,
-        payload,  # type: Union[Dict, bytes]
+        payload,  # type: Union[list, Dict, bytes]
         key,  # type: str
         algorithm="HS256",  # type: str
         headers=None,  # type: Optional[Dict]
