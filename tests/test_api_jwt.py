@@ -131,7 +131,7 @@ class TestJWT:
 
     def test_encode_bad_type(self, jwt):
 
-        types = ["string", tuple(), list(), 42, set()]
+        types = ["string", tuple(), 42, set()]
 
         for t in types:
             pytest.raises(TypeError, lambda: jwt.encode(t, "secret"))
