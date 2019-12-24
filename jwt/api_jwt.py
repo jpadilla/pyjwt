@@ -112,7 +112,7 @@ class PyJWT(PyJWS):
             payload = json.loads(decoded.decode("utf-8"))
         except ValueError as e:
             raise DecodeError("Invalid payload string: %s" % e)
-        if not isinstance(payload, dict):
+        if not isinstance(payload, dict) and not isinstance(payload, list):
             raise DecodeError("Invalid payload string: must be a json object")
 
         if verify:
