@@ -20,7 +20,9 @@ class PyJWKClient:
     def get_signing_keys(self):
         jwk_set = self.get_jwk_set()
         signing_keys = list(
-            filter(lambda key: key.public_key_use == "sig" and key.key_id, jwk_set.keys,)
+            filter(
+                lambda key: key.public_key_use == "sig" and key.key_id, jwk_set.keys,
+            )
         )
 
         if len(signing_keys) == 0:
@@ -39,7 +41,7 @@ class PyJWKClient:
 
         if not signing_key:
             raise PyJWKClientError(
-                f'Unable to find a signing key that matches: "{kid}"'
+                'Unable to find a signing key that matches: "{kid}"'.format(kid)
             )
 
         return signing_key
