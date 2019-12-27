@@ -54,6 +54,18 @@ class MissingRequiredClaimError(InvalidTokenError):
         return 'Token is missing the "%s" claim' % self.claim
 
 
+class PyJWKError(PyJWTError):
+    pass
+
+
+class PyJWKSetError(PyJWTError):
+    pass
+
+
+class PyJWKClientError(PyJWTError):
+    pass
+
+
 # Compatibility aliases (deprecated)
 ExpiredSignature = ExpiredSignatureError
 InvalidAudience = InvalidAudienceError

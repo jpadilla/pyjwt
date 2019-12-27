@@ -33,12 +33,16 @@ if sys.argv[-1] == "publish":
     sys.exit()
 
 EXTRAS_REQUIRE = {
+    "jwks-client": ["requests"],
     "tests": ["pytest>=4.0.1,<5.0.0", "pytest-cov>=2.6.0,<3.0.0"],
     "crypto": ["cryptography >= 1.4"],
 }
 
 EXTRAS_REQUIRE["dev"] = (
-    EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["crypto"] + ["mypy", "pre-commit"]
+    EXTRAS_REQUIRE["tests"]
+    + EXTRAS_REQUIRE["crypto"]
+    + EXTRAS_REQUIRE["jwks-client"]
+    + ["mypy", "pre-commit"]
 )
 
 setup(
@@ -50,9 +54,7 @@ setup(
     license="MIT",
     keywords="jwt json web token security signing",
     url="https://github.com/jpadilla/pyjwt",
-    packages=find_packages(
-        exclude=["*.tests", "*.tests.*", "tests.*", "tests"]
-    ),
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     long_description=long_description,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
