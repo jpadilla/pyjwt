@@ -4,13 +4,15 @@ from .exceptions import PyJWKClientError
 
 try:
     import requests
+
+    has_requests = True
 except ImportError:
-    requests = None
+    has_requests = False
 
 
 class PyJWKClient:
     def __init__(self, uri):
-        if not requests:
+        if not has_requests:
             raise PyJWKClientError(
                 "Missing dependencies for `PyJWKClient`. Run `pip install pyjwt[jwks-client]` to install dependencies."
             )
@@ -49,7 +51,7 @@ class PyJWKClient:
 
         if not signing_key:
             raise PyJWKClientError(
-                'Unable to find a signing key that matches: "{kid}"'.format(kid)
+                'Unable to find a signing key that matches: "{}"'.format(kid)
             )
 
         return signing_key
