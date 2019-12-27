@@ -1,6 +1,8 @@
 language: python
 matrix:
   include:
+    - python: 3.8
+      env: TOXENV=lint,typing
     - python: 3.5
       env: TOXENV=py35-crypto,py35-nocrypto,py35-contrib_crypto
     - python: 3.6
@@ -8,7 +10,7 @@ matrix:
     - python: 3.7
       env: TOXENV=py37-crypto,py37-nocrypto,py37-contrib_crypto
     - python: 3.8
-      env: TOXENV=lint,typing,py38-crypto,py38-nocrypto,py38-contrib_crypto
+      env: TOXENV=py38-crypto,py38-nocrypto,py38-contrib_crypto
 install:
   - pip install -U pip
   - pip install -U tox coveralls

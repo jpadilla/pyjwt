@@ -3,13 +3,13 @@ repos:
     rev: 19.3b0
     hooks:
       - id: black
-        language_version: python3.7
+        language_version: python3.8
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.8
     hooks:
       - id: flake8
-        language_version: python3.7
+        language_version: python3.8
 
   - repo: https://github.com/asottile/seed-isort-config
     rev: v1.9.3
@@ -21,7 +21,7 @@ repos:
     hooks:
       - id: isort
         additional_dependencies: [toml]
-        language_version: python3.7
+        language_version: python3.8
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
