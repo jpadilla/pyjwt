@@ -101,7 +101,12 @@ class PyJWT(PyJWS):
             options.setdefault("verify_signature", verify)
 
         decoded = super(PyJWT, self).decode(
-            jwt, key=key, algorithms=algorithms, options=options, complete=complete, **kwargs
+            jwt,
+            key=key,
+            algorithms=algorithms,
+            options=options,
+            complete=complete,
+            **kwargs
         )
 
         try:

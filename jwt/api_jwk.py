@@ -13,12 +13,16 @@ class PyJWK(object):
             algorithm = self._jwk_data.get("alg", None)
 
         if not algorithm:
-            raise PyJWKError("Unable to find a algorithm for key: %s" % self._jwk_data)
+            raise PyJWKError(
+                "Unable to find a algorithm for key: %s" % self._jwk_data
+            )
 
         self.Algorithm = self._algorithms.get(algorithm)
 
         if not self.Algorithm:
-            raise PyJWKError("Unable to find a algorithm for key: %s" % self._jwk_data)
+            raise PyJWKError(
+                "Unable to find a algorithm for key: %s" % self._jwk_data
+            )
 
         self.key = self.Algorithm.from_jwk(self._jwk_data)
 

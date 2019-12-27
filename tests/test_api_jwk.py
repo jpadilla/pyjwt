@@ -1,4 +1,5 @@
 import json
+
 import pytest
 
 from jwt.api_jwk import PyJWK, PyJWKSet
@@ -15,7 +16,8 @@ except ImportError:
 
 class TestPyJWK:
     @pytest.mark.skipif(
-        not has_crypto, reason="Scenario requires cryptography to not be installed"
+        not has_crypto,
+        reason="Scenario requires cryptography to not be installed",
     )
     def test_should_load_key_from_jwk_data_dict(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
@@ -38,7 +40,8 @@ class TestPyJWK:
         assert jwk.public_key_use == "sig"
 
     @pytest.mark.skipif(
-        not has_crypto, reason="Scenario requires cryptography to not be installed"
+        not has_crypto,
+        reason="Scenario requires cryptography to not be installed",
     )
     def test_should_load_key_from_jwk_data_json_string(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
@@ -63,7 +66,8 @@ class TestPyJWK:
 
 class TestPyJWKSet:
     @pytest.mark.skipif(
-        not has_crypto, reason="Scenario requires cryptography to not be installed"
+        not has_crypto,
+        reason="Scenario requires cryptography to not be installed",
     )
     def test_should_load_keys_from_jwk_data_dict(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
@@ -87,7 +91,8 @@ class TestPyJWKSet:
         assert jwk.public_key_use == "sig"
 
     @pytest.mark.skipif(
-        not has_crypto, reason="Scenario requires cryptography to not be installed"
+        not has_crypto,
+        reason="Scenario requires cryptography to not be installed",
     )
     def test_should_load_keys_from_jwk_data_json_string(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)

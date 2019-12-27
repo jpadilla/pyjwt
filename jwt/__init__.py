@@ -25,7 +25,6 @@ from .api_jwt import (
     register_algorithm,
     unregister_algorithm,
 )
-from .jwks_client import PyJWKClient
 from .exceptions import (
     DecodeError,
     ExpiredSignature,
@@ -40,8 +39,9 @@ from .exceptions import (
     InvalidSignatureError,
     InvalidTokenError,
     MissingRequiredClaimError,
-    PyJWTError,
+    PyJWKClientError,
     PyJWKError,
     PyJWKSetError,
-    PyJWKClientError,
+    PyJWTError,
 )
+from .jwks_client import PyJWKClient

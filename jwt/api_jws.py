@@ -168,7 +168,7 @@ class PyJWS(object):
             return {
                 "payload": payload,
                 "header": header,
-                "signature": signature
+                "signature": signature,
             }
 
         return payload

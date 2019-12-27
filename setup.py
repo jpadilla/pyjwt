@@ -54,7 +54,9 @@ setup(
     license="MIT",
     keywords="jwt json web token security signing",
     url="https://github.com/jpadilla/pyjwt",
-    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    packages=find_packages(
+        exclude=["*.tests", "*.tests.*", "tests.*", "tests"]
+    ),
     long_description=long_description,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
