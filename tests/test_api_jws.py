@@ -654,7 +654,7 @@ class TestJWS:
                 password=None,
                 backend=default_backend(),
             )
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES521")
+            jws_message = jws.encode(payload, priv_eckey, algorithm="ES512")
 
         with open("tests/keys/testkey_ec.pub", "r") as ec_pub_file:
             pub_eckey = load_pem_public_key(
@@ -665,7 +665,7 @@ class TestJWS:
         # string-formatted key
         with open("tests/keys/testkey_ec", "r") as ec_priv_file:
             priv_eckey = ec_priv_file.read()
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES521")
+            jws_message = jws.encode(payload, priv_eckey, algorithm="ES512")
 
         with open("tests/keys/testkey_ec.pub", "r") as ec_pub_file:
             pub_eckey = ec_pub_file.read()
@@ -678,11 +678,11 @@ class TestJWS:
         if has_crypto:
             assert "ES256" in jws_algorithms
             assert "ES384" in jws_algorithms
-            assert "ES521" in jws_algorithms
+            assert "ES512" in jws_algorithms
         else:
             assert "ES256" not in jws_algorithms
             assert "ES384" not in jws_algorithms
-            assert "ES521" not in jws_algorithms
+            assert "ES512" not in jws_algorithms
 
     def test_skip_check_signature(self, jws):
         token = (

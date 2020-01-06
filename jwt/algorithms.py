@@ -51,7 +51,6 @@ requires_cryptography = set(
         "RS512",
         "ES256",
         "ES384",
-        "ES521",
         "ES512",
         "PS256",
         "PS384",
@@ -79,10 +78,7 @@ def get_default_algorithms():
                 "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
                 "ES256": ECAlgorithm(ECAlgorithm.SHA256),
                 "ES384": ECAlgorithm(ECAlgorithm.SHA384),
-                "ES521": ECAlgorithm(ECAlgorithm.SHA512),
-                "ES512": ECAlgorithm(
-                    ECAlgorithm.SHA512
-                ),  # Backward compat for #219 fix
+                "ES512": ECAlgorithm(ECAlgorithm.SHA512),
                 "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
                 "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
                 "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
