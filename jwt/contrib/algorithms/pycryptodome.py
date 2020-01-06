@@ -2,7 +2,7 @@ import Cryptodome.Hash.SHA256
 import Cryptodome.Hash.SHA384
 import Cryptodome.Hash.SHA512
 from Cryptodome.PublicKey import ECC, RSA
-from Cryptodome.Signature import DSS, PKCS1_v1_5
+from Cryptodome.Signature import DSS, PKCS1_v1_5, pss
 
 from jwt.algorithms import Algorithm
 from jwt.compat import string_types, text_type
@@ -61,7 +61,6 @@ class ECAlgorithm(Algorithm):
         self.hash_alg = hash_alg
 
     def prepare_key(self, key):
-
         if isinstance(key, ECC.EccKey):
             return key
 
@@ -87,4 +86,40 @@ class ECAlgorithm(Algorithm):
             verifier.verify(hash_obj, sig)
             return True
         except ValueError:
+            return False
+
+
+class RSAPSSAlgorithm(RSAAlgorithm):
+    """
+    Performs a signature using RSASSA-PSS with MGF1
+
+    This class requires the PyCryptodome package to be installed.
+    """
+
+    def prepare_key(self, key):
+        if isinstance(key, ECC.EccKey):
+            return key
+
+        if isinstance(key, string_types):
+            if isinstance(key, text_type):
+                key = key.encode("utf-8")
+            key = RSA.import_key(key)
+        else:
+            raise TypeError("Expecting a PEM- or RSA-formatted key.")
+
+        return key
+
+    def sign(self, msg, key):
+        signer = pss.new(key)
+        hash_obj = self.hash_alg.new(msg)
+        return signer.sign(hash_obj)
+
+    def verify(self, msg, key, sig):
+        hash_obj = self.hash_alg.new(msg)
+        verifier = pss.new(key)
+
+        try:
+            verifier.verify(hash_obj, sig)
+            return True
+        except (ValueError, TypeError):
             return False
