@@ -224,12 +224,9 @@ class TestJWS:
         with open("tests/keys/testkey_ec.pub", "r") as fp:
             example_pubkey = fp.read()
         example_jws = (
-            b"eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9"
-            b".eyJoZWxsbyI6IndvcmxkIn0"
-            b".AGtlemKghaIaYh1yeeekFH9fRuNY7hCaw5hUgZ5aG1N"
-            b"2F8FIbiKLaZKr8SiFdTimXFVTEmxpBQ9sRmdsDsnrM-1"
-            b"HAG0_zxxu0JyINOFT2iqF3URYl9HZ8kZWMeZAtXmn6Cw"
-            b"PXRJD2f7N-f7bJ5JeL9VT5beI2XD3FlK3GgRvI-eE-2Ik"
+            b"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."
+            b"eyJoZWxsbyI6IndvcmxkIn0.TORyNQab_MoXM7DvNKaTwbrJr4UY"
+            b"d2SsX8hhlnWelQFmPFSf_JzC2EbLnar92t-bXsDovzxp25ExazrVHkfPkQ"
         )
         decoded_payload = jws.decode(example_jws, example_pubkey)
         json_payload = json.loads(force_unicode(decoded_payload))

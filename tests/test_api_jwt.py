@@ -199,20 +199,17 @@ class TestJWT:
     @pytest.mark.skipif(
         not has_crypto, reason="Can't run without cryptography library"
     )
-    def test_decodes_valid_es384_jwt(self, jwt):
+    def test_decodes_valid_es256_jwt(self, jwt):
         example_payload = {"hello": "world"}
         with open("tests/keys/testkey_ec.pub", "r") as fp:
             example_pubkey = fp.read()
         example_jwt = (
-            b"eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9"
-            b".eyJoZWxsbyI6IndvcmxkIn0"
-            b".AddMgkmRhzqptDYqlmy_f2dzM6O9YZmVo-txs_CeAJD"
-            b"NoD8LN7YiPeLmtIhkO5_VZeHHKvtQcGc4lsq-Y72c4dK"
-            b"pANr1f6HEYhjpBc03u_bv06PYMcr5N2-9k97-qf-JCSb"
-            b"zqW6R250Q7gNCX5R7NrCl7MTM4DTBZkGbUlqsFUleiGlj"
+            b"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."
+            b"eyJoZWxsbyI6IndvcmxkIn0.TORyNQab_MoXM7DvNKaTwbrJr4UY"
+            b"d2SsX8hhlnWelQFmPFSf_JzC2EbLnar92t-bXsDovzxp25ExazrVHkfPkQ"
         )
-        decoded_payload = jwt.decode(example_jwt, example_pubkey)
 
+        decoded_payload = jwt.decode(example_jwt, example_pubkey)
         assert decoded_payload == example_payload
 
     # 'Control' RSA JWT created by another library.
