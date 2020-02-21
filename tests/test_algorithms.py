@@ -417,6 +417,17 @@ class TestAlgorithms:
     @pytest.mark.skipif(
         not has_crypto, reason="Not supported without cryptography library"
     )
+    def test_rsa_from_jwk_skips_json_if_not_given_string(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+
+        with open(key_path("jwk_rsa_pub.json"), "r") as keyfile:
+            data = json.loads(keyfile.read())
+            result = algo.from_jwk(data)
+            assert result
+
+    @pytest.mark.skipif(
+        not has_crypto, reason="Not supported without cryptography library"
+    )
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 

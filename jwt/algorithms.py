@@ -121,14 +121,14 @@ class Algorithm(object):
     @staticmethod
     def to_jwk(key_obj):
         """
-        Serializes a given RSA key into a JWK
+        Serializes a given key into a JWK
         """
         raise NotImplementedError
 
     @staticmethod
     def from_jwk(jwk):
         """
-        Deserializes a given RSA key from JWK back into a PublicKey or PrivateKey object
+        Deserializes a given key from JWK back into a PublicKey or PrivateKey object
         """
         raise NotImplementedError
 
@@ -197,7 +197,13 @@ class HMACAlgorithm(Algorithm):
 
     @staticmethod
     def from_jwk(jwk):
-        obj = json.loads(jwk)
+        if isinstance(jwk, string_types):
+            try:
+                obj = json.loads(jwk)
+            except ValueError:
+                raise InvalidKeyError("Key is not valid JSON")
+        else:
+            obj = jwk
 
         if obj.get("kty") != "oct":
             raise InvalidKeyError("Not an HMAC key")
@@ -291,10 +297,13 @@ if has_crypto:  # noqa: C901
 
         @staticmethod
         def from_jwk(jwk):
-            try:
-                obj = json.loads(jwk)
-            except ValueError:
-                raise InvalidKeyError("Key is not valid JSON")
+            if isinstance(jwk, string_types):
+                try:
+                    obj = json.loads(jwk)
+                except ValueError:
+                    raise InvalidKeyError("Key is not valid JSON")
+            else:
+                obj = jwk
 
             if obj.get("kty") != "RSA":
                 raise InvalidKeyError("Not an RSA key")
