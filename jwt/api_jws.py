@@ -188,31 +188,31 @@ class PyJWS(object):
         try:
             signing_input, crypto_segment = jwt.rsplit(b".", 1)
             header_segment, payload_segment = signing_input.split(b".", 1)
-        except ValueError:
-            raise DecodeError("Not enough segments")
+        except ValueError as err:
+            raise DecodeError("Not enough segments") from err
 
         try:
             header_data = base64url_decode(header_segment)
-        except (TypeError, binascii.Error):
-            raise DecodeError("Invalid header padding")
+        except (TypeError, binascii.Error) as err:
+            raise DecodeError("Invalid header padding") from err
 
         try:
             header = json.loads(header_data.decode("utf-8"))
         except ValueError as e:
-            raise DecodeError("Invalid header string: %s" % e)
+            raise DecodeError("Invalid header string: %s" % e) from e
 
         if not isinstance(header, Mapping):
             raise DecodeError("Invalid header string: must be a json object")
 
         try:
             payload = base64url_decode(payload_segment)
-        except (TypeError, binascii.Error):
-            raise DecodeError("Invalid payload padding")
+        except (TypeError, binascii.Error) as err:
+            raise DecodeError("Invalid payload padding") from err
 
         try:
             signature = base64url_decode(crypto_segment)
-        except (TypeError, binascii.Error):
-            raise DecodeError("Invalid crypto padding")
+        except (TypeError, binascii.Error) as err:
+            raise DecodeError("Invalid crypto padding") from err
 
         return (payload, signing_input, header, signature)
 
