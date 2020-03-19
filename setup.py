@@ -67,7 +67,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Topic :: Utilities",
     ],
-    python_requires=">=3, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
+    python_requires=">=3.5",
     extras_require=EXTRAS_REQUIRE,
     entry_points={"console_scripts": ["pyjwt = jwt.__main__:main"]},
     options={"bdist_wheel": {"universal": "1"}},
