@@ -36,14 +36,12 @@ EXTRAS_REQUIRE = {
     "jwks-client": ["requests"],
     "tests": ["pytest>=4.0.1,<5.0.0", "pytest-cov>=2.6.0,<3.0.0"],
     "cryptography": ["cryptography >= 1.4"],
-    "pycryptodome": ["pycryptodomex"],
 }
 
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["tests"]
     + EXTRAS_REQUIRE["cryptography"]
     + EXTRAS_REQUIRE["jwks-client"]
-    + EXTRAS_REQUIRE["pycryptodome"]
     + ["mypy", "pre-commit"]
 )
 
