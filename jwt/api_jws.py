@@ -1,6 +1,5 @@
 import binascii
 import json
-import warnings
 
 from .algorithms import requires_cryptography  # NOQA
 from .algorithms import Algorithm, get_default_algorithms, has_crypto
@@ -132,7 +131,6 @@ class PyJWS(object):
         self,
         jwt,  # type: str
         key="",  # type: str
-        verify=True,  # type: bool
         algorithms=None,  # type: List[str]
         options=None,  # type: Dict
         complete=False,  # type: bool
@@ -143,23 +141,14 @@ class PyJWS(object):
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms:
-            warnings.warn(
-                "It is strongly recommended that you pass in a "
+            raise DecodeError(
+                "It is required that you pass in a "
                 + 'value for the "algorithms" argument when calling decode(). '
-                + "This argument will be mandatory in a future version.",
-                DeprecationWarning,
             )
 
         payload, signing_input, header, signature = self._load(jwt)
 
-        if not verify:
-            warnings.warn(
-                "The verify parameter is deprecated. "
-                "Please use verify_signature in options instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        elif verify_signature:
+        if verify_signature:
             self._verify_signature(
                 payload, signing_input, header, signature, key, algorithms
             )
@@ -225,13 +214,7 @@ class PyJWS(object):
         return (payload, signing_input, header, signature)
 
     def _verify_signature(
-        self,
-        payload,
-        signing_input,
-        header,
-        signature,
-        key="",
-        algorithms=None,
+        self, payload, signing_input, header, signature, key, algorithms
     ):
 
         alg = header.get("alg")

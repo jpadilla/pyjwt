@@ -88,8 +88,8 @@ class TestJWS:
 
     def test_encode_decode(self, jws, payload):
         secret = "secret"
-        jws_message = jws.encode(payload, secret)
-        decoded_payload = jws.decode(jws_message, secret)
+        jws_message = jws.encode(payload, secret, algorithm="HS256")
+        decoded_payload = jws.decode(jws_message, secret, algorithms=["HS256"])
 
         assert decoded_payload == payload
 
@@ -98,7 +98,7 @@ class TestJWS:
     ):
         secret = "secret"
         jws_token = jws.encode(payload, secret, algorithm="HS256")
-        jws.decode(jws_token, secret)
+        jws.decode(jws_token, secret, algorithms=["HS256"])
 
         with pytest.raises(InvalidAlgorithmError):
             jws.decode(jws_token, secret, algorithms=["HS384"])
@@ -111,7 +111,7 @@ class TestJWS:
             ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
         )
 
-        jws.decode(unicode_jws, secret)
+        jws.decode(unicode_jws, secret, algorithms=["HS256"])
 
     def test_decode_missing_segments_throws_exception(self, jws):
         secret = "secret"
@@ -122,7 +122,7 @@ class TestJWS:
         )  # Missing segment
 
         with pytest.raises(DecodeError) as context:
-            jws.decode(example_jws, secret)
+            jws.decode(example_jws, secret, algorithms=["HS256"])
 
         exception = context.value
         assert str(exception) == "Not enough segments"
@@ -132,7 +132,7 @@ class TestJWS:
         example_secret = "secret"
 
         with pytest.raises(DecodeError) as context:
-            jws.decode(example_jws, example_secret)
+            jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         exception = context.value
         assert "Invalid token type" in str(exception)
@@ -142,7 +142,7 @@ class TestJWS:
         example_secret = "secret"
 
         with pytest.raises(DecodeError) as context:
-            jws.decode(example_jws, example_secret)
+            jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         exception = context.value
         assert "Invalid token type" in str(exception)
@@ -156,7 +156,7 @@ class TestJWS:
         )
 
         with pytest.raises(DecodeError) as context:
-            jws.decode(example_jws, secret)
+            jws.decode(example_jws, secret, algorithms=["HS256"])
 
         exception = context.value
         assert str(exception) == "Invalid header string: must be a json object"
@@ -181,7 +181,7 @@ class TestJWS:
         )
 
         with pytest.raises(InvalidAlgorithmError) as context:
-            jws.decode(example_jws, "secret")
+            jws.decode(example_jws, "secret", algorithms=["hs256"])
 
         exception = context.value
         assert str(exception) == "Algorithm not supported"
@@ -193,11 +193,11 @@ class TestJWS:
 
         with pytest.raises(DecodeError) as excinfo:
             # Backward compat for ticket #315
-            jws.decode(jws_message, bad_secret)
+            jws.decode(jws_message, bad_secret, algorithms=["HS256"])
         assert "Signature verification failed" == str(excinfo.value)
 
         with pytest.raises(InvalidSignatureError) as excinfo:
-            jws.decode(jws_message, bad_secret)
+            jws.decode(jws_message, bad_secret, algorithms=["HS256"])
         assert "Signature verification failed" == str(excinfo.value)
 
     def test_decodes_valid_jws(self, jws, payload):
@@ -208,7 +208,9 @@ class TestJWS:
             b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
         )
 
-        decoded_payload = jws.decode(example_jws, example_secret)
+        decoded_payload = jws.decode(
+            example_jws, example_secret, algorithms=["HS256"]
+        )
 
         assert decoded_payload == payload
 
@@ -228,7 +230,9 @@ class TestJWS:
             b"eyJoZWxsbyI6IndvcmxkIn0.TORyNQab_MoXM7DvNKaTwbrJr4UY"
             b"d2SsX8hhlnWelQFmPFSf_JzC2EbLnar92t-bXsDovzxp25ExazrVHkfPkQ"
         )
-        decoded_payload = jws.decode(example_jws, example_pubkey)
+        decoded_payload = jws.decode(
+            example_jws, example_pubkey, algorithms=["ES256"]
+        )
         json_payload = json.loads(force_unicode(decoded_payload))
 
         assert json_payload == example_payload
@@ -256,7 +260,9 @@ class TestJWS:
             b"uwmrtSWCBUjiN8sqJ00CDgycxKqHfUndZbEAOjcCAhBr"
             b"qWW3mSVivUfubsYbwUdUG3fSRPjaUPcpe8A"
         )
-        decoded_payload = jws.decode(example_jws, example_pubkey)
+        decoded_payload = jws.decode(
+            example_jws, example_pubkey, algorithms=["RS384"]
+        )
         json_payload = json.loads(force_unicode(decoded_payload))
 
         assert json_payload == example_payload
@@ -269,24 +275,19 @@ class TestJWS:
             b"SIr03zM64awWRdPrAM_61QWsZchAtgDV3pphfHPPWkI"
         )
 
-        decoded_payload = jws.decode(example_jws, key=example_secret)
+        decoded_payload = jws.decode(
+            example_jws, key=example_secret, algorithms=["HS256"]
+        )
         assert decoded_payload == payload
 
     def test_allow_skip_verification(self, jws, payload):
         right_secret = "foo"
         jws_message = jws.encode(payload, right_secret)
-        decoded_payload = jws.decode(jws_message, verify=False)
-
-        assert decoded_payload == payload
-
-    def test_verify_false_deprecated(self, jws, recwarn):
-        example_jws = (
-            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
+        decoded_payload = jws.decode(
+            jws_message, options={"verify_signature": False}
         )
 
-        pytest.deprecated_call(jws.decode, example_jws, verify=False)
+        assert decoded_payload == payload
 
     def test_decode_with_optional_algorithms(self, jws):
         example_secret = "secret"
@@ -296,7 +297,13 @@ class TestJWS:
             b"SIr03zM64awWRdPrAM_61QWsZchAtgDV3pphfHPPWkI"
         )
 
-        pytest.deprecated_call(jws.decode, example_jws, key=example_secret)
+        with pytest.raises(DecodeError) as exc:
+            jws.decode(example_jws, key=example_secret)
+
+        assert (
+            'It is required that you pass in a value for the "algorithms" argument when calling decode().'
+            in str(exc.value)
+        )
 
     def test_decode_no_algorithms_verify_signature_false(self, jws):
         example_secret = "secret"
@@ -306,23 +313,22 @@ class TestJWS:
             b"SIr03zM64awWRdPrAM_61QWsZchAtgDV3pphfHPPWkI"
         )
 
-        try:
-            pytest.deprecated_call(
-                jws.decode,
-                example_jws,
-                key=example_secret,
-                options={"verify_signature": False},
-            )
-        except pytest.fail.Exception:
-            pass
-        else:
-            assert False, "Unexpected DeprecationWarning raised."
+        jws.decode(
+            example_jws,
+            key=example_secret,
+            options={"verify_signature": False},
+        )
 
     def test_load_no_verification(self, jws, payload):
         right_secret = "foo"
         jws_message = jws.encode(payload, right_secret)
 
-        decoded_payload = jws.decode(jws_message, key=None, verify=False)
+        decoded_payload = jws.decode(
+            jws_message,
+            key=None,
+            algorithms=["HS256"],
+            options={"verify_signature": False},
+        )
 
         assert decoded_payload == payload
 
@@ -331,14 +337,14 @@ class TestJWS:
         jws_message = jws.encode(payload, right_secret)
 
         with pytest.raises(DecodeError):
-            jws.decode(jws_message)
+            jws.decode(jws_message, algorithms=["HS256"])
 
     def test_verify_signature_with_no_secret(self, jws, payload):
         right_secret = "foo"
         jws_message = jws.encode(payload, right_secret)
 
         with pytest.raises(DecodeError) as exc:
-            jws.decode(jws_message)
+            jws.decode(jws_message, algorithms=["HS256"])
 
         assert "Signature verification" in str(exc.value)
 
@@ -352,7 +358,7 @@ class TestJWS:
         )
 
         with pytest.raises(InvalidAlgorithmError):
-            jws.decode(example_jws, "secret")
+            jws.decode(example_jws, "secret", algorithms=["HS256"])
 
     def test_invalid_crypto_alg(self, jws, payload):
         with pytest.raises(NotImplementedError):
@@ -369,7 +375,7 @@ class TestJWS:
     def test_unicode_secret(self, jws, payload):
         secret = "\xc2"
         jws_message = jws.encode(payload, secret)
-        decoded_payload = jws.decode(jws_message, secret)
+        decoded_payload = jws.decode(jws_message, secret, algorithms=["HS256"])
 
         assert decoded_payload == payload
 
@@ -377,7 +383,7 @@ class TestJWS:
         secret = "\xc2"  # char value that ascii codec cannot decode
         jws_message = jws.encode(payload, secret)
 
-        decoded_payload = jws.decode(jws_message, secret)
+        decoded_payload = jws.decode(jws_message, secret, algorithms=["HS256"])
 
         assert decoded_payload == payload
 
@@ -385,7 +391,7 @@ class TestJWS:
         secret = b"\xc2"  # char value that ascii codec cannot decode
         jws_message = jws.encode(payload, secret)
 
-        decoded_payload = jws.decode(jws_message, secret)
+        decoded_payload = jws.decode(jws_message, secret, algorithms=["HS256"])
 
         assert decoded_payload == payload
 
@@ -398,7 +404,7 @@ class TestJWS:
         example_secret = "secret"
 
         with pytest.raises(DecodeError) as exc:
-            jws.decode(example_jws, example_secret)
+            jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         assert "header padding" in str(exc.value)
 
@@ -411,7 +417,7 @@ class TestJWS:
         example_secret = "secret"
 
         with pytest.raises(DecodeError) as exc:
-            jws.decode(example_jws, example_secret)
+            jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         assert "Invalid header" in str(exc.value)
 
@@ -424,7 +430,7 @@ class TestJWS:
         example_secret = "secret"
 
         with pytest.raises(DecodeError) as exc:
-            jws.decode(example_jws, example_secret)
+            jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         assert "Invalid payload padding" in str(exc.value)
 
@@ -437,7 +443,7 @@ class TestJWS:
         example_secret = "secret"
 
         with pytest.raises(DecodeError) as exc:
-            jws.decode(example_jws, example_secret)
+            jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         assert "Invalid crypto padding" in str(exc.value)
 
@@ -445,13 +451,13 @@ class TestJWS:
         jws_message = jws.encode(payload, key=None, algorithm=None)
 
         with pytest.raises(DecodeError):
-            jws.decode(jws_message)
+            jws.decode(jws_message, algorithms=["none"])
 
     def test_decode_with_algo_none_and_verify_false_should_pass(
         self, jws, payload
     ):
         jws_message = jws.encode(payload, key=None, algorithm=None)
-        jws.decode(jws_message, verify=False)
+        jws.decode(jws_message, options={"verify_signature": False})
 
     def test_get_unverified_header_returns_header_values(self, jws, payload):
         jws_message = jws.encode(
@@ -499,7 +505,7 @@ class TestJWS:
                 force_bytes(rsa_pub_file.read()), backend=default_backend()
             )
 
-            jws.decode(jws_message, pub_rsakey)
+            jws.decode(jws_message, pub_rsakey, algorithms=["RS256"])
 
         # string-formatted key
         with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
@@ -508,7 +514,7 @@ class TestJWS:
 
         with open("tests/keys/testkey_rsa.pub", "r") as rsa_pub_file:
             pub_rsakey = rsa_pub_file.read()
-            jws.decode(jws_message, pub_rsakey)
+            jws.decode(jws_message, pub_rsakey, algorithms=["RS256"])
 
     @pytest.mark.skipif(
         not has_crypto, reason="Not supported without cryptography library"
@@ -527,7 +533,7 @@ class TestJWS:
             pub_rsakey = load_ssh_public_key(
                 force_bytes(rsa_pub_file.read()), backend=default_backend()
             )
-            jws.decode(jws_message, pub_rsakey)
+            jws.decode(jws_message, pub_rsakey, algorithms=["RS384"])
 
         # string-formatted key
         with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
@@ -536,7 +542,7 @@ class TestJWS:
 
         with open("tests/keys/testkey_rsa.pub", "r") as rsa_pub_file:
             pub_rsakey = rsa_pub_file.read()
-            jws.decode(jws_message, pub_rsakey)
+            jws.decode(jws_message, pub_rsakey, algorithms=["RS384"])
 
     @pytest.mark.skipif(
         not has_crypto, reason="Not supported without cryptography library"
@@ -555,7 +561,7 @@ class TestJWS:
             pub_rsakey = load_ssh_public_key(
                 force_bytes(rsa_pub_file.read()), backend=default_backend()
             )
-            jws.decode(jws_message, pub_rsakey)
+            jws.decode(jws_message, pub_rsakey, algorithms=["RS512"])
 
         # string-formatted key
         with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
@@ -564,7 +570,7 @@ class TestJWS:
 
         with open("tests/keys/testkey_rsa.pub", "r") as rsa_pub_file:
             pub_rsakey = rsa_pub_file.read()
-            jws.decode(jws_message, pub_rsakey)
+            jws.decode(jws_message, pub_rsakey, algorithms=["RS512"])
 
     def test_rsa_related_algorithms(self, jws):
         jws = PyJWS()
@@ -603,7 +609,7 @@ class TestJWS:
             pub_eckey = load_pem_public_key(
                 force_bytes(ec_pub_file.read()), backend=default_backend()
             )
-            jws.decode(jws_message, pub_eckey)
+            jws.decode(jws_message, pub_eckey, algorithms=["ES256"])
 
         # string-formatted key
         with open("tests/keys/testkey_ec", "r") as ec_priv_file:
@@ -612,7 +618,7 @@ class TestJWS:
 
         with open("tests/keys/testkey_ec.pub", "r") as ec_pub_file:
             pub_eckey = ec_pub_file.read()
-            jws.decode(jws_message, pub_eckey)
+            jws.decode(jws_message, pub_eckey, algorithms=["ES256"])
 
     @pytest.mark.skipif(
         not has_crypto, reason="Can't run without cryptography library"
@@ -632,7 +638,7 @@ class TestJWS:
             pub_eckey = load_pem_public_key(
                 force_bytes(ec_pub_file.read()), backend=default_backend()
             )
-            jws.decode(jws_message, pub_eckey)
+            jws.decode(jws_message, pub_eckey, algorithms=["ES384"])
 
         # string-formatted key
         with open("tests/keys/testkey_ec", "r") as ec_priv_file:
@@ -641,7 +647,7 @@ class TestJWS:
 
         with open("tests/keys/testkey_ec.pub", "r") as ec_pub_file:
             pub_eckey = ec_pub_file.read()
-            jws.decode(jws_message, pub_eckey)
+            jws.decode(jws_message, pub_eckey, algorithms=["ES384"])
 
     @pytest.mark.skipif(
         not has_crypto, reason="Can't run without cryptography library"
@@ -660,7 +666,7 @@ class TestJWS:
             pub_eckey = load_pem_public_key(
                 force_bytes(ec_pub_file.read()), backend=default_backend()
             )
-            jws.decode(jws_message, pub_eckey)
+            jws.decode(jws_message, pub_eckey, algorithms=["ES512"])
 
         # string-formatted key
         with open("tests/keys/testkey_ec", "r") as ec_priv_file:
@@ -669,7 +675,7 @@ class TestJWS:
 
         with open("tests/keys/testkey_ec.pub", "r") as ec_pub_file:
             pub_eckey = ec_pub_file.read()
-            jws.decode(jws_message, pub_eckey)
+            jws.decode(jws_message, pub_eckey, algorithms=["ES512"])
 
     def test_ecdsa_related_algorithms(self, jws):
         jws = PyJWS()

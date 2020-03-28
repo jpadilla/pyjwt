@@ -41,7 +41,9 @@ class TestJWT:
             b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
             b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
         )
-        decoded_payload = jwt.decode(example_jwt, example_secret)
+        decoded_payload = jwt.decode(
+            example_jwt, example_secret, algorithms=["HS256"]
+        )
 
         assert decoded_payload == example_payload
 
@@ -54,7 +56,9 @@ class TestJWT:
             b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
         )
 
-        decoded_payload = jwt.decode(example_jwt, key=example_secret)
+        decoded_payload = jwt.decode(
+            example_jwt, key=example_secret, algorithms=["HS256"]
+        )
 
         assert decoded_payload == example_payload
 
@@ -67,7 +71,7 @@ class TestJWT:
         example_secret = "secret"
 
         with pytest.raises(DecodeError) as exc:
-            jwt.decode(example_jwt, example_secret)
+            jwt.decode(example_jwt, example_secret, algorithms=["HS256"])
 
         assert "Invalid payload string" in str(exc.value)
 
@@ -80,7 +84,7 @@ class TestJWT:
         )
 
         with pytest.raises(DecodeError) as context:
-            jwt.decode(example_jwt, secret)
+            jwt.decode(example_jwt, secret, algorithms=["HS256"])
 
         exception = context.value
         assert (
@@ -96,7 +100,7 @@ class TestJWT:
         )
 
         with pytest.raises(TypeError) as context:
-            jwt.decode(example_jwt, secret, audience=1)
+            jwt.decode(example_jwt, secret, audience=1, algorithms=["HS256"])
 
         exception = context.value
         assert str(exception) == "audience must be a string, iterable, or None"
@@ -110,7 +114,12 @@ class TestJWT:
         )
 
         with pytest.raises(InvalidAudienceError) as context:
-            jwt.decode(example_jwt, secret, audience="my_audience")
+            jwt.decode(
+                example_jwt,
+                secret,
+                audience="my_audience",
+                algorithms=["HS256"],
+            )
 
         exception = context.value
         assert str(exception) == "Invalid claim format in token"
@@ -124,7 +133,12 @@ class TestJWT:
         )
 
         with pytest.raises(InvalidAudienceError) as context:
-            jwt.decode(example_jwt, secret, audience="my_audience")
+            jwt.decode(
+                example_jwt,
+                secret,
+                audience="my_audience",
+                algorithms=["HS256"],
+            )
 
         exception = context.value
         assert str(exception) == "Invalid claim format in token"
@@ -134,7 +148,10 @@ class TestJWT:
         types = ["string", tuple(), list(), 42, set()]
 
         for t in types:
-            pytest.raises(TypeError, lambda: jwt.encode(t, "secret"))
+            pytest.raises(
+                TypeError,
+                lambda: jwt.encode(t, "secret", algorithms=["HS256"]),
+            )
 
     def test_decode_raises_exception_if_exp_is_not_int(self, jwt):
         # >>> jwt.encode({'exp': 'not-an-int'}, 'secret')
@@ -145,7 +162,7 @@ class TestJWT:
         )
 
         with pytest.raises(DecodeError) as exc:
-            jwt.decode(example_jwt, "secret")
+            jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
         assert "exp" in str(exc.value)
 
@@ -158,7 +175,7 @@ class TestJWT:
         )
 
         with pytest.raises(InvalidIssuedAtError):
-            jwt.decode(example_jwt, "secret")
+            jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
     def test_decode_raises_exception_if_nbf_is_not_int(self, jwt):
         # >>> jwt.encode({'nbf': 'not-an-int'}, 'secret')
@@ -169,7 +186,7 @@ class TestJWT:
         )
 
         with pytest.raises(DecodeError):
-            jwt.decode(example_jwt, "secret")
+            jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
     def test_encode_datetime(self, jwt):
         secret = "secret"
@@ -180,7 +197,9 @@ class TestJWT:
             "nbf": current_datetime,
         }
         jwt_message = jwt.encode(payload, secret)
-        decoded_payload = jwt.decode(jwt_message, secret, leeway=1)
+        decoded_payload = jwt.decode(
+            jwt_message, secret, leeway=1, algorithms=["HS256"]
+        )
 
         assert decoded_payload["exp"] == timegm(
             current_datetime.utctimetuple()
@@ -209,7 +228,9 @@ class TestJWT:
             b"d2SsX8hhlnWelQFmPFSf_JzC2EbLnar92t-bXsDovzxp25ExazrVHkfPkQ"
         )
 
-        decoded_payload = jwt.decode(example_jwt, example_pubkey)
+        decoded_payload = jwt.decode(
+            example_jwt, example_pubkey, algorithms=["ES256"]
+        )
         assert decoded_payload == example_payload
 
     # 'Control' RSA JWT created by another library.
@@ -235,7 +256,9 @@ class TestJWT:
             b"uwmrtSWCBUjiN8sqJ00CDgycxKqHfUndZbEAOjcCAhBr"
             b"qWW3mSVivUfubsYbwUdUG3fSRPjaUPcpe8A"
         )
-        decoded_payload = jwt.decode(example_jwt, example_pubkey)
+        decoded_payload = jwt.decode(
+            example_jwt, example_pubkey, algorithms=["RS384"]
+        )
 
         assert decoded_payload == example_payload
 
@@ -245,7 +268,7 @@ class TestJWT:
         jwt_message = jwt.encode(payload, secret)
 
         with pytest.raises(ExpiredSignatureError):
-            jwt.decode(jwt_message, secret)
+            jwt.decode(jwt_message, secret, algorithms=["HS256"])
 
     def test_decode_with_notbefore(self, jwt, payload):
         payload["nbf"] = utc_timestamp() + 10
@@ -253,21 +276,31 @@ class TestJWT:
         jwt_message = jwt.encode(payload, secret)
 
         with pytest.raises(ImmatureSignatureError):
-            jwt.decode(jwt_message, secret)
+            jwt.decode(jwt_message, secret, algorithms=["HS256"])
 
     def test_decode_skip_expiration_verification(self, jwt, payload):
         payload["exp"] = time.time() - 1
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        jwt.decode(jwt_message, secret, options={"verify_exp": False})
+        jwt.decode(
+            jwt_message,
+            secret,
+            algorithms=["HS256"],
+            options={"verify_exp": False},
+        )
 
     def test_decode_skip_notbefore_verification(self, jwt, payload):
         payload["nbf"] = time.time() + 10
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        jwt.decode(jwt_message, secret, options={"verify_nbf": False})
+        jwt.decode(
+            jwt_message,
+            secret,
+            algorithms=["HS256"],
+            options={"verify_nbf": False},
+        )
 
     def test_decode_with_expiration_with_leeway(self, jwt, payload):
         payload["exp"] = utc_timestamp() - 2
@@ -278,12 +311,16 @@ class TestJWT:
 
         # With 3 seconds leeway, should be ok
         for leeway in (3, timedelta(seconds=3)):
-            jwt.decode(jwt_message, secret, leeway=leeway)
+            jwt.decode(
+                jwt_message, secret, leeway=leeway, algorithms=["HS256"]
+            )
 
         # With 1 seconds, should fail
         for leeway in (1, timedelta(seconds=1)):
             with pytest.raises(ExpiredSignatureError):
-                jwt.decode(jwt_message, secret, leeway=leeway)
+                jwt.decode(
+                    jwt_message, secret, leeway=leeway, algorithms=["HS256"]
+                )
 
     def test_decode_with_notbefore_with_leeway(self, jwt, payload):
         payload["nbf"] = utc_timestamp() + 10
@@ -291,37 +328,47 @@ class TestJWT:
         jwt_message = jwt.encode(payload, secret)
 
         # With 13 seconds leeway, should be ok
-        jwt.decode(jwt_message, secret, leeway=13)
+        jwt.decode(jwt_message, secret, leeway=13, algorithms=["HS256"])
 
         with pytest.raises(ImmatureSignatureError):
-            jwt.decode(jwt_message, secret, leeway=1)
+            jwt.decode(jwt_message, secret, leeway=1, algorithms=["HS256"])
 
     def test_check_audience_when_valid(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", audience="urn:me")
+        jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
 
     def test_check_audience_list_when_valid(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", audience=["urn:you", "urn:me"])
+        jwt.decode(
+            token,
+            "secret",
+            audience=["urn:you", "urn:me"],
+            algorithms=["HS256"],
+        )
 
     def test_check_audience_none_specified(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "secret")
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "secret")
+            jwt.decode(token, "secret", algorithms=["HS256"])
 
     def test_raise_exception_invalid_audience_list(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "secret")
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "secret", audience=["urn:you", "urn:him"])
+            jwt.decode(
+                token,
+                "secret",
+                audience=["urn:you", "urn:him"],
+                algorithms=["HS256"],
+            )
 
     def test_check_audience_in_array_when_valid(self, jwt):
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", audience="urn:me")
+        jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
 
     def test_raise_exception_invalid_audience(self, jwt):
         payload = {"some": "payload", "aud": "urn:someone-else"}
@@ -329,7 +376,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "secret", audience="urn-me")
+            jwt.decode(
+                token, "secret", audience="urn-me", algorithms=["HS256"]
+            )
 
     def test_raise_exception_invalid_audience_in_array(self, jwt):
         payload = {
@@ -340,7 +389,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "secret", audience="urn:me")
+            jwt.decode(
+                token, "secret", audience="urn:me", algorithms=["HS256"]
+            )
 
     def test_raise_exception_token_without_issuer(self, jwt):
         issuer = "urn:wrong"
@@ -350,7 +401,7 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", issuer=issuer)
+            jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
 
         assert exc.value.claim == "iss"
 
@@ -359,7 +410,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", audience="urn:me")
+            jwt.decode(
+                token, "secret", audience="urn:me", algorithms=["HS256"]
+            )
 
         assert exc.value.claim == "aud"
 
@@ -367,7 +420,7 @@ class TestJWT:
         issuer = "urn:foo"
         payload = {"some": "payload", "iss": "urn:foo"}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", issuer=issuer)
+        jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
 
     def test_raise_exception_invalid_issuer(self, jwt):
         issuer = "urn:wrong"
@@ -377,12 +430,17 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, "secret", issuer=issuer)
+            jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
 
     def test_skip_check_audience(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", options={"verify_aud": False})
+        jwt.decode(
+            token,
+            "secret",
+            options={"verify_aud": False},
+            algorithms=["HS256"],
+        )
 
     def test_skip_check_exp(self, jwt):
         payload = {
@@ -390,7 +448,12 @@ class TestJWT:
             "exp": datetime.utcnow() - timedelta(days=1),
         }
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", options={"verify_exp": False})
+        jwt.decode(
+            token,
+            "secret",
+            options={"verify_exp": False},
+            algorithms=["HS256"],
+        )
 
     def test_decode_should_raise_error_if_exp_required_but_not_present(
         self, jwt
@@ -402,7 +465,12 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", options={"require_exp": True})
+            jwt.decode(
+                token,
+                "secret",
+                options={"require_exp": True},
+                algorithms=["HS256"],
+            )
 
         assert exc.value.claim == "exp"
 
@@ -416,7 +484,12 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", options={"require_iat": True})
+            jwt.decode(
+                token,
+                "secret",
+                options={"require_iat": True},
+                algorithms=["HS256"],
+            )
 
         assert exc.value.claim == "iat"
 
@@ -430,7 +503,12 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", options={"require_nbf": True})
+            jwt.decode(
+                token,
+                "secret",
+                options={"require_nbf": True},
+                algorithms=["HS256"],
+            )
 
         assert exc.value.claim == "nbf"
 
@@ -440,7 +518,12 @@ class TestJWT:
             ".eyJzb21lIjoicGF5bG9hZCJ9"
             ".4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZA"
         )
-        jwt.decode(token, "secret", options={"verify_signature": False})
+        jwt.decode(
+            token,
+            "secret",
+            options={"verify_signature": False},
+            algorithms=["HS256"],
+        )
 
     def test_skip_check_iat(self, jwt):
         payload = {
@@ -448,7 +531,12 @@ class TestJWT:
             "iat": datetime.utcnow() + timedelta(days=1),
         }
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", options={"verify_iat": False})
+        jwt.decode(
+            token,
+            "secret",
+            options={"verify_iat": False},
+            algorithms=["HS256"],
+        )
 
     def test_skip_check_nbf(self, jwt):
         payload = {
@@ -456,7 +544,12 @@ class TestJWT:
             "nbf": datetime.utcnow() + timedelta(days=1),
         }
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", options={"verify_nbf": False})
+        jwt.decode(
+            token,
+            "secret",
+            options={"verify_nbf": False},
+            algorithms=["HS256"],
+        )
 
     def test_custom_json_encoder(self, jwt):
         class CustomJSONEncoder(json.JSONEncoder):
@@ -468,42 +561,47 @@ class TestJWT:
         data = {"some_decimal": Decimal("2.2")}
 
         with pytest.raises(TypeError):
-            jwt.encode(data, "secret")
+            jwt.encode(data, "secret", algorithms=["HS256"])
 
         token = jwt.encode(data, "secret", json_encoder=CustomJSONEncoder)
-        payload = jwt.decode(token, "secret")
+        payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
         assert payload == {"some_decimal": "it worked"}
 
-    def test_decode_with_verify_expiration_kwarg(self, jwt, payload):
+    def test_decode_with_verify_exp_option(self, jwt, payload):
         payload["exp"] = utc_timestamp() - 1
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        pytest.deprecated_call(
-            jwt.decode, jwt_message, secret, verify_expiration=False
+        jwt.decode(
+            jwt_message,
+            secret,
+            algorithms=["HS256"],
+            options={"verify_exp": False},
         )
 
         with pytest.raises(ExpiredSignatureError):
-            pytest.deprecated_call(
-                jwt.decode, jwt_message, secret, verify_expiration=True
+            jwt.decode(
+                jwt_message,
+                secret,
+                algorithms=["HS256"],
+                options={"verify_exp": True},
             )
 
     def test_decode_with_optional_algorithms(self, jwt, payload):
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        pytest.deprecated_call(jwt.decode, jwt_message, secret)
+        with pytest.raises(DecodeError) as exc:
+            jwt.decode(jwt_message, secret)
 
-    def test_decode_no_algorithms_verify_false(self, jwt, payload):
+        assert (
+            'It is required that you pass in a value for the "algorithms" argument when calling decode().'
+            in str(exc.value)
+        )
+
+    def test_decode_no_algorithms_verify_signature_false(self, jwt, payload):
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        try:
-            pytest.deprecated_call(
-                jwt.decode, jwt_message, secret, verify=False
-            )
-        except pytest.fail.Exception:
-            pass
-        else:
-            assert False, "Unexpected DeprecationWarning raised."
+        jwt.decode(jwt_message, secret, options={"verify_signature": False})

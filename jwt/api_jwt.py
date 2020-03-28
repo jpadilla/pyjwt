@@ -1,5 +1,4 @@
 import json
-import warnings
 from calendar import timegm
 from datetime import datetime, timedelta
 
@@ -77,7 +76,6 @@ class PyJWT(PyJWS):
         self,
         jwt,  # type: str
         key="",  # type: str
-        verify=True,  # type: bool
         algorithms=None,  # type: List[str]
         options=None,  # type: Dict
         complete=False,  # type: bool
@@ -85,20 +83,18 @@ class PyJWT(PyJWS):
     ):
         # type: (...) -> Dict[str, Any]
 
-        if verify and not algorithms:
-            warnings.warn(
-                "It is strongly recommended that you pass in a "
-                + 'value for the "algorithms" argument when calling decode(). '
-                + "This argument will be mandatory in a future version.",
-                DeprecationWarning,
-            )
-
         payload, _, _, _ = self._load(jwt)
 
         if options is None:
-            options = {"verify_signature": verify}
+            options = {"verify_signature": True}
         else:
-            options.setdefault("verify_signature", verify)
+            options.setdefault("verify_signature", True)
+
+        if options["verify_signature"] and not algorithms:
+            raise DecodeError(
+                "It is required that you pass in a "
+                + 'value for the "algorithms" argument when calling decode(). '
+            )
 
         decoded = super(PyJWT, self).decode(
             jwt,
@@ -119,7 +115,7 @@ class PyJWT(PyJWS):
         if not isinstance(payload, dict):
             raise DecodeError("Invalid payload string: must be a json object")
 
-        if verify:
+        if options["verify_signature"]:
             merged_options = merge_dict(self.options, options)
             self._validate_claims(payload, merged_options, **kwargs)
 
@@ -132,14 +128,6 @@ class PyJWT(PyJWS):
     def _validate_claims(
         self, payload, options, audience=None, issuer=None, leeway=0, **kwargs
     ):
-
-        if "verify_expiration" in kwargs:
-            options["verify_exp"] = kwargs.get("verify_expiration", True)
-            warnings.warn(
-                "The verify_expiration parameter is deprecated. "
-                "Please use verify_exp in options instead.",
-                DeprecationWarning,
-            )
 
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
