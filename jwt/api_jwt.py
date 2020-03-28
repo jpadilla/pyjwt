@@ -80,6 +80,7 @@ class PyJWT(PyJWS):
         verify=True,  # type: bool
         algorithms=None,  # type: List[str]
         options=None,  # type: Dict
+        json_decoder=None,  # type: Optional[Type[json.JSONDecoder]]
         **kwargs
     ):
         # type: (...) -> Dict[str, Any]
@@ -104,7 +105,7 @@ class PyJWT(PyJWS):
         )
 
         try:
-            payload = json.loads(decoded.decode("utf-8"))
+            payload = json.loads(decoded.decode("utf-8"), cls=json_decoder)
         except ValueError as e:
             raise DecodeError("Invalid payload string: %s" % e)
         if not isinstance(payload, dict):

@@ -510,3 +510,14 @@ class TestJWT:
             pass
         else:
             assert False, "Unexpected DeprecationWarning raised."
+
+    def test_custom_json_decoder(self, jwt):
+        class CustomJSONDecoder(json.JSONDecoder):
+            def decode(self, s):
+                return {"some_str": "2"}
+
+        data = {"some_int": 1}
+        token = jwt.encode(data, "secret")
+        payload = jwt.decode(token, "secret", json_decoder=CustomJSONDecoder)
+
+        assert payload["some_str"] == "2"
