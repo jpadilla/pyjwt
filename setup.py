@@ -77,6 +77,5 @@ setup(
     ],
     python_requires=">=3.5",
     extras_require=EXTRAS_REQUIRE,
-    entry_points={"console_scripts": ["pyjwt = jwt.__main__:main"]},
     options={"bdist_wheel": {"universal": "1"}},
 )
