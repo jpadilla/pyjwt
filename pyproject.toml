@@ -1,3 +1,8 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
 [tool.black]
 line-length = 79
 
@@ -6,9 +11,11 @@ line-length = 79
 atomic=true
 force_grid_wrap=0
 include_trailing_comma=true
+lines_after_imports=2
+lines_between_types=1
 multi_line_output=3
 use_parentheses=true
 combine_as_imports=true
 
 known_first_party="jwt"
-known_third_party=["pytest", "requests_mock", "setuptools", "sphinx_rtd_theme"]
+known_third_party=["jwt", "pytest", "requests_mock", "setuptools", "sphinx_rtd_theme"]

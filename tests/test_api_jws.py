@@ -1,4 +1,5 @@
 import json
+
 from decimal import Decimal
 
 import pytest
@@ -12,6 +13,7 @@ from jwt.exceptions import (
     InvalidTokenError,
 )
 from jwt.utils import base64url_decode, force_bytes, force_unicode
+
 
 try:
     from cryptography.hazmat.backends import default_backend

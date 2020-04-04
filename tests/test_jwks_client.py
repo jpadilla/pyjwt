@@ -2,6 +2,7 @@ import pytest
 import requests_mock
 
 import jwt
+
 from jwt import PyJWKClient
 from jwt.api_jwk import PyJWK
 from jwt.exceptions import PyJWKClientError

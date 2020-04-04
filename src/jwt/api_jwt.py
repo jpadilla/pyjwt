@@ -1,4 +1,5 @@
 import json
+
 from calendar import timegm
 from datetime import datetime, timedelta
 
@@ -15,6 +16,7 @@ from .exceptions import (
     MissingRequiredClaimError,
 )
 from .utils import merge_dict
+
 
 try:
     # import required by mypy to perform type checking, not used for normal execution

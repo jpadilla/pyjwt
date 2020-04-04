@@ -4,6 +4,7 @@ import struct
 
 from .compat import binary_type, bytes_from_int, text_type
 
+
 try:
     from cryptography.hazmat.primitives.asymmetric.utils import (
         decode_dss_signature,

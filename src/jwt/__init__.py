@@ -1,0 +1,74 @@
+from .api_jws import PyJWS
+from .api_jwt import (
+    PyJWT,
+    decode,
+    encode,
+    get_unverified_header,
+    register_algorithm,
+    unregister_algorithm,
+)
+from .exceptions import (
+    DecodeError,
+    ExpiredSignature,
+    ExpiredSignatureError,
+    ImmatureSignatureError,
+    InvalidAlgorithmError,
+    InvalidAudience,
+    InvalidAudienceError,
+    InvalidIssuedAtError,
+    InvalidIssuer,
+    InvalidIssuerError,
+    InvalidSignatureError,
+    InvalidTokenError,
+    MissingRequiredClaimError,
+    PyJWKClientError,
+    PyJWKError,
+    PyJWKSetError,
+    PyJWTError,
+)
+from .jwks_client import PyJWKClient
+
+
+__version__ = "2.0.0.dev"
+
+__title__ = "PyJWT"
+__description__ = "JSON Web Token implementation in Python"
+__url__ = "https://pyjwt.readthedocs.io"
+__uri__ = __url__
+__doc__ = __description__ + " <" + __uri__ + ">"
+
+__author__ = "José Padilla"
+__email__ = "hello@jpadilla.com"
+
+__license__ = "MIT"
+__copyright__ = "Copyright 2015-2020 José Padilla"
+
+
+__all__ = [
+    "PyJWS",
+    "PyJWT",
+    "PyJWKClient",
+    "decode",
+    "encode",
+    "get_unverified_header",
+    "register_algorithm",
+    "unregister_algorithm",
+    # Exceptions
+    "DecodeError",
+    "ExpiredSignature",
+    "ExpiredSignatureError",
+    "ImmatureSignatureError",
+    "InvalidAlgorithmError",
+    "InvalidAudience",
+    "InvalidAudienceError",
+    "InvalidIssuedAtError",
+    "InvalidIssuer",
+    "InvalidIssuerError",
+    "InvalidSignatureError",
+    "InvalidTokenError",
+    "MissingRequiredClaimError",
+    "PyJWKClientError",
+    "PyJWKError",
+    "PyJWKSetError",
+    "PyJWTError",
+]

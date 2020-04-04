@@ -12,6 +12,7 @@ from .exceptions import (
 )
 from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict
 
+
 try:
     # import required by mypy to perform type checking, not used for normal execution
     from typing import Callable, Dict, List, Optional, Type, Union  # NOQA

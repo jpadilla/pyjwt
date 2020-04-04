@@ -5,6 +5,7 @@ versions of python, and compatibility wrappers around optional packages.
 # flake8: noqa
 import hmac
 
+
 text_type = str
 binary_type = bytes
 string_types = (str, bytes)

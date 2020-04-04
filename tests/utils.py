@@ -1,5 +1,6 @@
 import os
 import struct
+
 from calendar import timegm
 from datetime import datetime
 
@@ -29,7 +30,7 @@ else:
         result = 0
 
         while len(data) > 0:
-            digit, = struct.unpack(">I", data[:4])
+            (digit,) = struct.unpack(">I", data[:4])
             result = (result << 32) + digit
             data = data[4:]
 

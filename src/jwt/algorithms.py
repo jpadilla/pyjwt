@@ -15,6 +15,7 @@ from .utils import (
     to_base64url_uint,
 )
 
+
 try:
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.serialization import (

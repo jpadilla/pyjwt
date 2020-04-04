@@ -2,6 +2,7 @@ from .api_jwk import PyJWKSet
 from .api_jwt import decode as decode_token
 from .exceptions import PyJWKClientError
 
+
 try:
     import requests
 

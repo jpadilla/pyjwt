@@ -6,6 +6,7 @@ from jwt.api_jwk import PyJWK, PyJWKSet
 
 from .utils import key_path
 
+
 try:
     from jwt.algorithms import RSAAlgorithm
 
