@@ -2,7 +2,23 @@ include README.rst
 include CHANGELOG.md
 include LICENSE
 include AUTHORS
+include *.rst *.toml *.yml *.yaml *.md
+graft .github
+global-exclude *.pyc
+
+# Tests
 include tox.ini
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
-graft tests
+recursive-include tests *.py
+recursive-include tests *.cer
+recursive-include tests *.json
+recursive-include tests *.pem
+recursive-include tests *.pub
+recursive-include tests *.priv
+
+# Documentation
+include docs/Makefile docs/docutils.conf
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs *.css
+recursive-include docs *.txt
+prune docs/_build

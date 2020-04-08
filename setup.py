@@ -33,8 +33,8 @@ INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
     "jwks-client": ["requests"],
     "tests": [
-        "pytest>=4.0.1,<5.0.0",
-        "pytest-cov>=2.6.0,<3.0.0",
+        "coverage[toml]>=5.0.2",
+        "pytest>=4.3.0,<5.0.0",
         "requests-mock>=1.7.0,<2.0.0",
     ],
     "cryptography": ["cryptography >= 1.4"],

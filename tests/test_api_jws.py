@@ -494,7 +494,7 @@ class TestJWS:
     )
     def test_encode_decode_with_rsa_sha256(self, jws, payload):
         # PEM-formatted RSA key
-        with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
+        with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = load_pem_private_key(
                 force_bytes(rsa_priv_file.read()),
                 password=None,
@@ -510,7 +510,7 @@ class TestJWS:
             jws.decode(jws_message, pub_rsakey, algorithms=["RS256"])
 
         # string-formatted key
-        with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
+        with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = rsa_priv_file.read()
             jws_message = jws.encode(payload, priv_rsakey, algorithm="RS256")
 
@@ -523,7 +523,7 @@ class TestJWS:
     )
     def test_encode_decode_with_rsa_sha384(self, jws, payload):
         # PEM-formatted RSA key
-        with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
+        with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = load_pem_private_key(
                 force_bytes(rsa_priv_file.read()),
                 password=None,
@@ -538,7 +538,7 @@ class TestJWS:
             jws.decode(jws_message, pub_rsakey, algorithms=["RS384"])
 
         # string-formatted key
-        with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
+        with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = rsa_priv_file.read()
             jws_message = jws.encode(payload, priv_rsakey, algorithm="RS384")
 
@@ -551,7 +551,7 @@ class TestJWS:
     )
     def test_encode_decode_with_rsa_sha512(self, jws, payload):
         # PEM-formatted RSA key
-        with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
+        with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = load_pem_private_key(
                 force_bytes(rsa_priv_file.read()),
                 password=None,
@@ -566,7 +566,7 @@ class TestJWS:
             jws.decode(jws_message, pub_rsakey, algorithms=["RS512"])
 
         # string-formatted key
-        with open("tests/keys/testkey_rsa", "r") as rsa_priv_file:
+        with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = rsa_priv_file.read()
             jws_message = jws.encode(payload, priv_rsakey, algorithm="RS512")
 
@@ -599,7 +599,7 @@ class TestJWS:
     )
     def test_encode_decode_with_ecdsa_sha256(self, jws, payload):
         # PEM-formatted EC key
-        with open("tests/keys/testkey_ec", "r") as ec_priv_file:
+        with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = load_pem_private_key(
                 force_bytes(ec_priv_file.read()),
                 password=None,
@@ -614,7 +614,7 @@ class TestJWS:
             jws.decode(jws_message, pub_eckey, algorithms=["ES256"])
 
         # string-formatted key
-        with open("tests/keys/testkey_ec", "r") as ec_priv_file:
+        with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = ec_priv_file.read()
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES256")
 
@@ -628,7 +628,7 @@ class TestJWS:
     def test_encode_decode_with_ecdsa_sha384(self, jws, payload):
 
         # PEM-formatted EC key
-        with open("tests/keys/testkey_ec", "r") as ec_priv_file:
+        with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = load_pem_private_key(
                 force_bytes(ec_priv_file.read()),
                 password=None,
@@ -643,7 +643,7 @@ class TestJWS:
             jws.decode(jws_message, pub_eckey, algorithms=["ES384"])
 
         # string-formatted key
-        with open("tests/keys/testkey_ec", "r") as ec_priv_file:
+        with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = ec_priv_file.read()
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES384")
 
@@ -656,7 +656,7 @@ class TestJWS:
     )
     def test_encode_decode_with_ecdsa_sha512(self, jws, payload):
         # PEM-formatted EC key
-        with open("tests/keys/testkey_ec", "r") as ec_priv_file:
+        with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = load_pem_private_key(
                 force_bytes(ec_priv_file.read()),
                 password=None,
@@ -671,7 +671,7 @@ class TestJWS:
             jws.decode(jws_message, pub_eckey, algorithms=["ES512"])
 
         # string-formatted key
-        with open("tests/keys/testkey_ec", "r") as ec_priv_file:
+        with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = ec_priv_file.read()
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES512")
 

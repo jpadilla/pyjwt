@@ -143,7 +143,7 @@ class TestAlgorithms:
     def test_rsa_should_accept_pem_private_key_bytes(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "rb") as pem_key:
+        with open(key_path("testkey_rsa.priv"), "rb") as pem_key:
             algo.prepare_key(pem_key.read())
 
     @pytest.mark.skipif(
@@ -152,7 +152,7 @@ class TestAlgorithms:
     def test_rsa_should_accept_unicode_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "r") as rsa_key:
+        with open(key_path("testkey_rsa.priv"), "r") as rsa_key:
             algo.prepare_key(force_unicode(rsa_key.read()))
 
     @pytest.mark.skipif(
@@ -300,7 +300,7 @@ class TestAlgorithms:
     def test_rsa_private_key_to_jwk_works_with_from_jwk(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "r") as rsa_key:
+        with open(key_path("testkey_rsa.priv"), "r") as rsa_key:
             orig_key = algo.prepare_key(force_unicode(rsa_key.read()))
 
         parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
@@ -431,7 +431,7 @@ class TestAlgorithms:
     def test_rsa_to_jwk_returns_correct_values_for_private_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "r") as keyfile:
+        with open(key_path("testkey_rsa.priv"), "r") as keyfile:
             priv_key = algo.prepare_key(keyfile.read())
 
         key = algo.to_jwk(priv_key)
@@ -518,7 +518,7 @@ class TestAlgorithms:
     def test_ec_should_accept_unicode_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with open(key_path("testkey_ec"), "r") as ec_key:
+        with open(key_path("testkey_ec.priv"), "r") as ec_key:
             algo.prepare_key(force_unicode(ec_key.read()))
 
     @pytest.mark.skipif(
@@ -527,7 +527,7 @@ class TestAlgorithms:
     def test_ec_should_accept_pem_private_key_bytes(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with open(key_path("testkey_ec"), "rb") as ec_key:
+        with open(key_path("testkey_ec.priv"), "rb") as ec_key:
             algo.prepare_key(ec_key.read())
 
     @pytest.mark.skipif(
@@ -588,7 +588,7 @@ class TestAlgorithms:
 
         message = force_bytes("Hello World!")
 
-        with open(key_path("testkey_rsa"), "r") as keyfile:
+        with open(key_path("testkey_rsa.priv"), "r") as keyfile:
             priv_key = algo.prepare_key(keyfile.read())
             sig = algo.sign(message, priv_key)
 
