@@ -12,13 +12,14 @@
 
   jobs:
     tests:
-      name: "Python ${{ matrix.python-version }}"
-      runs-on: "ubuntu-latest"
+      name: "Python ${{ matrix.python-version }} on ${{ matrix.platform }}"
+      runs-on: "${{ matrix.platform }}"
       env:
         USING_COVERAGE: '3.8'
 
       strategy:
         matrix:
+          platform: ["ubuntu-latest", "windows-latest"]
           python-version: ["3.5", "3.6", "3.7", "3.8"]
 
       steps:
@@ -28,7 +29,6 @@
             python-version: "${{ matrix.python-version }}"
         - name: "Install dependencies"
           run: |
-            set -xe
             python -VV
             python -m site
             python -m pip install --upgrade pip setuptools wheel
@@ -36,15 +36,16 @@
 
         - name: "Run tox targets for ${{ matrix.python-version }}"
           run: "python -m tox"
+          env:
+            PLATFORM: ${{ matrix.platform }}
 
         - name: "Combine coverage"
           run: |
-            set -xe
             python -m coverage combine
             python -m coverage xml
-          if: "contains(env.USING_COVERAGE, matrix.python-version)"
+          if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
         - name: "Upload coverage to Codecov"
-          if: "contains(env.USING_COVERAGE, matrix.python-version)"
+          if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
           uses: "codecov/codecov-action@v1"
           with:
             fail_ci_if_error: true
