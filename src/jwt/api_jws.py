@@ -110,6 +110,7 @@ class PyJWS(object):
 
         # Segments
         signing_input = b".".join(segments)
+
         try:
             alg_obj = self._algorithms[algorithm]
             key = alg_obj.prepare_key(key)
@@ -126,7 +127,9 @@ class PyJWS(object):
 
         segments.append(base64url_encode(signature))
 
-        return b".".join(segments)
+        encoded_string = b".".join(segments)
+
+        return encoded_string.decode("utf-8")
 
     def decode(
         self,

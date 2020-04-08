@@ -30,12 +30,13 @@ Example Usage
 -------------
 
 .. code-block:: python
+.. doctest::
 
     >>> import jwt
 
     >>> encoded_jwt = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256')
-    >>> encoded_jwt
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg'
+    >>> print(encoded_jwt)
+    eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzb21lIjoicGF5bG9hZCJ9.Joh1R2dYzkRvDkqv3sygm5YyK8Gi4ShZqbhK2gxcs2U
 
     >>> jwt.decode(encoded_jwt, 'secret', algorithms=['HS256'])
     {'some': 'payload'}
