@@ -2,18 +2,14 @@ include README.rst
 include CHANGELOG.md
 include LICENSE
 include AUTHORS
+include .flake8
 include *.rst *.toml *.yml *.yaml *.md
 graft .github
-global-exclude *.pyc
+global-exclude *.pyc __pycache__
 
 # Tests
 include tox.ini
-recursive-include tests *.py
-recursive-include tests *.cer
-recursive-include tests *.json
-recursive-include tests *.pem
-recursive-include tests *.pub
-recursive-include tests *.priv
+graft tests
 
 # Documentation
 include docs/Makefile docs/docutils.conf
