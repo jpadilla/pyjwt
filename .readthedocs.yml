@@ -1,0 +1,11 @@
+---
+version: 2
+python:
+  # Keep version in sync with tox.ini (docs and gh-actions).
+  version: 3.7
+
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs

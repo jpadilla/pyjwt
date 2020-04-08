@@ -31,13 +31,14 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "jwks-client": ["requests"],
+    "docs": ["sphinx", "sphinx-rtd-theme", "zope.interface"],
     "tests": [
         "coverage[toml]>=5.0.2",
         "pytest>=4.3.0,<5.0.0",
         "requests-mock>=1.7.0,<2.0.0",
     ],
     "cryptography": ["cryptography >= 1.4"],
+    "jwks-client": ["requests"],
 }
 
 EXTRAS_REQUIRE["dev"] = (
