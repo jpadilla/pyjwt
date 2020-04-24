@@ -2,7 +2,7 @@ Usage Examples
 ==============
 
 Encoding & Decoding Tokens with HS256
----------------------------------
+--------------------------------------
 
 .. code-block:: python
 
@@ -14,7 +14,7 @@ Encoding & Decoding Tokens with HS256
     {'some': 'payload'}
 
 Encoding & Decoding Tokens with RS256 (RSA)
----------------------------------
+-------------------------------------------
 
 .. code-block:: python
 
