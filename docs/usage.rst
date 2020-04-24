@@ -211,6 +211,19 @@ a single case-sensitive string containing a StringOrURI value.
     token = jwt.encode(payload, 'secret')
     decoded = jwt.decode(token, 'secret', audience='urn:foo', algorithms=['HS256'])
 
+If multiple audiences are accepted, the ``audience`` parameter for
+``jwt.decode`` can also be an iterable
+
+.. code-block:: python
+
+    payload = {
+        'some': 'payload',
+        'aud': 'urn:foo'
+    }
+
+    token = jwt.encode(payload, 'secret')
+    decoded = jwt.decode(token, 'secret', audience=['urn:foo', 'urn:bar'], algorithms=['HS256'])
+
 The interpretation of audience values is generally application specific.
 Use of this claim is OPTIONAL.
 
