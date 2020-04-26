@@ -2,7 +2,7 @@ Usage Examples
 ==============
 
 Encoding & Decoding Tokens with HS256
---------------------------------------
+-------------------------------------
 
 .. code-block:: python
 
@@ -27,7 +27,7 @@ Encoding & Decoding Tokens with RS256 (RSA)
     {'some': 'payload'}
 
 Specifying Additional Headers
----------------------------------
+-----------------------------
 
 .. code-block:: python
 
@@ -36,7 +36,7 @@ Specifying Additional Headers
 
 
 Reading the Claimset without Validation
------------------------------------------
+---------------------------------------
 
 If you wish to read the claimset of a JWT without performing validation of the
 signature or any of the registered claim names, you can set the ``verify``
