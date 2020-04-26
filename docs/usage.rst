@@ -2,7 +2,7 @@ Usage Examples
 ==============
 
 Encoding & Decoding Tokens with HS256
----------------------------------
+--------------------------------------
 
 .. code-block:: python
 
@@ -14,7 +14,7 @@ Encoding & Decoding Tokens with HS256
     {'some': 'payload'}
 
 Encoding & Decoding Tokens with RS256 (RSA)
----------------------------------
+-------------------------------------------
 
 .. code-block:: python
 
@@ -183,12 +183,23 @@ Audience Claim (aud)
     identify itself with a value in the audience claim.  If the principal
     processing the claim does not identify itself with a value in the
     "aud" claim when this claim is present, then the JWT MUST be
-    rejected.  In the general case, the "aud" value is an array of case-
-    sensitive strings, each containing a StringOrURI value.  In the
-    special case when the JWT has one audience, the "aud" value MAY be a
-    single case-sensitive string containing a StringOrURI value.  The
-    interpretation of audience values is generally application specific.
-    Use of this claim is OPTIONAL.
+    rejected.
+
+In the general case, the "aud" value is an array of case-
+sensitive strings, each containing a StringOrURI value.
+
+.. code-block:: python
+
+    payload = {
+        'some': 'payload',
+        'aud': ['urn:foo', 'urn:bar']
+    }
+
+    token = jwt.encode(payload, 'secret')
+    decoded = jwt.decode(token, 'secret', audience='urn:foo', algorithms=['HS256'])
+
+In the special case when the JWT has one audience, the "aud" value MAY be
+a single case-sensitive string containing a StringOrURI value.
 
 .. code-block:: python
 
@@ -199,6 +210,22 @@ Audience Claim (aud)
 
     token = jwt.encode(payload, 'secret')
     decoded = jwt.decode(token, 'secret', audience='urn:foo', algorithms=['HS256'])
+
+If multiple audiences are accepted, the ``audience`` parameter for
+``jwt.decode`` can also be an iterable
+
+.. code-block:: python
+
+    payload = {
+        'some': 'payload',
+        'aud': 'urn:foo'
+    }
+
+    token = jwt.encode(payload, 'secret')
+    decoded = jwt.decode(token, 'secret', audience=['urn:foo', 'urn:bar'], algorithms=['HS256'])
+
+The interpretation of audience values is generally application specific.
+Use of this claim is OPTIONAL.
 
 If the audience claim is incorrect, `jwt.InvalidAudienceError` will be raised.
 
