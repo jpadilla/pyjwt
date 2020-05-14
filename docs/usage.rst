@@ -242,3 +242,13 @@ Issued At Claim (iat)
 
     jwt.encode({'iat': 1371720939}, 'secret')
     jwt.encode({'iat': datetime.utcnow()}, 'secret')
+
+Requiring Presence of Claims
+----------------------------
+
+If you wish to require one or more claims to be present in the claimset, you can set the ``require`` paramenter to include these claims.
+
+.. code-block:: python
+
+    >>jwt.decode(encoded, options={'require': ['exp', 'iss', 'sub']})
+    {u'exp': 1371720939, u'iss': u'urn:foo', u'sub': u'25c37522-f148-4cbf-8ee6-c4a9718dd0af'}
