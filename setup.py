@@ -61,6 +61,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -70,5 +71,4 @@ setup(
     python_requires=">=3.5",
     extras_require=EXTRAS_REQUIRE,
     entry_points={"console_scripts": ["pyjwt = jwt.__main__:main"]},
-    options={"bdist_wheel": {"universal": "1"}},
 )
