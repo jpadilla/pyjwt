@@ -46,17 +46,17 @@ except ImportError:
     has_ed25519 = False
 
 requires_cryptography = {
-        "RS256",
-        "RS384",
-        "RS512",
-        "ES256",
-        "ES384",
-        "ES521",
-        "ES512",
-        "PS256",
-        "PS384",
-        "PS512",
-        "EdDSA",
+    "RS256",
+    "RS384",
+    "RS512",
+    "ES256",
+    "ES384",
+    "ES521",
+    "ES512",
+    "PS256",
+    "PS384",
+    "PS512",
+    "EdDSA",
 }
 
 
@@ -86,16 +86,14 @@ def get_default_algorithms():
                 "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
                 "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
                 "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
-                
             }
         )
         # Older versions of the `cryptography` libraries may not have Ed25519 available.
         # Needs a minimum of version 2.6
         try:
             from jwt.contrib.algorithms.py_ed25519 import Ed25519Algorithm
-            default_algorithms.update({
-                "EdDSA":   Ed25519Algorithm(),
-            })
+
+            default_algorithms.update({"EdDSA": Ed25519Algorithm()})
         except ImportError:
             pass
 

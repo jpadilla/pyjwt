@@ -239,13 +239,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (
-        master_doc,
-        "PyJWT.tex",
-        "PyJWT Documentation",
-        "José Padilla",
-        "manual",
-    )
+    (master_doc, "PyJWT.tex", "PyJWT Documentation", "José Padilla", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
