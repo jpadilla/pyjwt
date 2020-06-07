@@ -20,7 +20,7 @@ except ImportError:
     pass
 
 
-class PyJWS(object):
+class PyJWS:
     header_typ = "JWT"
 
     def __init__(self, algorithms=None, options=None):
@@ -182,7 +182,7 @@ class PyJWS(object):
 
         if not issubclass(type(jwt), binary_type):
             raise DecodeError(
-                "Invalid token type. Token must be a {0}".format(binary_type)
+                "Invalid token type. Token must be a {}".format(binary_type)
             )
 
         try:

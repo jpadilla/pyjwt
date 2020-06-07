@@ -115,16 +115,16 @@ class TestCli:
     )
     def test_encode_decode(self, key, header, name, job, exp, verify):
         encode_args = [
-            "--key={0}".format(key),
-            "--header={0}".format(header),
+            "--key={}".format(key),
+            "--header={}".format(header),
             "encode",
-            "name={0}".format(name),
-            "job={0}".format(job),
+            "name={}".format(name),
+            "job={}".format(job),
         ]
         if exp:
-            encode_args.append("exp={0}".format(exp))
+            encode_args.append("exp={}".format(exp))
         if verify:
-            encode_args.append("verify={0}".format(verify))
+            encode_args.append("verify={}".format(verify))
 
         parser = build_argparser()
         parsed_encode_args = parser.parse_args(encode_args)
@@ -132,7 +132,7 @@ class TestCli:
         assert token is not None
         assert token != ""
 
-        decode_args = ["--key={0}".format(key), "decode", token]
+        decode_args = ["--key={}".format(key), "decode", token]
         parser = build_argparser()
         parsed_decode_args = parser.parse_args(decode_args)
 
@@ -152,15 +152,15 @@ class TestCli:
     def test_main(self, monkeypatch, key, name, job, exp, verify):
         args = [
             "test_cli.py",
-            "--key={0}".format(key),
+            "--key={}".format(key),
             "encode",
-            "name={0}".format(name),
-            "job={0}".format(job),
+            "name={}".format(name),
+            "job={}".format(job),
         ]
         if exp:
-            args.append("exp={0}".format(exp))
+            args.append("exp={}".format(exp))
         if verify:
-            args.append("verify={0}".format(verify))
+            args.append("verify={}".format(verify))
         monkeypatch.setattr(sys, "argv", args)
         main()
 

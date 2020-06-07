@@ -74,41 +74,41 @@ class TestAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey2_rsa.pub.pem"), "r") as keyfile:
+            with open(key_path("testkey2_rsa.pub.pem")) as keyfile:
                 algo.prepare_key(keyfile.read())
 
     def test_hmac_should_throw_exception_if_key_is_x509_certificate(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey_rsa.cer"), "r") as keyfile:
+            with open(key_path("testkey_rsa.cer")) as keyfile:
                 algo.prepare_key(keyfile.read())
 
     def test_hmac_should_throw_exception_if_key_is_ssh_public_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+            with open(key_path("testkey_rsa.pub")) as keyfile:
                 algo.prepare_key(keyfile.read())
 
     def test_hmac_should_throw_exception_if_key_is_x509_cert(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey2_rsa.pub.pem"), "r") as keyfile:
+            with open(key_path("testkey2_rsa.pub.pem")) as keyfile:
                 algo.prepare_key(keyfile.read())
 
     def test_hmac_should_throw_exception_if_key_is_pkcs1_pem_public(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey_pkcs1.pub.pem"), "r") as keyfile:
+            with open(key_path("testkey_pkcs1.pub.pem")) as keyfile:
                 algo.prepare_key(keyfile.read())
 
     def test_hmac_jwk_should_parse_and_verify(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with open(key_path("jwk_hmac.json"), "r") as keyfile:
+        with open(key_path("jwk_hmac.json")) as keyfile:
             key = algo.from_jwk(keyfile.read())
 
         signature = algo.sign(b"Hello World!", key)
@@ -123,7 +123,7 @@ class TestAlgorithms:
     def test_hmac_from_jwk_should_raise_exception_if_not_hmac_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_pub.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
 
@@ -133,7 +133,7 @@ class TestAlgorithms:
     def test_rsa_should_parse_pem_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey2_rsa.pub.pem"), "r") as pem_key:
+        with open(key_path("testkey2_rsa.pub.pem")) as pem_key:
             algo.prepare_key(pem_key.read())
 
     @pytest.mark.skipif(
@@ -151,7 +151,7 @@ class TestAlgorithms:
     def test_rsa_should_accept_unicode_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "r") as rsa_key:
+        with open(key_path("testkey_rsa")) as rsa_key:
             algo.prepare_key(force_unicode(rsa_key.read()))
 
     @pytest.mark.skipif(
@@ -184,7 +184,7 @@ class TestAlgorithms:
 
         sig += force_bytes("123")  # Signature is now invalid
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
@@ -196,10 +196,10 @@ class TestAlgorithms:
     def test_rsa_jwk_public_and_private_keys_should_parse_and_verify(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_pub.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
             pub_key = algo.from_jwk(keyfile.read())
 
-        with open(key_path("jwk_rsa_key.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
             priv_key = algo.from_jwk(keyfile.read())
 
         signature = algo.sign(force_bytes("Hello World!"), priv_key)
@@ -211,7 +211,7 @@ class TestAlgorithms:
     def test_rsa_private_key_to_jwk_works_with_from_jwk(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "r") as rsa_key:
+        with open(key_path("testkey_rsa")) as rsa_key:
             orig_key = algo.prepare_key(force_unicode(rsa_key.read()))
 
         parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
@@ -227,7 +227,7 @@ class TestAlgorithms:
     def test_rsa_public_key_to_jwk_works_with_from_jwk(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa.pub"), "r") as rsa_key:
+        with open(key_path("testkey_rsa.pub")) as rsa_key:
             orig_key = algo.prepare_key(force_unicode(rsa_key.read()))
 
         parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
@@ -239,7 +239,7 @@ class TestAlgorithms:
     def test_rsa_jwk_private_key_with_other_primes_is_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_key.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 keydata = json.loads(keyfile.read())
                 keydata["oth"] = []
@@ -252,7 +252,7 @@ class TestAlgorithms:
     def test_rsa_jwk_private_key_with_missing_values_is_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_key.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 keydata = json.loads(keyfile.read())
                 del keydata["p"]
@@ -265,7 +265,7 @@ class TestAlgorithms:
     def test_rsa_jwk_private_key_can_recover_prime_factors(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_key.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
             keybytes = keyfile.read()
             control_key = algo.from_jwk(keybytes).private_numbers()
 
@@ -289,7 +289,7 @@ class TestAlgorithms:
     def test_rsa_jwk_private_key_with_missing_required_values_is_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_key.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 keydata = json.loads(keyfile.read())
                 del keydata["p"]
@@ -316,7 +316,7 @@ class TestAlgorithms:
     def test_rsa_to_jwk_returns_correct_values_for_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
 
         key = algo.to_jwk(pub_key)
@@ -342,13 +342,13 @@ class TestAlgorithms:
     def test_rsa_to_jwk_returns_correct_values_for_private_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "r") as keyfile:
+        with open(key_path("testkey_rsa")) as keyfile:
             priv_key = algo.prepare_key(keyfile.read())
 
         key = algo.to_jwk(priv_key)
 
         expected = {
-            "key_ops": [u"sign"],
+            "key_ops": ["sign"],
             "kty": "RSA",
             "e": "AQAB",
             "n": (
@@ -410,7 +410,7 @@ class TestAlgorithms:
     def test_rsa_from_jwk_raises_exception_on_invalid_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_hmac.json"), "r") as keyfile:
+        with open(key_path("jwk_hmac.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
 
@@ -429,7 +429,7 @@ class TestAlgorithms:
     def test_ec_should_accept_unicode_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with open(key_path("testkey_ec"), "r") as ec_key:
+        with open(key_path("testkey_ec")) as ec_key:
             algo.prepare_key(force_unicode(ec_key.read()))
 
     @pytest.mark.skipif(
@@ -447,7 +447,7 @@ class TestAlgorithms:
     def test_ec_should_accept_ssh_public_key_bytes(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with open(key_path("testkey_ec_ssh.pub"), "r") as ec_key:
+        with open(key_path("testkey_ec_ssh.pub")) as ec_key:
             algo.prepare_key(ec_key.read())
 
     @pytest.mark.skipif(
@@ -469,7 +469,7 @@ class TestAlgorithms:
             )
         )
 
-        with open(key_path("testkey_ec.pub"), "r") as keyfile:
+        with open(key_path("testkey_ec.pub")) as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
@@ -485,7 +485,7 @@ class TestAlgorithms:
 
         sig = base64.b64decode(force_bytes("AC+m4Jf/xI3guAC6w0w3"))
 
-        with open(key_path("testkey_ec.pub"), "r") as keyfile:
+        with open(key_path("testkey_ec.pub")) as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
@@ -499,11 +499,11 @@ class TestAlgorithms:
 
         message = force_bytes("Hello World!")
 
-        with open(key_path("testkey_rsa"), "r") as keyfile:
+        with open(key_path("testkey_rsa")) as keyfile:
             priv_key = algo.prepare_key(keyfile.read())
             sig = algo.sign(message, priv_key)
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(message, pub_key, sig)
@@ -530,7 +530,7 @@ class TestAlgorithms:
 
         jwt_sig += force_bytes("123")  # Signature is now invalid
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
