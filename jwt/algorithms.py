@@ -45,8 +45,7 @@ except ImportError:
     has_crypto = False
     has_ed25519 = False
 
-requires_cryptography = set(
-    [
+requires_cryptography = {
         "RS256",
         "RS384",
         "RS512",
@@ -58,8 +57,7 @@ requires_cryptography = set(
         "PS384",
         "PS512",
         "EdDSA",
-    ]
-)
+}
 
 
 def get_default_algorithms():
@@ -104,7 +102,7 @@ def get_default_algorithms():
     return default_algorithms
 
 
-class Algorithm(object):
+class Algorithm:
     """
     The interface for an algorithm used to sign and verify tokens.
     """

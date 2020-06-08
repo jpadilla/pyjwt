@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # PyJWT documentation build configuration file, created by
 # sphinx-quickstart on Thu Oct 22 18:11:10 2015.
 #
@@ -51,9 +49,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"PyJWT"
-copyright = u"2015, José Padilla"
-author = u"José Padilla"
+project = "PyJWT"
+copyright = "2015, José Padilla"
+author = "José Padilla"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -244,8 +242,8 @@ latex_documents = [
     (
         master_doc,
         "PyJWT.tex",
-        u"PyJWT Documentation",
-        u"José Padilla",
+        "PyJWT Documentation",
+        "José Padilla",
         "manual",
     )
 ]
@@ -275,7 +273,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "pyjwt", u"PyJWT Documentation", [author], 1)]
+man_pages = [(master_doc, "pyjwt", "PyJWT Documentation", [author], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -290,7 +288,7 @@ texinfo_documents = [
     (
         master_doc,
         "PyJWT",
-        u"PyJWT Documentation",
+        "PyJWT Documentation",
         author,
         "PyJWT",
         "One line description of project.",

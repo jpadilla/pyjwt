@@ -36,13 +36,13 @@ class TestPycryptoAlgorithms:
     def test_rsa_should_parse_pem_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey2_rsa.pub.pem"), "r") as pem_key:
+        with open(key_path("testkey2_rsa.pub.pem")) as pem_key:
             algo.prepare_key(pem_key.read())
 
     def test_rsa_should_accept_unicode_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa"), "r") as rsa_key:
+        with open(key_path("testkey_rsa")) as rsa_key:
             algo.prepare_key(force_unicode(rsa_key.read()))
 
     def test_rsa_should_reject_non_string_key(self):
@@ -67,10 +67,10 @@ class TestPycryptoAlgorithms:
             )
         )
 
-        with open(key_path("testkey_rsa"), "r") as keyfile:
+        with open(key_path("testkey_rsa")) as keyfile:
             jwt_key = algo.prepare_key(keyfile.read())
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         algo.sign(jwt_message, jwt_key)
@@ -95,7 +95,7 @@ class TestPycryptoAlgorithms:
 
         jwt_sig += force_bytes("123")  # Signature is now invalid
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
@@ -117,7 +117,7 @@ class TestPycryptoAlgorithms:
             )
         )
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
@@ -126,7 +126,7 @@ class TestPycryptoAlgorithms:
     def test_rsa_prepare_key_should_be_idempotent(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("testkey_rsa.pub"), "r") as keyfile:
+        with open(key_path("testkey_rsa.pub")) as keyfile:
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
@@ -146,7 +146,7 @@ class TestEcdsaAlgorithms:
     def test_ec_should_accept_unicode_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with open(key_path("testkey_ec"), "r") as ec_key:
+        with open(key_path("testkey_ec")) as ec_key:
             algo.prepare_key(force_unicode(ec_key.read()))
 
     def test_ec_sign_should_generate_correct_signature_value(self):
@@ -162,10 +162,10 @@ class TestEcdsaAlgorithms:
             )
         )
 
-        with open(key_path("testkey_ec"), "r") as keyfile:
+        with open(key_path("testkey_ec")) as keyfile:
             jwt_key = algo.prepare_key(keyfile.read())
 
-        with open(key_path("testkey_ec.pub"), "r") as keyfile:
+        with open(key_path("testkey_ec.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         algo.sign(jwt_message, jwt_key)
@@ -187,7 +187,7 @@ class TestEcdsaAlgorithms:
 
         jwt_sig += force_bytes("123")  # Signature is now invalid
 
-        with open(key_path("testkey_ec.pub"), "r") as keyfile:
+        with open(key_path("testkey_ec.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
@@ -206,7 +206,7 @@ class TestEcdsaAlgorithms:
             )
         )
 
-        with open(key_path("testkey_ec.pub"), "r") as keyfile:
+        with open(key_path("testkey_ec.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
@@ -215,7 +215,7 @@ class TestEcdsaAlgorithms:
     def test_ec_prepare_key_should_be_idempotent(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with open(key_path("testkey_ec.pub"), "r") as keyfile:
+        with open(key_path("testkey_ec.pub")) as keyfile:
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
@@ -235,16 +235,16 @@ class TestEd25519Algorithms:
         with pytest.raises(TypeError):
             algo.prepare_key(None)
 
-        with open(key_path("testkey_ed25519"), "r") as keyfile:
+        with open(key_path("testkey_ed25519")) as keyfile:
             jwt_key = algo.prepare_key(keyfile.read())
 
-        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+        with open(key_path("testkey_ed25519.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
     def test_ed25519_should_accept_unicode_key(self):
         algo = Ed25519Algorithm()
 
-        with open(key_path("testkey_ed25519"), "r") as ec_key:
+        with open(key_path("testkey_ed25519")) as ec_key:
             algo.prepare_key(force_unicode(ec_key.read()))
 
     def test_ed25519_sign_should_generate_correct_signature_value(self):
@@ -254,10 +254,10 @@ class TestEd25519Algorithms:
     
         expected_sig = base64.b64decode(force_bytes(self.hello_world_sig))
 
-        with open(key_path("testkey_ed25519"), "r") as keyfile:
+        with open(key_path("testkey_ed25519")) as keyfile:
             jwt_key = algo.prepare_key(keyfile.read())
 
-        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+        with open(key_path("testkey_ed25519.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
     
         algo.sign(jwt_message, jwt_key)
@@ -272,7 +272,7 @@ class TestEd25519Algorithms:
     
         jwt_sig += force_bytes("123")  # Signature is now invalid
 
-        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+        with open(key_path("testkey_ed25519.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
     
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
@@ -284,7 +284,7 @@ class TestEd25519Algorithms:
         jwt_message = self.hello_world
         jwt_sig = base64.b64decode(force_bytes(self.hello_world_sig))
 
-        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+        with open(key_path("testkey_ed25519.pub")) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
     
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
@@ -293,7 +293,7 @@ class TestEd25519Algorithms:
     def test_ed25519_prepare_key_should_be_idempotent(self):
         algo = Ed25519Algorithm()
 
-        with open(key_path("testkey_ed25519.pub"), "r") as keyfile:
+        with open(key_path("testkey_ed25519.pub")) as keyfile:
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
     

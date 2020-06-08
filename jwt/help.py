@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import json
 import platform
 import sys
@@ -27,7 +25,7 @@ def info():
             "system": platform.system(),
             "release": platform.release(),
         }
-    except IOError:
+    except OSError:
         platform_info = {"system": "Unknown", "release": "Unknown"}
 
     implementation = platform.python_implementation()
@@ -35,7 +33,7 @@ def info():
     if implementation == "CPython":
         implementation_version = platform.python_version()
     elif implementation == "PyPy":
-        implementation_version = "%s.%s.%s" % (
+        implementation_version = "{}.{}.{}".format(
             sys.pypy_version_info.major,
             sys.pypy_version_info.minor,
             sys.pypy_version_info.micro,

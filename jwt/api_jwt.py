@@ -68,7 +68,7 @@ class PyJWT(PyJWS):
             payload, separators=(",", ":"), cls=json_encoder
         ).encode("utf-8")
 
-        return super(PyJWT, self).encode(
+        return super().encode(
             json_payload, key, algorithm, headers, json_encoder
         )
 
@@ -98,7 +98,7 @@ class PyJWT(PyJWS):
         else:
             options.setdefault("verify_signature", verify)
 
-        decoded = super(PyJWT, self).decode(
+        decoded = super().decode(
             jwt, key=key, algorithms=algorithms, options=options, **kwargs
         )
 
@@ -138,7 +138,7 @@ class PyJWT(PyJWS):
             if options[opt]:
                 require_options.append(opt_claim)
             warnings.warn(
-                "The {0} parameter is deprecated. Please add {1} to"
+                "The {} parameter is deprecated. Please add {} to"
                 " the require list in options instead".format(opt, opt_claim),
                 DeprecationWarning,
             )
