@@ -89,6 +89,7 @@ class PyJWT(PyJWS):
                 + 'value for the "algorithms" argument when calling decode(). '
                 + "This argument will be mandatory in a future version.",
                 DeprecationWarning,
+                stacklevel=2,
             )
 
         payload, _, _, _ = self._load(jwt)
@@ -125,6 +126,7 @@ class PyJWT(PyJWS):
                 "The verify_expiration parameter is deprecated. "
                 "Please use verify_exp in options instead.",
                 DeprecationWarning,
+                stacklevel=3,
             )
 
         verify_claims = {
@@ -141,6 +143,7 @@ class PyJWT(PyJWS):
                 "The {} parameter is deprecated. Please add {} to"
                 " the require list in options instead".format(opt, opt_claim),
                 DeprecationWarning,
+                stacklevel=3,
             )
 
         if isinstance(leeway, timedelta):
