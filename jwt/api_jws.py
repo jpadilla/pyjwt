@@ -147,6 +147,7 @@ class PyJWS:
                 + 'value for the "algorithms" argument when calling decode(). '
                 + "This argument will be mandatory in a future version.",
                 DeprecationWarning,
+                stacklevel=2,
             )
 
         payload, signing_input, header, signature = self._load(jwt)
