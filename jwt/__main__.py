@@ -71,7 +71,8 @@ def decode_payload(args):
                 raise OSError("Cannot read from stdin: terminal not a TTY")
 
         token = token.encode("utf-8")
-        data = decode(token, key=args.key, verify=args.verify)
+        data = decode(token, key=args.key, verify=args.verify,
+                      audience=args.audience, issuer=args.issuer)
 
         return json.dumps(data)
 
@@ -168,6 +169,22 @@ def build_argparser():
         dest="verify",
         default=True,
         help="ignore signature and claims verification on decode",
+    )
+
+    decode_parser.add_argument(
+        "--audience",
+        action="append",
+        dest="audience",
+        default=None,
+        help="audience value to accept, can be given multiple times",
+    )
+
+    decode_parser.add_argument(
+        "--issuer",
+        action="store",
+        dest="issuer",
+        default=None,
+        help="require issuer to match this, if specified",
     )
 
     decode_parser.set_defaults(func=decode_payload)
