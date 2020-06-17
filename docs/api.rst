@@ -52,7 +52,7 @@ API Reference
                 Use ``verify_exp`` instead
 
 
-    :param str|iterable audience: optional, the value for ``verify_aud`` check
+    :param iterable audience: optional, the value for ``verify_aud`` check
     :param str issuer: optional, the value for ``verify_iss`` check
     :param int|float leeway: a time margin in seconds for the expiration check
     :param bool verify_expiration:

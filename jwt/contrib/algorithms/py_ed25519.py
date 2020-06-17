@@ -15,7 +15,6 @@ from cryptography.hazmat.primitives.serialization import (
 )
 
 from jwt.algorithms import Algorithm
-from jwt.compat import string_types, text_type
 
 
 class Ed25519Algorithm(Algorithm):
@@ -33,8 +32,8 @@ class Ed25519Algorithm(Algorithm):
         if isinstance(key, (Ed25519PrivateKey, Ed25519PublicKey)):
             return key
 
-        if isinstance(key, string_types):
-            if isinstance(key, text_type):
+        if isinstance(key, (bytes, str)):
+            if isinstance(key, str):
                 key = key.encode("utf-8")
             str_key = key.decode("utf-8")
 

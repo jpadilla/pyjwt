@@ -2,7 +2,6 @@ import hashlib
 import hmac
 import json
 
-from .compat import constant_time_compare, string_types
 from .exceptions import InvalidKeyError
 from .utils import (
     base64url_decode,
@@ -216,7 +215,7 @@ class HMACAlgorithm(Algorithm):
         return hmac.new(key, msg, self.hash_alg).digest()
 
     def verify(self, msg, key, sig):
-        return constant_time_compare(sig, self.sign(msg, key))
+        return hmac.compare_digest(sig, self.sign(msg, key))
 
 
 if has_crypto:  # noqa: C901
@@ -238,7 +237,7 @@ if has_crypto:  # noqa: C901
             if isinstance(key, RSAPrivateKey) or isinstance(key, RSAPublicKey):
                 return key
 
-            if isinstance(key, string_types):
+            if isinstance(key, (bytes, str)):
                 key = force_bytes(key)
 
                 try:
@@ -395,7 +394,7 @@ if has_crypto:  # noqa: C901
             ):
                 return key
 
-            if isinstance(key, string_types):
+            if isinstance(key, (bytes, str)):
                 key = force_bytes(key)
 
                 # Attempt to load key. We don't know if it's

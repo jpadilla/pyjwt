@@ -1,11 +1,11 @@
 import json
 import warnings
 from calendar import timegm
+from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
 
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .api_jws import PyJWS
-from .compat import Iterable, Mapping, string_types
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
@@ -149,8 +149,8 @@ class PyJWT(PyJWS):
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
 
-        if not isinstance(audience, (string_types, type(None), Iterable)):
-            raise TypeError("audience must be a string, iterable, or None")
+        if not isinstance(audience, (type(None), Iterable)):
+            raise TypeError("audience must be an iterable or None")
 
         self._validate_required_claims(payload, options)
 
@@ -220,14 +220,14 @@ class PyJWT(PyJWS):
 
         audience_claims = payload["aud"]
 
-        if isinstance(audience_claims, string_types):
+        if isinstance(audience_claims, (bytes, str)):
             audience_claims = [audience_claims]
         if not isinstance(audience_claims, list):
             raise InvalidAudienceError("Invalid claim format in token")
-        if any(not isinstance(c, string_types) for c in audience_claims):
+        if any(not isinstance(c, (bytes, str)) for c in audience_claims):
             raise InvalidAudienceError("Invalid claim format in token")
 
-        if isinstance(audience, string_types):
+        if isinstance(audience, (bytes, str)):
             audience = [audience]
 
         if not any(aud in audience_claims for aud in audience):

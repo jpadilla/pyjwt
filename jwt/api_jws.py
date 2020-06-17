@@ -1,10 +1,10 @@
 import binascii
 import json
 import warnings
+from collections.abc import Mapping
 
 from .algorithms import requires_cryptography  # NOQA
 from .algorithms import Algorithm, get_default_algorithms, has_crypto
-from .compat import Mapping, binary_type, string_types, text_type
 from .exceptions import (
     DecodeError,
     InvalidAlgorithmError,
@@ -178,12 +178,12 @@ class PyJWS:
         return headers
 
     def _load(self, jwt):
-        if isinstance(jwt, text_type):
+        if isinstance(jwt, str):
             jwt = jwt.encode("utf-8")
 
-        if not issubclass(type(jwt), binary_type):
+        if not isinstance(jwt, bytes):
             raise DecodeError(
-                "Invalid token type. Token must be a {}".format(binary_type)
+                "Invalid token type. Token must be a {}".format(bytes)
             )
 
         try:
@@ -249,7 +249,7 @@ class PyJWS:
             self._validate_kid(headers["kid"])
 
     def _validate_kid(self, kid):
-        if not isinstance(kid, string_types):
+        if not isinstance(kid, (bytes, str)):
             raise InvalidTokenError("Key ID header parameter must be a string")
 
 
