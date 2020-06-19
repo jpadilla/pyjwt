@@ -1,18 +1,18 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 19.3b0
+    rev: 19.10b0
     hooks:
       - id: black
-        language_version: python3.7
+        language_version: python3.8
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.8
+    rev: 3.7.9
     hooks:
       - id: flake8
-        language_version: python3.7
+        language_version: python3.8
 
   - repo: https://github.com/asottile/seed-isort-config
-    rev: v1.9.3
+    rev: v1.9.4
     hooks:
       - id: seed-isort-config
 
@@ -21,10 +21,10 @@ repos:
     hooks:
       - id: isort
         additional_dependencies: [toml]
-        language_version: python3.7
+        language_version: python3.8
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v2.4.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
