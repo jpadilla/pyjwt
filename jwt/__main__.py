@@ -71,8 +71,13 @@ def decode_payload(args):
                 raise OSError("Cannot read from stdin: terminal not a TTY")
 
         token = token.encode("utf-8")
-        data = decode(token, key=args.key, verify=args.verify,
-                      audience=args.audience, issuer=args.issuer)
+        data = decode(
+            token,
+            key=args.key,
+            verify=args.verify,
+            audience=args.audience,
+            issuer=args.issuer,
+        )
 
         return json.dumps(data)
 

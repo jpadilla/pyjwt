@@ -2,8 +2,6 @@ import base64
 import binascii
 import struct
 
-from .compat import binary_type, bytes_from_int, text_type
-
 try:
     from cryptography.hazmat.primitives.asymmetric.utils import (
         decode_dss_signature,
@@ -14,25 +12,25 @@ except ImportError:
 
 
 def force_unicode(value):
-    if isinstance(value, binary_type):
+    if isinstance(value, bytes):
         return value.decode("utf-8")
-    elif isinstance(value, text_type):
+    elif isinstance(value, str):
         return value
     else:
         raise TypeError("Expected a string value")
 
 
 def force_bytes(value):
-    if isinstance(value, text_type):
+    if isinstance(value, str):
         return value.encode("utf-8")
-    elif isinstance(value, binary_type):
+    elif isinstance(value, bytes):
         return value
     else:
         raise TypeError("Expected a string value")
 
 
 def base64url_decode(input):
-    if isinstance(input, text_type):
+    if isinstance(input, str):
         input = input.encode("ascii")
 
     rem = len(input) % 4
@@ -60,7 +58,7 @@ def to_base64url_uint(val):
 
 
 def from_base64url_uint(val):
-    if isinstance(val, text_type):
+    if isinstance(val, str):
         val = val.encode("ascii")
 
     data = base64url_decode(val)
@@ -90,6 +88,17 @@ def number_to_bytes(num, num_bytes):
 
 def bytes_to_number(string):
     return int(binascii.b2a_hex(string), 16)
+
+
+def bytes_from_int(val):
+    remaining = val
+    byte_length = 0
+
+    while remaining != 0:
+        remaining = remaining >> 8
+        byte_length += 1
+
+    return val.to_bytes(byte_length, "big", signed=False)
 
 
 def der_to_raw_signature(der_sig, curve):

@@ -6,7 +6,6 @@ import hashlib
 import ecdsa
 
 from jwt.algorithms import Algorithm
-from jwt.compat import string_types, text_type
 
 
 class ECAlgorithm(Algorithm):
@@ -33,8 +32,8 @@ class ECAlgorithm(Algorithm):
         ):
             return key
 
-        if isinstance(key, string_types):
-            if isinstance(key, text_type):
+        if isinstance(key, (bytes, str)):
+            if isinstance(key, str):
                 key = key.encode("utf-8")
 
             # Attempt to load key. We don't know if it's
