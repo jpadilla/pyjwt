@@ -40,6 +40,7 @@ jobs:
 
       - name: "Combine coverage"
         run: |
+          set -xe
           python -m coverage combine
           python -m coverage xml
         if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
