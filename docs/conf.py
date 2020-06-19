@@ -63,7 +63,7 @@ author = u"José Padilla"
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = find_version("../src/jwt/__init__.py")
+release = find_version("../jwt/__init__.py")
 
 # The short X.Y version.
 version = release.rsplit(u".", 1)[0]

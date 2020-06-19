@@ -9,7 +9,7 @@ branch = true
 source = ["jwt"]
 
 [tool.coverage.paths]
-source = ["src", ".tox/*/site-packages"]
+source = ["jwt", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
