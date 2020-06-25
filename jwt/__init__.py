@@ -35,6 +35,7 @@ from .exceptions import (
     InvalidIssuedAtError,
     InvalidIssuer,
     InvalidIssuerError,
+    InvalidKeyError,
     InvalidSignatureError,
     InvalidTokenError,
     MissingRequiredClaimError,
