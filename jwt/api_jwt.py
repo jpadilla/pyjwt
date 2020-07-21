@@ -92,8 +92,6 @@ class PyJWT(PyJWS):
                 stacklevel=2,
             )
 
-        payload, _, _, _ = self._load(jwt)
-
         if options is None:
             options = {"verify_signature": verify}
         else:
