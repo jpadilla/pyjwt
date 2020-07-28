@@ -13,8 +13,8 @@ PyJWT
 .. image:: https://coveralls.io/repos/jpadilla/pyjwt/badge.svg?branch=master
    :target: https://coveralls.io/r/jpadilla/pyjwt?branch=master
 
-.. image:: https://readthedocs.org/projects/pyjwt/badge/?version=latest
-   :target: https://pyjwt.readthedocs.io
+.. image:: https://readthedocs.org/projects/pyjwt/badge/?version=stable
+   :target: https://pyjwt.readthedocs.io/en/stable/
 
 A Python implementation of `RFC 7519 <https://tools.ietf.org/html/rfc7519>`_. Original implementation was written by `@progrium <https://github.com/progrium>`_.
 
@@ -68,7 +68,7 @@ See more options executing ``pyjwt --help``.
 Documentation
 -------------
 
-View the full docs online at https://pyjwt.readthedocs.io/en/latest/
+View the full docs online at https://pyjwt.readthedocs.io/en/stable/
 
 
 Tests
