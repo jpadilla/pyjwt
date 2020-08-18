@@ -6,9 +6,7 @@ on:
     branches: ["master"]
   pull_request:
     branches: ["master"]
-  # Allow rebuilds via API.
-  repository_dispatch:
-    types: rebuild
+  workflow_dispatch:
 
 jobs:
   tests:
@@ -20,30 +18,40 @@ jobs:
     strategy:
       matrix:
         platform: ["ubuntu-latest", "windows-latest"]
-        python-version: ["3.5", "3.6", "3.7", "3.8"]
+        python-version: ["3.6", "3.7", "3.8"]
 
     steps:
       - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v1"
+      - uses: "actions/setup-python@v2"
         with:
           python-version: "${{ matrix.python-version }}"
+
       - name: "Install dependencies"
         run: |
           python -VV
           python -m site
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions
+
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: "python -m tox"
         env:
           PLATFORM: ${{ matrix.platform }}
 
+      # We always use a modern Python version for combining coverage to prevent
+      # parsing errors in older versions for modern code.
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.8"
+
       - name: "Combine coverage"
         run: |
           set -xe
+          python -m pip install coverage[toml]
           python -m coverage combine
           python -m coverage xml
         if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
+
       - name: "Upload coverage to Codecov"
         if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
         uses: "codecov/codecov-action@v1"
@@ -56,16 +64,19 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v1"
+      - uses: "actions/setup-python@v2"
         with:
           python-version: "3.8"
 
       - name: "Install pep517 and twine"
         run: "python -m pip install pep517 twine"
+
       - name: "Build package"
         run: "python -m pep517.build --source --binary ."
+
       - name: "List result"
         run: "ls -l dist"
+
       - name: "Check long_description"
         run: "python -m twine check dist/*"
 
@@ -79,10 +90,12 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v1"
+      - uses: "actions/setup-python@v2"
         with:
           python-version: "3.8"
+
       - name: "Install in dev mode"
         run: "python -m pip install -e .[dev]"
+
       - name: "Import package"
         run: "python -c 'import jwt; print(jwt.__version__)'"
