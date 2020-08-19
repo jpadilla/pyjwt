@@ -1,3 +1,20 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.coverage.run]
+parallel = true
+branch = true
+source = ["jwt"]
+
+[tool.coverage.paths]
+source = ["jwt", ".tox/*/site-packages"]
+
+[tool.coverage.report]
+show_missing = true
+
+
 [tool.black]
 line-length = 79
 
