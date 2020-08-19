@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import codecs
 import os
 import re
@@ -54,9 +53,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"PyJWT"
-copyright = u"2015, José Padilla"
-author = u"José Padilla"
+project = "PyJWT"
+copyright = "2015, José Padilla"
+author = "José Padilla"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
