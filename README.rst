@@ -1,17 +1,14 @@
 PyJWT
 =====
 
-.. image:: https://travis-ci.com/jpadilla/pyjwt.svg?branch=master
-   :target: http://travis-ci.com/jpadilla/pyjwt?branch=master
-
-.. image:: https://ci.appveyor.com/api/projects/status/h8nt70aqtwhht39t?svg=true
-   :target: https://ci.appveyor.com/project/jpadilla/pyjwt
+.. image:: https://github.com/jpadilla/pyjwt/workflows/CI/badge.svg
+   :target: https://github.com/jpadilla/pyjwt/actions?query=workflow%3ACI
 
 .. image:: https://img.shields.io/pypi/v/pyjwt.svg
    :target: https://pypi.python.org/pypi/pyjwt
 
-.. image:: https://coveralls.io/repos/jpadilla/pyjwt/badge.svg?branch=master
-   :target: https://coveralls.io/r/jpadilla/pyjwt?branch=master
+.. image:: https://codecov.io/gh/jpadilla/pyjwt/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/jpadilla/pyjwt
 
 .. image:: https://readthedocs.org/projects/pyjwt/badge/?version=stable
    :target: https://pyjwt.readthedocs.io/en/stable/
