@@ -4,7 +4,7 @@ from .algorithms import get_default_algorithms
 from .exceptions import PyJWKError, PyJWKSetError
 
 
-class PyJWK(object):
+class PyJWK:
     def __init__(self, jwk_data, algorithm=None):
         self._algorithms = get_default_algorithms()
         self._jwk_data = jwk_data
@@ -48,7 +48,7 @@ class PyJWK(object):
         return self._jwk_data.get("use", None)
 
 
-class PyJWKSet(object):
+class PyJWKSet:
     def __init__(self, keys):
         self.keys = []
 
