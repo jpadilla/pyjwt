@@ -126,7 +126,9 @@ class PyJWS:
 
         segments.append(base64url_encode(signature))
 
-        return b".".join(segments)
+        encoded_string = b".".join(segments)
+
+        return encoded_string.decode("utf-8")
 
     def decode(
         self,
