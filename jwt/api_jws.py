@@ -135,6 +135,7 @@ class PyJWS:
         verify=True,  # type: bool
         algorithms=None,  # type: List[str]
         options=None,  # type: Dict
+        complete=False,  # type: bool
         **kwargs
     ):
 
@@ -163,6 +164,13 @@ class PyJWS:
             self._verify_signature(
                 payload, signing_input, header, signature, key, algorithms
             )
+
+        if complete:
+            return {
+                "payload": payload,
+                "header": header,
+                "signature": signature,
+            }
 
         return payload
 

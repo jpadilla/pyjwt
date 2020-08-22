@@ -79,6 +79,7 @@ class PyJWT(PyJWS):
         verify=True,  # type: bool
         algorithms=None,  # type: List[str]
         options=None,  # type: Dict
+        complete=False,  # type: bool
         **kwargs
     ):
         # type: (...) -> Dict[str, Any]
@@ -100,11 +101,19 @@ class PyJWT(PyJWS):
             options.setdefault("verify_signature", verify)
 
         decoded = super().decode(
-            jwt, key=key, algorithms=algorithms, options=options, **kwargs
+            jwt,
+            key=key,
+            algorithms=algorithms,
+            options=options,
+            complete=complete,
+            **kwargs
         )
 
         try:
-            payload = json.loads(decoded.decode("utf-8"))
+            if complete:
+                payload = json.loads(decoded["payload"].decode("utf-8"))
+            else:
+                payload = json.loads(decoded.decode("utf-8"))
         except ValueError as e:
             raise DecodeError("Invalid payload string: %s" % e)
         if not isinstance(payload, dict):
@@ -113,6 +122,10 @@ class PyJWT(PyJWS):
         if verify:
             merged_options = merge_dict(self.options, options)
             self._validate_claims(payload, merged_options, **kwargs)
+
+        if complete:
+            decoded["payload"] = payload
+            return decoded
 
         return payload
 
