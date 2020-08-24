@@ -9,11 +9,6 @@ try:
 except ImportError:
     cryptography = None  # type: ignore
 
-try:
-    import ecdsa  # type: ignore
-except ImportError:
-    ecdsa = None  # type: ignore
-
 
 def info():
     """
