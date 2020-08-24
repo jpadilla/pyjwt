@@ -67,6 +67,6 @@ class PyJWKClientError(PyJWTError):
 
 
 # Compatibility aliases (deprecated)
-ExpiredSignature = ExpiredSignatureError
-InvalidAudience = InvalidAudienceError
-InvalidIssuer = InvalidIssuerError
+# ExpiredSignature = ExpiredSignatureError
+# InvalidAudience = InvalidAudienceError
+# InvalidIssuer = InvalidIssuerError

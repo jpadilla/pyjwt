@@ -29,11 +29,12 @@ class PyJWKClient:
 
     def get_signing_keys(self):
         jwk_set = self.get_jwk_set()
-        signing_keys = []
-
-        for jwk_set_key in jwk_set.keys:
-            if jwk_set_key.public_key_use == "sig" and jwk_set_key.key_id:
-                signing_keys.append(jwk_set_key)
+        signing_keys = list(
+            filter(
+                lambda key: key.public_key_use == "sig" and key.key_id,
+                jwk_set.keys,
+            )
+        )
 
         if len(signing_keys) == 0:
             raise PyJWKClientError(
@@ -59,6 +60,8 @@ class PyJWKClient:
         return signing_key
 
     def get_signing_key_from_jwt(self, token):
-        unverified = decode_token(token, complete=True, verify=False)
+        unverified = decode_token(
+            token, complete=True, options={"verify_signature": False}
+        )
         header = unverified.get("header")
         return self.get_signing_key(header.get("kid"))

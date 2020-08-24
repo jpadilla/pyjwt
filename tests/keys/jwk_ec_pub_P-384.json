@@ -1,0 +1,7 @@
+{
+  "kty": "EC",
+  "kid": "bilbo.baggins.384@hobbiton.example",
+  "crv": "P-384",
+  "x": "IDC-5s6FERlbC4Nc_4JhKW8sd51AhixtMdNUtPxhRFP323QY6cwWeIA3leyZhz-J",
+  "y": "eovmN9ocANS8IJxDAGSuC1FehTq5ZFLJU7XSPg36zHpv4H2byKGEcCBiwT4sFJsy"
+}
