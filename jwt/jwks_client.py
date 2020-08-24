@@ -29,12 +29,11 @@ class PyJWKClient:
 
     def get_signing_keys(self):
         jwk_set = self.get_jwk_set()
-        signing_keys = list(
-            filter(
-                lambda key: key.public_key_use == "sig" and key.key_id,
-                jwk_set.keys,
-            )
-        )
+        signing_keys = []
+
+        for jwk_set_key in jwk_set.keys:
+            if jwk_set_key.public_key_use == "sig" and jwk_set_key.key_id:
+                signing_keys.append(jwk_set_key)
 
         if len(signing_keys) == 0:
             raise PyJWKClientError(
