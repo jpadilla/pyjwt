@@ -198,6 +198,94 @@ class TestAlgorithms:
     @pytest.mark.skipif(
         not has_crypto, reason="Not supported without cryptography library"
     )
+    def test_ec_jwk_public_and_private_keys_should_parse_and_verify(self):
+        tests = {
+            "P-256": ECAlgorithm.SHA256,
+            "P-384": ECAlgorithm.SHA384,
+            "P-521": ECAlgorithm.SHA512,
+        }
+        for (curve, hash) in tests.items():
+            algo = ECAlgorithm(hash)
+
+            with open(
+                key_path("jwk_ec_pub_{}.json".format(curve)), "r"
+            ) as keyfile:
+                pub_key = algo.from_jwk(keyfile.read())
+
+            with open(
+                key_path("jwk_ec_key_{}.json".format(curve)), "r"
+            ) as keyfile:
+                priv_key = algo.from_jwk(keyfile.read())
+
+            signature = algo.sign(force_bytes("Hello World!"), priv_key)
+            assert algo.verify(force_bytes("Hello World!"), pub_key, signature)
+
+    @pytest.mark.skipif(
+        not has_crypto, reason="Not supported without cryptography library"
+    )
+    def test_ec_jwk_fails_on_invalid_json(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA512)
+
+        valid_points = {
+            "P-256": {
+                "x": "PTTjIY84aLtaZCxLTrG_d8I0G6YKCV7lg8M4xkKfwQ4=",
+                "y": "ank6KA34vv24HZLXlChVs85NEGlpg2sbqNmR_BcgyJU=",
+            },
+            "P-384": {
+                "x": "IDC-5s6FERlbC4Nc_4JhKW8sd51AhixtMdNUtPxhRFP323QY6cwWeIA3leyZhz-J",
+                "y": "eovmN9ocANS8IJxDAGSuC1FehTq5ZFLJU7XSPg36zHpv4H2byKGEcCBiwT4sFJsy",
+            },
+            "P-521": {
+                "x": "AHKZLLOsCOzz5cY97ewNUajB957y-C-U88c3v13nmGZx6sYl_oJXu9A5RkTKqjqvjyekWF-7ytDyRXYgCF5cj0Kt",
+                "y": "AdymlHvOiLxXkEhayXQnNCvDX4h9htZaCJN34kfmC6pV5OhQHiraVySsUdaQkAgDPrwQrJmbnX9cwlGfP-HqHZR1",
+            },
+        }
+
+        # Invalid JSON
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk("<this isn't json>")
+
+        # Bad key type
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{"kty": "RSA"}')
+
+        # Missing data
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{"kty": "EC"}')
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{"kty": "EC", "x": "1"}')
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{"kty": "EC", "y": "1"}')
+
+        # Missing curve
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk('{"kty": "EC", "x": "dGVzdA==", "y": "dGVzdA=="}')
+
+        # EC coordinates not equally long
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk(
+                '{"kty": "EC", "x": "dGVzdHRlc3Q=", "y": "dGVzdA=="}'
+            )
+
+        # EC coordinates length invalid
+        for curve in ("P-256", "P-384", "P-521"):
+            with pytest.raises(InvalidKeyError):
+                algo.from_jwk(
+                    '{{"kty": "EC", "crv": "{}", "x": "dGVzdA==", '
+                    '"y": "dGVzdA=="}}'.format(curve)
+                )
+
+        # EC private key length invalid
+        for (curve, point) in valid_points.items():
+            with pytest.raises(InvalidKeyError):
+                algo.from_jwk(
+                    '{{"kty": "EC", "crv": "{}", "x": "{}", "y": "{}", '
+                    '"d": "dGVzdA=="}}'.format(curve, point["x"], point["y"])
+                )
+
+    @pytest.mark.skipif(
+        not has_crypto, reason="Not supported without cryptography library"
+    )
     def test_rsa_jwk_public_and_private_keys_should_parse_and_verify(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 

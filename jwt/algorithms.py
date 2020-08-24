@@ -44,6 +44,7 @@ try:
         Ed25519PrivateKey,
         Ed25519PublicKey,
     )
+    from cryptography.utils import int_from_bytes
 
     has_crypto = True
 except ImportError:
@@ -438,6 +439,67 @@ if has_crypto:  # noqa: C901
                 return True
             except InvalidSignature:
                 return False
+
+        @staticmethod
+        def from_jwk(jwk):
+
+            try:
+                obj = json.loads(jwk)
+            except ValueError:
+                raise InvalidKeyError("Key is not valid JSON")
+
+            if obj.get("kty") != "EC":
+                raise InvalidKeyError("Not an Elliptic curve key")
+
+            if "x" not in obj or "y" not in obj:
+                raise InvalidKeyError("Not an Elliptic curve key")
+
+            x = base64url_decode(force_bytes(obj.get("x")))
+            y = base64url_decode(force_bytes(obj.get("y")))
+
+            curve = obj.get("crv")
+            if curve == "P-256":
+                if len(x) == len(y) == 32:
+                    curve_obj = ec.SECP256R1()
+                else:
+                    raise InvalidKeyError(
+                        "Coords should be 32 bytes for curve P-256"
+                    )
+            elif curve == "P-384":
+                if len(x) == len(y) == 48:
+                    curve_obj = ec.SECP384R1()
+                else:
+                    raise InvalidKeyError(
+                        "Coords should be 48 bytes for curve P-384"
+                    )
+            elif curve == "P-521":
+                if len(x) == len(y) == 66:
+                    curve_obj = ec.SECP521R1()
+                else:
+                    raise InvalidKeyError(
+                        "Coords should be 66 bytes for curve P-521"
+                    )
+            else:
+                raise InvalidKeyError("Invalid curve: {}".format(curve))
+
+            public_numbers = ec.EllipticCurvePublicNumbers(
+                x=int_from_bytes(x, "big"),
+                y=int_from_bytes(y, "big"),
+                curve=curve_obj,
+            )
+
+            if "d" not in obj:
+                return public_numbers.public_key(default_backend())
+
+            d = base64url_decode(force_bytes(obj.get("d")))
+            if len(d) != len(x):
+                raise InvalidKeyError(
+                    "D should be {} bytes for curve {}", len(x), curve
+                )
+
+            return ec.EllipticCurvePrivateNumbers(
+                int_from_bytes(d, "big"), public_numbers
+            ).private_key(default_backend())
 
     class RSAPSSAlgorithm(RSAAlgorithm):
         """
