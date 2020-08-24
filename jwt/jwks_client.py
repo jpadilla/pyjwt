@@ -59,6 +59,8 @@ class PyJWKClient:
         return signing_key
 
     def get_signing_key_from_jwt(self, token):
-        unverified = decode_token(token, complete=True, verify=False)
+        unverified = decode_token(
+            token, complete=True, options={"verify_signature": False}
+        )
         header = unverified.get("header")
         return self.get_signing_key(header.get("kid"))

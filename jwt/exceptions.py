@@ -64,9 +64,3 @@ class PyJWKSetError(PyJWTError):
 
 class PyJWKClientError(PyJWTError):
     pass
-
-
-# Compatibility aliases (deprecated)
-ExpiredSignature = ExpiredSignatureError
-InvalidAudience = InvalidAudienceError
-InvalidIssuer = InvalidIssuerError

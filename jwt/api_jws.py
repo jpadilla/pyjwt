@@ -1,6 +1,5 @@
 import binascii
 import json
-import warnings
 from collections.abc import Mapping
 
 from .algorithms import requires_cryptography  # NOQA
@@ -145,24 +144,13 @@ class PyJWS:
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms:
-            warnings.warn(
-                "It is strongly recommended that you pass in a "
-                + 'value for the "algorithms" argument when calling decode(). '
-                + "This argument will be mandatory in a future version.",
-                DeprecationWarning,
-                stacklevel=2,
+            raise DecodeError(
+                'It is required that you pass in a value for the "algorithms" argument when calling decode().'
             )
 
         payload, signing_input, header, signature = self._load(jwt)
 
-        if not verify:
-            warnings.warn(
-                "The verify parameter is deprecated. "
-                "Please use verify_signature in options instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        elif verify_signature:
+        if verify_signature:
             self._verify_signature(
                 payload, signing_input, header, signature, key, algorithms
             )

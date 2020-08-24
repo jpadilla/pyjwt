@@ -13,7 +13,7 @@ def test_encode_decode():
     payload = {"iss": "jeff", "exp": utc_timestamp() + 15, "claim": "insanity"}
 
     secret = "secret"
-    jwt_message = jwt.encode(payload, secret)
-    decoded_payload = jwt.decode(jwt_message, secret)
+    jwt_message = jwt.encode(payload, secret, algorithm="HS256")
+    decoded_payload = jwt.decode(jwt_message, secret, algorithms=["HS256"])
 
     assert decoded_payload == payload
