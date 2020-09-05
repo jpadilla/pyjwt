@@ -51,6 +51,7 @@ API Reference
             .. deprecated:: 1.2.0
                 Use ``verify_exp`` instead
 
+        * ``timezone`` change the timezone used for decoding and validation, expects tzinfo object
 
     :param iterable audience: optional, the value for ``verify_aud`` check
     :param str issuer: optional, the value for ``verify_iss`` check
