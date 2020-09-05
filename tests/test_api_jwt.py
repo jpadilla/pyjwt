@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 import pytest
+import pytz
 
 from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
@@ -586,6 +587,29 @@ class TestJWT:
                 secret,
                 algorithms=["HS256"],
                 options={"verify_exp": True},
+            )
+
+    def test_decode_with_timezone_and_verify_exp_options(self, jwt, payload):
+        timezone = pytz.timezone('US/Pacific')
+        current_time = timegm(datetime.now(tz=timezone).utctimetuple())
+        payload["iat"] = current_time
+        payload["exp"] = current_time - 1
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        jwt.decode(
+            jwt_message,
+            secret,
+            algorithms=["HS256"],
+            options={"timezone": timezone, "verify_exp": False},
+        )
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(
+                jwt_message,
+                secret,
+                algorithms=["HS256"],
+                options={"timezone": timezone, "verify_exp": True,},
             )
 
     def test_decode_with_optional_algorithms(self, jwt, payload):

@@ -1,7 +1,7 @@
 import json
 from calendar import timegm
 from collections.abc import Iterable, Mapping
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .api_jws import PyJWS
@@ -36,6 +36,7 @@ class PyJWT(PyJWS):
             "verify_iat": True,
             "verify_aud": True,
             "verify_iss": True,
+            "timezone": timezone.utc,
             "require": [],
         }
 
@@ -132,7 +133,7 @@ class PyJWT(PyJWS):
 
         self._validate_required_claims(payload, options)
 
-        now = timegm(datetime.utcnow().utctimetuple())
+        now = timegm(datetime.now(tz=options.get("timezone")).utctimetuple())
 
         if "iat" in payload and options.get("verify_iat"):
             self._validate_iat(payload, now, leeway)
