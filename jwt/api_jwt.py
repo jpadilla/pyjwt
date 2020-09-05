@@ -36,7 +36,7 @@ class PyJWT(PyJWS):
             "verify_iat": True,
             "verify_aud": True,
             "verify_iss": True,
-            "timezone": timezone.utc,
+            "timezone": timezone.utc,   # type: tzinfo
             "require": [],
         }
 
