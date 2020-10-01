@@ -16,7 +16,7 @@ API Reference
     :param str algorithm: algorithm to sign the token with, e.g. ``"ES256"``
     :param dict headers: additional JWT header fields, e.g. ``dict(kid="my-key-id")``
     :param json.JSONEncoder json_encoder: custom JSON encoder for ``payload`` and ``headers``
-    :rtype: str
+    :rtype: bytes
     :returns: a JSON Web Token
 
 .. function:: decode(jwt, key="", verify=True, algorithms=None, options=None, audience=None, issuer=None, leeway=0, verify_expiration=True)
