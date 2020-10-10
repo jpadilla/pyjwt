@@ -36,7 +36,6 @@ try:
         EllipticCurvePublicKey,
     )
     from cryptography.hazmat.primitives.asymmetric import ec, padding
-    from cryptography.hazmat.backends import default_backend
     from cryptography.exceptions import InvalidSignature
 
     import cryptography.exceptions
@@ -241,15 +240,11 @@ if has_crypto:  # noqa: C901
 
                 try:
                     if key.startswith(b"ssh-rsa"):
-                        key = load_ssh_public_key(
-                            key, backend=default_backend()
-                        )
+                        key = load_ssh_public_key(key)
                     else:
-                        key = load_pem_private_key(
-                            key, password=None, backend=default_backend()
-                        )
+                        key = load_pem_private_key(key, password=None)
                 except ValueError:
-                    key = load_pem_public_key(key, backend=default_backend())
+                    key = load_pem_public_key(key)
             else:
                 raise TypeError("Expecting a PEM-formatted key.")
 
@@ -357,7 +352,7 @@ if has_crypto:  # noqa: C901
                         public_numbers=public_numbers,
                     )
 
-                return numbers.private_key(default_backend())
+                return numbers.private_key()
             elif "n" in obj and "e" in obj:
                 # Public key
                 numbers = RSAPublicNumbers(
@@ -365,7 +360,7 @@ if has_crypto:  # noqa: C901
                     from_base64url_uint(obj["n"]),
                 )
 
-                return numbers.public_key(default_backend())
+                return numbers.public_key()
             else:
                 raise InvalidKeyError("Not a public or private key")
 
@@ -406,17 +401,11 @@ if has_crypto:  # noqa: C901
                 # the Verifying Key first.
                 try:
                     if key.startswith(b"ecdsa-sha2-"):
-                        key = load_ssh_public_key(
-                            key, backend=default_backend()
-                        )
+                        key = load_ssh_public_key(key)
                     else:
-                        key = load_pem_public_key(
-                            key, backend=default_backend()
-                        )
+                        key = load_pem_public_key(key)
                 except ValueError:
-                    key = load_pem_private_key(
-                        key, password=None, backend=default_backend()
-                    )
+                    key = load_pem_private_key(key, password=None)
 
             else:
                 raise TypeError("Expecting a PEM-formatted key.")
@@ -489,7 +478,7 @@ if has_crypto:  # noqa: C901
             )
 
             if "d" not in obj:
-                return public_numbers.public_key(default_backend())
+                return public_numbers.public_key()
 
             d = base64url_decode(force_bytes(obj.get("d")))
             if len(d) != len(x):
@@ -499,7 +488,7 @@ if has_crypto:  # noqa: C901
 
             return ec.EllipticCurvePrivateNumbers(
                 int_from_bytes(d, "big"), public_numbers
-            ).private_key(default_backend())
+            ).private_key()
 
     class RSAPSSAlgorithm(RSAAlgorithm):
         """
@@ -552,13 +541,11 @@ if has_crypto:  # noqa: C901
                 str_key = key.decode("utf-8")
 
                 if "-----BEGIN PUBLIC" in str_key:
-                    return load_pem_public_key(key, backend=default_backend())
+                    return load_pem_public_key(key)
                 if "-----BEGIN PRIVATE" in str_key:
-                    return load_pem_private_key(
-                        key, password=None, backend=default_backend()
-                    )
+                    return load_pem_private_key(key, password=None)
                 if str_key[0:4] == "ssh-":
-                    return load_ssh_public_key(key, backend=default_backend())
+                    return load_ssh_public_key(key)
 
             raise TypeError("Expecting a PEM-formatted or OpenSSH key.")
 
