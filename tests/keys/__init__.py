@@ -21,7 +21,6 @@ def load_hmac_key():
 
 try:
     from cryptography.hazmat.primitives.asymmetric import ec
-    from cryptography.hazmat.backends import default_backend
     from jwt.algorithms import RSAAlgorithm
 
     has_crypto = True
@@ -57,4 +56,4 @@ if has_crypto:
             x=decode_value(keyobj["x"]),
             y=decode_value(keyobj["y"]),
             curve=ec.SECP521R1(),
-        ).public_key(default_backend())
+        ).public_key()
