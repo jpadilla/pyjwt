@@ -26,6 +26,21 @@ Encoding & Decoding Tokens with RS256 (RSA)
     >>decoded = jwt.decode(encoded, public_key, algorithms='RS256')
     {'some': 'payload'}
 
+If your private key needs a passphrase, you need to pass in a ``PrivateKey`` object from ``cryptography``.
+
+.. code-block:: python
+
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.backends import default_backend
+
+    pem_bytes = b'-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS...'
+    passphrase = b'your password'
+
+    private_key = serialization.load_pem_private_key(
+        pem_bytes, password=passphrase, backend=default_backend())
+    encoded = jwt.encode({'some': 'payload'}, private_key, algorithm='RS256')
+
+
 Specifying Additional Headers
 -----------------------------
 
