@@ -27,7 +27,6 @@ See :doc:`Installation <installation>` for more information.
 Example Usage
 -------------
 
-.. code-block:: python
 .. doctest::
 
     >>> import jwt
