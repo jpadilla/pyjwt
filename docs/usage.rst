@@ -23,7 +23,7 @@ Encoding & Decoding Tokens with RS256 (RSA)
     >>public_key = b'-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEAC...'
     >>encoded = jwt.encode({'some': 'payload'}, private_key, algorithm='RS256')
     'eyJhbGciOiJIU...'
-    >>decoded = jwt.decode(encoded, public_key, algorithms='RS256')
+    >>decoded = jwt.decode(encoded, public_key, algorithms=['RS256'])
     {'some': 'payload'}
 
 If your private key needs a passphrase, you need to pass in a ``PrivateKey`` object from ``cryptography``.
