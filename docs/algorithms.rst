@@ -16,6 +16,7 @@ This library currently supports:
 * PS256 - RSASSA-PSS signature using SHA-256 and MGF1 padding with SHA-256
 * PS384 - RSASSA-PSS signature using SHA-384 and MGF1 padding with SHA-384
 * PS512 - RSASSA-PSS signature using SHA-512 and MGF1 padding with SHA-512
+* EdDSA - Ed25519255 signature using SHA-512. Provides 128-bit security
 
 Asymmetric (Public-key) Algorithms
 ----------------------------------
