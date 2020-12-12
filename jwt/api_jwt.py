@@ -80,8 +80,6 @@ class PyJWT(PyJWS):
         **kwargs
     ):  # type: (...) -> Dict[str, Any]
 
-        payload, _, _, _ = self._load(jwt)
-
         if options is None:
             options = {"verify_signature": True}
         else:
