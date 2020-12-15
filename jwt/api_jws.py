@@ -133,7 +133,6 @@ class PyJWS:
         self,
         jwt,  # type: str
         key="",  # type: str
-        verify=True,  # type: bool
         algorithms=None,  # type: List[str]
         options=None,  # type: Dict
         complete=False,  # type: bool
