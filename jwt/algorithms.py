@@ -15,33 +15,32 @@ from .utils import (
 )
 
 try:
+    import cryptography.exceptions
+    from cryptography.exceptions import InvalidSignature
     from cryptography.hazmat.primitives import hashes
-    from cryptography.hazmat.primitives.serialization import (
-        load_pem_private_key,
-        load_pem_public_key,
-        load_ssh_public_key,
-    )
-    from cryptography.hazmat.primitives.asymmetric.rsa import (
-        RSAPrivateKey,
-        RSAPublicKey,
-        RSAPrivateNumbers,
-        RSAPublicNumbers,
-        rsa_recover_prime_factors,
-        rsa_crt_dmp1,
-        rsa_crt_dmq1,
-        rsa_crt_iqmp,
-    )
+    from cryptography.hazmat.primitives.asymmetric import ec, padding
     from cryptography.hazmat.primitives.asymmetric.ec import (
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
     )
-    from cryptography.hazmat.primitives.asymmetric import ec, padding
-    from cryptography.exceptions import InvalidSignature
-
-    import cryptography.exceptions
     from cryptography.hazmat.primitives.asymmetric.ed25519 import (
         Ed25519PrivateKey,
         Ed25519PublicKey,
+    )
+    from cryptography.hazmat.primitives.asymmetric.rsa import (
+        RSAPrivateKey,
+        RSAPrivateNumbers,
+        RSAPublicKey,
+        RSAPublicNumbers,
+        rsa_crt_dmp1,
+        rsa_crt_dmq1,
+        rsa_crt_iqmp,
+        rsa_recover_prime_factors,
+    )
+    from cryptography.hazmat.primitives.serialization import (
+        load_pem_private_key,
+        load_pem_public_key,
+        load_ssh_public_key,
     )
     from cryptography.utils import int_from_bytes
 
