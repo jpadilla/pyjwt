@@ -5,7 +5,7 @@ import sys
 from . import __version__ as pyjwt_version
 
 try:
-    import cryptography  # type: ignore
+    import cryptography
 except ImportError:
     cryptography = None  # type: ignore
 
