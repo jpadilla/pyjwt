@@ -1,6 +1,7 @@
 import binascii
 import json
 from collections.abc import Mapping
+from typing import Dict, List, Optional, Type, Union
 
 from .algorithms import requires_cryptography  # NOQA
 from .algorithms import Algorithm, get_default_algorithms, has_crypto
@@ -11,12 +12,6 @@ from .exceptions import (
     InvalidTokenError,
 )
 from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict
-
-try:
-    # import required by mypy to perform type checking, not used for normal execution
-    from typing import Callable, Dict, List, Optional, Type, Union  # NOQA
-except ImportError:
-    pass
 
 
 class PyJWS:
@@ -79,11 +74,11 @@ class PyJWS:
 
     def encode(
         self,
-        payload,  # type: Union[Dict, bytes]
-        key,  # type: str
-        algorithm="HS256",  # type: str
-        headers=None,  # type: Optional[Dict]
-        json_encoder=None,  # type: Optional[Type[json.JSONEncoder]]
+        payload: Union[Dict, bytes],
+        key: str,
+        algorithm: str = "HS256",
+        headers: Optional[Dict] = None,
+        json_encoder: Optional[Type[json.JSONEncoder]] = None,
     ):
         segments = []
 
@@ -131,11 +126,11 @@ class PyJWS:
 
     def decode(
         self,
-        jwt,  # type: str
-        key="",  # type: str
-        algorithms=None,  # type: List[str]
-        options=None,  # type: Dict
-        complete=False,  # type: bool
+        jwt: str,
+        key: str = "",
+        algorithms: List[str] = None,
+        options: Dict = None,
+        complete: bool = False,
         **kwargs
     ):
 

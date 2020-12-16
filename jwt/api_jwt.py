@@ -2,6 +2,7 @@ import json
 from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Type, Union
 
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .api_jws import PyJWS
@@ -16,19 +17,12 @@ from .exceptions import (
 )
 from .utils import merge_dict
 
-try:
-    # import required by mypy to perform type checking, not used for normal execution
-    from typing import Any, Callable, Dict, List, Optional, Type, Union  # NOQA
-except ImportError:
-    pass
-
 
 class PyJWT(PyJWS):
     header_type = "JWT"
 
     @staticmethod
-    def _get_default_options():
-        # type: () -> Dict[str, Union[bool, List[str]]]
+    def _get_default_options() -> Dict[str, Union[bool, List[str]]]:
         return {
             "verify_signature": True,
             "verify_exp": True,
@@ -41,11 +35,11 @@ class PyJWT(PyJWS):
 
     def encode(
         self,
-        payload,  # type: Union[Dict, bytes]
-        key,  # type: str
-        algorithm="HS256",  # type: str
-        headers=None,  # type: Optional[Dict]
-        json_encoder=None,  # type: Optional[Type[json.JSONEncoder]]
+        payload: Union[Dict, bytes],
+        key: str,
+        algorithm: str = "HS256",
+        headers: Optional[Dict] = None,
+        json_encoder: Optional[Type[json.JSONEncoder]] = None,
     ):
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
@@ -60,7 +54,7 @@ class PyJWT(PyJWS):
             if isinstance(payload.get(time_claim), datetime):
                 payload[time_claim] = timegm(
                     payload[time_claim].utctimetuple()
-                )  # type: ignore
+                )
 
         json_payload = json.dumps(
             payload, separators=(",", ":"), cls=json_encoder
@@ -72,13 +66,13 @@ class PyJWT(PyJWS):
 
     def decode(
         self,
-        jwt,  # type: str
-        key="",  # type: str
-        algorithms=None,  # type: List[str]
-        options=None,  # type: Dict
-        complete=False,  # type: bool
+        jwt: str,
+        key: str = "",
+        algorithms: List[str] = None,
+        options: Dict = None,
+        complete: bool = False,
         **kwargs
-    ):  # type: (...) -> Dict[str, Any]
+    ) -> Dict[str, Any]:
 
         if options is None:
             options = {"verify_signature": True}
