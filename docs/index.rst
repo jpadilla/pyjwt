@@ -40,20 +40,6 @@ Example Usage
 
 See :doc:`Usage Examples <usage>` for more examples.
 
-Command line
-------------
-
-Usage::
-
-    pyjwt [options] INPUT
-
-Decoding examples::
-
-    pyjwt --key=secret decode TOKEN
-    pyjwt decode --no-verify TOKEN
-
-See more options executing ``pyjwt --help``.
-
 Index
 -----
 

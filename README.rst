@@ -47,22 +47,6 @@ Usage
     >>> jwt.decode(encoded, 'secret', algorithms=['HS256'])
     {'some': 'payload'}
 
-
-Command line
-------------
-
-Usage::
-
-    pyjwt [options] INPUT
-
-Decoding examples::
-
-    pyjwt --key=secret decode TOKEN
-    pyjwt decode --no-verify TOKEN
-
-See more options executing ``pyjwt --help``.
-
-
 Documentation
 -------------
 
