@@ -22,7 +22,7 @@ class TestPyJWK:
     def test_should_load_key_from_jwk_data_dict(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_pub.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
             pub_key = algo.from_jwk(keyfile.read())
 
         key_data_str = algo.to_jwk(pub_key)
@@ -46,7 +46,7 @@ class TestPyJWK:
     def test_should_load_key_from_jwk_data_json_string(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_pub.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
             pub_key = algo.from_jwk(keyfile.read())
 
         key_data_str = algo.to_jwk(pub_key)
@@ -72,7 +72,7 @@ class TestPyJWKSet:
     def test_should_load_keys_from_jwk_data_dict(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_pub.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
             pub_key = algo.from_jwk(keyfile.read())
 
         key_data_str = algo.to_jwk(pub_key)
@@ -97,7 +97,7 @@ class TestPyJWKSet:
     def test_should_load_keys_from_jwk_data_json_string(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
-        with open(key_path("jwk_rsa_pub.json"), "r") as keyfile:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
             pub_key = algo.from_jwk(keyfile.read())
 
         key_data_str = algo.to_jwk(pub_key)

@@ -53,7 +53,7 @@ class PyJWKClient:
 
         if not signing_key:
             raise PyJWKClientError(
-                'Unable to find a signing key that matches: "{}"'.format(kid)
+                f'Unable to find a signing key that matches: "{kid}"'
             )
 
         return signing_key

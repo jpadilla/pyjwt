@@ -13,7 +13,7 @@ def decode_value(val):
 
 
 def load_hmac_key():
-    with open(os.path.join(BASE_PATH, "jwk_hmac.json"), "r") as infile:
+    with open(os.path.join(BASE_PATH, "jwk_hmac.json")) as infile:
         keyobj = json.load(infile)
 
     return base64url_decode(force_bytes(keyobj["k"]))
@@ -31,15 +31,15 @@ except ImportError:
 if has_crypto:
 
     def load_rsa_key():
-        with open(os.path.join(BASE_PATH, "jwk_rsa_key.json"), "r") as infile:
+        with open(os.path.join(BASE_PATH, "jwk_rsa_key.json")) as infile:
             return RSAAlgorithm.from_jwk(infile.read())
 
     def load_rsa_pub_key():
-        with open(os.path.join(BASE_PATH, "jwk_rsa_pub.json"), "r") as infile:
+        with open(os.path.join(BASE_PATH, "jwk_rsa_pub.json")) as infile:
             return RSAAlgorithm.from_jwk(infile.read())
 
     def load_ec_key():
-        with open(os.path.join(BASE_PATH, "jwk_ec_key.json"), "r") as infile:
+        with open(os.path.join(BASE_PATH, "jwk_ec_key.json")) as infile:
             keyobj = json.load(infile)
 
         return ec.EllipticCurvePrivateNumbers(
@@ -48,9 +48,7 @@ if has_crypto:
         )
 
     def load_ec_pub_key_p_521():
-        with open(
-            os.path.join(BASE_PATH, "jwk_ec_pub_P-521.json"), "r"
-        ) as infile:
+        with open(os.path.join(BASE_PATH, "jwk_ec_pub_P-521.json")) as infile:
             keyobj = json.load(infile)
 
         return ec.EllipticCurvePublicNumbers(
