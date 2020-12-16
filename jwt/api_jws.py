@@ -188,7 +188,7 @@ class PyJWS:
             raise DecodeError("Invalid header padding") from err
 
         try:
-            header = json.loads(header_data.decode("utf-8"))
+            header = json.loads(header_data)
         except ValueError as e:
             raise DecodeError("Invalid header string: %s" % e) from e
 

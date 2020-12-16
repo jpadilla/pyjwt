@@ -95,9 +95,9 @@ class PyJWT(PyJWS):
 
         try:
             if complete:
-                payload = json.loads(decoded["payload"].decode("utf-8"))
+                payload = json.loads(decoded["payload"])
             else:
-                payload = json.loads(decoded.decode("utf-8"))
+                payload = json.loads(decoded)
         except ValueError as e:
             raise DecodeError("Invalid payload string: %s" % e)
         if not isinstance(payload, dict):
