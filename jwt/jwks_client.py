@@ -1,27 +1,18 @@
+import json
+import urllib.request
+
 from .api_jwk import PyJWKSet
 from .api_jwt import decode as decode_token
 from .exceptions import PyJWKClientError
 
-try:
-    import requests
-
-    has_requests = True
-except ImportError:
-    has_requests = False
-
 
 class PyJWKClient:
     def __init__(self, uri):
-        if not has_requests:
-            raise PyJWKClientError(
-                "Missing dependencies for `PyJWKClient`. Run `pip install pyjwt[jwks-client]` to install dependencies."
-            )
-
         self.uri = uri
 
     def fetch_data(self):
-        r = requests.get(self.uri)
-        return r.json()
+        with urllib.request.urlopen(self.uri) as response:
+            return json.load(response)
 
     def get_jwk_set(self):
         data = self.fetch_data()
