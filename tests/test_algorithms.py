@@ -12,12 +12,13 @@ from .utils import key_path
 
 try:
     from jwt.algorithms import (
-        RSAAlgorithm,
         ECAlgorithm,
-        RSAPSSAlgorithm,
         Ed25519Algorithm,
+        RSAAlgorithm,
+        RSAPSSAlgorithm,
     )
-    from .keys import load_rsa_pub_key, load_ec_pub_key_p_521
+
+    from .keys import load_ec_pub_key_p_521, load_rsa_pub_key
 
     has_crypto = True
 except ImportError:

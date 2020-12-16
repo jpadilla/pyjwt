@@ -21,6 +21,7 @@ def load_hmac_key():
 
 try:
     from cryptography.hazmat.primitives.asymmetric import ec
+
     from jwt.algorithms import RSAAlgorithm
 
     has_crypto = True
