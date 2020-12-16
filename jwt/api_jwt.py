@@ -71,7 +71,7 @@ class PyJWT(PyJWS):
         algorithms: List[str] = None,
         options: Dict = None,
         complete: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
 
         if options is None:
@@ -90,7 +90,7 @@ class PyJWT(PyJWS):
             algorithms=algorithms,
             options=options,
             complete=complete,
-            **kwargs
+            **kwargs,
         )
 
         try:

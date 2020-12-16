@@ -131,7 +131,7 @@ class PyJWS:
         algorithms: List[str] = None,
         options: Dict = None,
         complete: bool = False,
-        **kwargs
+        **kwargs,
     ):
 
         merged_options = merge_dict(self.options, options)

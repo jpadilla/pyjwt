@@ -493,7 +493,7 @@ class TestJWS:
         # PEM-formatted RSA key
         with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = load_pem_private_key(
-                force_bytes(rsa_priv_file.read()), password=None,
+                force_bytes(rsa_priv_file.read()), password=None
             )
             jws_message = jws.encode(payload, priv_rsakey, algorithm="RS256")
 
@@ -518,7 +518,7 @@ class TestJWS:
         # PEM-formatted RSA key
         with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = load_pem_private_key(
-                force_bytes(rsa_priv_file.read()), password=None,
+                force_bytes(rsa_priv_file.read()), password=None
             )
             jws_message = jws.encode(payload, priv_rsakey, algorithm="RS384")
 
@@ -542,7 +542,7 @@ class TestJWS:
         # PEM-formatted RSA key
         with open("tests/keys/testkey_rsa.priv", "r") as rsa_priv_file:
             priv_rsakey = load_pem_private_key(
-                force_bytes(rsa_priv_file.read()), password=None,
+                force_bytes(rsa_priv_file.read()), password=None
             )
             jws_message = jws.encode(payload, priv_rsakey, algorithm="RS512")
 
@@ -586,7 +586,7 @@ class TestJWS:
         # PEM-formatted EC key
         with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = load_pem_private_key(
-                force_bytes(ec_priv_file.read()), password=None,
+                force_bytes(ec_priv_file.read()), password=None
             )
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES256")
 
@@ -611,7 +611,7 @@ class TestJWS:
         # PEM-formatted EC key
         with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = load_pem_private_key(
-                force_bytes(ec_priv_file.read()), password=None,
+                force_bytes(ec_priv_file.read()), password=None
             )
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES384")
 
@@ -635,7 +635,7 @@ class TestJWS:
         # PEM-formatted EC key
         with open("tests/keys/testkey_ec.priv", "r") as ec_priv_file:
             priv_eckey = load_pem_private_key(
-                force_bytes(ec_priv_file.read()), password=None,
+                force_bytes(ec_priv_file.read()), password=None
             )
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES512")
 

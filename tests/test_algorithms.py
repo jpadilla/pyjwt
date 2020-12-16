@@ -442,7 +442,7 @@ class TestAlgorithms:
         key = algo.to_jwk(priv_key)
 
         expected = {
-            "key_ops": [u"sign"],
+            "key_ops": ["sign"],
             "kty": "RSA",
             "e": "AQAB",
             "n": (
