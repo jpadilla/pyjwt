@@ -174,9 +174,7 @@ class PyJWS:
             jwt = jwt.encode("utf-8")
 
         if not isinstance(jwt, bytes):
-            raise DecodeError(
-                "Invalid token type. Token must be a {}".format(bytes)
-            )
+            raise DecodeError(f"Invalid token type. Token must be a {bytes}")
 
         try:
             signing_input, crypto_segment = jwt.rsplit(b".", 1)

@@ -220,7 +220,7 @@ class TestJWT:
     )
     def test_decodes_valid_es256_jwt(self, jwt):
         example_payload = {"hello": "world"}
-        with open("tests/keys/testkey_ec.pub", "r") as fp:
+        with open("tests/keys/testkey_ec.pub") as fp:
             example_pubkey = fp.read()
         example_jwt = (
             b"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."
@@ -242,7 +242,7 @@ class TestJWT:
     )
     def test_decodes_valid_rs384_jwt(self, jwt):
         example_payload = {"hello": "world"}
-        with open("tests/keys/testkey_rsa.pub", "r") as fp:
+        with open("tests/keys/testkey_rsa.pub") as fp:
             example_pubkey = fp.read()
         example_jwt = (
             b"eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9"
@@ -556,7 +556,7 @@ class TestJWT:
             def default(self, o):
                 if isinstance(o, Decimal):
                     return "it worked"
-                return super(CustomJSONEncoder, self).default(o)
+                return super().default(o)
 
         data = {"some_decimal": Decimal("2.2")}
 

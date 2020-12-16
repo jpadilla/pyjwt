@@ -468,7 +468,7 @@ if has_crypto:  # noqa: C901
                         "Coords should be 66 bytes for curve P-521"
                     )
             else:
-                raise InvalidKeyError("Invalid curve: {}".format(curve))
+                raise InvalidKeyError(f"Invalid curve: {curve}")
 
             public_numbers = ec.EllipticCurvePublicNumbers(
                 x=int_from_bytes(x, "big"),
