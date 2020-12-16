@@ -11,7 +11,7 @@ from jwt.exceptions import (
     InvalidSignatureError,
     InvalidTokenError,
 )
-from jwt.utils import base64url_decode, force_bytes
+from jwt.utils import base64url_decode
 
 from .utils import key_path
 
@@ -613,7 +613,7 @@ class TestJWS:
         # PEM-formatted EC key
         with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
             priv_eckey = load_pem_private_key(
-                force_bytes(ec_priv_file.read()), password=None
+                ec_priv_file.read(), password=None
             )
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES384")
 
@@ -637,7 +637,7 @@ class TestJWS:
         # PEM-formatted EC key
         with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
             priv_eckey = load_pem_private_key(
-                force_bytes(ec_priv_file.read()), password=None
+                ec_priv_file.read(), password=None
             )
             jws_message = jws.encode(payload, priv_eckey, algorithm="ES512")
 
@@ -700,7 +700,7 @@ class TestJWS:
             payload, "secret", headers=data, json_encoder=CustomJSONEncoder
         )
 
-        header = force_bytes(token.split(".")[0])
+        header, *_ = token.split(".")
         header = json.loads(base64url_decode(header))
 
         assert "some_decimal" in header

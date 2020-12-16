@@ -11,7 +11,7 @@ from .exceptions import (
     InvalidSignatureError,
     InvalidTokenError,
 )
-from .utils import base64url_decode, base64url_encode, force_bytes, merge_dict
+from .utils import base64url_decode, base64url_encode, merge_dict
 
 
 class PyJWS:
@@ -95,9 +95,9 @@ class PyJWS:
             self._validate_headers(headers)
             header.update(headers)
 
-        json_header = force_bytes(
-            json.dumps(header, separators=(",", ":"), cls=json_encoder)
-        )
+        json_header = json.dumps(
+            header, separators=(",", ":"), cls=json_encoder
+        ).encode()
 
         segments.append(base64url_encode(json_header))
         segments.append(base64url_encode(payload))
