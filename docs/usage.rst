@@ -54,8 +54,8 @@ Reading the Claimset without Validation
 ---------------------------------------
 
 If you wish to read the claimset of a JWT without performing validation of the
-signature or any of the registered claim names, you can set the ``verify``
-parameter to ``False``.
+signature or any of the registered claim names, you can set the
+``verify_signature`` option to ``False``.
 
 Note: It is generally ill-advised to use this functionality unless you
 clearly understand what you are doing. Without digital signature information,
@@ -63,7 +63,7 @@ the integrity or authenticity of the claimset cannot be trusted.
 
 .. code-block:: python
 
-    >>jwt.decode(encoded, verify=False)
+    >>jwt.decode(encoded, options={"verify_signature": False})
     {u'some': u'payload'}
 
 Reading Headers without Validation
