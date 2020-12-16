@@ -442,8 +442,8 @@ if has_crypto:  # noqa: C901
             if "x" not in obj or "y" not in obj:
                 raise InvalidKeyError("Not an Elliptic curve key")
 
-            x = base64url_decode(force_bytes(obj.get("x")))
-            y = base64url_decode(force_bytes(obj.get("y")))
+            x = base64url_decode(obj.get("x"))
+            y = base64url_decode(obj.get("y"))
 
             curve = obj.get("crv")
             if curve == "P-256":
@@ -479,7 +479,7 @@ if has_crypto:  # noqa: C901
             if "d" not in obj:
                 return public_numbers.public_key()
 
-            d = base64url_decode(force_bytes(obj.get("d")))
+            d = base64url_decode(obj.get("d"))
             if len(d) != len(x):
                 raise InvalidKeyError(
                     "D should be {} bytes for curve {}", len(x), curve
