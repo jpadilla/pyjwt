@@ -232,7 +232,7 @@ class TestJWS:
         decoded_payload = jws.decode(
             example_jws, example_pubkey, algorithms=["ES256"]
         )
-        json_payload = json.loads(force_unicode(decoded_payload))
+        json_payload = json.loads(decoded_payload)
 
         assert json_payload == example_payload
 
@@ -262,7 +262,7 @@ class TestJWS:
         decoded_payload = jws.decode(
             example_jws, example_pubkey, algorithms=["RS384"]
         )
-        json_payload = json.loads(force_unicode(decoded_payload))
+        json_payload = json.loads(decoded_payload)
 
         assert json_payload == example_payload
 
@@ -699,7 +699,7 @@ class TestJWS:
         )
 
         header = force_bytes(force_unicode(token).split(".")[0])
-        header = json.loads(force_unicode(base64url_decode(header)))
+        header = json.loads(base64url_decode(header))
 
         assert "some_decimal" in header
         assert header["some_decimal"] == "it worked"
