@@ -5,6 +5,12 @@ repos:
       - id: black
         args: ["--target-version=py36"]
 
+  - repo: https://github.com/asottile/blacken-docs
+    rev: v1.8.0
+    hooks:
+      - id: blacken-docs
+        args: ["--target-version=py36"]
+
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
     hooks:

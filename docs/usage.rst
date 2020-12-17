@@ -4,26 +4,28 @@ Usage Examples
 Encoding & Decoding Tokens with HS256
 -------------------------------------
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>import jwt
-    >>key = 'secret'
-    >>encoded = jwt.encode({'some': 'payload'}, key, algorithm='HS256')
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg'
-    >>decoded = jwt.decode(encoded, key, algorithms='HS256')
+    >>> import jwt
+    >>> key = "secret"
+    >>> encoded = jwt.encode({"some": "payload"}, key, algorithm="HS256")
+    >>> print(encoded)
+    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg
+    >>> jwt.decode(encoded, key, algorithms="HS256")
     {'some': 'payload'}
 
 Encoding & Decoding Tokens with RS256 (RSA)
 -------------------------------------------
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>import jwt
-    >>private_key = b'-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS...'
-    >>public_key = b'-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEAC...'
-    >>encoded = jwt.encode({'some': 'payload'}, private_key, algorithm='RS256')
-    'eyJhbGciOiJIU...'
-    >>decoded = jwt.decode(encoded, public_key, algorithms=['RS256'])
+    >>> import jwt
+    >>> private_key = b"-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS..."
+    >>> public_key = b"-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEAC..."
+    >>> encoded = jwt.encode({"some": "payload"}, private_key, algorithm="RS256")
+    >>> print(encoded)
+    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg
+    >>> decoded = jwt.decode(encoded, public_key, algorithms=["RS256"])
     {'some': 'payload'}
 
 If your private key needs a passphrase, you need to pass in a ``PrivateKey`` object from ``cryptography``.
@@ -33,20 +35,21 @@ If your private key needs a passphrase, you need to pass in a ``PrivateKey`` obj
     from cryptography.hazmat.primitives import serialization
     from cryptography.hazmat.backends import default_backend
 
-    pem_bytes = b'-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS...'
-    passphrase = b'your password'
+    pem_bytes = b"-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS..."
+    passphrase = b"your password"
 
     private_key = serialization.load_pem_private_key(
-        pem_bytes, password=passphrase, backend=default_backend())
-    encoded = jwt.encode({'some': 'payload'}, private_key, algorithm='RS256')
+        pem_bytes, password=passphrase, backend=default_backend()
+    )
+    encoded = jwt.encode({"some": "payload"}, private_key, algorithm="RS256")
 
 
 Specifying Additional Headers
 -----------------------------
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    >>> jwt.encode({"some": "payload"}, "secret", algorithm="HS256", headers={"kid": "230498151c214b788dd97f22b85410a5"})
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJzb21lIjoicGF5bG9hZCJ9.DogbDGmMHgA_bU05TAB-R6geQ2nMU2BRM-LnYEtefwg'
 
 
@@ -61,10 +64,10 @@ Note: It is generally ill-advised to use this functionality unless you
 clearly understand what you are doing. Without digital signature information,
 the integrity or authenticity of the claimset cannot be trusted.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>jwt.decode(encoded, options={"verify_signature": False})
-    {u'some': u'payload'}
+    >>> jwt.decode(encoded, options={"verify_signature": False})
+    {'some': 'payload'}
 
 Reading Headers without Validation
 ----------------------------------
@@ -75,10 +78,10 @@ way of knowing in advance which one of the issuer's public keys or shared
 secrets to use for validation, the issuer may include an identifier for the
 key in the header.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>jwt.get_unverified_header(encoded)
-    {u'alg': u'RS256', u'typ': u'JWT', u'kid': u'key-id-12345...'}
+    >>> jwt.get_unverified_header(encoded)
+    {'alg': 'RS256', 'typ': 'JWT', 'kid': 'key-id-12345...'}
 
 Registered Claim Names
 ----------------------
@@ -108,8 +111,8 @@ datetime, which will be converted into an int. For example:
 
 .. code-block:: python
 
-    jwt.encode({'exp': 1371720939}, 'secret')
-    jwt.encode({'exp': datetime.utcnow()}, 'secret')
+    jwt.encode({"exp": 1371720939}, "secret")
+    jwt.encode({"exp": datetime.utcnow()}, "secret")
 
 Expiration time is automatically verified in `jwt.decode()` and raises
 `jwt.ExpiredSignatureError` if the expiration time is in the past:
@@ -117,9 +120,10 @@ Expiration time is automatically verified in `jwt.decode()` and raises
 .. code-block:: python
 
     try:
-        jwt.decode('JWT_STRING', 'secret', algorithms=['HS256'])
+        jwt.decode("JWT_STRING", "secret", algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
         # Signature has expired
+        ...
 
 Expiration time will be compared to the current UTC time (as given by
 `timegm(datetime.utcnow().utctimetuple())`), so be sure to use a UTC timestamp
@@ -135,22 +139,24 @@ you can set a leeway of 10 seconds in order to have some margin:
 
 .. code-block:: python
 
-    jwt_payload = jwt.encode({
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
-    }, 'secret')
+    jwt_payload = jwt.encode(
+        {"exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, "secret"
+    )
 
     time.sleep(32)
 
     # JWT payload is now expired
     # But with some leeway, it will still validate
-    jwt.decode(jwt_payload, 'secret', leeway=10, algorithms=['HS256'])
+    jwt.decode(jwt_payload, "secret", leeway=10, algorithms=["HS256"])
 
 Instead of specifying the leeway as a number of seconds, a `datetime.timedelta`
 instance can be used. The last line in the example above is equivalent to:
 
 .. code-block:: python
 
-    jwt.decode(jwt_payload, 'secret', leeway=datetime.timedelta(seconds=10), algorithms=['HS256'])
+    jwt.decode(
+        jwt_payload, "secret", leeway=datetime.timedelta(seconds=10), algorithms=["HS256"]
+    )
 
 Not Before Time Claim (nbf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -167,8 +173,8 @@ The `nbf` claim works similarly to the `exp` claim above.
 
 .. code-block:: python
 
-    jwt.encode({'nbf': 1371720939}, 'secret')
-    jwt.encode({'nbf': datetime.utcnow()}, 'secret')
+    jwt.encode({"nbf": 1371720939}, "secret")
+    jwt.encode({"nbf": datetime.utcnow()}, "secret")
 
 Issuer Claim (iss)
 ~~~~~~~~~~~~~~~~~~
@@ -180,13 +186,10 @@ Issuer Claim (iss)
 
 .. code-block:: python
 
-    payload = {
-        'some': 'payload',
-        'iss': 'urn:foo'
-    }
+    payload = {"some": "payload", "iss": "urn:foo"}
 
-    token = jwt.encode(payload, 'secret')
-    decoded = jwt.decode(token, 'secret', issuer='urn:foo', algorithms=['HS256'])
+    token = jwt.encode(payload, "secret")
+    decoded = jwt.decode(token, "secret", issuer="urn:foo", algorithms=["HS256"])
 
 If the issuer claim is incorrect, `jwt.InvalidIssuerError` will be raised.
 
@@ -205,39 +208,32 @@ sensitive strings, each containing a StringOrURI value.
 
 .. code-block:: python
 
-    payload = {
-        'some': 'payload',
-        'aud': ['urn:foo', 'urn:bar']
-    }
+    payload = {"some": "payload", "aud": ["urn:foo", "urn:bar"]}
 
-    token = jwt.encode(payload, 'secret')
-    decoded = jwt.decode(token, 'secret', audience='urn:foo', algorithms=['HS256'])
+    token = jwt.encode(payload, "secret")
+    decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
 
 In the special case when the JWT has one audience, the "aud" value MAY be
 a single case-sensitive string containing a StringOrURI value.
 
 .. code-block:: python
 
-    payload = {
-        'some': 'payload',
-        'aud': 'urn:foo'
-    }
+    payload = {"some": "payload", "aud": "urn:foo"}
 
-    token = jwt.encode(payload, 'secret')
-    decoded = jwt.decode(token, 'secret', audience='urn:foo', algorithms=['HS256'])
+    token = jwt.encode(payload, "secret")
+    decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
 
 If multiple audiences are accepted, the ``audience`` parameter for
 ``jwt.decode`` can also be an iterable
 
 .. code-block:: python
 
-    payload = {
-        'some': 'payload',
-        'aud': 'urn:foo'
-    }
+    payload = {"some": "payload", "aud": "urn:foo"}
 
-    token = jwt.encode(payload, 'secret')
-    decoded = jwt.decode(token, 'secret', audience=['urn:foo', 'urn:bar'], algorithms=['HS256'])
+    token = jwt.encode(payload, "secret")
+    decoded = jwt.decode(
+        token, "secret", audience=["urn:foo", "urn:bar"], algorithms=["HS256"]
+    )
 
 The interpretation of audience values is generally application specific.
 Use of this claim is OPTIONAL.
@@ -255,15 +251,15 @@ Issued At Claim (iat)
 
 .. code-block:: python
 
-    jwt.encode({'iat': 1371720939}, 'secret')
-    jwt.encode({'iat': datetime.utcnow()}, 'secret')
+    jwt.encode({"iat": 1371720939}, "secret")
+    jwt.encode({"iat": datetime.utcnow()}, "secret")
 
 Requiring Presence of Claims
 ----------------------------
 
 If you wish to require one or more claims to be present in the claimset, you can set the ``require`` paramenter to include these claims.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>jwt.decode(encoded, options={'require': ['exp', 'iss', 'sub']})
-    {u'exp': 1371720939, u'iss': u'urn:foo', u'sub': u'25c37522-f148-4cbf-8ee6-c4a9718dd0af'}
+    >>> jwt.decode(encoded, options={"require": ["exp", "iss", "sub"]})
+    {'exp': 1371720939, 'iss': 'urn:foo', 'sub': '25c37522-f148-4cbf-8ee6-c4a9718dd0af'}
