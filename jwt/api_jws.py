@@ -239,7 +239,7 @@ class PyJWS:
             self._validate_kid(headers["kid"])
 
     def _validate_kid(self, kid):
-        if not isinstance(kid, (bytes, str)):
+        if not isinstance(kid, str):
             raise InvalidTokenError("Key ID header parameter must be a string")
 
 
