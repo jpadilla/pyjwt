@@ -8,7 +8,6 @@ from .utils import (
     base64url_encode,
     der_to_raw_signature,
     force_bytes,
-    force_unicode,
     from_base64url_uint,
     raw_to_der_signature,
     to_base64url_uint,
@@ -194,7 +193,7 @@ class HMACAlgorithm(Algorithm):
     def to_jwk(key_obj):
         return json.dumps(
             {
-                "k": force_unicode(base64url_encode(force_bytes(key_obj))),
+                "k": base64url_encode(force_bytes(key_obj)).decode(),
                 "kty": "oct",
             }
         )
@@ -260,18 +259,14 @@ if has_crypto:  # noqa: C901
                 obj = {
                     "kty": "RSA",
                     "key_ops": ["sign"],
-                    "n": force_unicode(
-                        to_base64url_uint(numbers.public_numbers.n)
-                    ),
-                    "e": force_unicode(
-                        to_base64url_uint(numbers.public_numbers.e)
-                    ),
-                    "d": force_unicode(to_base64url_uint(numbers.d)),
-                    "p": force_unicode(to_base64url_uint(numbers.p)),
-                    "q": force_unicode(to_base64url_uint(numbers.q)),
-                    "dp": force_unicode(to_base64url_uint(numbers.dmp1)),
-                    "dq": force_unicode(to_base64url_uint(numbers.dmq1)),
-                    "qi": force_unicode(to_base64url_uint(numbers.iqmp)),
+                    "n": to_base64url_uint(numbers.public_numbers.n).decode(),
+                    "e": to_base64url_uint(numbers.public_numbers.e).decode(),
+                    "d": to_base64url_uint(numbers.d).decode(),
+                    "p": to_base64url_uint(numbers.p).decode(),
+                    "q": to_base64url_uint(numbers.q).decode(),
+                    "dp": to_base64url_uint(numbers.dmp1).decode(),
+                    "dq": to_base64url_uint(numbers.dmq1).decode(),
+                    "qi": to_base64url_uint(numbers.iqmp).decode(),
                 }
 
             elif getattr(key_obj, "verify", None):
@@ -281,8 +276,8 @@ if has_crypto:  # noqa: C901
                 obj = {
                     "kty": "RSA",
                     "key_ops": ["verify"],
-                    "n": force_unicode(to_base64url_uint(numbers.n)),
-                    "e": force_unicode(to_base64url_uint(numbers.e)),
+                    "n": to_base64url_uint(numbers.n).decode(),
+                    "e": to_base64url_uint(numbers.e).decode(),
                 }
             else:
                 raise InvalidKeyError("Not a public or private key")

@@ -11,15 +11,6 @@ except ImportError:
     pass
 
 
-def force_unicode(value):
-    if isinstance(value, bytes):
-        return value.decode("utf-8")
-    elif isinstance(value, str):
-        return value
-    else:
-        raise TypeError("Expected a string value")
-
-
 def force_bytes(value):
     if isinstance(value, str):
         return value.encode("utf-8")
