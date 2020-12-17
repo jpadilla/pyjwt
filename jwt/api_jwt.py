@@ -2,7 +2,7 @@ import json
 from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union, Mapping as MappingType
 
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .api_jws import PyJWS
@@ -35,7 +35,7 @@ class PyJWT(PyJWS):
 
     def encode(
         self,
-        payload: Mapping[str, Any],
+        payload: MappingType[str, Any],
         key: str,
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
