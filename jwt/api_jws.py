@@ -79,7 +79,7 @@ class PyJWS:
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
-    ):
+    ) -> str:
         segments = []
 
         if algorithm is None:
