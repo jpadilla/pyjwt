@@ -18,7 +18,7 @@ from jwt.exceptions import (
 )
 
 from .test_api_jws import has_crypto
-from .utils import utc_timestamp
+from .utils import key_path, utc_timestamp
 
 
 @pytest.fixture
@@ -220,7 +220,7 @@ class TestJWT:
     )
     def test_decodes_valid_es256_jwt(self, jwt):
         example_payload = {"hello": "world"}
-        with open("tests/keys/testkey_ec.pub") as fp:
+        with open(key_path("testkey_ec.pub")) as fp:
             example_pubkey = fp.read()
         example_jwt = (
             b"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."
@@ -242,7 +242,7 @@ class TestJWT:
     )
     def test_decodes_valid_rs384_jwt(self, jwt):
         example_payload = {"hello": "world"}
-        with open("tests/keys/testkey_rsa.pub") as fp:
+        with open(key_path("testkey_rsa.pub")) as fp:
             example_pubkey = fp.read()
         example_jwt = (
             b"eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9"
