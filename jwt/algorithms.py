@@ -42,7 +42,6 @@ try:
         load_pem_public_key,
         load_ssh_public_key,
     )
-    from cryptography.utils import int_from_bytes
 
     has_crypto = True
 except ImportError:
@@ -471,8 +470,8 @@ if has_crypto:  # noqa: C901
                 raise InvalidKeyError(f"Invalid curve: {curve}")
 
             public_numbers = ec.EllipticCurvePublicNumbers(
-                x=int_from_bytes(x, "big"),
-                y=int_from_bytes(y, "big"),
+                x=int.from_bytes(x, byteorder="big"),
+                y=int.from_bytes(y, byteorder="big"),
                 curve=curve_obj,
             )
 
@@ -486,7 +485,7 @@ if has_crypto:  # noqa: C901
                 )
 
             return ec.EllipticCurvePrivateNumbers(
-                int_from_bytes(d, "big"), public_numbers
+                int.from_bytes(d, byteorder="big"), public_numbers
             ).private_key()
 
     class RSAPSSAlgorithm(RSAAlgorithm):

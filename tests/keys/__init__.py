@@ -2,14 +2,13 @@ import json
 import os
 
 from jwt.utils import base64url_decode
-from tests.utils import int_from_bytes
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def decode_value(val):
     decoded = base64url_decode(val)
-    return int_from_bytes(decoded, "big")
+    return int.from_bytes(decoded, byteorder="big")
 
 
 def load_hmac_key():
