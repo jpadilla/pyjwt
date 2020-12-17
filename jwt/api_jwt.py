@@ -4,7 +4,6 @@ from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
 
-from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .api_jws import PyJWS
 from .exceptions import (
     DecodeError,

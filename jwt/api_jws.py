@@ -3,8 +3,12 @@ import json
 from collections.abc import Mapping
 from typing import Dict, List, Optional, Type, Union
 
-from .algorithms import requires_cryptography  # NOQA
-from .algorithms import Algorithm, get_default_algorithms, has_crypto
+from .algorithms import (
+    Algorithm,
+    get_default_algorithms,
+    has_crypto,
+    requires_cryptography,
+)
 from .exceptions import (
     DecodeError,
     InvalidAlgorithmError,
