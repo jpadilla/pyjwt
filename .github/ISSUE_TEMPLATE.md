@@ -12,7 +12,6 @@ What happened instead.
 
 ```python
 import jwt
-
 ```
 
 ## System Information

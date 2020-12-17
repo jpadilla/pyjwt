@@ -39,19 +39,20 @@ Specifying an Algorithm
 You can specify which algorithm you would like to use to sign the JWT
 by using the `algorithm` parameter:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> encoded = jwt.encode({'some': 'payload'}, 'secret', algorithm='HS512')
-    'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.WTzLzFO079PduJiFIyzrOah54YaM8qoxH9fLMQoQhKtw3_fMGjImIOokijDkXVbyfBqhMo2GCNu4w9v7UXvnpA'
+    >>> encoded = jwt.encode({"some": "payload"}, "secret", algorithm="HS512")
+    >>> print(encoded)
+    eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.WTzLzFO079PduJiFIyzrOah54YaM8qoxH9fLMQoQhKtw3_fMGjImIOokijDkXVbyfBqhMo2GCNu4w9v7UXvnpA
 
 When decoding, you can also specify which algorithms you would like to permit
 when validating the JWT by using the `algorithms` parameter which takes a list
 of allowed algorithms:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> jwt.decode(encoded, 'secret', algorithms=['HS512', 'HS256'])
-    {u'some': u'payload'}
+    >>> jwt.decode(encoded, "secret", algorithms=["HS512", "HS256"])
+    {'some': 'payload'}
 
 In the above case, if the JWT has any value for its alg header other than
 HS512 or HS256, the claim will be rejected with an ``InvalidAlgorithmError``.
