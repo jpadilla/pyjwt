@@ -1,4 +1,3 @@
-import codecs
 import os
 import re
 
@@ -11,7 +10,7 @@ def read(*parts):
     resulting file.  Assume UTF-8 encoding.
     """
     here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, *parts), "rb", "utf-8") as f:
+    with open(os.path.join(here, *parts), encoding="utf-8") as f:
         return f.read()
 
 
