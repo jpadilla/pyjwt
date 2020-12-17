@@ -19,16 +19,12 @@ API Reference
     :rtype: str
     :returns: a JSON Web Token
 
-.. function:: decode(jwt, key="", verify=True, algorithms=None, options=None, audience=None, issuer=None, leeway=0, verify_expiration=True)
+.. function:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0)
 
     Verify the ``jwt`` token signature and return the token claims.
 
     :param str|bytes jwt: the token to be decoded
     :param str key: the key suitable for the allowed algorithm
-    :param bool verify: whether to verify the JWT signature, on by default
-
-        .. deprecated:: 1.5.1
-           to disable signature validation, use ``options=(verify_signature=False)``
 
     :param list algorithms: allowed algorithms, e.g. ``["ES256"]``
 
@@ -46,20 +42,10 @@ API Reference
         * ``verify_exp=False`` check that ``exp`` (expiration) claim value is OK
         * ``verify_iss=False`` check that ``iss`` (issuer) claim matches ``issuer``
         * ``verify_signature=True`` verify the JWT cryptographic signature
-        * ``verify_expiration``
-
-            .. deprecated:: 1.2.0
-                Use ``verify_exp`` instead
-
 
     :param iterable audience: optional, the value for ``verify_aud`` check
     :param str issuer: optional, the value for ``verify_iss`` check
     :param int|float leeway: a time margin in seconds for the expiration check
-    :param bool verify_expiration:
-
-        .. deprecated:: 1.2.0
-            Use ``options=(verify_exp=...)`` instead
-
     :rtype: dict
     :returns: the JWT claims
 
