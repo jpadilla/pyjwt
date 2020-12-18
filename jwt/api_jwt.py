@@ -1,8 +1,8 @@
 import json
 from calendar import timegm
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, MutableMapping
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Type, Union, Mapping as MappingType
+from typing import Any, Dict, List, Optional, Type, Union, MutableMapping as MutableMappingType
 
 from .algorithms import Algorithm, get_default_algorithms  # NOQA
 from .api_jws import PyJWS
@@ -35,14 +35,14 @@ class PyJWT(PyJWS):
 
     def encode(
         self,
-        payload: MappingType[str, Any],
+        payload: MutableMappingType[str, Any],
         key: str,
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
         # Check that we get a mapping
-        if not isinstance(payload, Mapping):
+        if not isinstance(payload, MutableMapping):
             raise TypeError(
                 "Expecting a mapping object, as JWT only supports "
                 "JSON objects as payloads."

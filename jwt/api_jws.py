@@ -74,7 +74,7 @@ class PyJWS:
 
     def encode(
         self,
-        payload: Union[Dict, bytes],
+        payload: bytes,
         key: str,
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
