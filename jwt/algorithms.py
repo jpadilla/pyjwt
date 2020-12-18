@@ -213,7 +213,7 @@ class HMACAlgorithm(Algorithm):
         return hmac.compare_digest(sig, self.sign(msg, key))
 
 
-if has_crypto:  # noqa: C901
+if has_crypto:
 
     class RSAAlgorithm(Algorithm):
         """
