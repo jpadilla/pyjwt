@@ -125,23 +125,23 @@ class PyJWT(PyJWS):
 
         now = timegm(datetime.utcnow().utctimetuple())
 
-        if "iat" in payload and options.get("verify_iat"):
+        if "iat" in payload and options["verify_iat"]:
             self._validate_iat(payload, now, leeway)
 
-        if "nbf" in payload and options.get("verify_nbf"):
+        if "nbf" in payload and options["verify_nbf"]:
             self._validate_nbf(payload, now, leeway)
 
-        if "exp" in payload and options.get("verify_exp"):
+        if "exp" in payload and options["verify_exp"]:
             self._validate_exp(payload, now, leeway)
 
-        if options.get("verify_iss"):
+        if options["verify_iss"]:
             self._validate_iss(payload, issuer)
 
-        if options.get("verify_aud"):
+        if options["verify_aud"]:
             self._validate_aud(payload, audience)
 
     def _validate_required_claims(self, payload, options):
-        for claim in options.get("require", []):
+        for claim in options["require"]:
             if payload.get(claim) is None:
                 raise MissingRequiredClaimError(claim)
 
