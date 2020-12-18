@@ -47,6 +47,7 @@ class PyJWT(PyJWS):
             )
 
         # Payload
+        payload = payload.copy()
         for time_claim in ["exp", "iat", "nbf"]:
             # Convert datetime to a intDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
