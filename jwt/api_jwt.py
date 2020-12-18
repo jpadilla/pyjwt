@@ -188,14 +188,14 @@ class PyJWT(PyJWS):
 
         audience_claims = payload["aud"]
 
-        if isinstance(audience_claims, (bytes, str)):
+        if isinstance(audience_claims, str):
             audience_claims = [audience_claims]
         if not isinstance(audience_claims, list):
             raise InvalidAudienceError("Invalid claim format in token")
-        if any(not isinstance(c, (bytes, str)) for c in audience_claims):
+        if any(not isinstance(c, str) for c in audience_claims):
             raise InvalidAudienceError("Invalid claim format in token")
 
-        if isinstance(audience, (bytes, str)):
+        if isinstance(audience, str):
             audience = [audience]
 
         if not any(aud in audience_claims for aud in audience):
