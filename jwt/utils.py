@@ -58,19 +58,6 @@ def from_base64url_uint(val):
     return int("".join(["%02x" % byte for byte in buf]), 16)
 
 
-def merge_dict(original, updates):
-    if not updates:
-        return original
-
-    try:
-        merged_options = original.copy()
-        merged_options.update(updates)
-    except (AttributeError, ValueError) as e:
-        raise TypeError("original and updates must be a dictionary: %s" % e)
-
-    return merged_options
-
-
 def number_to_bytes(num, num_bytes):
     padded_hex = "%0*x" % (2 * num_bytes, num)
     big_endian = binascii.a2b_hex(padded_hex.encode("ascii"))

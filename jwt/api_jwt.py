@@ -14,7 +14,6 @@ from .exceptions import (
     InvalidIssuerError,
     MissingRequiredClaimError,
 )
-from .utils import merge_dict
 
 
 class PyJWT(PyJWS):
@@ -103,7 +102,7 @@ class PyJWT(PyJWS):
             raise DecodeError("Invalid payload string: must be a json object")
 
         if options["verify_signature"]:
-            merged_options = merge_dict(self.options, options)
+            merged_options = {**self.options, **options}
             self._validate_claims(payload, merged_options, **kwargs)
 
         if complete:

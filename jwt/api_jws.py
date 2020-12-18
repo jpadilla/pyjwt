@@ -15,7 +15,7 @@ from .exceptions import (
     InvalidSignatureError,
     InvalidTokenError,
 )
-from .utils import base64url_decode, base64url_encode, merge_dict
+from .utils import base64url_decode, base64url_encode
 
 
 class PyJWS:
@@ -34,10 +34,9 @@ class PyJWS:
             if key not in self._valid_algs:
                 del self._algorithms[key]
 
-        if not options:
+        if options is None:
             options = {}
-
-        self.options = merge_dict(self._get_default_options(), options)
+        self.options = {**self._get_default_options(), **options}
 
     @staticmethod
     def _get_default_options():
@@ -137,8 +136,9 @@ class PyJWS:
         complete: bool = False,
         **kwargs,
     ):
-
-        merged_options = merge_dict(self.options, options)
+        if options is None:
+            options = {}
+        merged_options = {**self.options, **options}
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms:
