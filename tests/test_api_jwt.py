@@ -47,6 +47,27 @@ class TestJWT:
 
         assert decoded_payload == example_payload
 
+    def test_decodes_complete_valid_jwt(self, jwt):
+        example_payload = {"hello": "world"}
+        example_secret = "secret"
+        example_jwt = (
+            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
+            b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
+            b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
+        )
+        decoded = jwt.decode_complete(
+            example_jwt, example_secret, algorithms=["HS256"]
+        )
+
+        assert decoded == {
+            "header": {"alg": "HS256", "typ": "JWT"},
+            "payload": example_payload,
+            "signature": (
+                b'\xb6\xf6\xa0,2\xe8j"J\xc4\xe2\xaa\xa4\x15\xd2'
+                b"\x10l\xbbI\x84\xa2}\x98c\x9e\xd8&\xf5\xcbi\xca?"
+            ),
+        }
+
     def test_load_verify_valid_jwt(self, jwt):
         example_payload = {"hello": "world"}
         example_secret = "secret"
@@ -313,13 +334,12 @@ class TestJWT:
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        decoded_payload, signing, header, signature = jwt._load(jwt_message)
-
         # With 3 seconds leeway, should be ok
         for leeway in (3, timedelta(seconds=3)):
-            jwt.decode(
+            decoded = jwt.decode(
                 jwt_message, secret, leeway=leeway, algorithms=["HS256"]
             )
+            assert decoded == payload
 
         # With 1 seconds, should fail
         for leeway in (1, timedelta(seconds=1)):

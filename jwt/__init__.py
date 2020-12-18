@@ -1,12 +1,10 @@
-from .api_jws import PyJWS
-from .api_jwt import (
-    PyJWT,
-    decode,
-    encode,
+from .api_jws import (
+    PyJWS,
     get_unverified_header,
     register_algorithm,
     unregister_algorithm,
 )
+from .api_jwt import PyJWT, decode, encode
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,

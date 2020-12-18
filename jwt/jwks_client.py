@@ -2,7 +2,7 @@ import json
 import urllib.request
 
 from .api_jwk import PyJWKSet
-from .api_jwt import decode as decode_token
+from .api_jwt import decode_complete as decode_token
 from .exceptions import PyJWKClientError
 
 
@@ -50,8 +50,6 @@ class PyJWKClient:
         return signing_key
 
     def get_signing_key_from_jwt(self, token):
-        unverified = decode_token(
-            token, complete=True, options={"verify_signature": False}
-        )
+        unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
         return self.get_signing_key(header.get("kid"))

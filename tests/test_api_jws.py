@@ -215,6 +215,27 @@ class TestJWS:
 
         assert decoded_payload == payload
 
+    def test_decodes_complete_valid_jws(self, jws, payload):
+        example_secret = "secret"
+        example_jws = (
+            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            b"aGVsbG8gd29ybGQ."
+            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+        )
+
+        decoded = jws.decode_complete(
+            example_jws, example_secret, algorithms=["HS256"]
+        )
+
+        assert decoded == {
+            "header": {"alg": "HS256", "typ": "JWT"},
+            "payload": payload,
+            "signature": (
+                b"\x80E\xb4\xa5\xd58\x93\x13\xed\x86;^\x85\x87a\xc4"
+                b"\x1ff0\xe1\x9a\x8e\xddq\x08\xa9F\x19p\xc9\xf0\xf3"
+            ),
+        }
+
     # 'Control' Elliptic Curve jws created by another library.
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
