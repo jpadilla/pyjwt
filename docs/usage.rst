@@ -49,7 +49,12 @@ Specifying Additional Headers
 
 .. code-block:: pycon
 
-    >>> jwt.encode({"some": "payload"}, "secret", algorithm="HS256", headers={"kid": "230498151c214b788dd97f22b85410a5"})
+    >>> jwt.encode(
+    ...     {"some": "payload"},
+    ...     "secret",
+    ...     algorithm="HS256",
+    ...     headers={"kid": "230498151c214b788dd97f22b85410a5"},
+    ... )
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJzb21lIjoicGF5bG9hZCJ9.DogbDGmMHgA_bU05TAB-R6geQ2nMU2BRM-LnYEtefwg'
 
 
