@@ -8,7 +8,7 @@ from jwt.exceptions import InvalidKeyError
 from jwt.utils import base64url_decode
 
 from .keys import load_hmac_key
-from .utils import key_path
+from .utils import crypto_required, key_path
 
 try:
     from jwt.algorithms import (
@@ -19,10 +19,8 @@ try:
     )
 
     from .keys import load_ec_pub_key_p_521, load_rsa_pub_key
-
-    has_crypto = True
 except ImportError:
-    has_crypto = False
+    pass
 
 
 class TestAlgorithms:
@@ -133,45 +131,35 @@ class TestAlgorithms:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_should_parse_pem_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("testkey2_rsa.pub.pem")) as pem_key:
             algo.prepare_key(pem_key.read())
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_should_accept_pem_private_key_bytes(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("testkey_rsa.priv"), "rb") as pem_key:
             algo.prepare_key(pem_key.read())
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_should_accept_unicode_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("testkey_rsa.priv")) as rsa_key:
             algo.prepare_key(rsa_key.read())
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_should_reject_non_string_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
             algo.prepare_key(None)
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_verify_should_return_false_if_signature_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -194,9 +182,7 @@ class TestAlgorithms:
         result = algo.verify(message, pub_key, sig)
         assert not result
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_jwk_public_and_private_keys_should_parse_and_verify(self):
         tests = {
             "P-256": ECAlgorithm.SHA256,
@@ -215,9 +201,7 @@ class TestAlgorithms:
             signature = algo.sign(b"Hello World!", priv_key)
             assert algo.verify(b"Hello World!", pub_key, signature)
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_jwk_fails_on_invalid_json(self):
         algo = ECAlgorithm(ECAlgorithm.SHA512)
 
@@ -278,9 +262,7 @@ class TestAlgorithms:
                     '"d": "dGVzdA=="}}'.format(curve, point["x"], point["y"])
                 )
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_jwk_public_and_private_keys_should_parse_and_verify(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -293,9 +275,7 @@ class TestAlgorithms:
         signature = algo.sign(b"Hello World!", priv_key)
         assert algo.verify(b"Hello World!", pub_key, signature)
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_private_key_to_jwk_works_with_from_jwk(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -309,9 +289,7 @@ class TestAlgorithms:
             == orig_key.private_numbers().public_numbers
         )
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_public_key_to_jwk_works_with_from_jwk(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -321,9 +299,7 @@ class TestAlgorithms:
         parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
         assert parsed_key.public_numbers() == orig_key.public_numbers()
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_jwk_private_key_with_other_primes_is_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -334,9 +310,7 @@ class TestAlgorithms:
 
                 algo.from_jwk(json.dumps(keydata))
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_jwk_private_key_with_missing_values_is_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -347,9 +321,7 @@ class TestAlgorithms:
 
                 algo.from_jwk(json.dumps(keydata))
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_jwk_private_key_can_recover_prime_factors(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -371,9 +343,7 @@ class TestAlgorithms:
         assert control_key.dmq1 == parsed_key.dmq1
         assert control_key.iqmp == parsed_key.iqmp
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_jwk_private_key_with_missing_required_values_is_invalid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -384,9 +354,7 @@ class TestAlgorithms:
 
                 algo.from_jwk(json.dumps(keydata))
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_jwk_raises_exception_if_not_a_valid_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -398,9 +366,7 @@ class TestAlgorithms:
         with pytest.raises(InvalidKeyError):
             algo.from_jwk('{"kty": "RSA"}')
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_to_jwk_returns_correct_values_for_public_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -424,9 +390,7 @@ class TestAlgorithms:
         }
         assert json.loads(key) == expected
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_to_jwk_returns_correct_values_for_private_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -483,18 +447,14 @@ class TestAlgorithms:
         }
         assert json.loads(key) == expected
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_to_jwk_raises_exception_on_invalid_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
             algo.to_jwk({"not": "a valid key"})
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_from_jwk_raises_exception_on_invalid_key(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -502,36 +462,28 @@ class TestAlgorithms:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_should_reject_non_string_key(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
             algo.prepare_key(None)
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_should_accept_pem_private_key_bytes(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with open(key_path("testkey_ec.priv"), "rb") as ec_key:
             algo.prepare_key(ec_key.read())
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_should_accept_ssh_public_key_bytes(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with open(key_path("testkey_ec_ssh.pub")) as ec_key:
             algo.prepare_key(ec_key.read())
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_verify_should_return_false_if_signature_invalid(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
@@ -552,9 +504,7 @@ class TestAlgorithms:
         result = algo.verify(message, pub_key, sig)
         assert not result
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_verify_should_return_false_if_signature_wrong_length(self):
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
@@ -568,9 +518,7 @@ class TestAlgorithms:
         result = algo.verify(message, pub_key, sig)
         assert not result
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_pss_sign_then_verify_should_return_true(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
@@ -586,9 +534,7 @@ class TestAlgorithms:
         result = algo.verify(message, pub_key, sig)
         assert result
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_pss_verify_should_return_false_if_signature_invalid(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
@@ -643,9 +589,7 @@ class TestAlgorithmsRFC7520:
         result = algo.verify(signing_input, key, signature)
         assert result
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsa_verify_should_return_true_for_test_vector(self):
         """
         This test verifies that RSA PKCS v1.5 verification works with a known
@@ -676,9 +620,7 @@ class TestAlgorithmsRFC7520:
         result = algo.verify(signing_input, key, signature)
         assert result
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_rsapss_verify_should_return_true_for_test_vector(self):
         """
         This test verifies that RSA-PSS verification works with a known good
@@ -709,9 +651,7 @@ class TestAlgorithmsRFC7520:
         result = algo.verify(signing_input, key, signature)
         assert result
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_ec_verify_should_return_true_for_test_vector(self):
         """
         This test verifies that ECDSA verification works with a known good
@@ -740,9 +680,7 @@ class TestAlgorithmsRFC7520:
         assert result
 
 
-@pytest.mark.skipif(
-    not has_crypto, reason="Not supported without cryptography>=2.6 library"
-)
+@crypto_required
 class TestEd25519Algorithms:
     hello_world_sig = b"Qxa47mk/azzUgmY2StAOguAd4P7YBLpyCfU3JdbaiWnXM4o4WibXwmIHvNYgN3frtE2fcyd8OYEaOiD/KiwkCg=="
     hello_world = b"Hello World!"

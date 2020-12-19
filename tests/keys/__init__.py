@@ -1,6 +1,7 @@
 import json
 import os
 
+from jwt.algorithms import has_crypto
 from jwt.utils import base64url_decode
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -22,10 +23,8 @@ try:
     from cryptography.hazmat.primitives.asymmetric import ec
 
     from jwt.algorithms import RSAAlgorithm
-
-    has_crypto = True
 except ImportError:
-    has_crypto = False
+    pass
 
 if has_crypto:
 

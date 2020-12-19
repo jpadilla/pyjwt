@@ -9,7 +9,7 @@ from jwt import PyJWKClient
 from jwt.api_jwk import PyJWK
 from jwt.exceptions import PyJWKClientError
 
-from .test_algorithms import has_crypto
+from .utils import crypto_required
 
 RESPONSE_DATA = {
     "keys": [
@@ -40,9 +40,7 @@ def mocked_response(data):
         yield
 
 
-@pytest.mark.skipif(
-    not has_crypto, reason="Not supported without cryptography library"
-)
+@crypto_required
 class TestPyJWKClient:
     def test_get_jwk_set(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
