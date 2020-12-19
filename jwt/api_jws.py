@@ -1,7 +1,7 @@
 import binascii
 import json
 from collections.abc import Mapping
-from typing import Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type
 
 from .algorithms import (
     Algorithm,
@@ -77,7 +77,7 @@ class PyJWS:
 
     def encode(
         self,
-        payload: Union[Dict, bytes],
+        payload: bytes,
         key: str,
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
@@ -127,15 +127,14 @@ class PyJWS:
 
         return encoded_string.decode("utf-8")
 
-    def decode(
+    def decode_complete(
         self,
         jwt: str,
         key: str = "",
         algorithms: List[str] = None,
         options: Dict = None,
-        complete: bool = False,
         **kwargs,
-    ):
+    ) -> Dict[str, Any]:
         if options is None:
             options = {}
         merged_options = {**self.options, **options}
@@ -153,14 +152,22 @@ class PyJWS:
                 payload, signing_input, header, signature, key, algorithms
             )
 
-        if complete:
-            return {
-                "payload": payload,
-                "header": header,
-                "signature": signature,
-            }
+        return {
+            "payload": payload,
+            "header": header,
+            "signature": signature,
+        }
 
-        return payload
+    def decode(
+        self,
+        jwt: str,
+        key: str = "",
+        algorithms: List[str] = None,
+        options: Dict = None,
+        **kwargs,
+    ) -> str:
+        decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)
+        return decoded["payload"]
 
     def get_unverified_header(self, jwt):
         """Returns back the JWT header parameters as a dict()
@@ -249,6 +256,7 @@ class PyJWS:
 
 _jws_global_obj = PyJWS()
 encode = _jws_global_obj.encode
+decode_complete = _jws_global_obj.decode_complete
 decode = _jws_global_obj.decode
 register_algorithm = _jws_global_obj.register_algorithm
 unregister_algorithm = _jws_global_obj.unregister_algorithm

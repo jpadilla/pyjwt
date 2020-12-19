@@ -32,7 +32,7 @@ def base64url_decode(input):
     return base64.urlsafe_b64decode(input)
 
 
-def base64url_encode(input):
+def base64url_encode(input: bytes) -> bytes:
     return base64.urlsafe_b64encode(input).replace(b"=", b"")
 
 
