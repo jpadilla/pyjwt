@@ -150,7 +150,7 @@ class PyJWS:
 
         if verify_signature:
             self._verify_signature(
-                payload, signing_input, header, signature, key, algorithms
+                signing_input, header, signature, key, algorithms
             )
 
         if complete:
@@ -213,7 +213,6 @@ class PyJWS:
 
     def _verify_signature(
         self,
-        payload,
         signing_input,
         header,
         signature,
