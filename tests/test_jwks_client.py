@@ -29,26 +29,22 @@ RESPONSE_DATA = {
 }
 
 
-@pytest.fixture
-def mocked_response():
-    @contextlib.contextmanager
-    def _mocked_response(data):
-        with mock.patch("urllib.request.urlopen") as urlopen_mock:
-            response = mock.Mock()
-            response.__enter__ = mock.Mock(return_value=response)
-            response.__exit__ = mock.Mock()
-            response.read.side_effect = [json.dumps(data)]
-            urlopen_mock.return_value = response
-            yield
-
-    return _mocked_response
+@contextlib.contextmanager
+def mocked_response(data):
+    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+        response = mock.Mock()
+        response.__enter__ = mock.Mock(return_value=response)
+        response.__exit__ = mock.Mock()
+        response.read.side_effect = [json.dumps(data)]
+        urlopen_mock.return_value = response
+        yield
 
 
 @pytest.mark.skipif(
     not has_crypto, reason="Not supported without cryptography library"
 )
 class TestPyJWKClient:
-    def test_get_jwk_set(self, mocked_response):
+    def test_get_jwk_set(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with mocked_response(RESPONSE_DATA):
@@ -57,7 +53,7 @@ class TestPyJWKClient:
 
         assert len(jwk_set.keys) == 1
 
-    def test_get_signing_keys(self, mocked_response):
+    def test_get_signing_keys(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with mocked_response(RESPONSE_DATA):
@@ -67,7 +63,7 @@ class TestPyJWKClient:
         assert len(signing_keys) == 1
         assert isinstance(signing_keys[0], PyJWK)
 
-    def test_get_signing_keys_raises_if_none_found(self, mocked_response):
+    def test_get_signing_keys_raises_if_none_found(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         mocked_key = RESPONSE_DATA["keys"][0].copy()
@@ -83,7 +79,7 @@ class TestPyJWKClient:
             exc.value
         )
 
-    def test_get_signing_key(self, mocked_response):
+    def test_get_signing_key(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
@@ -96,7 +92,7 @@ class TestPyJWKClient:
         assert signing_key.key_id == kid
         assert signing_key.public_key_use == "sig"
 
-    def test_get_signing_key_from_jwt(self, mocked_response):
+    def test_get_signing_key_from_jwt(self):
         token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
