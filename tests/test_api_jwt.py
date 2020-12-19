@@ -210,6 +210,12 @@ class TestJWT:
         assert decoded_payload["nbf"] == timegm(
             current_datetime.utctimetuple()
         )
+        # payload is not mutated.
+        assert payload == {
+            "exp": current_datetime,
+            "iat": current_datetime,
+            "nbf": current_datetime,
+        }
 
     # 'Control' Elliptic Curve JWT created by another library.
     # Used to test for regressions that could affect both
