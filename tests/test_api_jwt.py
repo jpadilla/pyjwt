@@ -17,8 +17,7 @@ from jwt.exceptions import (
     MissingRequiredClaimError,
 )
 
-from .test_api_jws import has_crypto
-from .utils import key_path, utc_timestamp
+from .utils import crypto_required, key_path, utc_timestamp
 
 
 @pytest.fixture
@@ -242,9 +241,7 @@ class TestJWT:
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
     # to still pass).
-    @pytest.mark.skipif(
-        not has_crypto, reason="Can't run without cryptography library"
-    )
+    @crypto_required
     def test_decodes_valid_es256_jwt(self, jwt):
         example_payload = {"hello": "world"}
         with open(key_path("testkey_ec.pub")) as fp:
@@ -264,9 +261,7 @@ class TestJWT:
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
     # to still pass).
-    @pytest.mark.skipif(
-        not has_crypto, reason="Can't run without cryptography library"
-    )
+    @crypto_required
     def test_decodes_valid_rs384_jwt(self, jwt):
         example_payload = {"hello": "world"}
         with open(key_path("testkey_rsa.pub")) as fp:

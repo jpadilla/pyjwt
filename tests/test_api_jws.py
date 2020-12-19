@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from jwt.algorithms import Algorithm
+from jwt.algorithms import Algorithm, has_crypto
 from jwt.api_jws import PyJWS
 from jwt.exceptions import (
     DecodeError,
@@ -13,7 +13,7 @@ from jwt.exceptions import (
 )
 from jwt.utils import base64url_decode
 
-from .utils import key_path
+from .utils import crypto_required, key_path, no_crypto_required
 
 try:
     from cryptography.hazmat.primitives.serialization import (
@@ -21,10 +21,8 @@ try:
         load_pem_public_key,
         load_ssh_public_key,
     )
-
-    has_crypto = True
 except ImportError:
-    has_crypto = False
+    pass
 
 
 @pytest.fixture
@@ -240,9 +238,7 @@ class TestJWS:
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
     # to still pass).
-    @pytest.mark.skipif(
-        not has_crypto, reason="Can't run without cryptography library"
-    )
+    @crypto_required
     def test_decodes_valid_es384_jws(self, jws):
         example_payload = {"hello": "world"}
         with open(key_path("testkey_ec.pub")) as fp:
@@ -263,9 +259,7 @@ class TestJWS:
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
     # to still pass).
-    @pytest.mark.skipif(
-        not has_crypto, reason="Can't run without cryptography library"
-    )
+    @crypto_required
     def test_decodes_valid_rs384_jws(self, jws):
         example_payload = {"hello": "world"}
         with open(key_path("testkey_rsa.pub")) as fp:
@@ -386,9 +380,7 @@ class TestJWS:
         with pytest.raises(NotImplementedError):
             jws.encode(payload, "secret", algorithm="HS1024")
 
-    @pytest.mark.skipif(
-        has_crypto, reason="Scenario requires cryptography to not be installed"
-    )
+    @no_crypto_required
     def test_missing_crypto_library_better_error_messages(self, jws, payload):
         with pytest.raises(NotImplementedError) as excinfo:
             jws.encode(payload, "secret", algorithm="RS256")
@@ -509,9 +501,7 @@ class TestJWS:
 
         assert "Key ID header parameter must be a string" == str(exc.value)
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_encode_decode_with_rsa_sha256(self, jws, payload):
         # PEM-formatted RSA key
         with open(key_path("testkey_rsa.priv"), "rb") as rsa_priv_file:
@@ -534,9 +524,7 @@ class TestJWS:
             pub_rsakey = rsa_pub_file.read()
             jws.decode(jws_message, pub_rsakey, algorithms=["RS256"])
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_encode_decode_with_rsa_sha384(self, jws, payload):
         # PEM-formatted RSA key
         with open(key_path("testkey_rsa.priv"), "rb") as rsa_priv_file:
@@ -558,9 +546,7 @@ class TestJWS:
             pub_rsakey = rsa_pub_file.read()
             jws.decode(jws_message, pub_rsakey, algorithms=["RS384"])
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Not supported without cryptography library"
-    )
+    @crypto_required
     def test_encode_decode_with_rsa_sha512(self, jws, payload):
         # PEM-formatted RSA key
         with open(key_path("testkey_rsa.priv"), "rb") as rsa_priv_file:
@@ -602,9 +588,7 @@ class TestJWS:
             assert "PS384" not in jws_algorithms
             assert "PS512" not in jws_algorithms
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Can't run without cryptography library"
-    )
+    @crypto_required
     def test_encode_decode_with_ecdsa_sha256(self, jws, payload):
         # PEM-formatted EC key
         with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
@@ -626,9 +610,7 @@ class TestJWS:
             pub_eckey = ec_pub_file.read()
             jws.decode(jws_message, pub_eckey, algorithms=["ES256"])
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Can't run without cryptography library"
-    )
+    @crypto_required
     def test_encode_decode_with_ecdsa_sha384(self, jws, payload):
 
         # PEM-formatted EC key
@@ -651,9 +633,7 @@ class TestJWS:
             pub_eckey = ec_pub_file.read()
             jws.decode(jws_message, pub_eckey, algorithms=["ES384"])
 
-    @pytest.mark.skipif(
-        not has_crypto, reason="Can't run without cryptography library"
-    )
+    @crypto_required
     def test_encode_decode_with_ecdsa_sha512(self, jws, payload):
         # PEM-formatted EC key
         with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
