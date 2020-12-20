@@ -43,7 +43,7 @@ try:
     )
 
     has_crypto = True
-except ImportError:
+except ModuleNotFoundError:
     has_crypto = False
 
 requires_cryptography = {

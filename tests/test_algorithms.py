@@ -3,24 +3,20 @@ import json
 
 import pytest
 
-from jwt.algorithms import Algorithm, HMACAlgorithm, NoneAlgorithm
+from jwt.algorithms import Algorithm, HMACAlgorithm, NoneAlgorithm, has_crypto
 from jwt.exceptions import InvalidKeyError
 from jwt.utils import base64url_decode
 
-from .keys import load_hmac_key
+from .keys import load_ec_pub_key_p_521, load_hmac_key, load_rsa_pub_key
 from .utils import crypto_required, key_path
 
-try:
+if has_crypto:
     from jwt.algorithms import (
         ECAlgorithm,
         Ed25519Algorithm,
         RSAAlgorithm,
         RSAPSSAlgorithm,
     )
-
-    from .keys import load_ec_pub_key_p_521, load_rsa_pub_key
-except ImportError:
-    pass
 
 
 class TestAlgorithms:

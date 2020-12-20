@@ -6,7 +6,7 @@ from . import __version__ as pyjwt_version
 
 try:
     import cryptography
-except ImportError:
+except ModuleNotFoundError:
     cryptography = None  # type: ignore
 
 
