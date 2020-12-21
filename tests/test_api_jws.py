@@ -352,7 +352,7 @@ class TestJWS:
 
     def test_verify_signature_with_no_algo_header_throws_exception(self, jws, payload):
         example_jws = (
-            b"e30" b".eyJhIjo1fQ" b".KEh186CjVw_Q8FadjJcaVnE7hO5Z9nHBbU8TgbhHcBY"
+            b"e30.eyJhIjo1fQ.KEh186CjVw_Q8FadjJcaVnE7hO5Z9nHBbU8TgbhHcBY"
         )
 
         with pytest.raises(InvalidAlgorithmError):
