@@ -70,39 +70,21 @@ class TestAlgorithms:
 
         algo.prepare_key("awesome")
 
-    def test_hmac_should_throw_exception_if_key_is_pem_public_key(self):
+    @pytest.mark.parametrize(
+        "key",
+        [
+            "testkey2_rsa.pub.pem",
+            "testkey2_rsa.pub.pem",
+            "testkey_pkcs1.pub.pem",
+            "testkey_rsa.cer",
+            "testkey_rsa.pub",
+        ],
+    )
+    def test_hmac_should_throw_exception(self, key):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey2_rsa.pub.pem")) as keyfile:
-                algo.prepare_key(keyfile.read())
-
-    def test_hmac_should_throw_exception_if_key_is_x509_certificate(self):
-        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
-
-        with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey_rsa.cer")) as keyfile:
-                algo.prepare_key(keyfile.read())
-
-    def test_hmac_should_throw_exception_if_key_is_ssh_public_key(self):
-        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
-
-        with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey_rsa.pub")) as keyfile:
-                algo.prepare_key(keyfile.read())
-
-    def test_hmac_should_throw_exception_if_key_is_x509_cert(self):
-        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
-
-        with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey2_rsa.pub.pem")) as keyfile:
-                algo.prepare_key(keyfile.read())
-
-    def test_hmac_should_throw_exception_if_key_is_pkcs1_pem_public(self):
-        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
-
-        with pytest.raises(InvalidKeyError):
-            with open(key_path("testkey_pkcs1.pub.pem")) as keyfile:
+            with open(key_path(key)) as keyfile:
                 algo.prepare_key(keyfile.read())
 
     def test_hmac_jwk_should_parse_and_verify(self):
