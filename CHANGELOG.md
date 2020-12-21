@@ -8,26 +8,153 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 
-- Pass python_requires argument to setuptools #440
-- Rename [wheel] section to [bdist_wheel] as the former is legacy #441
-- Remove setup.py test command in favor of pytest and tox #442
-- DX Tweaks #450
-- Remove Python 2.7 compatibility #457
-
 ### Fixed
-
-- Decode return type is dict[str, Any] #393
-- Fix linter error in test_cli #414
-- Correct type for json_encoder argument #438
-- Run mypy with tox #421
-- Prefer https:// links where available #439
-- Fix mypy errors #449
-- Fix simple typo: encododed -> encoded #462
 
 ### Added
 
-- Document (and prefer) pyjwt[crypto] req format #426
-- Set headers when encoding via command line #406
+[v2.0.0][2.0.0]
+-------------------------------------------------------------------------
+### Highlights
+
+#### Introduce better experience for JWKs
+
+Introduce `PyJWK`, `PyJWKSet`, and `PyJWKClient`.
+
+```python
+import jwt
+from jwt import PyJWKClient
+
+token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
+kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
+url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+jwks_client = PyJWKClient(url)
+signing_key = jwks_client.get_signing_key_from_jwt(token)
+
+data = jwt.decode(
+    token,
+    signing_key.key,
+    algorithms=["RS256"],
+    audience="https://expenses-api",
+    options={"verify_exp": False},
+)
+print(data)
+```
+
+#### Support for JWKs containing ECDSA keys
+
+#### Drop support for Python 2
+
+#### Require cryptography >= 3
+
+#### Drop support for PyCrypto and ECDSA
+
+We've kept this around for a long time, mostly for environments that didn't allow installing cryptography.
+
+#### Drop CLI
+
+Dropped the included cli entry point.
+
+#### Improve typings
+
+We no longer need to use mypy Python 2 compatibility mode (comments)
+
+#### Add support for Ed25519 / EdDSA
+
+### Changes
+
+- Add PyPy3 to the test matrix (#550) by @jdufresne
+- Require tweak (#280) by @psafont
+- Decode return type is dict[str, Any] (#393) by @jacopofar
+- Fix linter error in test_cli (#414) by @jaraco
+- Run mypy with tox (#421) by @jpadilla
+- Document (and prefer) pyjwt[crypto] req format (#426) by @gthb
+- Correct type for json_encoder argument (#438) by @jdufresne
+- Prefer https:// links where available (#439) by @jdufresne
+- Pass python_requires argument to setuptools (#440) by @jdufresne
+- Rename [wheel] section to [bdist_wheel] as the former is legacy (#441) by @jdufresne
+- Remove setup.py test command in favor of pytest and tox (#442) by @jdufresne
+- Fix mypy errors (#449) by @jpadilla
+- DX Tweaks (#450) by @jpadilla
+- Add support of python 3.8 (#452) by @Djailla
+- Fix 406 (#454) by @justinbaur
+- Add support for Ed25519 / EdDSA, with unit tests (#455) by @Someguy123
+- Remove Python 2.7 compatibility (#457) by @Djailla
+- Fix simple typo: encododed -> encoded (#462) by @timgates42
+- Enhance tracebacks. (#477) by @JulienPalard
+- Simplify `python_requires` (#478) by @michael-k
+- Document top-level .encode and .decode to close #459 (#482) by @dimaqq
+- Improve documentation for audience usage (#484) by @CorreyL
+- Correct README on how to run tests locally (#489) by @jdufresne
+- Fix `tox -e lint` warnings and errors (#490) by @jdufresne
+- Run pyupgrade across project to use modern Python 3 conventions (#491) by @jdufresne
+- Add Python-3-only trove classifier and remove "universal" from wheel (#492) by @jdufresne
+- Emit warnings about user code, not pyjwt code (#494) by @mgedmin
+- Move setup information to declarative setup.cfg (#495) by @jdufresne
+- CLI options for verifying audience and issuer (#496) by @GeoffRichards
+- Specify the target Python version for mypy (#497) by @jdufresne
+- Remove unnecessary compatibility shims for Python 2 (#498) by @jdufresne
+- Setup GH Actions (#499) by @jpadilla
+- Implementation of ECAlgorithm.from_jwk (#500) by @jpadilla
+- Remove cli entry point (#501) by @jpadilla
+- Expose InvalidKeyError on jwt module (#503) by @russellcardullo
+- Avoid loading token twice in pyjwt.decode (#506) by @CaselIT
+- Default links to stable version of documentation (#508) by @salcedo
+- Update README.md badges (#510) by @jpadilla
+- Introduce better experience for JWKs (#511) by @jpadilla
+- Fix tox conditional extras (#512) by @jpadilla
+- Return tokens as string not bytes (#513) by @jpadilla
+- Drop support for legacy contrib algorithms (#514) by @jpadilla
+- Drop deprecation warnings (#515) by @jpadilla
+- Update Auth0 sponsorship link (#519) by @Sambego
+- Update return type for jwt.encode (#521) by @moomoolive
+- Run tests against Python 3.9 and add trove classifier (#522) by @michael-k
+- Removed redundant `default_backend()` (#523) by @rohitkg98
+- Documents how to use private keys with passphrases (#525) by @rayluo
+- Update version to 2.0.0a1 (#528) by @jpadilla
+- Fix usage example (#530) by @nijel
+- add EdDSA to docs (#531) by @CircleOnCircles
+- Remove support for EOL Python 3.5 (#532) by @jdufresne
+- Upgrade to isort 5 and adjust configurations (#533) by @jdufresne
+- Remove unused argument "verify" from PyJWS.decode() (#534) by @jdufresne
+- Update typing syntax and usage for Python 3.6+ (#535) by @jdufresne
+- Run pyupgrade to simplify code and use Python 3.6 syntax (#536) by @jdufresne
+- Drop unknown pytest config option: strict (#537) by @jdufresne
+- Upgrade black version and usage (#538) by @jdufresne
+- Remove "Command line" sections from docs (#539) by @jdufresne
+- Use existing key_path() utility function throughout tests (#540) by @jdufresne
+- Replace force_bytes()/force_unicode() in tests with literals (#541) by @jdufresne
+- Remove unnecessary Unicode decoding before json.loads() (#542) by @jdufresne
+- Remove unnecessary force_bytes() calls priot to base64url_decode() (#543) by @jdufresne
+- Remove deprecated arguments from docs (#544) by @jdufresne
+- Update code blocks in docs (#545) by @jdufresne
+- Refactor jwt/jwks_client.py without requests dependency (#546) by @jdufresne
+- Tighten bytes/str boundaries and remove unnecessary coercing (#547) by @jdufresne
+- Replace codecs.open() with builtin open() (#548) by @jdufresne
+- Replace int_from_bytes() with builtin int.from_bytes() (#549) by @jdufresne
+- Enforce .encode() return type using mypy (#551) by @jdufresne
+- Prefer direct indexing over options.get() (#552) by @jdufresne
+- Cleanup "noqa" comments (#553) by @jdufresne
+- Replace merge_dict() with builtin dict unpacking generalizations (#555) by @jdufresne
+- Do not mutate the input payload in PyJWT.encode() (#557) by @jdufresne
+- Use direct indexing in PyJWKClient.get_signing_key_from_jwt() (#558) by @jdufresne
+- Split PyJWT/PyJWS classes to tighten type interfaces   (#559) by @jdufresne
+- Simplify mocked_response test utility function (#560) by @jdufresne
+- Autoupdate pre-commit hooks and apply them (#561) by @jdufresne
+- Remove unused argument "payload" from PyJWS._verify_signature() (#562) by @jdufresne
+- Add utility functions to assist test skipping (#563) by @jdufresne
+- Type hint jwt.utils module (#564) by @jdufresne
+- Prefer ModuleNotFoundError over ImportError (#565) by @jdufresne
+- Fix tox "manifest" environment to pass (#566) by @jdufresne
+- Fix tox "docs" environment to pass (#567) by @jdufresne
+- Simplify black configuration to be closer to upstream defaults (#568) by @jdufresne
+- Use generator expressions (#569) by @jdufresne
+- Simplify from_base64url_uint() (#570) by @jdufresne
+- Drop lint environment from GitHub actions in favor of pre-commit.ci (#571) by @jdufresne
+- [pre-commit.ci] pre-commit autoupdate (#572)
+- Simplify tox configuration (#573) by @jdufresne
+- Combine identical test functions using pytest.mark.parametrize() (#574) by @jdufresne
+- Complete type hinting of jwks_client.py (#578) by @jdufresne
 
 [v1.7.1][1.7.1]
 -------------------------------------------------------------------------
@@ -254,6 +381,7 @@ rarely used. Users affected by this should upgrade to 3.3+.
 [1.6.4]: https://github.com/jpadilla/pyjwt/compare/1.6.3...1.6.4
 [1.7.0]: https://github.com/jpadilla/pyjwt/compare/1.6.4...1.7.0
 [1.7.1]: https://github.com/jpadilla/pyjwt/compare/1.7.0...1.7.1
+[2.0.0]: https://github.com/jpadilla/pyjwt/compare/1.7.1...2.0.0
 
 [109]: https://github.com/jpadilla/pyjwt/pull/109
 [110]: https://github.com/jpadilla/pyjwt/pull/110
