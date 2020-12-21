@@ -21,7 +21,7 @@ try:
         load_pem_public_key,
         load_ssh_public_key,
     )
-except ImportError:
+except ModuleNotFoundError:
     pass
 
 

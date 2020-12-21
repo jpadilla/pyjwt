@@ -1,13 +1,12 @@
 import json
 
+from jwt.algorithms import has_crypto
 from jwt.api_jwk import PyJWK, PyJWKSet
 
 from .utils import crypto_required, key_path
 
-try:
+if has_crypto:
     from jwt.algorithms import RSAAlgorithm
-except ImportError:
-    pass
 
 
 class TestPyJWK:

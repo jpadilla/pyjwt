@@ -8,7 +8,7 @@ try:
         decode_dss_signature,
         encode_dss_signature,
     )
-except ImportError:
+except ModuleNotFoundError:
     EllipticCurve = Any  # type: ignore
 
 
