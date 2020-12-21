@@ -444,23 +444,17 @@ if has_crypto:
                 if len(x) == len(y) == 32:
                     curve_obj = ec.SECP256R1()
                 else:
-                    raise InvalidKeyError(
-                        "Coords should be 32 bytes for curve P-256"
-                    )
+                    raise InvalidKeyError("Coords should be 32 bytes for curve P-256")
             elif curve == "P-384":
                 if len(x) == len(y) == 48:
                     curve_obj = ec.SECP384R1()
                 else:
-                    raise InvalidKeyError(
-                        "Coords should be 48 bytes for curve P-384"
-                    )
+                    raise InvalidKeyError("Coords should be 48 bytes for curve P-384")
             elif curve == "P-521":
                 if len(x) == len(y) == 66:
                     curve_obj = ec.SECP521R1()
                 else:
-                    raise InvalidKeyError(
-                        "Coords should be 66 bytes for curve P-521"
-                    )
+                    raise InvalidKeyError("Coords should be 66 bytes for curve P-521")
             else:
                 raise InvalidKeyError(f"Invalid curve: {curve}")
 
@@ -568,8 +562,6 @@ if has_crypto:
                 if isinstance(key, Ed25519PrivateKey):
                     key = key.public_key()
                 key.verify(sig, msg)
-                return (
-                    True  # If no exception was raised, the signature is valid.
-                )
+                return True  # If no exception was raised, the signature is valid.
             except cryptography.exceptions.InvalidSignature:
                 return False

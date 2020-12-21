@@ -24,9 +24,7 @@ class PyJWS:
     def __init__(self, algorithms=None, options=None):
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
-            set(algorithms)
-            if algorithms is not None
-            else set(self._algorithms)
+            set(algorithms) if algorithms is not None else set(self._algorithms)
         )
 
         # Remove algorithms that aren't on the whitelist
@@ -148,9 +146,7 @@ class PyJWS:
         payload, signing_input, header, signature = self._load(jwt)
 
         if verify_signature:
-            self._verify_signature(
-                signing_input, header, signature, key, algorithms
-            )
+            self._verify_signature(signing_input, header, signature, key, algorithms)
 
         return {
             "payload": payload,
@@ -230,9 +226,7 @@ class PyJWS:
         alg = header.get("alg")
 
         if algorithms is not None and alg not in algorithms:
-            raise InvalidAlgorithmError(
-                "The specified alg value is not allowed"
-            )
+            raise InvalidAlgorithmError("The specified alg value is not allowed")
 
         try:
             alg_obj = self._algorithms[alg]

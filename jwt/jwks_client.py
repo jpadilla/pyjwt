@@ -27,9 +27,7 @@ class PyJWKClient:
                 signing_keys.append(jwk_set_key)
 
         if len(signing_keys) == 0:
-            raise PyJWKClientError(
-                "The JWKS endpoint did not contain any signing keys"
-            )
+            raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
 
         return signing_keys
 

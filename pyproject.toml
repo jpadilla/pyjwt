@@ -15,12 +15,7 @@ source = ["jwt", ".tox/*/site-packages"]
 show_missing = true
 
 
-[tool.black]
-line-length = 79
-
-
 [tool.isort]
 profile = "black"
 atomic = true
 combine_as_imports = true
-line_length = 79

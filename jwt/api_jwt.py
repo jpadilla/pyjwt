@@ -54,17 +54,13 @@ class PyJWT:
         for time_claim in ["exp", "iat", "nbf"]:
             # Convert datetime to a intDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
-                payload[time_claim] = timegm(
-                    payload[time_claim].utctimetuple()
-                )
+                payload[time_claim] = timegm(payload[time_claim].utctimetuple())
 
         json_payload = json.dumps(
             payload, separators=(",", ":"), cls=json_encoder
         ).encode("utf-8")
 
-        return api_jws.encode(
-            json_payload, key, algorithm, headers, json_encoder
-        )
+        return api_jws.encode(json_payload, key, algorithm, headers, json_encoder)
 
     def decode_complete(
         self,
@@ -154,9 +150,7 @@ class PyJWT:
         try:
             int(payload["iat"])
         except ValueError:
-            raise InvalidIssuedAtError(
-                "Issued At claim (iat) must be an integer."
-            )
+            raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.")
 
     def _validate_nbf(self, payload, now, leeway):
         try:
@@ -171,9 +165,7 @@ class PyJWT:
         try:
             exp = int(payload["exp"])
         except ValueError:
-            raise DecodeError(
-                "Expiration Time claim (exp) must be an" " integer."
-            )
+            raise DecodeError("Expiration Time claim (exp) must be an" " integer.")
 
         if exp < (now - leeway):
             raise ExpiredSignatureError("Signature has expired")

@@ -238,9 +238,7 @@ class TestAlgorithms:
 
         # EC coordinates not equally long
         with pytest.raises(InvalidKeyError):
-            algo.from_jwk(
-                '{"kty": "EC", "x": "dGVzdHRlc3Q=", "y": "dGVzdA=="}'
-            )
+            algo.from_jwk('{"kty": "EC", "x": "dGVzdHRlc3Q=", "y": "dGVzdA=="}')
 
         # EC coordinates length invalid
         for curve in ("P-256", "P-384", "P-521"):
@@ -575,9 +573,7 @@ class TestAlgorithmsRFC7520:
             b"gd2hlcmUgeW91IG1pZ2h0IGJlIHN3ZXB0IG9mZiB0by4"
         )
 
-        signature = base64url_decode(
-            b"s0h6KThzkfBBBkLspW1h84VsJZFTsPPqMDA7g1Md7p0"
-        )
+        signature = base64url_decode(b"s0h6KThzkfBBBkLspW1h84VsJZFTsPPqMDA7g1Md7p0")
 
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
         key = algo.prepare_key(load_hmac_key())

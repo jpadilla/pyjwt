@@ -12,9 +12,7 @@ def utc_timestamp():
 
 
 def key_path(key_name):
-    return os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "keys", key_name
-    )
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "keys", key_name)
 
 
 def no_crypto_required(class_or_func):
