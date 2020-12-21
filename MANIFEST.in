@@ -1,8 +1,14 @@
-include README.rst
+include .pre-commit-config.yaml
+include CODE_OF_CONDUCT.md
+include AUTHORS.rst
 include CHANGELOG.md
 include LICENSE
-include AUTHORS.rst
+include README.rst
 include tox.ini
+include jwt/py.typed
+graft docs
 graft tests
-recursive-exclude * __pycache__
+exclude codecov.yml
+recursive-exclude docs/_build *
 recursive-exclude * *.py[co]
+recursive-exclude * __pycache__
