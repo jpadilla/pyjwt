@@ -475,66 +475,33 @@ class TestJWS:
 
         assert "Key ID header parameter must be a string" == str(exc.value)
 
+    @pytest.mark.parametrize(
+        "algo",
+        [
+            "RS256",
+            "RS384",
+            "RS512",
+        ],
+    )
     @crypto_required
-    def test_encode_decode_with_rsa_sha256(self, jws, payload):
+    def test_encode_decode_rsa_related_algorithms(self, jws, payload, algo):
         # PEM-formatted RSA key
         with open(key_path("testkey_rsa.priv"), "rb") as rsa_priv_file:
             priv_rsakey = load_pem_private_key(rsa_priv_file.read(), password=None)
-            jws_message = jws.encode(payload, priv_rsakey, algorithm="RS256")
+            jws_message = jws.encode(payload, priv_rsakey, algorithm=algo)
 
         with open(key_path("testkey_rsa.pub"), "rb") as rsa_pub_file:
             pub_rsakey = load_ssh_public_key(rsa_pub_file.read())
-
-            jws.decode(jws_message, pub_rsakey, algorithms=["RS256"])
+            jws.decode(jws_message, pub_rsakey, algorithms=[algo])
 
         # string-formatted key
         with open(key_path("testkey_rsa.priv")) as rsa_priv_file:
             priv_rsakey = rsa_priv_file.read()
-            jws_message = jws.encode(payload, priv_rsakey, algorithm="RS256")
+            jws_message = jws.encode(payload, priv_rsakey, algorithm=algo)
 
         with open(key_path("testkey_rsa.pub")) as rsa_pub_file:
             pub_rsakey = rsa_pub_file.read()
-            jws.decode(jws_message, pub_rsakey, algorithms=["RS256"])
-
-    @crypto_required
-    def test_encode_decode_with_rsa_sha384(self, jws, payload):
-        # PEM-formatted RSA key
-        with open(key_path("testkey_rsa.priv"), "rb") as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(rsa_priv_file.read(), password=None)
-            jws_message = jws.encode(payload, priv_rsakey, algorithm="RS384")
-
-        with open(key_path("testkey_rsa.pub"), "rb") as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(rsa_pub_file.read())
-            jws.decode(jws_message, pub_rsakey, algorithms=["RS384"])
-
-        # string-formatted key
-        with open(key_path("testkey_rsa.priv")) as rsa_priv_file:
-            priv_rsakey = rsa_priv_file.read()
-            jws_message = jws.encode(payload, priv_rsakey, algorithm="RS384")
-
-        with open(key_path("testkey_rsa.pub")) as rsa_pub_file:
-            pub_rsakey = rsa_pub_file.read()
-            jws.decode(jws_message, pub_rsakey, algorithms=["RS384"])
-
-    @crypto_required
-    def test_encode_decode_with_rsa_sha512(self, jws, payload):
-        # PEM-formatted RSA key
-        with open(key_path("testkey_rsa.priv"), "rb") as rsa_priv_file:
-            priv_rsakey = load_pem_private_key(rsa_priv_file.read(), password=None)
-            jws_message = jws.encode(payload, priv_rsakey, algorithm="RS512")
-
-        with open(key_path("testkey_rsa.pub"), "rb") as rsa_pub_file:
-            pub_rsakey = load_ssh_public_key(rsa_pub_file.read())
-            jws.decode(jws_message, pub_rsakey, algorithms=["RS512"])
-
-        # string-formatted key
-        with open(key_path("testkey_rsa.priv")) as rsa_priv_file:
-            priv_rsakey = rsa_priv_file.read()
-            jws_message = jws.encode(payload, priv_rsakey, algorithm="RS512")
-
-        with open(key_path("testkey_rsa.pub")) as rsa_pub_file:
-            pub_rsakey = rsa_pub_file.read()
-            jws.decode(jws_message, pub_rsakey, algorithms=["RS512"])
+            jws.decode(jws_message, pub_rsakey, algorithms=[algo])
 
     def test_rsa_related_algorithms(self, jws):
         jws = PyJWS()
@@ -556,66 +523,33 @@ class TestJWS:
             assert "PS384" not in jws_algorithms
             assert "PS512" not in jws_algorithms
 
+    @pytest.mark.parametrize(
+        "algo",
+        [
+            "ES256",
+            "ES384",
+            "ES512",
+        ],
+    )
     @crypto_required
-    def test_encode_decode_with_ecdsa_sha256(self, jws, payload):
+    def test_encode_decode_ecdsa_related_algorithms(self, jws, payload, algo):
         # PEM-formatted EC key
         with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
             priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None)
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES256")
+            jws_message = jws.encode(payload, priv_eckey, algorithm=algo)
 
         with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
             pub_eckey = load_pem_public_key(ec_pub_file.read())
-            jws.decode(jws_message, pub_eckey, algorithms=["ES256"])
+            jws.decode(jws_message, pub_eckey, algorithms=[algo])
 
         # string-formatted key
         with open(key_path("testkey_ec.priv")) as ec_priv_file:
             priv_eckey = ec_priv_file.read()
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES256")
+            jws_message = jws.encode(payload, priv_eckey, algorithm=algo)
 
         with open(key_path("testkey_ec.pub")) as ec_pub_file:
             pub_eckey = ec_pub_file.read()
-            jws.decode(jws_message, pub_eckey, algorithms=["ES256"])
-
-    @crypto_required
-    def test_encode_decode_with_ecdsa_sha384(self, jws, payload):
-
-        # PEM-formatted EC key
-        with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
-            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None)
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES384")
-
-        with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
-            pub_eckey = load_pem_public_key(ec_pub_file.read())
-            jws.decode(jws_message, pub_eckey, algorithms=["ES384"])
-
-        # string-formatted key
-        with open(key_path("testkey_ec.priv")) as ec_priv_file:
-            priv_eckey = ec_priv_file.read()
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES384")
-
-        with open(key_path("testkey_ec.pub")) as ec_pub_file:
-            pub_eckey = ec_pub_file.read()
-            jws.decode(jws_message, pub_eckey, algorithms=["ES384"])
-
-    @crypto_required
-    def test_encode_decode_with_ecdsa_sha512(self, jws, payload):
-        # PEM-formatted EC key
-        with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
-            priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None)
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES512")
-
-        with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
-            pub_eckey = load_pem_public_key(ec_pub_file.read())
-            jws.decode(jws_message, pub_eckey, algorithms=["ES512"])
-
-        # string-formatted key
-        with open(key_path("testkey_ec.priv")) as ec_priv_file:
-            priv_eckey = ec_priv_file.read()
-            jws_message = jws.encode(payload, priv_eckey, algorithm="ES512")
-
-        with open(key_path("testkey_ec.pub")) as ec_pub_file:
-            pub_eckey = ec_pub_file.read()
-            jws.decode(jws_message, pub_eckey, algorithms=["ES512"])
+            jws.decode(jws_message, pub_eckey, algorithms=[algo])
 
     def test_ecdsa_related_algorithms(self, jws):
         jws = PyJWS()
