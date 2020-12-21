@@ -180,7 +180,7 @@ class HMACAlgorithm(Algorithm):
             b"ssh-rsa",
         ]
 
-        if any([string_value in key for string_value in invalid_strings]):
+        if any(string_value in key for string_value in invalid_strings):
             raise InvalidKeyError(
                 "The specified key is an asymmetric key or x509 certificate and"
                 " should not be used as an HMAC secret."
