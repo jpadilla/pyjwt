@@ -23,7 +23,7 @@ API Reference
 
     Verify the ``jwt`` token signature and return the token claims.
 
-    :param str|bytes jwt: the token to be decoded
+    :param str jwt: the token to be decoded
     :param str key: the key suitable for the allowed algorithm
 
     :param list algorithms: allowed algorithms, e.g. ``["ES256"]``
@@ -43,9 +43,9 @@ API Reference
         * ``verify_iss=False`` check that ``iss`` (issuer) claim matches ``issuer``
         * ``verify_signature=True`` verify the JWT cryptographic signature
 
-    :param iterable audience: optional, the value for ``verify_aud`` check
+    :param Iterable audience: optional, the value for ``verify_aud`` check
     :param str issuer: optional, the value for ``verify_iss`` check
-    :param int|float leeway: a time margin in seconds for the expiration check
+    :param float leeway: a time margin in seconds for the expiration check
     :rtype: dict
     :returns: the JWT claims
 
