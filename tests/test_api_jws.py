@@ -114,9 +114,7 @@ class TestJWS:
 
     def test_decode_missing_segments_throws_exception(self, jws):
         secret = "secret"
-        example_jws = (
-            "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJoZWxsbyI6ICJ3b3JsZCJ9"
-        )  # Missing segment
+        example_jws = "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJoZWxsbyI6ICJ3b3JsZCJ9"  # Missing segment
 
         with pytest.raises(DecodeError) as context:
             jws.decode(example_jws, secret, algorithms=["HS256"])
