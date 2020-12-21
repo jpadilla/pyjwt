@@ -1,6 +1,5 @@
 import base64
 import binascii
-import struct
 from typing import Any, Union
 
 try:
@@ -55,9 +54,7 @@ def from_base64url_uint(val: Union[str, bytes]) -> int:
         val = val.encode("ascii")
 
     data = base64url_decode(val)
-
-    buf = struct.unpack("%sB" % len(data), data)
-    return int("".join(["%02x" % byte for byte in buf]), 16)
+    return int.from_bytes(data, byteorder="big")
 
 
 def number_to_bytes(num: int, num_bytes: int) -> bytes:
