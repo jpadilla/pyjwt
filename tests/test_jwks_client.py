@@ -73,9 +73,7 @@ class TestPyJWKClient:
             with pytest.raises(PyJWKClientError) as exc:
                 jwks_client.get_signing_keys()
 
-        assert "The JWKS endpoint did not contain any signing keys" in str(
-            exc.value
-        )
+        assert "The JWKS endpoint did not contain any signing keys" in str(exc.value)
 
     def test_get_signing_key(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
