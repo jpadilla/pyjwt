@@ -61,6 +61,14 @@ We no longer need to use mypy Python 2 compatibility mode (comments)
 
 #### Add support for Ed25519 / EdDSA
 
+
+### Backwards Incompatibilities
+
+#### Decode returns string, not bytes
+
+`jwt.decode(...)` returns a `str`. In 1.x, it returned `bytes`.
+
+
 ### Changes
 
 - Add PyPy3 to the test matrix (#550) by @jdufresne
