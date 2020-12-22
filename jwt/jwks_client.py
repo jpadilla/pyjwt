@@ -1,24 +1,25 @@
 import json
 import urllib.request
+from typing import Any, List
 
-from .api_jwk import PyJWKSet
+from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
 from .exceptions import PyJWKClientError
 
 
 class PyJWKClient:
-    def __init__(self, uri):
+    def __init__(self, uri: str):
         self.uri = uri
 
-    def fetch_data(self):
+    def fetch_data(self) -> Any:
         with urllib.request.urlopen(self.uri) as response:
             return json.load(response)
 
-    def get_jwk_set(self):
+    def get_jwk_set(self) -> PyJWKSet:
         data = self.fetch_data()
         return PyJWKSet.from_dict(data)
 
-    def get_signing_keys(self):
+    def get_signing_keys(self) -> List[PyJWK]:
         jwk_set = self.get_jwk_set()
         signing_keys = []
 
@@ -31,7 +32,7 @@ class PyJWKClient:
 
         return signing_keys
 
-    def get_signing_key(self, kid):
+    def get_signing_key(self, kid: str) -> PyJWK:
         signing_keys = self.get_signing_keys()
         signing_key = None
 
@@ -47,7 +48,7 @@ class PyJWKClient:
 
         return signing_key
 
-    def get_signing_key_from_jwt(self, token):
+    def get_signing_key_from_jwt(self, token: str) -> PyJWK:
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
         return self.get_signing_key(header.get("kid"))
