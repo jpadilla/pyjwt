@@ -14,7 +14,49 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 [v2.0.0][2.0.0]
 -------------------------------------------------------------------------
-### Highlights
+### Changed
+
+#### Drop support for Python 2
+
+#### Require cryptography >= 3
+
+#### Drop support for PyCrypto and ECDSA
+
+We've kept this around for a long time, mostly for environments that didn't allow installing cryptography.
+
+#### Drop CLI
+
+Dropped the included cli entry point.
+
+#### Improve typings
+
+We no longer need to use mypy Python 2 compatibility mode (comments)
+
+#### `jwt.encode(...)` return type
+
+Tokens are returned as string instead of a byte string
+
+#### Dropped deprecated errors
+
+Removed `ExpiredSignature`, `InvalidAudience`, and `InvalidIssuer`. Use `ExpiredSignatureError`, `InvalidAudienceError`, and `InvalidIssuerError` instead.
+
+#### Dropped deprecated `verify_expiration` param in `jwt.decode(...)`
+
+Use `jwt.decode(encoded, key, algorithms=["HS256"], options={"verify_exp": False})` instead.
+
+#### Dropped deprecated `verify` param in `jwt.decode(...)`
+
+Use `jwt.decode(encoded, key, options={"verify_signature": False})` instead.
+
+#### Require explicit `algorithms` in `jwt.decode(...)` by default
+
+Example: `jwt.decode(encoded, key, algorithms=["HS256"])`.
+
+#### Dropped deprecated `require_*` options in `jwt.decode(...)`
+
+For example, instead of `jwt.decode(encoded, key, algorithms=["HS256"], options={"require_exp": True})`, use `jwt.decode(encoded, key, algorithms=["HS256"], options={"require": ["exp"]})`.
+
+### Added
 
 #### Introduce better experience for JWKs
 
@@ -43,25 +85,9 @@ print(data)
 
 #### Support for JWKs containing ECDSA keys
 
-#### Drop support for Python 2
-
-#### Require cryptography >= 3
-
-#### Drop support for PyCrypto and ECDSA
-
-We've kept this around for a long time, mostly for environments that didn't allow installing cryptography.
-
-#### Drop CLI
-
-Dropped the included cli entry point.
-
-#### Improve typings
-
-We no longer need to use mypy Python 2 compatibility mode (comments)
-
 #### Add support for Ed25519 / EdDSA
 
-### Changes
+### Pull Requests
 
 - Add PyPy3 to the test matrix (#550) by @jdufresne
 - Require tweak (#280) by @psafont
