@@ -110,6 +110,8 @@ class PyJWT:
         options: Dict = None,
         **kwargs,
     ) -> Dict[str, Any]:
+        if "verify" in kwargs:
+            options["verify_signature"] = kwargs["verify"]
         decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)
         return decoded["payload"]
 
