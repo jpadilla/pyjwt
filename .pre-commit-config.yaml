@@ -18,7 +18,7 @@ repos:
         language_version: python3.8
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.6.4
+    rev: 5.7.0
     hooks:
       - id: isort
 
@@ -30,7 +30,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.45"
+    rev: "0.46"
     hooks:
       - id: check-manifest
         args: [--no-build-isolation]
