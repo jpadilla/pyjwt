@@ -16,7 +16,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 -------------------------------------------------------------------------
 ### Changed
 
-#### Drop support for Python 2
+#### Drop support for Python 2 and Python 3.0-3.5
+
+Python 3.5 is EOL so we decide to drop its support. Version `1.7.1` is the last one supporting Python 3.0-3.5.
 
 #### Require cryptography >= 3
 
