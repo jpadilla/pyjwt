@@ -1,7 +1,7 @@
 include .pre-commit-config.yaml
 include CODE_OF_CONDUCT.md
 include AUTHORS.rst
-include CHANGELOG.md
+include CHANGELOG.rst
 include LICENSE
 include README.rst
 include tox.ini
