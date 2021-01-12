@@ -10,11 +10,24 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Changed
 ~~~~~~~
 
+Fixed
+~~~~~
+
+Added
+~~~~~
+
+`v2.0.1 <https://github.com/jpadilla/pyjwt/compare/2.0.0...2.0.1>`__
+--------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
 - Rename CHANGELOG.md to CHANGELOG.rst and include in docs `#597 <https://github.com/jpadilla/pyjwt/pull/597>`__
-- Fix `from_jwk()` for all algorithms `#598 <https://github.com/jpadilla/pyjwt/pull/598>`__
 
 Fixed
 ~~~~~
+
+- Fix `from_jwk()` for all algorithms `#598 <https://github.com/jpadilla/pyjwt/pull/598>`__
 
 Added
 ~~~~~
