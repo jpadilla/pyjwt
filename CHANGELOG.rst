@@ -11,6 +11,7 @@ Changed
 ~~~~~~~
 
 - Rename CHANGELOG.md to CHANGELOG.rst and include in docs `#597 <https://github.com/jpadilla/pyjwt/pull/597>`__
+- Fix `from_jwk()` for all algorithms `#598 <https://github.com/jpadilla/pyjwt/pull/598>`__
 
 Fixed
 ~~~~~
