@@ -586,16 +586,12 @@ class TestJWT:
 
         jwt.decode(
             jwt_message,
-            secret,
-            algorithms=["HS256"],
             options={"verify_signature": False},
         )
 
         with pytest.raises(ExpiredSignatureError):
             jwt.decode(
                 jwt_message,
-                secret,
-                algorithms=["HS256"],
                 options={"verify_signature": False, "verify_exp": True},
             )
 
