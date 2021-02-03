@@ -10,6 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Changed
 ~~~~~~~
 
+- Allow claims validation without making JWT signature validation mandatory. `#608 <https://github.com/jpadilla/pyjwt/pull/608>`__
+
 Fixed
 ~~~~~
 
