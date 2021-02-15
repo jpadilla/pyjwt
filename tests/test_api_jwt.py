@@ -579,6 +579,22 @@ class TestJWT:
                 options={"verify_exp": True},
             )
 
+    def test_decode_with_verify_exp_option_and_signature_off(self, jwt, payload):
+        payload["exp"] = utc_timestamp() - 1
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        jwt.decode(
+            jwt_message,
+            options={"verify_signature": False},
+        )
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(
+                jwt_message,
+                options={"verify_signature": False, "verify_exp": True},
+            )
+
     def test_decode_with_optional_algorithms(self, jwt, payload):
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)

@@ -75,6 +75,13 @@ class PyJWT:
         else:
             options.setdefault("verify_signature", True)
 
+        if not options["verify_signature"]:
+            options.setdefault("verify_exp", False)
+            options.setdefault("verify_nbf", False)
+            options.setdefault("verify_iat", False)
+            options.setdefault("verify_aud", False)
+            options.setdefault("verify_iss", False)
+
         if options["verify_signature"] and not algorithms:
             raise DecodeError(
                 'It is required that you pass in a value for the "algorithms" argument when calling decode().'
@@ -95,9 +102,8 @@ class PyJWT:
         if not isinstance(payload, dict):
             raise DecodeError("Invalid payload string: must be a json object")
 
-        if options["verify_signature"]:
-            merged_options = {**self.options, **options}
-            self._validate_claims(payload, merged_options, **kwargs)
+        merged_options = {**self.options, **options}
+        self._validate_claims(payload, merged_options, **kwargs)
 
         decoded["payload"] = payload
         return decoded
