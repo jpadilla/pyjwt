@@ -1,6 +1,6 @@
 import json
 import urllib.request
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
@@ -10,8 +10,8 @@ from .exceptions import PyJWKClientError
 class PyJWKClient:
     def __init__(self, uri: str):
         self.uri = uri
-        # Map (uri, kid) to signing keys
-        self._known_signing_keys: Dict[Tuple[str, str], PyJWK] = {}
+        # Map kid to signing key
+        self._known_signing_keys: Dict[str, PyJWK] = {}
 
     def fetch_data(self) -> Any:
         with urllib.request.urlopen(self.uri) as response:
@@ -35,13 +35,13 @@ class PyJWKClient:
         return signing_keys
 
     def get_signing_key(self, kid: str) -> PyJWK:
-        if (self.uri, kid) in self._known_signing_keys:
-            return self._known_signing_keys[(self.uri, kid)]
+        if kid in self._known_signing_keys:
+            return self._known_signing_keys[kid]
         signing_keys = self.get_signing_keys()
         signing_key = None
 
         for key in signing_keys:
-            self._known_signing_keys[(self.uri, key.key_id)] = key
+            self._known_signing_keys[key.key_id] = key
             if key.key_id == kid:
                 signing_key = key
                 break
