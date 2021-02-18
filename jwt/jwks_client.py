@@ -9,12 +9,12 @@ from .exceptions import PyJWKClientError
 
 
 class PyJWKClient:
-    def __init__(self, uri: str, cache_keys: bool = True):
+    def __init__(self, uri: str, cache_keys: bool = True, max_cached_keys: int = 16):
         self.uri = uri
         if cache_keys:
             # Cache signing keys
             # Ignore mypy (https://github.com/python/mypy/issues/2427)
-            self.get_signing_key = lru_cache(maxsize=16)(self.get_signing_key)  # type: ignore
+            self.get_signing_key = lru_cache(maxsize=max_cached_keys)(self.get_signing_key)  # type: ignore
 
     def fetch_data(self) -> Any:
         with urllib.request.urlopen(self.uri) as response:
