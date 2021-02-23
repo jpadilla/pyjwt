@@ -16,7 +16,7 @@ Fixed
 Added
 ~~~~~
 
-- Add caching `#611 <https://github.com/jpadilla/pyjwt/pull/611>`__
+- Add caching by default to PyJWKClient `#611 <https://github.com/jpadilla/pyjwt/pull/611>`__
 
 `v2.0.1 <https://github.com/jpadilla/pyjwt/compare/2.0.0...2.0.1>`__
 --------------------------------------------------------------------
