@@ -56,6 +56,7 @@ __all__ = [
     "InvalidAudienceError",
     "InvalidIssuedAtError",
     "InvalidIssuerError",
+    "InvalidKeyError",
     "InvalidSignatureError",
     "InvalidTokenError",
     "MissingRequiredClaimError",
