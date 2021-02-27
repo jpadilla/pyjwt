@@ -13,6 +13,7 @@ from .exceptions import (
     InvalidAudienceError,
     InvalidIssuedAtError,
     InvalidIssuerError,
+    InvalidKeyError,
     InvalidSignatureError,
     InvalidTokenError,
     MissingRequiredClaimError,
