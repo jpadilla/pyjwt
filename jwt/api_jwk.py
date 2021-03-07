@@ -1,7 +1,7 @@
 import json
 
 from .algorithms import get_default_algorithms
-from .exceptions import PyJWKError, PyJWKSetError
+from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 
 
 class PyJWK:
@@ -13,7 +13,35 @@ class PyJWK:
             algorithm = self._jwk_data.get("alg", None)
 
         if not algorithm:
-            raise PyJWKError("Unable to find a algorithm for key: %s" % self._jwk_data)
+            # Check only when algorithm is not found for backward compatibility.
+            kty = self._jwk_data.get("kty", None)
+            if not kty:
+                raise InvalidKeyError("kty is not found: %s" % self._jwk_data)
+
+            # Determine alg with kty (and crv).
+            crv = self._jwk_data.get("crv", None)
+            if kty == "EC":
+                if crv == "P-256" or not crv:
+                    algorithm = "ES256"
+                elif crv == "P-384":
+                    algorithm = "ES384"
+                elif crv == "P-521":
+                    algorithm = "ES512"
+                else:
+                    raise InvalidKeyError("Unsupported crv: %s" % crv)
+            elif kty == "RSA":
+                algorithm = "RS256"
+            elif kty == "oct":
+                algorithm = "HS256"
+            elif kty == "OKP":
+                if not crv:
+                    raise InvalidKeyError("crv is not found: %s" % self._jwk_data)
+                if crv == "Ed25519":
+                    algorithm = "EdDSA"
+                else:
+                    raise InvalidKeyError("Unsupported crv: %s" % crv)
+            else:
+                raise InvalidKeyError("Unsupported kty: %s" % kty)
 
         self.Algorithm = self._algorithms.get(algorithm)
 
