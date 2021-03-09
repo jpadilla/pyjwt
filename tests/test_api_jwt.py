@@ -419,6 +419,12 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
         jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
 
+    def test_check_multiple_issuers(self, jwt):
+        issuer = "urn:foo"
+        payload = {"some": "payload", "iss": "urn:foo"}
+        token = jwt.encode(payload, "secret")
+        jwt.decode(token, "secret", issuer=[issuer, "urn:bar"], algorithms=["HS256"])
+
     def test_raise_exception_invalid_issuer(self, jwt):
         issuer = "urn:wrong"
 

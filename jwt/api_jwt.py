@@ -212,7 +212,11 @@ class PyJWT:
         if "iss" not in payload:
             raise MissingRequiredClaimError("iss")
 
-        if payload["iss"] != issuer:
+
+        if isinstance(issuer, str):
+            issuer = [issuer]
+
+        if payload["iss"] not in issuer:
             raise InvalidIssuerError("Invalid issuer")
 
 
