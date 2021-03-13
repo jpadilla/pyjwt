@@ -166,6 +166,7 @@ class TestAlgorithms:
             "P-256": ECAlgorithm.SHA256,
             "P-384": ECAlgorithm.SHA384,
             "P-521": ECAlgorithm.SHA512,
+            "secp256k1": ECAlgorithm.SHA256,
         }
         for (curve, hash) in tests.items():
             algo = ECAlgorithm(hash)
