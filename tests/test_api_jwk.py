@@ -147,6 +147,9 @@ class TestPyJWK:
             valid_rsa_pub = json.loads(keyfile.read())
         with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
             valid_ec_pub = json.loads(keyfile.read())
+        valid_okp_pub = json.loads(
+            '{"kty":"OKP", "crv":"Ed25519", "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"}'
+        )
 
         # Unknown algorithm
         with pytest.raises(PyJWKError):
@@ -167,6 +170,18 @@ class TestPyJWK:
         # Unknown EC crv
         v = valid_ec_pub.copy()
         v["crv"] = "unknown"
+        with pytest.raises(InvalidKeyError):
+            PyJWK.from_dict(v)
+
+        # Unknown OKP crv
+        v = valid_okp_pub.copy()
+        v["crv"] = "unknown"
+        with pytest.raises(InvalidKeyError):
+            PyJWK.from_dict(v)
+
+        # Missing OKP crv
+        v = valid_okp_pub.copy()
+        del v["crv"]
         with pytest.raises(InvalidKeyError):
             PyJWK.from_dict(v)
 
