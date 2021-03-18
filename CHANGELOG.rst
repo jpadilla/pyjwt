@@ -15,6 +15,8 @@ Changed
 Fixed
 ~~~~~
 
+- Remove padding from JWK test data. `#628 <https://github.com/jpadilla/pyjwt/pull/628>`__
+
 Added
 ~~~~~
 
