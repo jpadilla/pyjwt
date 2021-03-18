@@ -51,6 +51,7 @@ requires_cryptography = {
     "RS384",
     "RS512",
     "ES256",
+    "ES256K",
     "ES384",
     "ES521",
     "ES512",
@@ -79,6 +80,7 @@ def get_default_algorithms():
                 "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
                 "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
                 "ES256": ECAlgorithm(ECAlgorithm.SHA256),
+                "ES256K": ECAlgorithm(ECAlgorithm.SHA256),
                 "ES384": ECAlgorithm(ECAlgorithm.SHA384),
                 "ES521": ECAlgorithm(ECAlgorithm.SHA512),
                 "ES512": ECAlgorithm(
@@ -467,6 +469,13 @@ if has_crypto:
                     curve_obj = ec.SECP521R1()
                 else:
                     raise InvalidKeyError("Coords should be 66 bytes for curve P-521")
+            elif curve == "secp256k1":
+                if len(x) == len(y) == 32:
+                    curve_obj = ec.SECP256K1()
+                else:
+                    raise InvalidKeyError(
+                        "Coords should be 32 bytes for curve secp256k1"
+                    )
             else:
                 raise InvalidKeyError(f"Invalid curve: {curve}")
 
