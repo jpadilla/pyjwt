@@ -527,6 +527,7 @@ class TestJWS:
         "algo",
         [
             "ES256",
+            "ES256K",
             "ES384",
             "ES512",
         ],
@@ -557,10 +558,12 @@ class TestJWS:
 
         if has_crypto:
             assert "ES256" in jws_algorithms
+            assert "ES256K" in jws_algorithms
             assert "ES384" in jws_algorithms
             assert "ES512" in jws_algorithms
         else:
             assert "ES256" not in jws_algorithms
+            assert "ES256K" not in jws_algorithms
             assert "ES384" not in jws_algorithms
             assert "ES512" not in jws_algorithms
 
