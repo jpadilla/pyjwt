@@ -1,0 +1,7 @@
+{
+  "kty": "EC",
+  "kid": "bilbo.baggins.256k@hobbiton.example",
+  "crv": "secp256k1",
+  "x": "MLnVyPDPQpNm0KaaO4iEh0i8JItHXJE0NcIe8GK1SYs",
+  "y": "7r8d-xF7QAgT5kSRdly6M8xeg4Jz83Gs_CQPQRH65QI"
+}
