@@ -9,7 +9,12 @@ from jwt.exceptions import InvalidKeyError, PyJWKError
 from .utils import crypto_required, key_path
 
 if has_crypto:
-    from jwt.algorithms import ECAlgorithm, HMACAlgorithm, RSAAlgorithm
+    from jwt.algorithms import (
+        ECAlgorithm,
+        Ed25519Algorithm,
+        HMACAlgorithm,
+        RSAAlgorithm,
+    )
 
 
 class TestPyJWK:
@@ -141,15 +146,25 @@ class TestPyJWK:
         assert jwk.Algorithm.hash_alg == HMACAlgorithm.SHA256
 
     @crypto_required
+    def test_should_load_key_okp_without_alg_from_dict(self):
+
+        with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+
+        assert jwk.key_type == "OKP"
+        assert isinstance(jwk.Algorithm, Ed25519Algorithm)
+
+    @crypto_required
     def test_from_dict_should_throw_exception_if_arg_is_invalid(self):
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             valid_rsa_pub = json.loads(keyfile.read())
         with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
             valid_ec_pub = json.loads(keyfile.read())
-        valid_okp_pub = json.loads(
-            '{"kty":"OKP", "crv":"Ed25519", "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"}'
-        )
+        with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
+            valid_okp_pub = json.loads(keyfile.read())
 
         # Unknown algorithm
         with pytest.raises(PyJWKError):
