@@ -26,6 +26,8 @@ class PyJWK:
                     algorithm = "ES384"
                 elif crv == "P-521":
                     algorithm = "ES512"
+                elif crv == "secp256k1":
+                    algorithm = "ES256K"
                 else:
                     raise InvalidKeyError("Unsupported crv: %s" % crv)
             elif kty == "RSA":

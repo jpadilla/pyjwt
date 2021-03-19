@@ -121,6 +121,18 @@ class TestPyJWK:
         assert jwk.Algorithm.hash_alg == ECAlgorithm.SHA512
 
     @crypto_required
+    def test_should_load_key_ec_secp256k1_from_dict(self):
+
+        with open(key_path("jwk_ec_pub_secp256k1.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+
+        assert jwk.key_type == "EC"
+        assert isinstance(jwk.Algorithm, ECAlgorithm)
+        assert jwk.Algorithm.hash_alg == ECAlgorithm.SHA256
+
+    @crypto_required
     def test_should_load_key_hmac_from_dict(self):
 
         with open(key_path("jwk_hmac.json")) as keyfile:
