@@ -733,3 +733,70 @@ class TestEd25519Algorithms:
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
         assert jwt_pub_key_first == jwt_pub_key_second
+
+    def test_ed25519_jwk_private_key_should_parse_and_verify(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
+            key = algo.from_jwk(keyfile.read())
+
+        signature = algo.sign(b"Hello World!", key)
+        assert algo.verify(b"Hello World!", key.public_key(), signature)
+
+    def test_ed25519_jwk_public_key_should_parse_and_verify(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
+            priv_key = algo.from_jwk(keyfile.read())
+
+        with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
+            pub_key = algo.from_jwk(keyfile.read())
+
+        signature = algo.sign(b"Hello World!", priv_key)
+        assert algo.verify(b"Hello World!", pub_key, signature)
+
+    def test_ed25519_jwk_fails_on_invalid_json(self):
+        algo = Ed25519Algorithm()
+
+        with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
+            valid_pub = json.loads(keyfile.read())
+        with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
+            valid_key = json.loads(keyfile.read())
+
+        # Invalid instance type
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk(123)
+
+        # Invalid JSON
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk("<this isn't json>")
+
+        # Invalid kty, not "OKP"
+        v = valid_pub.copy()
+        v["kty"] = "oct"
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk(v)
+
+        # Invalid crv, not "Ed25519"
+        v = valid_pub.copy()
+        v["crv"] = "P-256"
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk(v)
+
+        # Missing x
+        v = valid_pub.copy()
+        del v["x"]
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk(v)
+
+        # Invalid x
+        v = valid_pub.copy()
+        v["x"] = "123"
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk(v)
+
+        # Invalid d
+        v = valid_key.copy()
+        v["d"] = "123"
+        with pytest.raises(InvalidKeyError):
+            algo.from_jwk(v)
