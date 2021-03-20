@@ -1,5 +1,5 @@
 import json
-from calendar import timegm
+import time
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
@@ -54,7 +54,9 @@ class PyJWT:
         for time_claim in ["exp", "iat", "nbf"]:
             # Convert datetime to a intDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
-                payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+                payload[time_claim] = int(
+                    time.mktime(payload[time_claim].utctimetuple())
+                )
 
         json_payload = json.dumps(
             payload, separators=(",", ":"), cls=json_encoder
@@ -130,7 +132,7 @@ class PyJWT:
 
         self._validate_required_claims(payload, options)
 
-        now = timegm(datetime.utcnow().utctimetuple())
+        now = datetime.utcnow().timestamp()
 
         if "iat" in payload and options["verify_iat"]:
             self._validate_iat(payload, now, leeway)

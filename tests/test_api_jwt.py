@@ -1,6 +1,5 @@
 import json
 import time
-from calendar import timegm
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -215,9 +214,15 @@ class TestJWT:
             jwt_message, secret, leeway=1, algorithms=["HS256"]
         )
 
-        assert decoded_payload["exp"] == timegm(current_datetime.utctimetuple())
-        assert decoded_payload["iat"] == timegm(current_datetime.utctimetuple())
-        assert decoded_payload["nbf"] == timegm(current_datetime.utctimetuple())
+        assert decoded_payload["exp"] == int(
+            time.mktime(current_datetime.utctimetuple())
+        )
+        assert decoded_payload["iat"] == int(
+            time.mktime(current_datetime.utctimetuple())
+        )
+        assert decoded_payload["nbf"] == int(
+            time.mktime(current_datetime.utctimetuple())
+        )
         # payload is not mutated.
         assert payload == {
             "exp": current_datetime,
