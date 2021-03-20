@@ -132,7 +132,7 @@ class PyJWT:
 
         self._validate_required_claims(payload, options)
 
-        now = datetime.utcnow().timestamp()
+        now = int(datetime.utcnow().timestamp())
 
         if "iat" in payload and options["verify_iat"]:
             self._validate_iat(payload, now, leeway)
