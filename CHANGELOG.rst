@@ -17,6 +17,8 @@ Fixed
 
 - Remove padding from JWK test data. `#628 <https://github.com/jpadilla/pyjwt/pull/628>`__
 - Use UTC time for exp/nbf validation. `#633 <https://github.com/jpadilla/pyjwt/pull/633>`__
+- Make `kty` mandatory in JWK to be compliant with RFC7517. `#624 <https://github.com/jpadilla/pyjwt/pull/624>`__
+- Allow JWK without `alg` to be compliant with RFC7517. `#624 <https://github.com/jpadilla/pyjwt/pull/624>`__
 
 Added
 ~~~~~
