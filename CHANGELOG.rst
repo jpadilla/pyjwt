@@ -16,6 +16,7 @@ Fixed
 ~~~~~
 
 - Remove padding from JWK test data. `#628 <https://github.com/jpadilla/pyjwt/pull/628>`__
+- Use UTC time for exp/nbf validation. `#633 <https://github.com/jpadilla/pyjwt/pull/633>`__
 
 Added
 ~~~~~
