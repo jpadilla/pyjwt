@@ -18,6 +18,8 @@ Fixed
 - Remove padding from JWK test data. `#628 <https://github.com/jpadilla/pyjwt/pull/628>`__
 - Make `kty` mandatory in JWK to be compliant with RFC7517. `#624 <https://github.com/jpadilla/pyjwt/pull/624>`__
 - Allow JWK without `alg` to be compliant with RFC7517. `#624 <https://github.com/jpadilla/pyjwt/pull/624>`__
+- ``encode()``, ``decode()``, and ``decode_complete()``'s parameter key now
+  accepts and defaults to `bytes` `#605 <https://github.com/jpadilla/pyjwt/pull/605>`__
 
 Added
 ~~~~~

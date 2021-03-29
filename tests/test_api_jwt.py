@@ -32,45 +32,97 @@ def payload():
 
 
 class TestJWT:
-    def test_decodes_valid_jwt(self, jwt):
+    @pytest.mark.parametrize(
+        "example_secret,example_jwt",
+        [
+            (
+                "secret",
+                (
+                    b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
+                    b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
+                    b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
+                ),
+            ),
+            (
+                b"\xb1\xe7+z",
+                (
+                    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+                    "eyJoZWxsbyI6ICJ3b3JsZCJ9."
+                    "ZTywb6RJhCq8tn1qy5j6YJhKOLw8c7EPRYwNA4Gmd_Q"
+                ),
+            ),
+        ],
+    )
+    def test_decodes_valid_jwt(self, jwt, example_secret, example_jwt):
         example_payload = {"hello": "world"}
-        example_secret = "secret"
-        example_jwt = (
-            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
-        )
         decoded_payload = jwt.decode(example_jwt, example_secret, algorithms=["HS256"])
 
         assert decoded_payload == example_payload
 
-    def test_decodes_complete_valid_jwt(self, jwt):
+    @pytest.mark.parametrize(
+        "example_secret,example_jwt,signature",
+        [
+            (
+                "secret",
+                (
+                    b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
+                    b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
+                    b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
+                ),
+                (
+                    b'\xb6\xf6\xa0,2\xe8j"J\xc4\xe2\xaa\xa4\x15\xd2'
+                    b"\x10l\xbbI\x84\xa2}\x98c\x9e\xd8&\xf5\xcbi\xca?"
+                ),
+            ),
+            (
+                b"\xb1\xe7+z",
+                (
+                    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+                    "eyJoZWxsbyI6ICJ3b3JsZCJ9."
+                    "ZTywb6RJhCq8tn1qy5j6YJhKOLw8c7EPRYwNA4Gmd_Q"
+                ),
+                (
+                    b"e<\xb0o\xa4I\x84*\xbc\xb6}j\xcb\x98\xfa`\x98J8"
+                    b"\xbc<s\xb1\x0fE\x8c\r\x03\x81\xa6w\xf4"
+                ),
+            ),
+        ],
+    )
+    def test_decodes_complete_valid_jwt(
+        self, jwt, example_secret, example_jwt, signature
+    ):
         example_payload = {"hello": "world"}
-        example_secret = "secret"
-        example_jwt = (
-            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
-        )
         decoded = jwt.decode_complete(example_jwt, example_secret, algorithms=["HS256"])
 
         assert decoded == {
             "header": {"alg": "HS256", "typ": "JWT"},
             "payload": example_payload,
-            "signature": (
-                b'\xb6\xf6\xa0,2\xe8j"J\xc4\xe2\xaa\xa4\x15\xd2'
-                b"\x10l\xbbI\x84\xa2}\x98c\x9e\xd8&\xf5\xcbi\xca?"
-            ),
+            "signature": signature,
         }
 
-    def test_load_verify_valid_jwt(self, jwt):
+    @pytest.mark.parametrize(
+        "example_secret,example_jwt",
+        [
+            (
+                "secret",
+                (
+                    b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
+                    b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
+                    b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
+                ),
+            ),
+            (
+                b"\xb1\xe7+z",
+                (
+                    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+                    "eyJoZWxsbyI6ICJ3b3JsZCJ9."
+                    "ZTywb6RJhCq8tn1qy5j6YJhKOLw8c7EPRYwNA4Gmd_Q"
+                ),
+            ),
+        ],
+    )
+    def test_load_verify_valid_jwt(self, jwt, example_secret, example_jwt):
         example_payload = {"hello": "world"}
-        example_secret = "secret"
-        example_jwt = (
-            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            b".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
-        )
 
         decoded_payload = jwt.decode(
             example_jwt, key=example_secret, algorithms=["HS256"]

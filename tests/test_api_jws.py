@@ -85,8 +85,8 @@ class TestJWS:
         pytest.raises(TypeError, PyJWS, options=object())
         pytest.raises(TypeError, PyJWS, options=("something"))
 
-    def test_encode_decode(self, jws, payload):
-        secret = "secret"
+    @pytest.mark.parametrize("secret", ["secret", b"\xb1\xe7+z"])
+    def test_encode_decode(self, jws, payload, secret):
         jws_message = jws.encode(payload, secret, algorithm="HS256")
         decoded_payload = jws.decode(jws_message, secret, algorithms=["HS256"])
 
@@ -102,14 +102,28 @@ class TestJWS:
         with pytest.raises(InvalidAlgorithmError):
             jws.decode(jws_token, secret, algorithms=["HS384"])
 
-    def test_decode_works_with_unicode_token(self, jws):
-        secret = "secret"
-        unicode_jws = (
-            "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            ".eyJoZWxsbyI6ICJ3b3JsZCJ9"
-            ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
-        )
-
+    @pytest.mark.parametrize(
+        "secret,unicode_jws",
+        [
+            (
+                "secret",
+                (
+                    "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
+                    ".eyJoZWxsbyI6ICJ3b3JsZCJ9"
+                    ".tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8"
+                ),
+            ),
+            (
+                b"\xb1\xe7+z",
+                (
+                    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+                    "eyJoZWxsbyI6ICJ3b3JsZCJ9."
+                    "ZTywb6RJhCq8tn1qy5j6YJhKOLw8c7EPRYwNA4Gmd_Q"
+                ),
+            ),
+        ],
+    )
+    def test_decode_works_with_unicode_token(self, jws, secret, unicode_jws):
         jws.decode(unicode_jws, secret, algorithms=["HS256"])
 
     def test_decode_missing_segments_throws_exception(self, jws):
@@ -193,35 +207,70 @@ class TestJWS:
             jws.decode(jws_message, bad_secret, algorithms=["HS256"])
         assert "Signature verification failed" == str(excinfo.value)
 
-    def test_decodes_valid_jws(self, jws, payload):
-        example_secret = "secret"
-        example_jws = (
-            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
-            b"aGVsbG8gd29ybGQ."
-            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
-        )
-
+    @pytest.mark.parametrize(
+        "example_secret,example_jws",
+        [
+            (
+                "secret",
+                (
+                    b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9"
+                    b".aGVsbG8gd29ybGQ"
+                    b".gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+                ),
+            ),
+            (
+                b"\xb1\xe7+z",
+                (
+                    b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9"
+                    b".aGVsbG8gd29ybGQ"
+                    b".EZL-cxJoLjfPA5Fe7IZV6rdfzQMla57wUH2c41ewI6Q"
+                ),
+            ),
+        ],
+    )
+    def test_decodes_valid_jws(self, jws, payload, example_secret, example_jws):
         decoded_payload = jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         assert decoded_payload == payload
 
-    def test_decodes_complete_valid_jws(self, jws, payload):
-        example_secret = "secret"
-        example_jws = (
-            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
-            b"aGVsbG8gd29ybGQ."
-            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
-        )
-
+    @pytest.mark.parametrize(
+        "example_secret,example_jws,signature",
+        [
+            (
+                "secret",
+                (
+                    b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9"
+                    b".aGVsbG8gd29ybGQ"
+                    b".gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+                ),
+                (
+                    b"\x80E\xb4\xa5\xd58\x93\x13\xed\x86;^\x85\x87a\xc4"
+                    b"\x1ff0\xe1\x9a\x8e\xddq\x08\xa9F\x19p\xc9\xf0\xf3"
+                ),
+            ),
+            (
+                b"\xb1\xe7+z",
+                (
+                    b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9"
+                    b".aGVsbG8gd29ybGQ"
+                    b".EZL-cxJoLjfPA5Fe7IZV6rdfzQMla57wUH2c41ewI6Q"
+                ),
+                (
+                    b"\x11\x92\xfes\x12h.7\xcf\x03\x91^\xec\x86U\xea"
+                    b"\xb7_\xcd\x03%k\x9e\xf0P}\x9c\xe3W\xb0#\xa4"
+                ),
+            ),
+        ],
+    )
+    def test_decodes_complete_valid_jws(
+        self, jws, payload, example_secret, example_jws, signature
+    ):
         decoded = jws.decode_complete(example_jws, example_secret, algorithms=["HS256"])
 
         assert decoded == {
             "header": {"alg": "HS256", "typ": "JWT"},
             "payload": payload,
-            "signature": (
-                b"\x80E\xb4\xa5\xd58\x93\x13\xed\x86;^\x85\x87a\xc4"
-                b"\x1ff0\xe1\x9a\x8e\xddq\x08\xa9F\x19p\xc9\xf0\xf3"
-            ),
+            "signature": signature,
         }
 
     # 'Control' Elliptic Curve jws created by another library.
