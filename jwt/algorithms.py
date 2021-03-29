@@ -144,7 +144,7 @@ class NoneAlgorithm(Algorithm):
     """
 
     def prepare_key(self, key):
-        if key in ("", b""):
+        if not key:
             key = None
 
         if key is not None:

@@ -37,7 +37,7 @@ class PyJWT:
     def encode(
         self,
         payload: Dict[str, Any],
-        key: Union[str, bytes],
+        key: Any,
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
@@ -65,7 +65,7 @@ class PyJWT:
     def decode_complete(
         self,
         jwt: str,
-        key: Union[str, bytes] = b"",
+        key: Any = b"",
         algorithms: List[str] = None,
         options: Dict = None,
         **kwargs,
@@ -111,7 +111,7 @@ class PyJWT:
     def decode(
         self,
         jwt: str,
-        key: Union[str, bytes] = b"",
+        key: Any = b"",
         algorithms: List[str] = None,
         options: Dict = None,
         **kwargs,

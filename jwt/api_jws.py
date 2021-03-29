@@ -1,7 +1,7 @@
 import binascii
 import json
 from collections.abc import Mapping
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type
 
 from .algorithms import (
     Algorithm,
@@ -76,7 +76,7 @@ class PyJWS:
     def encode(
         self,
         payload: bytes,
-        key: Union[str, bytes],
+        key: Any,
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
@@ -128,7 +128,7 @@ class PyJWS:
     def decode_complete(
         self,
         jwt: str,
-        key: Union[str, bytes] = b"",
+        key: Any = b"",
         algorithms: List[str] = None,
         options: Dict = None,
         **kwargs,
@@ -157,7 +157,7 @@ class PyJWS:
     def decode(
         self,
         jwt: str,
-        key: Union[str, bytes] = b"",
+        key: Any = b"",
         algorithms: List[str] = None,
         options: Dict = None,
         **kwargs,
