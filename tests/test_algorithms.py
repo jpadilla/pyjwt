@@ -801,7 +801,7 @@ class TestEd25519Algorithms:
         with pytest.raises(InvalidKeyError):
             algo.from_jwk(v)
 
-    def test_ed25519_jwk_public_key_to_jwk_works_with_from_jwk(self):
+    def test_ed25519_to_jwk_works_with_from_jwk(self):
         algo = Ed25519Algorithm()
 
         with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
@@ -819,3 +819,9 @@ class TestEd25519Algorithms:
         signature_2 = algo.sign(b"Hello World!", priv_key_2)
         assert algo.verify(b"Hello World!", pub_key_2, signature_1)
         assert algo.verify(b"Hello World!", pub_key_2, signature_2)
+
+    def test_ed25519_to_jwk_raises_exception_on_invalid_key(self):
+        algo = Ed25519Algorithm()
+
+        with pytest.raises(InvalidKeyError):
+            algo.to_jwk({"not": "a valid key"})
