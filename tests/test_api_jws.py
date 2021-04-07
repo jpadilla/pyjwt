@@ -673,6 +673,19 @@ class TestJWS:
         # typ in headers overwrites typ parameter.
         assert header_obj["typ"] == "a"
 
+    def test_encode_with_typ_without_keywords(self, jws, payload):
+        headers = {"foo": "bar"}
+        token = jws.encode(payload, "secret", "HS256", headers, None, "baz")
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "foo" in header_obj
+        assert header_obj["foo"] == "bar"
+        assert "typ" in header_obj
+        assert header_obj["typ"] == "baz"
+
     def test_encode_fails_on_invalid_kid_types(self, jws, payload):
         with pytest.raises(InvalidTokenError) as exc:
             jws.encode(payload, "secret", headers={"kid": 123})

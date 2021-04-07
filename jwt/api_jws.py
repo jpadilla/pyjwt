@@ -76,9 +76,9 @@ class PyJWS:
         payload: bytes,
         key: str,
         algorithm: str = "HS256",
-        typ: str = "JWT",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
+        typ: str = "JWT",
     ) -> str:
         segments = []
 
