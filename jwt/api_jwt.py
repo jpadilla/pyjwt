@@ -41,7 +41,7 @@ class PyJWT:
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
-        typ: str = "JWT",
+        typ: Optional[str] = "JWT",
     ) -> str:
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
