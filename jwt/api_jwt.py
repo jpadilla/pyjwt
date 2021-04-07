@@ -39,6 +39,7 @@ class PyJWT:
         payload: Dict[str, Any],
         key: str,
         algorithm: str = "HS256",
+        typ: str = "JWT",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
@@ -60,7 +61,7 @@ class PyJWT:
             payload, separators=(",", ":"), cls=json_encoder
         ).encode("utf-8")
 
-        return api_jws.encode(json_payload, key, algorithm, headers, json_encoder)
+        return api_jws.encode(json_payload, key, algorithm, typ, headers, json_encoder)
 
     def decode_complete(
         self,

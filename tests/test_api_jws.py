@@ -624,6 +624,55 @@ class TestJWS:
         assert "testheader" in header_obj
         assert header_obj["testheader"] == headers["testheader"]
 
+    def test_encode_with_typ(self, jws):
+        payload = """
+        {
+          "iss": "https://scim.example.com",
+          "iat": 1458496404,
+          "jti": "4d3559ec67504aaba65d40b0363faad8",
+          "aud": [
+            "https://scim.example.com/Feeds/98d52461fa5bbc879593b7754",
+            "https://scim.example.com/Feeds/5d7604516b1d08641d7676ee7"
+          ],
+          "events": {
+            "urn:ietf:params:scim:event:create": {
+              "ref":
+                  "https://scim.example.com/Users/44f6142df96bd6ab61e7521d9",
+              "attributes": ["id", "name", "userName", "password", "emails"]
+            }
+          }
+        }
+        """
+        token = jws.encode(payload.encode("utf-8"), "secret", typ="secevent+jwt")
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" in header_obj
+        assert header_obj["typ"] == "secevent+jwt"
+
+    def test_encode_with_typ_empty_string(self, jws, payload):
+        token = jws.encode(payload, "secret", typ="")
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" not in header_obj
+
+    def test_encode_with_typ_and_headers_include_typ(self, jws, payload):
+        headers = {"typ": "a"}
+        token = jws.encode(payload, "secret", typ="b", headers=headers)
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" in header_obj
+        # typ in headers overwrites typ parameter.
+        assert header_obj["typ"] == "a"
+
     def test_encode_fails_on_invalid_kid_types(self, jws, payload):
         with pytest.raises(InvalidTokenError) as exc:
             jws.encode(payload, "secret", headers={"kid": 123})
