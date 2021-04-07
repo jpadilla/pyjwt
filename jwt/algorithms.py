@@ -603,7 +603,6 @@ if has_crypto:
                     {
                         "x": base64url_encode(force_bytes(x)).decode(),
                         "kty": "OKP",
-                        "alg": "EdDSA",
                         "crv": "Ed25519",
                     }
                 )
@@ -625,7 +624,6 @@ if has_crypto:
                         "x": base64url_encode(force_bytes(x)).decode(),
                         "d": base64url_encode(force_bytes(d)).decode(),
                         "kty": "OKP",
-                        "alg": "EdDSA",
                         "crv": "Ed25519",
                     }
                 )
