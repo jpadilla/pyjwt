@@ -90,7 +90,6 @@ class PyJWS:
 
         # Header
         header = {"alg": algorithm}
-        # if isinstance(typ, str) and len(typ) > 0:
         if typ:
             header["typ"] = typ
         if headers:
