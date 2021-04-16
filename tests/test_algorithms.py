@@ -658,6 +658,13 @@ class TestAlgorithmsRFC7520:
         result = algo.verify(signing_input, key, signature)
         assert result
 
+        # private key can also be used.
+        with open(key_path("jwk_ec_key_P-521.json")) as keyfile:
+            private_key = algo.from_jwk(keyfile.read())
+
+        result = algo.verify(signing_input, private_key, signature)
+        assert result
+
 
 @crypto_required
 class TestEd25519Algorithms:
