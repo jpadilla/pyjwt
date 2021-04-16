@@ -262,7 +262,7 @@ Issued At Claim (iat)
 Requiring Presence of Claims
 ----------------------------
 
-If you wish to require one or more claims to be present in the claimset, you can set the ``require`` paramenter to include these claims.
+If you wish to require one or more claims to be present in the claimset, you can set the ``require`` parameter to include these claims.
 
 .. code-block:: pycon
 
