@@ -427,6 +427,8 @@ if has_crypto:
                 return False
 
             try:
+                if isinstance(key, EllipticCurvePrivateKey):
+                    key = key.public_key()
                 key.verify(der_sig, msg, ec.ECDSA(self.hash_alg()))
                 return True
             except InvalidSignature:
