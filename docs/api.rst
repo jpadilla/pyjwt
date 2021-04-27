@@ -35,7 +35,7 @@ API Reference
     :param dict options: extended decoding and validation options
 
         * ``require=[]`` list of claims that must be present. E.g. ``require=["exp", "iat", "nbf"]``.
-            Only verifies that the claims exists. Does NOT verify that the claims are valid. 
+            Only verifies that the claims exists. Does NOT verify that the claims are valid.
         * ``verify_aud=True`` but will be ignored if ``verify_signature`` is ``False``.
             Check that ``aud`` (audience) claim matches ``audience``
         * ``verify_iat=True`` but will be ignored if ``verify_signature`` is ``False``.
