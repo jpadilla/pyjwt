@@ -45,6 +45,8 @@ API Reference
             Check that ``exp`` (expiration) claim value is OK
         * ``verify_iss=True`` but will be ignored if ``verify_signature`` is ``False``.
             Check that ``iss`` (issuer) claim matches ``issuer``
+        * ``verify_nbf=True`` but will be ignored if ``verify_signature`` is ``False``.
+            Check that ``nbf`` (not before) is in the past
         * ``verify_signature=True`` verify the JWT cryptographic signature
 
     :param Iterable audience: optional, the value for ``verify_aud`` check
