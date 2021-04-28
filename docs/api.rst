@@ -43,13 +43,18 @@ API Reference
 
     :param dict options: extended decoding and validation options
 
-        * ``require_exp=False`` check that ``exp`` (expiration) claim is present
-        * ``require_iat=False`` check that ``iat`` (issued at) claim is present
-        * ``require_nbf=False`` check that ``nbf`` (not before) claim is present
-        * ``verify_aud=False`` check that ``aud`` (audience) claim matches ``audience``
-        * ``verify_iat=False`` check that ``iat`` (issued at) claim value is an integer
-        * ``verify_exp=False`` check that ``exp`` (expiration) claim value is OK
-        * ``verify_iss=False`` check that ``iss`` (issuer) claim matches ``issuer``
+        * ``require=[]`` list of claims that must be present. E.g. ``require=["exp", "iat", "nbf"]``.
+            Only verifies that the claims exists. Does NOT verify that the claims are valid.
+        * ``verify_aud=True`` but will be ignored if ``verify_signature`` is ``False``.
+            Check that ``aud`` (audience) claim matches ``audience``
+        * ``verify_iat=True`` but will be ignored if ``verify_signature`` is ``False``.
+            Check that ``iat`` (issued at) claim value is an integer
+        * ``verify_exp=True`` but will be ignored if ``verify_signature`` is ``False``.
+            Check that ``exp`` (expiration) claim value is OK
+        * ``verify_iss=True`` but will be ignored if ``verify_signature`` is ``False``.
+            Check that ``iss`` (issuer) claim matches ``issuer``
+        * ``verify_nbf=True`` but will be ignored if ``verify_signature`` is ``False``.
+            Check that ``nbf`` (not before) is in the past
         * ``verify_signature=True`` verify the JWT cryptographic signature
 
     :param Iterable audience: optional, the value for ``verify_aud`` check
