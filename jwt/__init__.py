@@ -1,3 +1,4 @@
+from .api_jwk import PyJWK, PyJWKSet
 from .api_jws import (
     PyJWS,
     get_unverified_header,
@@ -43,6 +44,8 @@ __all__ = [
     "PyJWS",
     "PyJWT",
     "PyJWKClient",
+    "PyJWK",
+    "PyJWKSet",
     "decode",
     "encode",
     "get_unverified_header",
