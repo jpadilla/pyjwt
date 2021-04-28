@@ -57,3 +57,15 @@ of allowed algorithms:
 
 In the above case, if the JWT has any value for its alg header other than
 HS512 or HS256, the claim will be rejected with an ``InvalidAlgorithmError``.
+
+.. warning::
+
+   Do **not** compute the ``algorithms`` parameter based on the
+   ``alg`` from the token itself, or on any other data that an
+   attacker may be able to influence, as that might expose you to
+   various vulnerabilities (see `RFC 8725 §2.1
+   <https://www.rfc-editor.org/rfc/rfc8725.html#section-2.1>`_). Instead,
+   either hard-code a fixed value for ``algorithms``, or configure it
+   in the same place you configure the ``key``. Make sure not to mix
+   symmetric and asymmetric algorithms that interpret the ``key`` in
+   different ways (e.g. HS\* and RS\*).
