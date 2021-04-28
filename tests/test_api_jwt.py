@@ -27,7 +27,7 @@ def jwt():
 
 @pytest.fixture
 def payload():
-    """ Creates a sample JWT claimset for use as a payload during tests """
+    """Creates a sample JWT claimset for use as a payload during tests"""
     return {"iss": "jeff", "exp": utc_timestamp() + 15, "claim": "insanity"}
 
 

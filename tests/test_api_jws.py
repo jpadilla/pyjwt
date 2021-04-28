@@ -32,7 +32,7 @@ def jws():
 
 @pytest.fixture
 def payload():
-    """ Creates a sample jws claimset for use as a payload during tests """
+    """Creates a sample jws claimset for use as a payload during tests"""
     return b"hello world"
 
 
