@@ -43,19 +43,23 @@ API Reference
 
     :param dict options: extended decoding and validation options
 
-        * ``require=[]`` list of claims that must be present. E.g. ``require=["exp", "iat", "nbf"]``.
-            Only verifies that the claims exists. Does NOT verify that the claims are valid.
-        * ``verify_aud=True`` but will be ignored if ``verify_signature`` is ``False``.
-            Check that ``aud`` (audience) claim matches ``audience``
-        * ``verify_iat=True`` but will be ignored if ``verify_signature`` is ``False``.
-            Check that ``iat`` (issued at) claim value is an integer
-        * ``verify_exp=True`` but will be ignored if ``verify_signature`` is ``False``.
-            Check that ``exp`` (expiration) claim value is OK
-        * ``verify_iss=True`` but will be ignored if ``verify_signature`` is ``False``.
-            Check that ``iss`` (issuer) claim matches ``issuer``
-        * ``verify_nbf=True`` but will be ignored if ``verify_signature`` is ``False``.
-            Check that ``nbf`` (not before) is in the past
         * ``verify_signature=True`` verify the JWT cryptographic signature
+        * ``require=[]`` list of claims that must be present.
+          Example: ``require=["exp", "iat", "nbf"]``.
+          **Only verifies that the claims exists**. Does not verify that the claims are valid.
+        * ``verify_aud=verify_signature`` check that ``aud`` (audience) claim matches ``audience``
+        * ``verify_iss=verify_signature`` check that ``iss`` (issuer) claim matches ``issuer``
+        * ``verify_exp=verify_signature`` check that ``exp`` (expiration) claim value is in the future
+        * ``verify_iat=verify_signature`` check that ``iat`` (issued at) claim value is an integer
+        * ``verify_nbf=verify_signature`` check that ``nbf`` (not before) claim value is in the past
+
+        .. warning::
+
+            ``exp``, ``iat`` and ``nbf`` will only be verified if present.
+            Please pass respective value to ``require`` if you want to make
+            sure that they are always present (and therefore always verified
+            if ``verify_exp``, ``verify_iat``, and ``verify_nbf`` respectively
+            is set to ``True``).
 
     :param Iterable audience: optional, the value for ``verify_aud`` check
     :param str issuer: optional, the value for ``verify_iss`` check
