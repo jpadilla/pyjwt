@@ -69,7 +69,9 @@ API Reference
 
 .. function:: decode_complete(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0)
 
-    Verify the ``jwt`` token signature and return the token claims.
+    Identical to ``jwt.decode`` except for return value which is a dictionary containing the token header (JOSE Header),
+    the token payload (JWT Payload), and token signature (JWT Signature) on the keys "header", "payload",
+    and "signature" respectively.
 
     :param str jwt: the token to be decoded
     :param str key: the key suitable for the allowed algorithm
@@ -113,7 +115,8 @@ API Reference
     :param str issuer: optional, the value for ``verify_iss`` check
     :param float leeway: a time margin in seconds for the expiration check
     :rtype: dict
-    :returns: the JWT claims
+    :returns: Decoded JWT with the JOSE Header on the key ``header``, the JWS
+     Payload on the key ``payload``, and the JWS Signature on the key ``signature``.
 
 .. note:: TODO: Document PyJWS class
 
