@@ -1,6 +1,8 @@
 import json
+from typing import Iterator, List
 
 from .algorithms import get_default_algorithms
+from .api_jwt import decode_complete as decode_token
 from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 
 
@@ -86,6 +88,26 @@ class PyJWKSet:
         for key in keys:
             self.keys.append(PyJWK(key))
 
+    def get_signing_keys(self) -> List[PyJWK]:
+        signing_keys = list(self._signing_keys())
+
+        if len(signing_keys) == 0:
+            raise PyJWKSetError("The JWK Set did not contain any signing keys")
+
+        return signing_keys
+
+    def get_signing_key(self, kid: str) -> PyJWK:
+        for key in self._signing_keys():
+            if key.key_id == kid:
+                return key
+
+        raise PyJWKSetError(f'Unable to find a signing key that matches: "{kid}"')
+
+    def get_signing_key_from_jwt(self, token: str) -> PyJWK:
+        unverified = decode_token(token, options={"verify_signature": False})
+        header = unverified["header"]
+        return self.get_signing_key(header.get("kid"))
+
     @staticmethod
     def from_dict(obj):
         keys = obj.get("keys", [])
@@ -95,3 +117,10 @@ class PyJWKSet:
     def from_json(data):
         obj = json.loads(data)
         return PyJWKSet.from_dict(obj)
+
+    def _signing_keys(self) -> Iterator[PyJWK]:
+        return (
+            key
+            for key in self.keys
+            if key.public_key_use == "sig" and key.key_id is not None
+        )

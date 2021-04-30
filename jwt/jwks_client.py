@@ -5,7 +5,7 @@ from typing import Any, List
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
-from .exceptions import PyJWKClientError
+from .exceptions import PyJWKClientError, PyJWKSetError
 
 
 class PyJWKClient:
@@ -26,32 +26,21 @@ class PyJWKClient:
 
     def get_signing_keys(self) -> List[PyJWK]:
         jwk_set = self.get_jwk_set()
-        signing_keys = []
-
-        for jwk_set_key in jwk_set.keys:
-            if jwk_set_key.public_key_use == "sig" and jwk_set_key.key_id:
-                signing_keys.append(jwk_set_key)
-
-        if len(signing_keys) == 0:
+        try:
+            return jwk_set.get_signing_keys()
+        except PyJWKSetError as e:
+            assert str(e) == "The JWK Set did not contain any signing keys"
             raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
 
-        return signing_keys
-
     def get_signing_key(self, kid: str) -> PyJWK:
-        signing_keys = self.get_signing_keys()
-        signing_key = None
-
-        for key in signing_keys:
-            if key.key_id == kid:
-                signing_key = key
-                break
-
-        if not signing_key:
+        jwk_set = self.get_jwk_set()
+        try:
+            return jwk_set.get_signing_key(kid)
+        except PyJWKSetError as e:
+            assert str(e).startswith("Unable to find a signing key that matches:")
             raise PyJWKClientError(
                 f'Unable to find a signing key that matches: "{kid}"'
             )
-
-        return signing_key
 
     def get_signing_key_from_jwt(self, token: str) -> PyJWK:
         unverified = decode_token(token, options={"verify_signature": False})

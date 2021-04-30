@@ -1,10 +1,12 @@
 import json
 
+from jwt import encode
+
 import pytest
 
 from jwt.algorithms import has_crypto
 from jwt.api_jwk import PyJWK, PyJWKSet
-from jwt.exceptions import InvalidKeyError, PyJWKError
+from jwt.exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 
 from .utils import crypto_required, key_path
 
@@ -213,8 +215,8 @@ class TestPyJWK:
             PyJWK.from_dict(v)
 
 
+@crypto_required
 class TestPyJWKSet:
-    @crypto_required
     def test_should_load_keys_from_jwk_data_dict(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -236,7 +238,6 @@ class TestPyJWKSet:
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
 
-    @crypto_required
     def test_should_load_keys_from_jwk_data_json_string(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -257,3 +258,80 @@ class TestPyJWKSet:
         assert jwk.key_type == "RSA"
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
+
+    def test_get_signing_keys(self):
+        jwk_set = self._get_jwk_set_with_one_signing_and_non_signing_key()
+        signing_keys = jwk_set.get_signing_keys()
+
+        assert len(signing_keys) == 1
+        assert isinstance(signing_keys[0], PyJWK)
+
+        jwk = signing_keys[0]
+
+        assert jwk.key_type == "RSA"
+        assert jwk.key_id == "bilbo.baggins@hobbiton.example"
+        assert jwk.public_key_use == "sig"
+
+    def test_get_signing_keys_raises_if_none_found(self):
+        keys_list = []
+
+        # add non-signing key
+        with open(key_path("jwk_ec_pub_P-384.json")) as keyfile:
+            keys_list.append(json.load(keyfile))
+
+        jwk_set = PyJWKSet.from_dict({"keys": keys_list})
+
+        with pytest.raises(PyJWKSetError) as exc:
+            jwk_set.get_signing_keys()
+
+        assert "The JWK Set did not contain any signing keys" in str(exc.value)
+
+    def test_get_signing_key(self):
+        kid = "bilbo.baggins@hobbiton.example"
+        jwk_set = self._get_jwk_set_with_one_signing_and_non_signing_key()
+
+        signing_key = jwk_set.get_signing_key(kid)
+
+        assert isinstance(signing_key, PyJWK)
+        assert signing_key.key_type == "RSA"
+        assert signing_key.key_id == kid
+        assert signing_key.public_key_use == "sig"
+
+    def test_get_signing_key_raises_if_none_found(self):
+        jwk_set = self._get_jwk_set_with_one_signing_and_non_signing_key()
+
+        # doesn't exist
+        kid = "nonexistent.key"
+        with pytest.raises(PyJWKSetError) as exc:
+            jwk_set.get_signing_key(kid)
+
+        assert f'Unable to find a signing key that matches: "{kid}"' == str(exc.value)
+
+        # not a signing key
+        kid = "bilbo.baggins.384@hobbiton.example"
+        assert kid in [jwk.key_id for jwk in jwk_set.keys]
+
+    def test_get_signing_key_from_jwt(self):
+        jwk_set = self._get_jwk_set_with_one_signing_and_non_signing_key()
+        kid = "bilbo.baggins@hobbiton.example"
+
+        token = encode({}, key="", headers={"kid": kid})
+
+        jwk = jwk_set.get_signing_key(kid)
+        assert jwk_set.get_signing_key_from_jwt(token) == jwk
+
+    def _get_jwk_set_with_one_signing_and_non_signing_key(self) -> PyJWKSet:
+        keys_list = []
+
+        # non-signing key
+        with open(key_path("jwk_ec_pub_P-384.json")) as keyfile:
+            keys_list.append(json.load(keyfile))
+
+        # signing key
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            keys_list.append(json.load(keyfile))
+
+        jwk_set = PyJWKSet.from_dict({"keys": keys_list})
+        assert len(jwk_set.keys) == 2
+
+        return jwk_set
