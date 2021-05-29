@@ -6,7 +6,7 @@ from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 
 class PyJWK:
     key: str
-    
+
     def __init__(self, jwk_data, algorithm=None):
         self._algorithms = get_default_algorithms()
         self._jwk_data = jwk_data
