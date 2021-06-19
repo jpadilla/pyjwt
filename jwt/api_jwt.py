@@ -3,6 +3,7 @@ from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
+import zlib
 
 from . import api_jws
 from .exceptions import (
@@ -96,7 +97,11 @@ class PyJWT:
         )
 
         try:
-            payload = json.loads(decoded["payload"])
+            if decoded.get("header", {}).get("zip", None) == "DEF":
+                raw_payload = zlib.decompress(decoded["payload"], wbits=-8)
+            else:
+                raw_payload = decoded["payload"]
+            payload = json.loads(raw_payload)
         except ValueError as e:
             raise DecodeError("Invalid payload string: %s" % e)
         if not isinstance(payload, dict):
