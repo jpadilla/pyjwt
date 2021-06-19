@@ -1,9 +1,9 @@
 import json
+import zlib
 from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Type, Union
-import zlib
 
 from . import api_jws
 from .exceptions import (
