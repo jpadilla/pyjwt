@@ -202,6 +202,16 @@ class TestJWT:
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
+    def test_decode_raises_exception_if_aud_is_none(self, jwt):
+        # >>> jwt.encode({'aud': None}, 'secret')
+        example_jwt = (
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            "eyJhdWQiOm51bGx9."
+            "-Peqc-pTugGvrc5C8Bnl0-X1V_5fv-aVb_7y7nGBVvQ"
+        )
+        decoded = jwt.decode(example_jwt, "secret", algorithms=["HS256"])
+        assert decoded["aud"] is None
+
     def test_encode_datetime(self, jwt):
         secret = "secret"
         current_datetime = datetime.utcnow()
@@ -406,6 +416,15 @@ class TestJWT:
 
     def test_raise_exception_token_without_audience(self, jwt):
         payload = {"some": "payload"}
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
+
+        assert exc.value.claim == "aud"
+
+    def test_raise_exception_token_with_aud_none_and_without_audience(self, jwt):
+        payload = {"some": "payload", "aud": None}
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
