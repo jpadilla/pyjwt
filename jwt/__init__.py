@@ -1,3 +1,4 @@
+from .api_jwk import PyJWK, PyJWKSet
 from .api_jws import (
     PyJWS,
     get_unverified_header,
@@ -24,7 +25,7 @@ from .exceptions import (
 )
 from .jwks_client import PyJWKClient
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 
 __title__ = "PyJWT"
 __description__ = "JSON Web Token implementation in Python"
@@ -43,6 +44,8 @@ __all__ = [
     "PyJWS",
     "PyJWT",
     "PyJWKClient",
+    "PyJWK",
+    "PyJWKSet",
     "decode",
     "encode",
     "get_unverified_header",

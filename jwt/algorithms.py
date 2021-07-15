@@ -37,6 +37,10 @@ try:
         rsa_recover_prime_factors,
     )
     from cryptography.hazmat.primitives.serialization import (
+        Encoding,
+        NoEncryption,
+        PrivateFormat,
+        PublicFormat,
         load_pem_private_key,
         load_pem_public_key,
         load_ssh_public_key,
@@ -588,6 +592,45 @@ if has_crypto:
                 return True  # If no exception was raised, the signature is valid.
             except cryptography.exceptions.InvalidSignature:
                 return False
+
+        @staticmethod
+        def to_jwk(key):
+            if isinstance(key, Ed25519PublicKey):
+                x = key.public_bytes(
+                    encoding=Encoding.Raw,
+                    format=PublicFormat.Raw,
+                )
+
+                return json.dumps(
+                    {
+                        "x": base64url_encode(force_bytes(x)).decode(),
+                        "kty": "OKP",
+                        "crv": "Ed25519",
+                    }
+                )
+
+            if isinstance(key, Ed25519PrivateKey):
+                d = key.private_bytes(
+                    encoding=Encoding.Raw,
+                    format=PrivateFormat.Raw,
+                    encryption_algorithm=NoEncryption(),
+                )
+
+                x = key.public_key().public_bytes(
+                    encoding=Encoding.Raw,
+                    format=PublicFormat.Raw,
+                )
+
+                return json.dumps(
+                    {
+                        "x": base64url_encode(force_bytes(x)).decode(),
+                        "d": base64url_encode(force_bytes(d)).decode(),
+                        "kty": "OKP",
+                        "crv": "Ed25519",
+                    }
+                )
+
+            raise InvalidKeyError("Not a public or private key")
 
         @staticmethod
         def from_jwk(jwk):

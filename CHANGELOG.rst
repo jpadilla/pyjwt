@@ -4,8 +4,20 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.0.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.1.0...HEAD>`__
 -----------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
+Fixed
+~~~~~
+
+Added
+~~~~~
+
+`v2.1.0 <https://github.com/jpadilla/pyjwt/compare/2.0.1...2.1.0>`__
+--------------------------------------------------------------------
 
 Changed
 ~~~~~~~
@@ -28,6 +40,8 @@ Added
 - Add missing exceptions.InvalidKeyError to jwt module __init__ imports `#620 <https://github.com/jpadilla/pyjwt/pull/620>`__
 - Add support for ES256K algorithm `#629 <https://github.com/jpadilla/pyjwt/pull/629>`__
 - Add `from_jwk()` to Ed25519Algorithm `#621 <https://github.com/jpadilla/pyjwt/pull/621>`__
+- Add `to_jwk()` to Ed25519Algorithm `#643 <https://github.com/jpadilla/pyjwt/pull/643>`__
+- Export `PyJWK` and `PyJWKSet` `#652 <https://github.com/jpadilla/pyjwt/pull/652>`__
 
 `v2.0.1 <https://github.com/jpadilla/pyjwt/compare/2.0.0...2.0.1>`__
 --------------------------------------------------------------------
