@@ -184,7 +184,9 @@ class TestJWT:
                 }
             },
         }
-        token = jwt.encode(payload, "secret", algorithm="HS256", typ="secevent+jwt")
+        token = jwt.encode(
+            payload, "secret", algorithm="HS256", headers={"typ": "secevent+jwt"}
+        )
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
         header_obj = json.loads(header)

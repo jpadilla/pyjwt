@@ -19,6 +19,8 @@ from .utils import base64url_decode, base64url_encode
 
 
 class PyJWS:
+    header_typ = "JWT"
+
     def __init__(self, algorithms=None, options=None):
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
@@ -78,7 +80,6 @@ class PyJWS:
         algorithm: str = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
-        typ: Optional[str] = "JWT",
     ) -> str:
         segments = []
 
@@ -89,12 +90,15 @@ class PyJWS:
             pass
 
         # Header
-        header = {"typ": typ} if typ else {}
-        header["alg"] = algorithm
+        header = {"typ": self.header_typ, "alg": algorithm}
 
         if headers:
             self._validate_headers(headers)
             header.update(headers)
+            if not header["typ"]:
+                print(header)
+                del header["typ"]
+                print(header)
 
         json_header = json.dumps(
             header, separators=(",", ":"), cls=json_encoder

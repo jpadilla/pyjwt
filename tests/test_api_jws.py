@@ -643,7 +643,9 @@ class TestJWS:
           }
         }
         """
-        token = jws.encode(payload.encode("utf-8"), "secret", typ="secevent+jwt")
+        token = jws.encode(
+            payload.encode("utf-8"), "secret", headers={"typ": "secevent+jwt"}
+        )
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
@@ -653,7 +655,7 @@ class TestJWS:
         assert header_obj["typ"] == "secevent+jwt"
 
     def test_encode_with_typ_empty_string(self, jws, payload):
-        token = jws.encode(payload, "secret", typ="")
+        token = jws.encode(payload, "secret", headers={"typ": ""})
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
@@ -661,21 +663,18 @@ class TestJWS:
 
         assert "typ" not in header_obj
 
-    def test_encode_with_typ_and_headers_include_typ(self, jws, payload):
-        headers = {"typ": "a"}
-        token = jws.encode(payload, "secret", typ="b", headers=headers)
+    def test_encode_with_typ_none(self, jws, payload):
+        token = jws.encode(payload, "secret", headers={"typ": None})
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
         header_obj = json.loads(header)
 
-        assert "typ" in header_obj
-        # typ in headers overwrites typ parameter.
-        assert header_obj["typ"] == "a"
+        assert "typ" not in header_obj
 
     def test_encode_with_typ_without_keywords(self, jws, payload):
         headers = {"foo": "bar"}
-        token = jws.encode(payload, "secret", "HS256", headers, None, "baz")
+        token = jws.encode(payload, "secret", "HS256", headers, None)
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
@@ -683,8 +682,6 @@ class TestJWS:
 
         assert "foo" in header_obj
         assert header_obj["foo"] == "bar"
-        assert "typ" in header_obj
-        assert header_obj["typ"] == "baz"
 
     def test_encode_fails_on_invalid_kid_types(self, jws, payload):
         with pytest.raises(InvalidTokenError) as exc:

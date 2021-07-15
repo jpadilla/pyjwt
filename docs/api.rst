@@ -3,7 +3,7 @@ API Reference
 
 .. module:: jwt
 
-.. function:: encode(payload, key, algorithm="HS256", headers=None, json_encoder=None, typ="JWT")
+.. function:: encode(payload, key, algorithm="HS256", headers=None, json_encoder=None)
 
     Encode the ``payload`` as JSON Web Token.
 
@@ -16,7 +16,6 @@ API Reference
     :param str algorithm: algorithm to sign the token with, e.g. ``"ES256"``
     :param dict headers: additional JWT header fields, e.g. ``dict(kid="my-key-id")``
     :param json.JSONEncoder json_encoder: custom JSON encoder for ``payload`` and ``headers``
-    :param str typ: media type of the payload, e.g. ``"secevent+jwt"``
     :rtype: str
     :returns: a JSON Web Token
 

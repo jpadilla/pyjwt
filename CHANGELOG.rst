@@ -13,8 +13,11 @@ Changed
 Fixed
 ~~~~~
 
+- Make `typ` optional in JWT to be compliant with RFC7519. `#644 <https://github.com/jpadilla/pyjwt/pull/644>`__
+
 Added
 ~~~~~
+
 
 `v2.1.0 <https://github.com/jpadilla/pyjwt/compare/2.0.1...2.1.0>`__
 --------------------------------------------------------------------
@@ -30,7 +33,6 @@ Fixed
 - Remove padding from JWK test data. `#628 <https://github.com/jpadilla/pyjwt/pull/628>`__
 - Make `kty` mandatory in JWK to be compliant with RFC7517. `#624 <https://github.com/jpadilla/pyjwt/pull/624>`__
 - Allow JWK without `alg` to be compliant with RFC7517. `#624 <https://github.com/jpadilla/pyjwt/pull/624>`__
-- Make `typ` optional in JWT to be compliant with RFC7519. `#644 <https://github.com/jpadilla/pyjwt/pull/644>`__
 - Allow to verify with private key on ECAlgorithm, as well as on Ed25519Algorithm. `#645 <https://github.com/jpadilla/pyjwt/pull/645>`__
 
 Added
