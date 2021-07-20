@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.6b0
+    rev: 21.7b0
     hooks:
       - id: black
         args: ["--target-version=py36"]
@@ -18,7 +18,7 @@ repos:
         language_version: python3.8
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.8.0
+    rev: 5.9.2
     hooks:
       - id: isort
 
