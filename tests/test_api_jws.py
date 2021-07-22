@@ -172,6 +172,7 @@ class TestJWS:
             jws.decode(msg, algorithms=["none"])
         assert str(context.value) == "Signature verification failed"
 
+    @crypto_required
     def test_encode_with_headers_alg_es256(self, jws, payload):
         with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
             priv_key = load_pem_private_key(ec_priv_file.read(), password=None)
@@ -181,6 +182,7 @@ class TestJWS:
         msg = jws.encode(payload, priv_key, headers={"alg": "ES256"})
         assert b"hello world" == jws.decode(msg, pub_key, algorithms=["ES256"])
 
+    @crypto_required
     def test_encode_with_alg_hs256_and_headers_alg_es256(self, jws, payload):
         with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
             priv_key = load_pem_private_key(ec_priv_file.read(), password=None)
