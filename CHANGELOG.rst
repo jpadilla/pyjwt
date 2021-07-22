@@ -13,7 +13,7 @@ Changed
 Fixed
 ~~~~~
 
-- Prefer `headers["alg"]` to `algorithm` in `jwt.encode()`. `#608 <https://github.com/jpadilla/pyjwt/pull/608>`__
+- Prefer `headers["alg"]` to `algorithm` in `jwt.encode()`. `#673 <https://github.com/jpadilla/pyjwt/pull/673>`__
 
 Added
 ~~~~~
