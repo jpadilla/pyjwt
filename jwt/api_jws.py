@@ -86,6 +86,10 @@ class PyJWS:
         if algorithm is None:
             algorithm = "none"
 
+        # Prefer headers["alg"] if present to algorithm parameter.
+        if headers and "alg" in headers and headers["alg"]:
+            algorithm = headers["alg"]
+
         if algorithm not in self._valid_algs:
             pass
 
