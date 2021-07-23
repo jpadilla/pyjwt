@@ -1,5 +1,6 @@
 import contextlib
 import json
+from ssl import SSLContext
 from unittest import mock
 
 import pytest
@@ -50,6 +51,25 @@ class TestPyJWKClient:
             jwk_set = jwks_client.get_jwk_set()
 
         assert len(jwk_set.keys) == 1
+
+    def test_fetch_data_with_custom_ssl_context(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        context = SSLContext()
+        context.check_hostname = False
+
+        with mock.patch("urllib.request.urlopen") as urlopen_mock:
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.side_effect = [json.dumps(RESPONSE_DATA)]
+            urlopen_mock.return_value = response
+
+            jwks_client = PyJWKClient(url, ssl_context=context)
+            json_response = jwks_client.fetch_data()
+
+            urlopen_mock.assert_called_once_with(url, context=context)
+
+            assert json_response == RESPONSE_DATA
 
     def test_get_signing_keys(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"

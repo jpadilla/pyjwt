@@ -16,6 +16,8 @@ Fixed
 Added
 ~~~~~
 
+- Allow PyJWKClient to receive HTTPS context
+
 `v2.1.0 <https://github.com/jpadilla/pyjwt/compare/2.0.1...2.1.0>`__
 --------------------------------------------------------------------
 

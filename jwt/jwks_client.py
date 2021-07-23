@@ -1,6 +1,7 @@
 import json
 import urllib.request
 from functools import lru_cache
+from ssl import SSLContext
 from typing import Any, List
 
 from .api_jwk import PyJWK, PyJWKSet
@@ -9,15 +10,22 @@ from .exceptions import PyJWKClientError
 
 
 class PyJWKClient:
-    def __init__(self, uri: str, cache_keys: bool = True, max_cached_keys: int = 16):
+    def __init__(
+        self,
+        uri: str,
+        cache_keys: bool = True,
+        max_cached_keys: int = 16,
+        ssl_context: SSLContext = None,
+    ):
         self.uri = uri
+        self.ssl_context = ssl_context
         if cache_keys:
             # Cache signing keys
             # Ignore mypy (https://github.com/python/mypy/issues/2427)
             self.get_signing_key = lru_cache(maxsize=max_cached_keys)(self.get_signing_key)  # type: ignore
 
     def fetch_data(self) -> Any:
-        with urllib.request.urlopen(self.uri) as response:
+        with urllib.request.urlopen(self.uri, context=self.ssl_context) as response:
             return json.load(response)
 
     def get_jwk_set(self) -> PyJWKSet:

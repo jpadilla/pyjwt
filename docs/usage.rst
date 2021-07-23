@@ -291,3 +291,19 @@ Retrieve RSA signing keys from a JWKS endpoint
     ... )
     >>> print(data)
     {'iss': 'https://dev-87evx9ru.auth0.com/', 'sub': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC@clients', 'aud': 'https://expenses-api', 'iat': 1572006954, 'exp': 1572006964, 'azp': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC', 'gty': 'client-credentials'}
+
+You can pass a SSL context as an argument to PyJWKClient. This is useful to set
+manually a certificate or by pass certificate validation, for example.
+
+.. code-block:: pycon
+
+    >>> from ssl import SSLContext
+    >>> context = SSLContext()
+    >>> context.check_hostname = False
+    >>> import jwt
+    >>> from jwt import PyJWKClient
+    >>> url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+    >>> jwks_client = PyJWKClient(url, ssl_context=context)
+    >>> keys = jwks_client.get_jwk_set()
+    >>> print(keys)
+    <jwt.api_jwk.PyJWKSet object at 0x7f9063af0d00>
