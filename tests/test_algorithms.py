@@ -745,6 +745,17 @@ class TestOKPAlgorithms:
         signature = algo.sign(b"Hello World!", key)
         assert algo.verify(b"Hello World!", key.public_key(), signature)
 
+    def test_okp_ed25519_jwk_private_key_should_parse_and_verify_with_private_key_as_is(
+        self,
+    ):
+        algo = OKPAlgorithm()
+
+        with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
+            key = algo.from_jwk(keyfile.read())
+
+        signature = algo.sign(b"Hello World!", key)
+        assert algo.verify(b"Hello World!", key, signature)
+
     def test_okp_ed25519_jwk_public_key_should_parse_and_verify(self):
         algo = OKPAlgorithm()
 
@@ -842,6 +853,17 @@ class TestOKPAlgorithms:
 
         signature = algo.sign(b"Hello World!", key)
         assert algo.verify(b"Hello World!", key.public_key(), signature)
+
+    def test_okp_ed448_jwk_private_key_should_parse_and_verify_with_private_key_as_is(
+        self,
+    ):
+        algo = OKPAlgorithm()
+
+        with open(key_path("jwk_okp_key_Ed448.json")) as keyfile:
+            key = algo.from_jwk(keyfile.read())
+
+        signature = algo.sign(b"Hello World!", key)
+        assert algo.verify(b"Hello World!", key, signature)
 
     def test_okp_ed448_jwk_public_key_should_parse_and_verify(self):
         algo = OKPAlgorithm()
