@@ -177,18 +177,17 @@ class PyJWT:
             raise ExpiredSignatureError("Signature has expired")
 
     def _validate_aud(self, payload, audience):
-        if audience is None and "aud" not in payload:
-            return
-
-        if audience is not None and "aud" not in payload:
-            # Application specified an audience, but it could not be
-            # verified since the token does not contain a claim.
-            raise MissingRequiredClaimError("aud")
-
-        if audience is None and "aud" in payload:
+        if audience is None:
+            if "aud" not in payload or not payload["aud"]:
+                return
             # Application did not specify an audience, but
             # the token has the 'aud' claim
             raise InvalidAudienceError("Invalid audience")
+
+        if "aud" not in payload or not payload["aud"]:
+            # Application specified an audience, but it could not be
+            # verified since the token does not contain a claim.
+            raise MissingRequiredClaimError("aud")
 
         audience_claims = payload["aud"]
 
