@@ -13,6 +13,8 @@ Changed
 Fixed
 ~~~~~
 
+- Fix aud validation to support {'aud': null} case. `#670 <https://github.com/jpadilla/pyjwt/pull/670>`__
+
 Added
 ~~~~~
 
