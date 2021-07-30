@@ -77,7 +77,7 @@ class PyJWS:
         self,
         payload: bytes,
         key: str,
-        algorithm: str = "HS256",
+        algorithm: Optional[str] = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
