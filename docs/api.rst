@@ -13,8 +13,9 @@ API Reference
         * for **asymmetric algorithms**: PEM-formatted private key, a multiline string
         * for **symmetric algorithms**: plain string, sufficiently long for security
 
-    :param str algorithm: algorithm to sign the token with, e.g. ``"ES256"``
-    :param dict headers: additional JWT header fields, e.g. ``dict(kid="my-key-id")``
+    :param str algorithm: algorithm to sign the token with, e.g. ``"ES256"``.
+        If ``headers`` includes ``alg``, it will be preferred to this parameter.
+    :param dict headers: additional JWT header fields, e.g. ``dict(kid="my-key-id")``.
     :param json.JSONEncoder json_encoder: custom JSON encoder for ``payload`` and ``headers``
     :rtype: str
     :returns: a JSON Web Token

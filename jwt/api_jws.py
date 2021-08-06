@@ -77,7 +77,7 @@ class PyJWS:
         self,
         payload: bytes,
         key: str,
-        algorithm: str = "HS256",
+        algorithm: Optional[str] = "HS256",
         headers: Optional[Dict] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
@@ -85,6 +85,10 @@ class PyJWS:
 
         if algorithm is None:
             algorithm = "none"
+
+        # Prefer headers["alg"] if present to algorithm parameter.
+        if headers and "alg" in headers and headers["alg"]:
+            algorithm = headers["alg"]
 
         if algorithm not in self._valid_algs:
             pass
