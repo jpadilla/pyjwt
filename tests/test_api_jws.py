@@ -166,6 +166,32 @@ class TestJWS:
         exception = context.value
         assert str(exception) == "Algorithm not supported"
 
+    def test_encode_with_headers_alg_none(self, jws, payload):
+        msg = jws.encode(payload, key=None, headers={"alg": "none"})
+        with pytest.raises(DecodeError) as context:
+            jws.decode(msg, algorithms=["none"])
+        assert str(context.value) == "Signature verification failed"
+
+    @crypto_required
+    def test_encode_with_headers_alg_es256(self, jws, payload):
+        with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
+            priv_key = load_pem_private_key(ec_priv_file.read(), password=None)
+        with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
+            pub_key = load_pem_public_key(ec_pub_file.read())
+
+        msg = jws.encode(payload, priv_key, headers={"alg": "ES256"})
+        assert b"hello world" == jws.decode(msg, pub_key, algorithms=["ES256"])
+
+    @crypto_required
+    def test_encode_with_alg_hs256_and_headers_alg_es256(self, jws, payload):
+        with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
+            priv_key = load_pem_private_key(ec_priv_file.read(), password=None)
+        with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
+            pub_key = load_pem_public_key(ec_pub_file.read())
+
+        msg = jws.encode(payload, priv_key, algorithm="HS256", headers={"alg": "ES256"})
+        assert b"hello world" == jws.decode(msg, pub_key, algorithms=["ES256"])
+
     def test_decode_algorithm_param_should_be_case_sensitive(self, jws):
         example_jws = (
             "eyJhbGciOiJoczI1NiIsInR5cCI6IkpXVCJ9"  # alg = hs256
