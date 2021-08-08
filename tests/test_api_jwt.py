@@ -16,6 +16,7 @@ from jwt.exceptions import (
     InvalidIssuerError,
     MissingRequiredClaimError,
 )
+from jwt.utils import base64url_decode
 
 from .utils import crypto_required, key_path, utc_timestamp
 
@@ -178,6 +179,32 @@ class TestJWT:
                 lambda: jwt.encode(t, "secret", algorithms=["HS256"]),
             )
 
+    def test_encode_with_typ(self, jwt):
+        payload = {
+            "iss": "https://scim.example.com",
+            "iat": 1458496404,
+            "jti": "4d3559ec67504aaba65d40b0363faad8",
+            "aud": [
+                "https://scim.example.com/Feeds/98d52461fa5bbc879593b7754",
+                "https://scim.example.com/Feeds/5d7604516b1d08641d7676ee7",
+            ],
+            "events": {
+                "urn:ietf:params:scim:event:create": {
+                    "ref": "https://scim.example.com/Users/44f6142df96bd6ab61e7521d9",
+                    "attributes": ["id", "name", "userName", "password", "emails"],
+                }
+            },
+        }
+        token = jwt.encode(
+            payload, "secret", algorithm="HS256", headers={"typ": "secevent+jwt"}
+        )
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" in header_obj
+        assert header_obj["typ"] == "secevent+jwt"
+
     def test_decode_raises_exception_if_exp_is_not_int(self, jwt):
         # >>> jwt.encode({'exp': 'not-an-int'}, 'secret')
         example_jwt = (
@@ -212,6 +239,16 @@ class TestJWT:
 
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
+
+    def test_decode_raises_exception_if_aud_is_none(self, jwt):
+        # >>> jwt.encode({'aud': None}, 'secret')
+        example_jwt = (
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            "eyJhdWQiOm51bGx9."
+            "-Peqc-pTugGvrc5C8Bnl0-X1V_5fv-aVb_7y7nGBVvQ"
+        )
+        decoded = jwt.decode(example_jwt, "secret", algorithms=["HS256"])
+        assert decoded["aud"] is None
 
     def test_encode_datetime(self, jwt):
         secret = "secret"
@@ -417,6 +454,15 @@ class TestJWT:
 
     def test_raise_exception_token_without_audience(self, jwt):
         payload = {"some": "payload"}
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
+
+        assert exc.value.claim == "aud"
+
+    def test_raise_exception_token_with_aud_none_and_without_audience(self, jwt):
+        payload = {"some": "payload", "aud": None}
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:

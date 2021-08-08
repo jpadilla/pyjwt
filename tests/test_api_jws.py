@@ -166,6 +166,32 @@ class TestJWS:
         exception = context.value
         assert str(exception) == "Algorithm not supported"
 
+    def test_encode_with_headers_alg_none(self, jws, payload):
+        msg = jws.encode(payload, key=None, headers={"alg": "none"})
+        with pytest.raises(DecodeError) as context:
+            jws.decode(msg, algorithms=["none"])
+        assert str(context.value) == "Signature verification failed"
+
+    @crypto_required
+    def test_encode_with_headers_alg_es256(self, jws, payload):
+        with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
+            priv_key = load_pem_private_key(ec_priv_file.read(), password=None)
+        with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
+            pub_key = load_pem_public_key(ec_pub_file.read())
+
+        msg = jws.encode(payload, priv_key, headers={"alg": "ES256"})
+        assert b"hello world" == jws.decode(msg, pub_key, algorithms=["ES256"])
+
+    @crypto_required
+    def test_encode_with_alg_hs256_and_headers_alg_es256(self, jws, payload):
+        with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
+            priv_key = load_pem_private_key(ec_priv_file.read(), password=None)
+        with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
+            pub_key = load_pem_public_key(ec_pub_file.read())
+
+        msg = jws.encode(payload, priv_key, algorithm="HS256", headers={"alg": "ES256"})
+        assert b"hello world" == jws.decode(msg, pub_key, algorithms=["ES256"])
+
     def test_decode_algorithm_param_should_be_case_sensitive(self, jws):
         example_jws = (
             "eyJhbGciOiJoczI1NiIsInR5cCI6IkpXVCJ9"  # alg = hs256
@@ -623,6 +649,65 @@ class TestJWS:
 
         assert "testheader" in header_obj
         assert header_obj["testheader"] == headers["testheader"]
+
+    def test_encode_with_typ(self, jws):
+        payload = """
+        {
+          "iss": "https://scim.example.com",
+          "iat": 1458496404,
+          "jti": "4d3559ec67504aaba65d40b0363faad8",
+          "aud": [
+            "https://scim.example.com/Feeds/98d52461fa5bbc879593b7754",
+            "https://scim.example.com/Feeds/5d7604516b1d08641d7676ee7"
+          ],
+          "events": {
+            "urn:ietf:params:scim:event:create": {
+              "ref":
+                  "https://scim.example.com/Users/44f6142df96bd6ab61e7521d9",
+              "attributes": ["id", "name", "userName", "password", "emails"]
+            }
+          }
+        }
+        """
+        token = jws.encode(
+            payload.encode("utf-8"), "secret", headers={"typ": "secevent+jwt"}
+        )
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" in header_obj
+        assert header_obj["typ"] == "secevent+jwt"
+
+    def test_encode_with_typ_empty_string(self, jws, payload):
+        token = jws.encode(payload, "secret", headers={"typ": ""})
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" not in header_obj
+
+    def test_encode_with_typ_none(self, jws, payload):
+        token = jws.encode(payload, "secret", headers={"typ": None})
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" not in header_obj
+
+    def test_encode_with_typ_without_keywords(self, jws, payload):
+        headers = {"foo": "bar"}
+        token = jws.encode(payload, "secret", "HS256", headers, None)
+
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "foo" in header_obj
+        assert header_obj["foo"] == "bar"
 
     def test_encode_fails_on_invalid_kid_types(self, jws, payload):
         with pytest.raises(InvalidTokenError) as exc:
