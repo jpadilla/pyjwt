@@ -8,7 +8,7 @@ You can install ``PyJWT`` with ``pip``:
     $ pip install pyjwt
 
 
-.. _installation_cryptography
+.. _installation_cryptography:
 
 Cryptographic Dependencies (Optional)
 -------------------------------------
