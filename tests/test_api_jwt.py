@@ -16,6 +16,7 @@ from jwt.exceptions import (
     InvalidIssuerError,
     MissingRequiredClaimError,
 )
+from jwt.utils import base64url_decode
 
 from .utils import crypto_required, key_path, utc_timestamp
 
@@ -166,6 +167,32 @@ class TestJWT:
                 TypeError,
                 lambda: jwt.encode(t, "secret", algorithms=["HS256"]),
             )
+
+    def test_encode_with_typ(self, jwt):
+        payload = {
+            "iss": "https://scim.example.com",
+            "iat": 1458496404,
+            "jti": "4d3559ec67504aaba65d40b0363faad8",
+            "aud": [
+                "https://scim.example.com/Feeds/98d52461fa5bbc879593b7754",
+                "https://scim.example.com/Feeds/5d7604516b1d08641d7676ee7",
+            ],
+            "events": {
+                "urn:ietf:params:scim:event:create": {
+                    "ref": "https://scim.example.com/Users/44f6142df96bd6ab61e7521d9",
+                    "attributes": ["id", "name", "userName", "password", "emails"],
+                }
+            },
+        }
+        token = jwt.encode(
+            payload, "secret", algorithm="HS256", headers={"typ": "secevent+jwt"}
+        )
+        header = token[0 : token.index(".")].encode()
+        header = base64url_decode(header)
+        header_obj = json.loads(header)
+
+        assert "typ" in header_obj
+        assert header_obj["typ"] == "secevent+jwt"
 
     def test_decode_raises_exception_if_exp_is_not_int(self, jwt):
         # >>> jwt.encode({'exp': 'not-an-int'}, 'secret')

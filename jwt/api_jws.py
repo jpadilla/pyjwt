@@ -99,6 +99,8 @@ class PyJWS:
         if headers:
             self._validate_headers(headers)
             header.update(headers)
+            if not header["typ"]:
+                del header["typ"]
 
         json_header = json.dumps(
             header, separators=(",", ":"), cls=json_encoder
