@@ -10,6 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Changed
 ~~~~~~~
 
+- Remove arbitrary kwalgs. `#657 <https://github.com/jpadilla/pyjwt/pull/657>`__
+
 Fixed
 ~~~~~
 
