@@ -17,6 +17,8 @@ Encoding & Decoding Tokens with HS256
 Encoding & Decoding Tokens with RS256 (RSA)
 -------------------------------------------
 
+RSA encoding and decoding require the ``cryptography`` module. See :ref:`installation_cryptography`.
+
 .. code-block:: pycon
 
     >>> import jwt
