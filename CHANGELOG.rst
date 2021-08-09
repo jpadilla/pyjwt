@@ -12,6 +12,7 @@ Changed
 
 Fixed
 ~~~~~
+- Assume JWK without the "use" claim is valid for signing as per RFC7517 `#668 <https://github.com/jpadilla/pyjwt/pull/668>`__
 
 Added
 ~~~~~
