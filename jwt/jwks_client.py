@@ -29,7 +29,7 @@ class PyJWKClient:
         signing_keys = []
 
         for jwk_set_key in jwk_set.keys:
-            if jwk_set_key.public_key_use == "sig" and jwk_set_key.key_id:
+            if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id:
                 signing_keys.append(jwk_set_key)
 
         if len(signing_keys) == 0:

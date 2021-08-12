@@ -61,6 +61,20 @@ class TestPyJWKClient:
         assert len(signing_keys) == 1
         assert isinstance(signing_keys[0], PyJWK)
 
+    def test_get_signing_keys_if_no_use_provided(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        mocked_key = RESPONSE_DATA["keys"][0].copy()
+        del mocked_key["use"]
+        response = {"keys": [mocked_key]}
+
+        with mocked_response(response):
+            jwks_client = PyJWKClient(url)
+            signing_keys = jwks_client.get_signing_keys()
+
+        assert len(signing_keys) == 1
+        assert isinstance(signing_keys[0], PyJWK)
+
     def test_get_signing_keys_raises_if_none_found(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 

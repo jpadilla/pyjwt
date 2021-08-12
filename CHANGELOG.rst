@@ -14,6 +14,7 @@ Changed
 
 Fixed
 ~~~~~
+- Assume JWK without the "use" claim is valid for signing as per RFC7517 `#668 <https://github.com/jpadilla/pyjwt/pull/668>`__
 
 - Prefer `headers["alg"]` to `algorithm` in `jwt.encode()`. `#673 <https://github.com/jpadilla/pyjwt/pull/673>`__
 - Fix aud validation to support {'aud': null} case. `#670 <https://github.com/jpadilla/pyjwt/pull/670>`__
