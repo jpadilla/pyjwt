@@ -66,6 +66,19 @@ requires_cryptography = {
 }
 
 
+try:
+    import boto3
+    kms = boto3.client('kms')
+    has_kms = True
+except ModuleNotFoundError:
+    has_kms = False
+
+
+requires_kms = {
+    "AWS-KMS"
+}
+
+
 def get_default_algorithms():
     """
     Returns the algorithms that are implemented by the library.
@@ -94,6 +107,13 @@ def get_default_algorithms():
                 "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
                 "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
                 "EdDSA": Ed25519Algorithm(),
+            }
+        )
+
+    if has_kms:
+        default_algorithms.update(
+            {
+                "AWS-KMS": AWSKMSAlgorithm(),
             }
         )
 
@@ -662,3 +682,40 @@ if has_crypto:
                 return Ed25519PrivateKey.from_private_bytes(d)
             except ValueError as err:
                 raise InvalidKeyError("Invalid key parameter") from err
+
+
+if has_kms:
+
+    class AWSKMSAlgorithm(Algorithm):
+
+        def __init__(self, **kwargs):
+            pass
+
+        def prepare_key(self, key):
+            return key
+
+        def sign(self, msg, key):
+            res = kms.sign(
+                KeyId=key,
+                Message=msg,
+                SigningAlgorithm='RSASSA_PSS_SHA_256',
+            )
+            signature = res['Signature']
+            return signature
+
+        def verify(self, msg, key, sig):
+            res = kms.verify(
+                KeyId=key,
+                Message=msg,
+                Signature=sig,
+                SigningAlgorithm='RSASSA_PSS_SHA_256',
+            )
+            return res['SignatureValid']
+
+        @staticmethod
+        def from_jwk(jwk):
+            pass
+
+        @staticmethod
+        def to_jwk(key_obj):
+            pass
