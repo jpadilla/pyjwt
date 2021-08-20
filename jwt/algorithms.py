@@ -689,15 +689,15 @@ if has_kms:
     class AWSKMSAlgorithm(Algorithm):
 
         # Basic UUID
-        uuid_pattern = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-        mrk_pattern = r'mrk-[0-9a-f]{32}'
+        uuid_pattern = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+        mrk_pattern = r"mrk-[0-9a-f]{32}"
         # arn:[partition]:kms:[region name]:[account id]:
-        arn_pattern = r'arn:[\w\-]*:kms:[\w\-]+:\d{12}:'
+        arn_pattern = r"arn:[\w\-]*:kms:[\w\-]+:\d{12}:"
         single_region_pattern = re.compile(uuid_pattern)
         multi_region_pattern = re.compile(mrk_pattern)
-        arn_key_single_region_pattern = re.compile(rf'{arn_pattern}key/{uuid_pattern}')
-        arn_key_multi_region_pattern = re.compile(rf'{arn_pattern}key/{mrk_pattern}')
-        arn_alias_pattern = re.compile(rf'{arn_pattern}alias/.+')
+        arn_key_single_region_pattern = re.compile(rf"{arn_pattern}key/{uuid_pattern}")
+        arn_key_multi_region_pattern = re.compile(rf"{arn_pattern}key/{mrk_pattern}")
+        arn_alias_pattern = re.compile(rf"{arn_pattern}alias/.+")
 
         def __init__(self, **kwargs):
             pass
@@ -713,7 +713,7 @@ if has_kms:
                 pass
             elif self.arn_alias_pattern.match(key):
                 pass
-            elif key.startswith('alias/'):
+            elif key.startswith("alias/"):
                 pass
             else:
                 raise TypeError("Expecting a valid KMS key id.")
