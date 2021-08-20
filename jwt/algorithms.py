@@ -69,15 +69,14 @@ requires_cryptography = {
 
 try:
     import boto3
-    kms = boto3.client('kms')
+
+    kms = boto3.client("kms")
     has_kms = True
 except ModuleNotFoundError:
     has_kms = False
 
 
-requires_kms = {
-    "AWS-KMS"
-}
+requires_kms = {"AWS-KMS"}
 
 
 def get_default_algorithms():
@@ -724,9 +723,9 @@ if has_kms:
             res = kms.sign(
                 KeyId=key,
                 Message=msg,
-                SigningAlgorithm='RSASSA_PSS_SHA_256',
+                SigningAlgorithm="RSASSA_PSS_SHA_256",
             )
-            signature = res['Signature']
+            signature = res["Signature"]
             return signature
 
         def verify(self, msg, key, sig):
@@ -734,9 +733,9 @@ if has_kms:
                 KeyId=key,
                 Message=msg,
                 Signature=sig,
-                SigningAlgorithm='RSASSA_PSS_SHA_256',
+                SigningAlgorithm="RSASSA_PSS_SHA_256",
             )
-            return res['SignatureValid']
+            return res["SignatureValid"]
 
         @staticmethod
         def from_jwk(jwk):
