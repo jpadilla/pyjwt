@@ -30,7 +30,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.46"
+    rev: "0.47"
     hooks:
       - id: check-manifest
         args: [--no-build-isolation]
