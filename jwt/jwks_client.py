@@ -32,7 +32,6 @@ class PyJWKClient:
             if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id
         ]
 
-
         if not signing_keys:
             raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
 
