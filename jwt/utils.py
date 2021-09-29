@@ -59,8 +59,7 @@ def from_base64url_uint(val: Union[str, bytes]) -> int:
 
 def number_to_bytes(num: int, num_bytes: int) -> bytes:
     padded_hex = "%0*x" % (2 * num_bytes, num)
-    big_endian = binascii.a2b_hex(padded_hex.encode("ascii"))
-    return big_endian
+    return binascii.a2b_hex(padded_hex.encode("ascii"))
 
 
 def bytes_to_number(string: bytes) -> int:
@@ -72,7 +71,7 @@ def bytes_from_int(val: int) -> bytes:
     byte_length = 0
 
     while remaining != 0:
-        remaining = remaining >> 8
+        remaining >>= 8
         byte_length += 1
 
     return val.to_bytes(byte_length, "big", signed=False)

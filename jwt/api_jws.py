@@ -90,9 +90,6 @@ class PyJWS:
         if headers and "alg" in headers and headers["alg"]:
             algorithm = headers["alg"]
 
-        if algorithm not in self._valid_algs:
-            pass
-
         # Header
         header = {"typ": self.header_typ, "alg": algorithm}
 
