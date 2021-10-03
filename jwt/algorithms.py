@@ -247,22 +247,21 @@ if has_crypto:
             self.hash_alg = hash_alg
 
         def prepare_key(self, key):
-            if isinstance(key, RSAPrivateKey) or isinstance(key, RSAPublicKey):
+            if isinstance(key, (RSAPrivateKey, RSAPublicKey)):
                 return key
 
-            if isinstance(key, (bytes, str)):
-                key = force_bytes(key)
-
-                try:
-                    if key.startswith(b"ssh-rsa"):
-                        key = load_ssh_public_key(key)
-                    else:
-                        key = load_pem_private_key(key, password=None)
-                except ValueError:
-                    key = load_pem_public_key(key)
-            else:
+            if not isinstance(key, (bytes, str)):
                 raise TypeError("Expecting a PEM-formatted key.")
 
+            key = force_bytes(key)
+
+            try:
+                if key.startswith(b"ssh-rsa"):
+                    key = load_ssh_public_key(key)
+                else:
+                    key = load_pem_private_key(key, password=None)
+            except ValueError:
+                key = load_pem_public_key(key)
             return key
 
         @staticmethod
@@ -399,27 +398,24 @@ if has_crypto:
             self.hash_alg = hash_alg
 
         def prepare_key(self, key):
-            if isinstance(key, EllipticCurvePrivateKey) or isinstance(
-                key, EllipticCurvePublicKey
-            ):
+            if isinstance(key, (EllipticCurvePrivateKey, EllipticCurvePublicKey)):
                 return key
 
-            if isinstance(key, (bytes, str)):
-                key = force_bytes(key)
-
-                # Attempt to load key. We don't know if it's
-                # a Signing Key or a Verifying Key, so we try
-                # the Verifying Key first.
-                try:
-                    if key.startswith(b"ecdsa-sha2-"):
-                        key = load_ssh_public_key(key)
-                    else:
-                        key = load_pem_public_key(key)
-                except ValueError:
-                    key = load_pem_private_key(key, password=None)
-
-            else:
+            if not isinstance(key, (bytes, str)):
                 raise TypeError("Expecting a PEM-formatted key.")
+
+            key = force_bytes(key)
+
+            # Attempt to load key. We don't know if it's
+            # a Signing Key or a Verifying Key, so we try
+            # the Verifying Key first.
+            try:
+                if key.startswith(b"ecdsa-sha2-"):
+                    key = load_ssh_public_key(key)
+                else:
+                    key = load_pem_public_key(key)
+            except ValueError:
+                key = load_pem_private_key(key, password=None)
 
             return key
 

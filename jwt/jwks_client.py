@@ -26,13 +26,13 @@ class PyJWKClient:
 
     def get_signing_keys(self) -> List[PyJWK]:
         jwk_set = self.get_jwk_set()
-        signing_keys = []
+        signing_keys = [
+            jwk_set_key
+            for jwk_set_key in jwk_set.keys
+            if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id
+        ]
 
-        for jwk_set_key in jwk_set.keys:
-            if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id:
-                signing_keys.append(jwk_set_key)
-
-        if len(signing_keys) == 0:
+        if not signing_keys:
             raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
 
         return signing_keys

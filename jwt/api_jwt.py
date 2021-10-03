@@ -204,7 +204,7 @@ class PyJWT:
         if isinstance(audience, str):
             audience = [audience]
 
-        if not any(aud in audience_claims for aud in audience):
+        if all(aud not in audience_claims for aud in audience):
             raise InvalidAudienceError("Invalid audience")
 
     def _validate_iss(self, payload, issuer):
