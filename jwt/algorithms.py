@@ -22,6 +22,10 @@ try:
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
     )
+    from cryptography.hazmat.primitives.asymmetric.ed448 import (
+        Ed448PrivateKey,
+        Ed448PublicKey,
+    )
     from cryptography.hazmat.primitives.asymmetric.ed25519 import (
         Ed25519PrivateKey,
         Ed25519PublicKey,
@@ -93,7 +97,7 @@ def get_default_algorithms():
                 "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
                 "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
                 "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
-                "EdDSA": Ed25519Algorithm(),
+                "EdDSA": OKPAlgorithm(),
             }
         )
 
@@ -534,9 +538,9 @@ if has_crypto:
             except InvalidSignature:
                 return False
 
-    class Ed25519Algorithm(Algorithm):
+    class OKPAlgorithm(Algorithm):
         """
-        Performs signing and verification operations using Ed25519
+        Performs signing and verification operations using EdDSA
 
         This class requires ``cryptography>=2.6`` to be installed.
         """
@@ -546,7 +550,10 @@ if has_crypto:
 
         def prepare_key(self, key):
 
-            if isinstance(key, (Ed25519PrivateKey, Ed25519PublicKey)):
+            if isinstance(
+                key,
+                (Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey),
+            ):
                 return key
 
             if isinstance(key, (bytes, str)):
@@ -565,9 +572,10 @@ if has_crypto:
 
         def sign(self, msg, key):
             """
-            Sign a message ``msg`` using the Ed25519 private key ``key``
+            Sign a message ``msg`` using the EdDSA private key ``key``
             :param str|bytes msg: Message to sign
-            :param Ed25519PrivateKey key: A :class:`.Ed25519PrivateKey` instance
+            :param Ed25519PrivateKey}Ed448PrivateKey key: A :class:`.Ed25519PrivateKey`
+                or :class:`.Ed448PrivateKey` iinstance
             :return bytes signature: The signature, as bytes
             """
             msg = bytes(msg, "utf-8") if type(msg) is not bytes else msg
@@ -575,18 +583,19 @@ if has_crypto:
 
         def verify(self, msg, key, sig):
             """
-            Verify a given ``msg`` against a signature ``sig`` using the Ed25519 key ``key``
+            Verify a given ``msg`` against a signature ``sig`` using the EdDSA key ``key``
 
-            :param str|bytes sig: Ed25519 signature to check ``msg`` against
+            :param str|bytes sig: EdDSA signature to check ``msg`` against
             :param str|bytes msg: Message to sign
-            :param Ed25519PrivateKey|Ed25519PublicKey key: A private or public Ed25519 key instance
+            :param Ed25519PrivateKey|Ed25519PublicKey|Ed448PrivateKey|Ed448PublicKey key:
+                A private or public EdDSA key instance
             :return bool verified: True if signature is valid, False if not.
             """
             try:
                 msg = bytes(msg, "utf-8") if type(msg) is not bytes else msg
                 sig = bytes(sig, "utf-8") if type(sig) is not bytes else sig
 
-                if isinstance(key, Ed25519PrivateKey):
+                if isinstance(key, (Ed25519PrivateKey, Ed448PrivateKey)):
                     key = key.public_key()
                 key.verify(sig, msg)
                 return True  # If no exception was raised, the signature is valid.
@@ -595,21 +604,21 @@ if has_crypto:
 
         @staticmethod
         def to_jwk(key):
-            if isinstance(key, Ed25519PublicKey):
+            if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
                 x = key.public_bytes(
                     encoding=Encoding.Raw,
                     format=PublicFormat.Raw,
                 )
-
+                crv = "Ed25519" if isinstance(key, Ed25519PublicKey) else "Ed448"
                 return json.dumps(
                     {
                         "x": base64url_encode(force_bytes(x)).decode(),
                         "kty": "OKP",
-                        "crv": "Ed25519",
+                        "crv": crv,
                     }
                 )
 
-            if isinstance(key, Ed25519PrivateKey):
+            if isinstance(key, (Ed25519PrivateKey, Ed448PrivateKey)):
                 d = key.private_bytes(
                     encoding=Encoding.Raw,
                     format=PrivateFormat.Raw,
@@ -621,12 +630,13 @@ if has_crypto:
                     format=PublicFormat.Raw,
                 )
 
+                crv = "Ed25519" if isinstance(key, Ed25519PrivateKey) else "Ed448"
                 return json.dumps(
                     {
                         "x": base64url_encode(force_bytes(x)).decode(),
                         "d": base64url_encode(force_bytes(d)).decode(),
                         "kty": "OKP",
-                        "crv": "Ed25519",
+                        "crv": crv,
                     }
                 )
 
@@ -648,7 +658,7 @@ if has_crypto:
                 raise InvalidKeyError("Not an Octet Key Pair")
 
             curve = obj.get("crv")
-            if curve != "Ed25519":
+            if curve != "Ed25519" and curve != "Ed448":
                 raise InvalidKeyError(f"Invalid curve: {curve}")
 
             if "x" not in obj:
@@ -657,8 +667,12 @@ if has_crypto:
 
             try:
                 if "d" not in obj:
-                    return Ed25519PublicKey.from_public_bytes(x)
+                    if curve == "Ed25519":
+                        return Ed25519PublicKey.from_public_bytes(x)
+                    return Ed448PublicKey.from_public_bytes(x)
                 d = base64url_decode(obj.get("d"))
-                return Ed25519PrivateKey.from_private_bytes(d)
+                if curve == "Ed25519":
+                    return Ed25519PrivateKey.from_private_bytes(d)
+                return Ed448PrivateKey.from_private_bytes(d)
             except ValueError as err:
                 raise InvalidKeyError("Invalid key parameter") from err

@@ -9,12 +9,7 @@ from jwt.exceptions import InvalidKeyError, PyJWKError
 from .utils import crypto_required, key_path
 
 if has_crypto:
-    from jwt.algorithms import (
-        ECAlgorithm,
-        Ed25519Algorithm,
-        HMACAlgorithm,
-        RSAAlgorithm,
-    )
+    from jwt.algorithms import ECAlgorithm, HMACAlgorithm, OKPAlgorithm, RSAAlgorithm
 
 
 class TestPyJWK:
@@ -166,7 +161,7 @@ class TestPyJWK:
         jwk = PyJWK.from_dict(key_data)
 
         assert jwk.key_type == "OKP"
-        assert isinstance(jwk.Algorithm, Ed25519Algorithm)
+        assert isinstance(jwk.Algorithm, OKPAlgorithm)
 
     @crypto_required
     def test_from_dict_should_throw_exception_if_arg_is_invalid(self):

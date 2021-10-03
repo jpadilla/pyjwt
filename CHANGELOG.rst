@@ -23,6 +23,8 @@ Fixed
 Added
 ~~~~~
 
+- Add support for Ed448/EdDSA. `#675 <https://github.com/jpadilla/pyjwt/pull/675>`__
+
 `v2.1.0 <https://github.com/jpadilla/pyjwt/compare/2.0.1...2.1.0>`__
 --------------------------------------------------------------------
 
