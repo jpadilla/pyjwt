@@ -147,7 +147,8 @@ you can set a leeway of 10 seconds in order to have some margin:
 .. code-block:: python
 
     jwt_payload = jwt.encode(
-        {"exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=30)}, "secret"
+        {"exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=30)},
+        "secret",
     )
 
     time.sleep(32)
