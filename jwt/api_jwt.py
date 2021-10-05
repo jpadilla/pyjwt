@@ -2,7 +2,7 @@ import json
 from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union, TypedDict
 
 from . import api_jws
 from .exceptions import (
@@ -15,6 +15,14 @@ from .exceptions import (
     MissingRequiredClaimError,
 )
 
+class DecodeOptions(TypedDict):
+    verify_signature: bool
+    verify_exp: bool
+    verify_nbf: bool
+    verify_iat: bool
+    verify_aud: bool
+    verify_iss: bool
+    require: List[str]
 
 class PyJWT:
     def __init__(self, options=None):
@@ -67,7 +75,7 @@ class PyJWT:
         jwt: str,
         key: str = "",
         algorithms: List[str] = None,
-        options: Dict = None,
+        options: DecodeOptions = None,
         audience: Optional[Union[str, List[str]]] = None,
         issuer: Optional[str] = None,
         leeway: Union[float, timedelta] = 0,
@@ -114,7 +122,7 @@ class PyJWT:
         jwt: str,
         key: str = "",
         algorithms: List[str] = None,
-        options: Dict = None,
+        options: DecodeOptions = None,
         audience: Optional[Union[str, List[str]]] = None,
         issuer: Optional[str] = None,
         leeway: Union[float, timedelta] = 0,
