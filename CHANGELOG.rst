@@ -10,15 +10,28 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Changed
 ~~~~~~~
 
-- Remove arbitrary kwalgs. `#657 <https://github.com/jpadilla/pyjwt/pull/657>`__
+Fixed
+~~~~~
+
+Added
+~~~~~
+
+`v2.2.0 <https://github.com/jpadilla/pyjwt/compare/2.1.0...2.2.0>`__
+-----------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
+- Remove arbitrary kwargs. `#657 <https://github.com/jpadilla/pyjwt/pull/657>`__
+- Use timezone package as Python 3.5+ is required. `#694 <https://github.com/jpadilla/pyjwt/pull/694>`__
 
 Fixed
 ~~~~~
 - Assume JWK without the "use" claim is valid for signing as per RFC7517 `#668 <https://github.com/jpadilla/pyjwt/pull/668>`__
-
 - Prefer `headers["alg"]` to `algorithm` in `jwt.encode()`. `#673 <https://github.com/jpadilla/pyjwt/pull/673>`__
 - Fix aud validation to support {'aud': null} case. `#670 <https://github.com/jpadilla/pyjwt/pull/670>`__
 - Make `typ` optional in JWT to be compliant with RFC7519. `#644 <https://github.com/jpadilla/pyjwt/pull/644>`__
+-  Remove upper bound on cryptography version. `#693 <https://github.com/jpadilla/pyjwt/pull/693>`__
 
 Added
 ~~~~~
