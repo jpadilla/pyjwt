@@ -1,6 +1,6 @@
 import os
 from calendar import timegm
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -8,7 +8,7 @@ from jwt.algorithms import has_crypto
 
 
 def utc_timestamp():
-    return timegm(datetime.utcnow().utctimetuple())
+    return timegm(datetime.now(tz=timezone.utc).utctimetuple())
 
 
 def key_path(key_name):

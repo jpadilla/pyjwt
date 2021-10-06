@@ -119,7 +119,7 @@ datetime, which will be converted into an int. For example:
 .. code-block:: python
 
     jwt.encode({"exp": 1371720939}, "secret")
-    jwt.encode({"exp": datetime.utcnow()}, "secret")
+    jwt.encode({"exp": datetime.now(tz=timezone.utc)}, "secret")
 
 Expiration time is automatically verified in `jwt.decode()` and raises
 `jwt.ExpiredSignatureError` if the expiration time is in the past:
@@ -133,7 +133,7 @@ Expiration time is automatically verified in `jwt.decode()` and raises
         ...
 
 Expiration time will be compared to the current UTC time (as given by
-`timegm(datetime.utcnow().utctimetuple())`), so be sure to use a UTC timestamp
+`timegm(datetime.now(tz=timezone.utc).utctimetuple())`), so be sure to use a UTC timestamp
 or datetime in encoding.
 
 You can turn off expiration time verification with the `verify_exp` parameter in the options argument.
@@ -147,7 +147,8 @@ you can set a leeway of 10 seconds in order to have some margin:
 .. code-block:: python
 
     jwt_payload = jwt.encode(
-        {"exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, "secret"
+        {"exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=30)},
+        "secret",
     )
 
     time.sleep(32)
@@ -181,7 +182,7 @@ The `nbf` claim works similarly to the `exp` claim above.
 .. code-block:: python
 
     jwt.encode({"nbf": 1371720939}, "secret")
-    jwt.encode({"nbf": datetime.utcnow()}, "secret")
+    jwt.encode({"nbf": datetime.now(tz=timezone.utc)}, "secret")
 
 Issuer Claim (iss)
 ~~~~~~~~~~~~~~~~~~
@@ -259,7 +260,7 @@ Issued At Claim (iat)
 .. code-block:: python
 
     jwt.encode({"iat": 1371720939}, "secret")
-    jwt.encode({"iat": datetime.utcnow()}, "secret")
+    jwt.encode({"iat": datetime.now(tz=timezone.utc)}, "secret")
 
 Requiring Presence of Claims
 ----------------------------

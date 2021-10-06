@@ -1,7 +1,7 @@
 import json
 from calendar import timegm
 from collections.abc import Iterable, Mapping
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Type, Union
 
 from . import api_jws
@@ -133,7 +133,7 @@ class PyJWT:
 
         self._validate_required_claims(payload, options)
 
-        now = timegm(datetime.utcnow().utctimetuple())
+        now = timegm(datetime.now(tz=timezone.utc).utctimetuple())
 
         if "iat" in payload and options["verify_iat"]:
             self._validate_iat(payload, now, leeway)

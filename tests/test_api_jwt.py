@@ -1,7 +1,7 @@
 import json
 import time
 from calendar import timegm
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
@@ -252,7 +252,7 @@ class TestJWT:
 
     def test_encode_datetime(self, jwt):
         secret = "secret"
-        current_datetime = datetime.utcnow()
+        current_datetime = datetime.now(tz=timezone.utc)
         payload = {
             "exp": current_datetime,
             "iat": current_datetime,
@@ -499,7 +499,7 @@ class TestJWT:
     def test_skip_check_exp(self, jwt):
         payload = {
             "some": "payload",
-            "exp": datetime.utcnow() - timedelta(days=1),
+            "exp": datetime.now(tz=timezone.utc) - timedelta(days=1),
         }
         token = jwt.encode(payload, "secret")
         jwt.decode(
@@ -576,7 +576,7 @@ class TestJWT:
     def test_skip_check_iat(self, jwt):
         payload = {
             "some": "payload",
-            "iat": datetime.utcnow() + timedelta(days=1),
+            "iat": datetime.now(tz=timezone.utc) + timedelta(days=1),
         }
         token = jwt.encode(payload, "secret")
         jwt.decode(
@@ -589,7 +589,7 @@ class TestJWT:
     def test_skip_check_nbf(self, jwt):
         payload = {
             "some": "payload",
-            "nbf": datetime.utcnow() + timedelta(days=1),
+            "nbf": datetime.now(tz=timezone.utc) + timedelta(days=1),
         }
         token = jwt.encode(payload, "secret")
         jwt.decode(
