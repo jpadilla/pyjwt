@@ -134,6 +134,7 @@ class PyJWS:
         key: str = "",
         algorithms: List[str] = None,
         options: Dict = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         if options is None:
             options = {}
@@ -162,8 +163,9 @@ class PyJWS:
         key: str = "",
         algorithms: List[str] = None,
         options: Dict = None,
+        **kwargs,
     ) -> str:
-        decoded = self.decode_complete(jwt, key, algorithms, options)
+        decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)
         return decoded["payload"]
 
     def get_unverified_header(self, jwt):
