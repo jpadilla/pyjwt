@@ -63,6 +63,22 @@ class TestJWT:
             ),
         }
 
+    def test_decode_compressed_payload(self, jwt):
+        example_jwt = (
+            "eyJ6aXAiOiJERUYiLCJhbGciOiJFUzI1NiIsImtpZCI6IjNLZmRnLVh3UC03Z1h5eXd0VWZVQUR3QnVtRE9QS01ReC1pRUxMMTFXOXMifQ"
+            ".3ZJJb9swEIX_SjC9ytrqxrFudQp0ORQFmvZS-EBTY4sFF4GLEDfQf-8M7aALkpxyim4jPn5875F3oEKADoYYx9BVVRhRlsEIHwcUOg6lF"
+            "L4PFd4KM2oMFakTeijA7vbQNZevl-3lVd1elct1U8AkobuDeBwRuh9_mP_jXp2GBQ-EelynjElW_RJROfukULpJ9c0atgVIjz3aqIT-mnY"
+            "_UUa2tB-U_44-MKeDZVmXDfH47ybZXiNrPAaXvMSbbB_OC8U5DkinNdFOTugAf6SMRE5af_OaBPf7u5oE98MD4C8Uh_Zzh8LgCSKM0sSDt"
+            "5Y0PuQzDmpCyz1-cgPPmxK2MwXcKQr_TkRmNes3zaJuFm0N81w86KZ52s3HfysOUcQUcly-8Ih8QZOQUlm8dn0mSNcre8jGwzFENOf3Qzc"
+            "z6FXp_KHiZqug-kpOtwSQeSe09Qrm7VzAeK4g29mjR8ve_m6QRE7K5PMSh71R5oRoc-CaY1FVe-cNvUf2ImR0npG9CqMWuc7N9cV7tOiFv"
+            "vjgwqii0FQUlahd_JzMjrdCnb_m0QbbF9lgu37uBle8MNP3Gw"
+            ".rakY9-ElbSbMEcL6Ah4dQCM9iDHJ9w-_0D_LIpkuEk4xHPS8SO2mwmq7qcBSBInHrgBk6KOHqzniG4V5fgV15Q"
+        )  # from https://spec.smarthealth.cards/examples/example-00-d-jws.txt
+
+        decoded_payload = jwt.decode(example_jwt, options={"verify_signature": False})
+
+        assert list(decoded_payload.keys()) == ["iss", "nbf", "vc"]
+
     def test_load_verify_valid_jwt(self, jwt):
         example_payload = {"hello": "world"}
         example_secret = "secret"
