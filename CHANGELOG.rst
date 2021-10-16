@@ -4,7 +4,7 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.1.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.3.0...HEAD>`__
 -----------------------------------------------------------------------
 
 Changed
@@ -15,6 +15,19 @@ Fixed
 
 Added
 ~~~~~
+
+`v2.3.0 <https://github.com/jpadilla/pyjwt/compare/2.2.0...2.3.0>`__
+-----------------------------------------------------------------------
+
+Fixed
+~~~~~
+
+- Revert "Remove arbitrary kwargs." `#701 <https://github.com/jpadilla/pyjwt/pull/701>`__
+
+Added
+~~~~~
+
+- Add exception chaining `#702 <https://github.com/jpadilla/pyjwt/pull/702>`__
 
 `v2.2.0 <https://github.com/jpadilla/pyjwt/compare/2.1.0...2.2.0>`__
 -----------------------------------------------------------------------
