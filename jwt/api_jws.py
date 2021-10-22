@@ -132,8 +132,8 @@ class PyJWS:
         self,
         jwt: str,
         key: str = "",
-        algorithms: List[str] = None,
-        options: Dict = None,
+        algorithms: Optional[List[str]] = None,
+        options: Optional[Dict] = None,
         **kwargs,
     ) -> Dict[str, Any]:
         if options is None:
@@ -161,8 +161,8 @@ class PyJWS:
         self,
         jwt: str,
         key: str = "",
-        algorithms: List[str] = None,
-        options: Dict = None,
+        algorithms: Optional[List[str]] = None,
+        options: Optional[Dict] = None,
         **kwargs,
     ) -> str:
         decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)
