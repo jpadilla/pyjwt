@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.10b0
+    rev: 21.11b1
     hooks:
       - id: black
         args: ["--target-version=py36"]
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: v1.11.0
+    rev: v1.12.0
     hooks:
       - id: blacken-docs
         args: ["--target-version=py36"]
