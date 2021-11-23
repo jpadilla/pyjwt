@@ -423,7 +423,9 @@ class TestJWT:
         issuer = "urn:foo"
         payload = {"some": "payload", "iss": "urn:foo"}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", issuer=[issuer, "https://other.test"], algorithms=["HS256"])
+        jwt.decode(
+            token, "secret", issuer=[issuer, "https://other.test"], algorithms=["HS256"]
+        )
 
     def test_raise_exception_invalid_issuer(self, jwt):
         issuer = "urn:wrong"
