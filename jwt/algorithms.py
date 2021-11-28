@@ -419,7 +419,9 @@ if has_crypto:
 
             # Explicit check the key to prevent confusing errors from cryptography
             if not isinstance(key, (EllipticCurvePrivateKey, EllipticCurvePublicKey)):
-                raise InvalidKeyError("Expecting a EllipticCurvePrivateKey/EllipticCurvePublicKey. Wrong key provided for ECDSA algorithms")
+                raise InvalidKeyError(
+                    "Expecting a EllipticCurvePrivateKey/EllipticCurvePublicKey. Wrong key provided for ECDSA algorithms"
+                )
 
             return key
 
