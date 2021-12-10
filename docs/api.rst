@@ -68,6 +68,8 @@ API Reference
     :rtype: dict
     :returns: the JWT claims
 
+.. module:: jwt.api_jwt
+
 .. function:: decode_complete(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0)
 
     Identical to ``jwt.decode`` except for return value which is a dictionary containing the token header (JOSE Header),
