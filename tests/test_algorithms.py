@@ -495,6 +495,18 @@ class TestAlgorithms:
         assert not result
 
     @crypto_required
+    def test_ec_should_throw_exception_on_wrong_key(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError):
+            with open(key_path("testkey_rsa.priv")) as keyfile:
+                algo.prepare_key(keyfile.read())
+
+        with pytest.raises(InvalidKeyError):
+            with open(key_path("testkey2_rsa.pub.pem")) as pem_key:
+                algo.prepare_key(pem_key.read())
+
+    @crypto_required
     def test_rsa_pss_sign_then_verify_should_return_true(self):
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
 
