@@ -100,7 +100,7 @@ class PyJWS:
                 del header["typ"]
 
         json_header = json.dumps(
-            header, separators=(",", ":"), cls=json_encoder
+            header, separators=(",", ":"), cls=json_encoder, sort_keys=True
         ).encode()
 
         segments.append(base64url_encode(json_header))
