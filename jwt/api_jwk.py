@@ -95,3 +95,9 @@ class PyJWKSet:
     def from_json(data):
         obj = json.loads(data)
         return PyJWKSet.from_dict(obj)
+
+    def __getitem__(self, kid):
+        for key in self.keys:
+            if key.key_id == kid:
+                return key
+        raise KeyError("keyset has no key for kid: %s" % kid)
