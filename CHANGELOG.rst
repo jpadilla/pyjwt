@@ -16,6 +16,8 @@ Fixed
 Added
 ~~~~~
 
+- Add ``PyJWKSet.__getitem__`` for indexing keysets by key ID `#725 <https://github.com/jpadilla/pyjwt/pull/725>`__
+
 `v2.3.0 <https://github.com/jpadilla/pyjwt/compare/2.2.0...2.3.0>`__
 -----------------------------------------------------------------------
 

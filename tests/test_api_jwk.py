@@ -252,3 +252,26 @@ class TestPyJWKSet:
         assert jwk.key_type == "RSA"
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
+
+    @crypto_required
+    def test_keyset_should_index_by_kid(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            pub_key = algo.from_jwk(keyfile.read())
+
+        key_data_str = algo.to_jwk(pub_key)
+        key_data = json.loads(key_data_str)
+
+        # TODO Should `to_jwk` set these?
+        key_data["alg"] = "RS256"
+        key_data["use"] = "sig"
+        key_data["kid"] = "keyid-abc123"
+
+        jwk_set = PyJWKSet.from_dict({"keys": [key_data]})
+
+        jwk = jwk_set.keys[0]
+        assert jwk == jwk_set["keyid-abc123"]
+
+        with pytest.raises(KeyError):
+            jwk_set["this-kid-does-not-exist"]
