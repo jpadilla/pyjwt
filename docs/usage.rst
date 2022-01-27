@@ -122,13 +122,13 @@ datetime, which will be converted into an int. For example:
     jwt.encode({"exp": datetime.now(tz=timezone.utc)}, "secret")
 
 Expiration time is automatically verified in `jwt.decode()` and raises
-`jwt.ExpiredSignatureError` if the expiration time is in the past:
+`jwt.exceptions.ExpiredSignatureError` if the expiration time is in the past:
 
 .. code-block:: python
 
     try:
         jwt.decode("JWT_STRING", "secret", algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
+    except jwt.exceptions.ExpiredSignatureError:
         # Signature has expired
         ...
 
