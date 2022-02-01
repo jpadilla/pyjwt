@@ -2,7 +2,7 @@ import binascii
 import json
 from collections.abc import Mapping
 from sys import version_info
-from typing import Any, Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type
 
 from .algorithms import (
     Algorithm,

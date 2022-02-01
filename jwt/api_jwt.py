@@ -3,7 +3,7 @@ from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone
 from sys import version_info
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type
 
 from . import api_jws
 from .exceptions import (
