@@ -50,7 +50,7 @@ class PyJWS:
 
         if options is None:
             options = PyJWSOptions()
-        self.options = PyJWSOptions(**self._get_default_options(), **options)
+        self.options = PyJWSOptions({**self._get_default_options(), **options})
 
     @staticmethod
     def _get_default_options() -> PyJWSOptions:
@@ -154,7 +154,7 @@ class PyJWS:
     ) -> DecodedPyJWS:
         if options is None:
             options = PyJWSOptions()
-        merged_options = PyJWSOptions(**self.options, **options)
+        merged_options = PyJWSOptions({**self.options, **options})
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms:

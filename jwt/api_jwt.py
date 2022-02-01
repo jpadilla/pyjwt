@@ -117,7 +117,7 @@ class PyJWT:
         if not isinstance(payload, dict):
             raise DecodeError("Invalid payload string: must be a json object")
 
-        merged_options = {**self.options, **options}
+        merged_options = PyJWTOptions({**self.options, **options})
         self._validate_claims(payload, merged_options, **kwargs)
 
         decoded["payload"] = payload
