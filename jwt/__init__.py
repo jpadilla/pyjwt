@@ -37,7 +37,7 @@ __author__ = "José Padilla"
 __email__ = "hello@jpadilla.com"
 
 __license__ = "MIT"
-__copyright__ = "Copyright 2015-2020 José Padilla"
+__copyright__ = "Copyright 2015-2022 José Padilla"
 
 
 __all__ = [
