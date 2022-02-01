@@ -2,6 +2,7 @@ import json
 from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone
+from sys import version_info
 from typing import Any, Dict, List, Optional, Type, Union
 
 from . import api_jws
@@ -15,24 +16,38 @@ from .exceptions import (
     MissingRequiredClaimError,
 )
 
+if version_info < (3, 8):
+    from typing_extensions import TypedDict
+else:
+    from typing import TypedDict
+
+
+class PyJWTOptions(TypedDict):
+    verify_signature: bool
+    verify_exp: bool
+    verify_nbf: bool
+    verify_iat: bool
+    verify_iss: bool
+    require: List[str]
+
 
 class PyJWT:
-    def __init__(self, options=None):
+    def __init__(self, options: Optional[PyJWTOptions] = None):
         if options is None:
             options = {}
-        self.options = {**self._get_default_options(), **options}
+        self.options = PyJWTOptions(**self._get_default_options(), **options)
 
     @staticmethod
-    def _get_default_options() -> Dict[str, Union[bool, List[str]]]:
-        return {
-            "verify_signature": True,
-            "verify_exp": True,
-            "verify_nbf": True,
-            "verify_iat": True,
-            "verify_aud": True,
-            "verify_iss": True,
-            "require": [],
-        }
+    def _get_default_options() -> PyJWTOptions:
+        return PyJWTOptions(
+            verify_signature=True,
+            verify_exp=True,
+            verify_nbf=True,
+            verify_iat=True,
+            verify_aud=True,
+            verify_iss=True,
+            require=[],
+        )
 
     def encode(
         self,
@@ -67,11 +82,11 @@ class PyJWT:
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[PyJWTOptions] = None,
         **kwargs,
     ) -> Dict[str, Any]:
         if options is None:
-            options = {"verify_signature": True}
+            options = PyJWTOptions(verify_signature=True)
         else:
             options.setdefault("verify_signature", True)
 
@@ -113,7 +128,7 @@ class PyJWT:
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[PyJWTOptions] = None,
         **kwargs,
     ) -> Dict[str, Any]:
         decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)

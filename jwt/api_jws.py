@@ -1,6 +1,7 @@
 import binascii
 import json
 from collections.abc import Mapping
+from sys import version_info
 from typing import Any, Dict, List, Optional, Type
 
 from .algorithms import (
@@ -17,11 +18,26 @@ from .exceptions import (
 )
 from .utils import base64url_decode, base64url_encode
 
+if version_info < (3, 8):
+    from typing_extensions import TypedDict
+else:
+    from typing import TypedDict
+
+
+class PyJWSOptions(TypedDict):
+    verify_signature: bool
+
+
+class DecodedPyJWS(TypedDict):
+    payload: bytes
+    header: Mapping
+    signature: bytes
+
 
 class PyJWS:
     header_typ = "JWT"
 
-    def __init__(self, algorithms=None, options=None):
+    def __init__(self, algorithms=None, options: Optional[PyJWSOptions] = None):
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
             set(algorithms) if algorithms is not None else set(self._algorithms)
@@ -33,12 +49,12 @@ class PyJWS:
                 del self._algorithms[key]
 
         if options is None:
-            options = {}
-        self.options = {**self._get_default_options(), **options}
+            options = PyJWSOptions()
+        self.options = PyJWSOptions(**self._get_default_options(), **options)
 
     @staticmethod
-    def _get_default_options():
-        return {"verify_signature": True}
+    def _get_default_options() -> PyJWSOptions:
+        return PyJWSOptions(verify_signature=True)
 
     def register_algorithm(self, alg_id, alg_obj):
         """
@@ -133,12 +149,12 @@ class PyJWS:
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[PyJWSOptions] = None,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> DecodedPyJWS:
         if options is None:
-            options = {}
-        merged_options = {**self.options, **options}
+            options = PyJWSOptions()
+        merged_options = PyJWSOptions(**self.options, **options)
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms:
@@ -151,18 +167,18 @@ class PyJWS:
         if verify_signature:
             self._verify_signature(signing_input, header, signature, key, algorithms)
 
-        return {
-            "payload": payload,
-            "header": header,
-            "signature": signature,
-        }
+        return DecodedPyJWS(
+            payload=payload,
+            header=header,
+            signature=signature,
+        )
 
     def decode(
         self,
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[PyJWSOptions] = None,
         **kwargs,
     ) -> str:
         decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)
