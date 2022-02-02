@@ -51,7 +51,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "PyJWT"
-copyright = "2015, José Padilla"
+copyright = "2015-2022, José Padilla"
 author = "José Padilla"
 
 # The version info for the project you're documenting, acts as replacement for
