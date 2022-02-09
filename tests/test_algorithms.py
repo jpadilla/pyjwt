@@ -317,11 +317,11 @@ class TestAlgorithms:
 
             with open(key_path(f"jwk_ec_pub_{curve}.json")) as keyfile:
                 pub_key = algo.from_jwk(keyfile.read())
-                assert json.loads(algo.to_jwk(pub_key))['crv'] == curve
+                assert json.loads(algo.to_jwk(pub_key))["crv"] == curve
 
             with open(key_path(f"jwk_ec_key_{curve}.json")) as keyfile:
                 priv_key = algo.from_jwk(keyfile.read())
-                assert json.loads(algo.to_jwk(priv_key))['crv'] == curve
+                assert json.loads(algo.to_jwk(priv_key))["crv"] == curve
 
     @crypto_required
     def test_ec_to_jwk_with_invalid_curve(self):

@@ -468,7 +468,9 @@ if has_crypto:
             }
 
             if isinstance(key_obj, EllipticCurvePrivateKey):
-                obj["d"] = to_base64url_uint(key_obj.private_numbers().private_value).decode()
+                obj["d"] = to_base64url_uint(
+                    key_obj.private_numbers().private_value
+                ).decode()
 
             return json.dumps(obj)
 
