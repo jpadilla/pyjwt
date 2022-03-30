@@ -62,6 +62,9 @@ class PyJWKClient:
         if data is None:
             data = self.fetch_data()
 
+        if not isinstance(data, dict):
+            raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
+
         return PyJWKSet.from_dict(data)
 
     def get_signing_keys(self, refresh: bool = False) -> List[PyJWK]:
