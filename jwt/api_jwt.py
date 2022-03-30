@@ -1,4 +1,5 @@
 import json
+import warnings
 from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone
@@ -74,6 +75,17 @@ class PyJWT:
             options = {"verify_signature": True}
         else:
             options.setdefault("verify_signature", True)
+
+        # If the user has set the legacy `verify` argument, and it doesn't match
+        # what the relevant `options` entry for the argument is, inform the user
+        # that they're likely making a mistake.
+        if "verify" in kwargs and kwargs["verify"] != options["verify_signature"]:
+            warnings.warn(
+                "The `verify` argument to `decode` does nothing in PyJWT 2.0 and newer. "
+                "The equivalent is setting `verify_signature` to False in the `options` dictionary. "
+                "This invocation has a mismatch between the kwarg and the option entry.",
+                category=DeprecationWarning,
+            )
 
         if not options["verify_signature"]:
             options.setdefault("verify_exp", False)
