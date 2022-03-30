@@ -31,7 +31,7 @@ __title__ = "PyJWT"
 __description__ = "JSON Web Token implementation in Python"
 __url__ = "https://pyjwt.readthedocs.io"
 __uri__ = __url__
-__doc__ = __description__ + " <" + __uri__ + ">"
+__doc__ = f"{__description__} <{__uri__}>"
 
 __author__ = "José Padilla"
 __email__ = "hello@jpadilla.com"
