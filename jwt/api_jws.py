@@ -285,8 +285,10 @@ class PyJWS:
         key: str = "",
         algorithms: list[str] | None = None,
     ) -> None:
-
-        alg = header.get("alg")
+        try:
+            alg = header["alg"]
+        except KeyError:
+            raise InvalidAlgorithmError("Algorithm not specified")
 
         if not alg or (algorithms is not None and alg not in algorithms):
             raise InvalidAlgorithmError("The specified alg value is not allowed")
