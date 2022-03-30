@@ -674,3 +674,11 @@ class TestJWT:
             jwt.decode(
                 jwt_message, secret, verify=True, options={"verify_signature": False}
             )
+
+    def test_decode_no_options_mutation(self, jwt, payload):
+        options = {"verify_signature": True}
+        orig_options = options.copy()
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+        jwt.decode(jwt_message, secret, options=options, algorithms=["HS256"])
+        assert options == orig_options

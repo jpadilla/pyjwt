@@ -71,10 +71,8 @@ class PyJWT:
         options: Optional[Dict] = None,
         **kwargs,
     ) -> Dict[str, Any]:
-        if options is None:
-            options = {"verify_signature": True}
-        else:
-            options.setdefault("verify_signature", True)
+        options = dict(options or {})  # shallow-copy or initialize an empty dict
+        options.setdefault("verify_signature", True)
 
         # If the user has set the legacy `verify` argument, and it doesn't match
         # what the relevant `options` entry for the argument is, inform the user
