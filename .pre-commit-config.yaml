@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 22.3.0
     hooks:
       - id: black
         args: ["--target-version=py36"]
@@ -30,7 +30,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.47"
+    rev: "0.48"
     hooks:
       - id: check-manifest
         args: [--no-build-isolation]
