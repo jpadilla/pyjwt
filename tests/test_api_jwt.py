@@ -658,3 +658,19 @@ class TestJWT:
         jwt_message = jwt.encode(payload, secret)
 
         jwt.decode(jwt_message, secret, options={"verify_signature": False})
+
+    def test_decode_legacy_verify_warning(self, jwt, payload):
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.deprecated_call():
+            # The implicit default for options.verify_signature is True,
+            # but the user sets verify to False.
+            jwt.decode(jwt_message, secret, verify=False, algorithms=["HS256"])
+
+        with pytest.deprecated_call():
+            # The user explicitly sets verify=True,
+            # but contradicts it in verify_signature.
+            jwt.decode(
+                jwt_message, secret, verify=True, options={"verify_signature": False}
+            )
