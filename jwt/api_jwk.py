@@ -48,6 +48,7 @@ class PyJWK:
 
         if not self.Algorithm:
             import logging
+
             self.key = None
             logger = logging.getLogger(__name__)
             logger.warning("Do not support algorithm %s", algorithm)
