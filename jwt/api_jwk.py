@@ -47,9 +47,11 @@ class PyJWK:
         self.Algorithm = self._algorithms.get(algorithm)
 
         if not self.Algorithm:
-            raise PyJWKError("Unable to find a algorithm for key: %s" % self._jwk_data)
-
-        self.key = self.Algorithm.from_jwk(self._jwk_data)
+            self.key = None
+            logger = logging.getLogger(__name__)
+            logger.warning("Do not support algorithm %s", algorithm)
+        else:
+            self.key = self.Algorithm.from_jwk(self._jwk_data)
 
     @staticmethod
     def from_dict(obj, algorithm=None):
