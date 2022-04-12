@@ -226,16 +226,14 @@ class TestAlgorithms:
         for curve in ("P-256", "P-384", "P-521", "secp256k1"):
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(
-                    '{{"kty": "EC", "crv": "{}", "x": "dGVzdA==", '
-                    '"y": "dGVzdA=="}}'.format(curve)
+                    f'{{"kty": "EC", "crv": "{curve}", "x": "dGVzdA==", "y": "dGVzdA=="}}'
                 )
 
         # EC private key length invalid
         for (curve, point) in valid_points.items():
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(
-                    '{{"kty": "EC", "crv": "{}", "x": "{}", "y": "{}", '
-                    '"d": "dGVzdA=="}}'.format(curve, point["x"], point["y"])
+                    f'{{"kty": "EC", "crv": "{curve}", "x": "{point["x"]}", "y": "{point["y"]}", "d": "dGVzdA=="}}'
                 )
 
     @crypto_required

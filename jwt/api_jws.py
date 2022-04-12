@@ -136,8 +136,7 @@ class PyJWS:
         except KeyError as e:
             if not has_crypto and algorithm in requires_cryptography:
                 raise NotImplementedError(
-                    "Algorithm '%s' could not be found. Do you have cryptography "
-                    "installed?" % algorithm
+                    f"Algorithm '{algorithm}' could not be found. Do you have cryptography installed?"
                 ) from e
             raise NotImplementedError("Algorithm not supported") from e
 
@@ -231,7 +230,7 @@ class PyJWS:
         try:
             header = json.loads(header_data)
         except ValueError as e:
-            raise DecodeError("Invalid header string: %s" % e) from e
+            raise DecodeError(f"Invalid header string: {e}") from e
 
         if not isinstance(header, Mapping):
             raise DecodeError("Invalid header string: must be a json object")
