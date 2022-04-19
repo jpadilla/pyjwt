@@ -164,6 +164,11 @@ For example, instead of
 use
 ``jwt.decode(encoded, key, algorithms=["HS256"], options={"require": ["exp"]})``.
 
+And the old v1.x syntax
+``jwt.decode(token, verify=False)``
+is now:
+``jwt.decode(jwt=token, key='secret', algorithms=['HS256'], options={"verify_signature": False, "verify_exp": True})``
+
 Added
 ~~~~~
 
