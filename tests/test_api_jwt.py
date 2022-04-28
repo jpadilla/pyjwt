@@ -85,6 +85,16 @@ class TestJWT:
             ),
         }
 
+    def test_decodes_complete_valid_jwt_with_invalid_compressed_payload(self, jwt):
+        example_secret = "secret"
+        example_jwt = (
+            b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
+            b'.q1bKSM3JyVeyUlAqzy/KSVGqBQAasdfasdf='
+            b'.08wHYeuh1rJXmcBcMrz6NxmbxAnCQp2rGTKfRNIkxiw='
+        )
+        with pytest.raises(DecodeError):
+            jwt.decode_complete(example_jwt, example_secret, algorithms=["HS256"])
+
     def test_load_verify_valid_jwt(self, jwt):
         example_payload = {"hello": "world"}
         example_secret = "secret"
