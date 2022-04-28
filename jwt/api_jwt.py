@@ -118,7 +118,7 @@ class PyJWT:
                 try:
                     payload = json.loads(
                         # wbits=-15 has zlib not worry about headers of crc's
-                        zlib.decompress(decoded["payload"], wbits=-15).decode('utf-8')
+                        zlib.decompress(decoded["payload"], wbits=-15).decode("utf-8")
                     )
                     decompressed = True
                 except Exception:

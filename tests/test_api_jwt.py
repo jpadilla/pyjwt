@@ -71,8 +71,8 @@ class TestJWT:
         # Buffer.from(pako.deflateRaw('{"hello": "world"}')).toString('base64')
         example_jwt = (
             b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b'.q1bKSM3JyVeyUlAqzy/KSVGqBQA='
-            b'.08wHYeuh1rJXmcBcMrz6NxmbxAnCQp2rGTKfRNIkxiw='
+            b".q1bKSM3JyVeyUlAqzy/KSVGqBQA="
+            b".08wHYeuh1rJXmcBcMrz6NxmbxAnCQp2rGTKfRNIkxiw="
         )
         decoded = jwt.decode_complete(example_jwt, example_secret, algorithms=["HS256"])
 
@@ -80,8 +80,8 @@ class TestJWT:
             "header": {"alg": "HS256", "typ": "JWT"},
             "payload": example_payload,
             "signature": (
-                b'\xd3\xcc\x07a\xeb\xa1\xd6\xb2W\x99\xc0\\2\xbc\xfa7'
-                b'\x19\x9b\xc4\t\xc2B\x9d\xab\x192\x9fD\xd2$\xc6,'
+                b"\xd3\xcc\x07a\xeb\xa1\xd6\xb2W\x99\xc0\\2\xbc\xfa7"
+                b"\x19\x9b\xc4\t\xc2B\x9d\xab\x192\x9fD\xd2$\xc6,"
             ),
         }
 
