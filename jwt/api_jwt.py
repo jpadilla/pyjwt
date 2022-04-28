@@ -1,5 +1,6 @@
 import json
 import warnings
+import zlib
 from calendar import timegm
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone
@@ -105,10 +106,26 @@ class PyJWT:
             **kwargs,
         )
 
+        payload = None
         try:
             payload = json.loads(decoded["payload"])
         except ValueError as e:
-            raise DecodeError(f"Invalid payload string: {e}")
+            if isinstance(e, UnicodeDecodeError):
+                # Smart Health cards use a raw-compressed (no header or crc) payload,
+                # so before surfacing a UnicodeDecodeError, find out if it can be
+                # uncompressed successfully
+                # noinspection PyBroadException
+                try:
+                    payload = json.loads(
+                        # wbits=-15 has zlib not worry about headers of crc's
+                        zlib.decompress(decoded["payload"], wbits=-15).decode('utf-8')
+                    )
+                    decompressed = True
+                except Exception:
+                    pass
+            if payload is None:
+                # uncompressing did not help, surface the error
+                raise DecodeError(f"Invalid payload string: {e}")
         if not isinstance(payload, dict):
             raise DecodeError("Invalid payload string: must be a json object")
 
