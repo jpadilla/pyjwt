@@ -89,8 +89,8 @@ class TestJWT:
         example_secret = "secret"
         example_jwt = (
             b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b'.q1bKSM3JyVeyUlAqzy/KSVGqBQAasdfasdf='
-            b'.08wHYeuh1rJXmcBcMrz6NxmbxAnCQp2rGTKfRNIkxiw='
+            b".q1bKSM3JyVeyUlAqzy/KSVGqBQAasdfasdf="
+            b".08wHYeuh1rJXmcBcMrz6NxmbxAnCQp2rGTKfRNIkxiw="
         )
         with pytest.raises(DecodeError):
             jwt.decode_complete(example_jwt, example_secret, algorithms=["HS256"])
