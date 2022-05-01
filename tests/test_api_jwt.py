@@ -86,11 +86,13 @@ class TestJWT:
         }
 
     def test_decodes_complete_valid_jwt_with_invalid_compressed_payload(self, jwt):
+        # payload made with the pako (https://nodeca.github.io/pako/) library in Javascript:
+        # Buffer.from(pako.deflateRaw('{"this is": "not valid" json')).toString('base64')
         example_secret = "secret"
         example_jwt = (
             b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-            b".q1bKSM3JyVeyUlAqzy/KSVGqBQAasdfasdf="
-            b".08wHYeuh1rJXmcBcMrz6NxmbxAnCQp2rGTKfRNIkxiw="
+            b".q1YqycgsVsgsVrJSUMrLL1EoS8zJTFFSyCrOzwMA"
+            b".SIAxephyoWBJrw+KdBfksJlhdg+mQtm+vjaRXV1qGJ4="
         )
         with pytest.raises(DecodeError):
             jwt.decode_complete(example_jwt, example_secret, algorithms=["HS256"])
