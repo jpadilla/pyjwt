@@ -679,7 +679,7 @@ class TestOKPAlgorithms:
     def test_okp_ed25519_should_reject_non_string_key(self):
         algo = OKPAlgorithm()
 
-        with pytest.raises(TypeError):
+        with pytest.raises(InvalidKeyError):
             algo.prepare_key(None)
 
         with open(key_path("testkey_ed25519")) as keyfile:
