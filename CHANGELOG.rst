@@ -16,7 +16,39 @@ Fixed
 Added
 ~~~~~
 
-- Add ``PyJWKSet.__getitem__`` for indexing keysets by key ID `#725 <https://github.com/jpadilla/pyjwt/pull/725>`__
+`v2.4.0 <https://github.com/jpadilla/pyjwt/compare/2.3.0...2.4.0>`__
+-----------------------------------------------------------------------
+
+Security
+~~~~~~~~
+
+Prevent key confusion through non-blocklisted public key formats. https://github.com/jpadilla/pyjwt/security/advisories/GHSA-ffqj-6fqr-9h24
+
+Changed
+~~~~~~~
+
+- Explicit check the key for ECAlgorithm by @estin in https://github.com/jpadilla/pyjwt/pull/713
+- Raise DeprecationWarning for jwt.decode(verify=...) by @akx in https://github.com/jpadilla/pyjwt/pull/742
+
+Fixed
+~~~~~
+
+- Don't use implicit optionals by @rekyungmin in https://github.com/jpadilla/pyjwt/pull/705
+- documentation fix: show correct scope for decode_complete() by @sseering in https://github.com/jpadilla/pyjwt/pull/661
+- fix: Update copyright information by @kkirsche in https://github.com/jpadilla/pyjwt/pull/729
+- Don't mutate options dictionary in .decode_complete() by @akx in https://github.com/jpadilla/pyjwt/pull/743
+
+Added
+~~~~~
+
+- Add support for Python 3.10 by @hugovk in https://github.com/jpadilla/pyjwt/pull/699
+- api_jwk: Add PyJWKSet.__getitem__ by @woodruffw in https://github.com/jpadilla/pyjwt/pull/725
+- Update usage.rst by @guneybilen in https://github.com/jpadilla/pyjwt/pull/727
+- Docs: mention performance reasons for reusing RSAPrivateKey when encoding by @dmahr1 in https://github.com/jpadilla/pyjwt/pull/734
+- Fixed typo in usage.rst by @israelabraham in https://github.com/jpadilla/pyjwt/pull/738
+- Add detached payload support for JWS encoding and decoding by @fviard in https://github.com/jpadilla/pyjwt/pull/723
+- Replace various string interpolations with f-strings by @akx in https://github.com/jpadilla/pyjwt/pull/744
+- Update CHANGELOG.rst by @hipertracker in https://github.com/jpadilla/pyjwt/pull/751
 
 `v2.3.0 <https://github.com/jpadilla/pyjwt/compare/2.2.0...2.3.0>`__
 -----------------------------------------------------------------------
