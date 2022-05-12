@@ -2,6 +2,8 @@ import jwt
 import pytest
 from jwt.exceptions import InvalidKeyError
 
+from .utils import crypto_required
+
 priv_key_bytes = b'''-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIIbBhdo2ah7X32i50GOzrCr4acZTe6BezUdRIixjTAdL
 -----END PRIVATE KEY-----'''
@@ -18,6 +20,7 @@ ssh_key_bytes = b"""ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlz
 
 
 class TestAdvisory:
+    @crypto_required
     def test_ghsa_ffqj_6fqr_9h24(self):
         # Generate ed25519 private key
         # private_key = ed25519.Ed25519PrivateKey.generate()
