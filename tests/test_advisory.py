@@ -1,14 +1,17 @@
-import jwt
 import pytest
+
+import jwt
 from jwt.exceptions import InvalidKeyError
 
 from .utils import crypto_required
 
-priv_key_bytes = b'''-----BEGIN PRIVATE KEY-----
+priv_key_bytes = b"""-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIIbBhdo2ah7X32i50GOzrCr4acZTe6BezUdRIixjTAdL
------END PRIVATE KEY-----'''
+-----END PRIVATE KEY-----"""
 
-pub_key_bytes = b'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPL1I9oiq+B8crkmuV4YViiUnhdLjCp3hvy1bNGuGfNL'
+pub_key_bytes = (
+    b"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPL1I9oiq+B8crkmuV4YViiUnhdLjCp3hvy1bNGuGfNL"
+)
 
 ssh_priv_key_bytes = b"""-----BEGIN EC PRIVATE KEY-----
 MHcCAQEEIOWc7RbaNswMtNtc+n6WZDlUblMr2FBPo79fcGXsJlGQoAoGCCqGSM49
@@ -41,11 +44,11 @@ class TestAdvisory:
         # Making a good jwt token that should work by signing it
         # with the private key
         # encoded_good = jwt.encode({"test": 1234}, priv_key_bytes, algorithm="EdDSA")
-        encoded_good = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.eyJ0ZXN0IjoxMjM0fQ.M5y1EEavZkHSlj9i8yi9nXKKyPBSAUhDRTOYZi3zZY11tZItDaR3qwAye8pc74_lZY3Ogt9KPNFbVOSGnUBHDg'
+        encoded_good = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.eyJ0ZXN0IjoxMjM0fQ.M5y1EEavZkHSlj9i8yi9nXKKyPBSAUhDRTOYZi3zZY11tZItDaR3qwAye8pc74_lZY3Ogt9KPNFbVOSGnUBHDg"
 
         # Using HMAC with the public key to trick the receiver to think that the
         # public key is a HMAC secret
-        encoded_bad = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0ZXN0IjoxMjM0fQ.6ulDpqSlbHmQ8bZXhZRLFko9SwcHrghCwh8d-exJEE4'
+        encoded_bad = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0ZXN0IjoxMjM0fQ.6ulDpqSlbHmQ8bZXhZRLFko9SwcHrghCwh8d-exJEE4"
 
         # Both of the jwt tokens are validated as valid
         jwt.decode(
@@ -101,12 +104,12 @@ class TestAdvisory:
         jwt.decode(
             encoded_good,
             ssh_key_bytes,
-            algorithms=jwt.algorithms.get_default_algorithms()
+            algorithms=jwt.algorithms.get_default_algorithms(),
         )
 
         with pytest.raises(InvalidKeyError):
             jwt.decode(
                 encoded_bad,
                 ssh_key_bytes,
-                algorithms=jwt.algorithms.get_default_algorithms()
+                algorithms=jwt.algorithms.get_default_algorithms(),
             )
