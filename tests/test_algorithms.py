@@ -237,6 +237,103 @@ class TestAlgorithms:
                 )
 
     @crypto_required
+    def test_ec_private_key_to_jwk_works_with_from_jwk(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path("testkey_ec.priv")) as ec_key:
+            orig_key = algo.prepare_key(ec_key.read())
+
+        parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
+        assert parsed_key.private_numbers() == orig_key.private_numbers()
+        assert (
+            parsed_key.private_numbers().public_numbers
+            == orig_key.private_numbers().public_numbers
+        )
+
+    @crypto_required
+    def test_ec_public_key_to_jwk_works_with_from_jwk(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path("testkey_ec.pub")) as ec_key:
+            orig_key = algo.prepare_key(ec_key.read())
+
+        parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
+        assert parsed_key.public_numbers() == orig_key.public_numbers()
+
+    @crypto_required
+    def test_ec_to_jwk_returns_correct_values_for_public_key(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path("testkey_ec.pub")) as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        key = algo.to_jwk(pub_key)
+
+        expected = {
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "HzAcUWSlGBHcuf3y3RiNrWI-pE6-dD2T7fIzg9t6wEc",
+            "y": "t2G02kbWiOqimYfQAfnARdp2CTycsJPhwA8rn1Cn0SQ",
+        }
+
+        assert json.loads(key) == expected
+
+    @crypto_required
+    def test_ec_to_jwk_returns_correct_values_for_private_key(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path("testkey_ec.priv")) as keyfile:
+            priv_key = algo.prepare_key(keyfile.read())
+
+        key = algo.to_jwk(priv_key)
+
+        expected = {
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "HzAcUWSlGBHcuf3y3RiNrWI-pE6-dD2T7fIzg9t6wEc",
+            "y": "t2G02kbWiOqimYfQAfnARdp2CTycsJPhwA8rn1Cn0SQ",
+            "d": "2nninfu2jMHDwAbn9oERUhRADS6duQaJEadybLaa0YQ",
+        }
+
+        assert json.loads(key) == expected
+
+    @crypto_required
+    def test_ec_to_jwk_raises_exception_on_invalid_key(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError):
+            algo.to_jwk({"not": "a valid key"})
+
+    @crypto_required
+    def test_ec_to_jwk_with_valid_curves(self):
+        tests = {
+            "P-256": ECAlgorithm.SHA256,
+            "P-384": ECAlgorithm.SHA384,
+            "P-521": ECAlgorithm.SHA512,
+            "secp256k1": ECAlgorithm.SHA256,
+        }
+        for (curve, hash) in tests.items():
+            algo = ECAlgorithm(hash)
+
+            with open(key_path(f"jwk_ec_pub_{curve}.json")) as keyfile:
+                pub_key = algo.from_jwk(keyfile.read())
+                assert json.loads(algo.to_jwk(pub_key))["crv"] == curve
+
+            with open(key_path(f"jwk_ec_key_{curve}.json")) as keyfile:
+                priv_key = algo.from_jwk(keyfile.read())
+                assert json.loads(algo.to_jwk(priv_key))["crv"] == curve
+
+    @crypto_required
+    def test_ec_to_jwk_with_invalid_curve(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path("testkey_ec_secp192r1.priv")) as keyfile:
+            priv_key = algo.prepare_key(keyfile.read())
+
+        with pytest.raises(InvalidKeyError):
+            algo.to_jwk(priv_key)
+
+    @crypto_required
     def test_rsa_jwk_public_and_private_keys_should_parse_and_verify(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
