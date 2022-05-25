@@ -84,7 +84,14 @@ class PyJWKSet:
             raise PyJWKSetError("The JWK Set did not contain any keys")
 
         for key in keys:
-            self.keys.append(PyJWK(key))
+            try:
+                self.keys.append(PyJWK(key))
+            except PyJWKError:
+                # skip unusable keys
+                continue
+
+        if len(self.keys) == 0:
+            raise PyJWKSetError("The JWK Set did not contain any usable keys")
 
     @staticmethod
     def from_dict(obj):
