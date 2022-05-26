@@ -83,7 +83,7 @@ class TestJWS:
 
     def test_options_must_be_dict(self, jws):
         pytest.raises(TypeError, PyJWS, options=object())
-        pytest.raises(TypeError, PyJWS, options=("something"))
+        pytest.raises((TypeError, ValueError), PyJWS, options=("something"))
 
     def test_encode_decode(self, jws, payload):
         secret = "secret"
@@ -607,7 +607,7 @@ class TestJWS:
         with pytest.raises(TypeError):
             jws.decode(token, "secret", options=object())
 
-        with pytest.raises(TypeError):
+        with pytest.raises((TypeError, ValueError)):
             jws.decode(token, "secret", options="something")
 
     def test_custom_json_encoder(self, jws, payload):
