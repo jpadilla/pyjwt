@@ -282,14 +282,14 @@ class TestPyJWKSet:
         with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
             jwks_text = keyfile.read()
         jwks = json.loads(jwks_text)
-        assert(len(jwks.get("keys")) == 2)
+        assert len(jwks.get("keys")) == 2
         keyset = PyJWKSet.from_json(jwks_text)
-        assert(len(keyset.keys) == 1)
+        assert len(keyset.keys) == 1
 
         # second keyset with only unusable key -> catch exception
         with open(key_path("jwk_keyset_only_unknown_alg.json")) as keyfile:
             jwks_text = keyfile.read()
             jwks = json.loads(jwks_text)
-            assert(len(jwks.get("keys")) == 1)
+            assert len(jwks.get("keys")) == 1
             with pytest.raises(PyJWKSetError):
                 _ = PyJWKSet.from_json(jwks_text)
