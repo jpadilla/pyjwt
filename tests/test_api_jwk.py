@@ -4,7 +4,7 @@ import pytest
 
 from jwt.algorithms import has_crypto
 from jwt.api_jwk import PyJWK, PyJWKSet
-from jwt.exceptions import InvalidKeyError, PyJWKError
+from jwt.exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 
 from .utils import crypto_required, key_path
 
@@ -274,4 +274,22 @@ class TestPyJWKSet:
         assert jwk == jwk_set["keyid-abc123"]
 
         with pytest.raises(KeyError):
-            jwk_set["this-kid-does-not-exist"]
+            _ = jwk_set["this-kid-does-not-exist"]
+
+    @crypto_required
+    def test_keyset_with_unknown_alg(self):
+        # first keyset with unusable key and usable key
+        with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
+            jwks_text = keyfile.read()
+        jwks = json.loads(jwks_text)
+        assert len(jwks.get("keys")) == 2
+        keyset = PyJWKSet.from_json(jwks_text)
+        assert len(keyset.keys) == 1
+
+        # second keyset with only unusable key -> catch exception
+        with open(key_path("jwk_keyset_only_unknown_alg.json")) as keyfile:
+            jwks_text = keyfile.read()
+            jwks = json.loads(jwks_text)
+            assert len(jwks.get("keys")) == 1
+            with pytest.raises(PyJWKSetError):
+                _ = PyJWKSet.from_json(jwks_text)
