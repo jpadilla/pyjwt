@@ -40,7 +40,7 @@ class PyJWT:
         payload: Dict[str, Any],
         key: str,
         algorithm: Optional[str] = "HS256",
-        headers: Optional[Dict] = None,
+        headers: Optional[Dict[str, Any]] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
         # Check that we get a mapping
@@ -68,7 +68,7 @@ class PyJWT:
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Dict[str, Any]:
         options = dict(options or {})  # shallow-copy or initialize an empty dict
@@ -123,7 +123,7 @@ class PyJWT:
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> Dict[str, Any]:
         decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)

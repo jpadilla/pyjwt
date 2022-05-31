@@ -78,7 +78,7 @@ class PyJWS:
         payload: bytes,
         key: str,
         algorithm: Optional[str] = "HS256",
-        headers: Optional[Dict] = None,
+        headers: Optional[Dict[str, Any]] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
         is_payload_detached: bool = False,
     ) -> str:
@@ -154,7 +154,7 @@ class PyJWS:
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[Dict[str, Any]] = None,
         detached_payload: Optional[bytes] = None,
         **kwargs,
     ) -> Dict[str, Any]:
@@ -192,7 +192,7 @@ class PyJWS:
         jwt: str,
         key: str = "",
         algorithms: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> str:
         decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)

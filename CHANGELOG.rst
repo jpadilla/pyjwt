@@ -14,6 +14,8 @@ Changed
 Fixed
 ~~~~~
 
+- Fix for pyright on strict mode `#747 <https://github.com/jpadilla/pyjwt/pull/747>`_
+
 Added
 ~~~~~
 - Add to_jwk static method to ECAlgorithm by @leonsmith in https://github.com/jpadilla/pyjwt/pull/732
