@@ -16,7 +16,7 @@ class PyJWK:
         if not algorithm and isinstance(self._jwk_data, dict):
             algorithm = self._jwk_data.get("alg", None)
 
-        if not algorithm:
+        if not algorithm or "OAEP" in algorithm:
             # Determine alg with kty (and crv).
             crv = self._jwk_data.get("crv", None)
             if kty == "EC":
