@@ -13,6 +13,8 @@ Changed
 Fixed
 ~~~~~
 
+- Fix for pyright on strict mode `#747 <https://github.com/jpadilla/pyjwt/pull/747>`_
+
 Added
 ~~~~~
 
