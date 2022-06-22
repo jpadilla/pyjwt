@@ -42,7 +42,7 @@ class PyJWT:
         algorithm: Optional[str] = "HS256",
         headers: Optional[Dict[str, Any]] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
-    ) -> str:
+    ) -> bytes:
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
             raise TypeError(
