@@ -271,14 +271,13 @@ class PyJWS:
             raise InvalidAlgorithmError("The specified alg value is not allowed")
 
         try:
-            alg_obj = self._algorithms[alg]
-            key = alg_obj.prepare_key(key)
-
-            if not alg_obj.verify(signing_input, key, signature):
-                raise InvalidSignatureError("Signature verification failed")
-
-        except KeyError as e:
+            alg_obj = self.get_algorithm_by_name(alg)
+        except NotImplementedError as e:
             raise InvalidAlgorithmError("Algorithm not supported") from e
+        key = alg_obj.prepare_key(key)
+
+        if not alg_obj.verify(signing_input, key, signature):
+            raise InvalidSignatureError("Signature verification failed")
 
     def _validate_headers(self, headers):
         if "kid" in headers:
