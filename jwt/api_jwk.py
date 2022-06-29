@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone
 
 from .algorithms import get_default_algorithms
 from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
@@ -108,3 +109,19 @@ class PyJWKSet:
             if key.key_id == kid:
                 return key
         raise KeyError(f"keyset has no key for kid: {kid}")
+
+
+class PyJWTSetWithTimestamp:
+    def __init__(self, jwt_set: PyJWKSet, timestamp: datetime = None):
+        self.jwt_set = jwt_set
+
+        if timestamp is None:
+            self.timestamp = datetime.now(timezone.utc)
+        else:
+            self.timestamp = timestamp
+
+    def get_jwk_set(self):
+        return self.jwt_set
+
+    def get_timestamp(self):
+        return self.timestamp

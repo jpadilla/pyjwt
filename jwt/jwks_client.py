@@ -1,27 +1,49 @@
 import json
-import urllib.request
+from urllib.request import urlopen
+from urllib.error import URLError
 from functools import lru_cache
 from typing import Any, List
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
+from .jwk_set_cache import JWKSetCache
 from .exceptions import PyJWKClientError
 
 
 class PyJWKClient:
-    def __init__(self, uri: str, cache_keys: bool = True, max_cached_keys: int = 16):
+    def __init__(self, uri: str, cache_keys: bool = True, max_cached_keys: int = 16,
+                 cache_jwk_set: bool = True, lifespan: int = 5):
         self.uri = uri
+
+        if cache_jwk_set:
+            # Init jwt set cache with default or given lifespan.
+            self.jwk_set_cache = JWKSetCache(lifespan)
+
         if cache_keys:
             # Cache signing keys
             # Ignore mypy (https://github.com/python/mypy/issues/2427)
             self.get_signing_key = lru_cache(maxsize=max_cached_keys)(self.get_signing_key)  # type: ignore
 
     def fetch_data(self) -> Any:
-        with urllib.request.urlopen(self.uri) as response:
-            return json.load(response)
+        try:
+            with urlopen(self.uri) as response:
+                jwk_set = json.load(response)
+        except URLError as e:
+            raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')
+
+        if self.jwk_set_cache is not None:
+            self.jwk_set_cache.put(jwk_set)
+
+        return jwk_set
 
     def get_jwk_set(self) -> PyJWKSet:
-        data = self.fetch_data()
+        data = None
+        if self.jwk_set_cache is not None:
+            data = self.jwk_set_cache.get()
+
+        if data is None:
+            data = self.fetch_data()
+
         return PyJWKSet.from_dict(data)
 
     def get_signing_keys(self) -> List[PyJWK]:
