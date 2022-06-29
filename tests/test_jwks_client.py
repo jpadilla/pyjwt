@@ -1,5 +1,6 @@
 import contextlib
 import json
+import time
 from unittest import mock
 
 import pytest
@@ -159,3 +160,52 @@ class TestPyJWKClient:
             "azp": "aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC",
             "gty": "client-credentials",
         }
+
+    def test_get_jwk_set_caches_result(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+
+        with mocked_response(RESPONSE_DATA):
+            jwks_client.get_jwk_set()
+
+        # mocked_response does not allow urllib.request.urlopen to be called twice
+        # so a second mock is needed
+        with mocked_response(RESPONSE_DATA) as repeated_call:
+            jwks_client.get_jwk_set()
+
+        assert repeated_call.call_count == 0
+
+    def test_get_jwt_set_cache_expired_result(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url, lifespan=1)
+        with mocked_response(RESPONSE_DATA):
+            jwks_client.get_jwk_set()
+
+        time.sleep(1)
+
+        # mocked_response does not allow urllib.request.urlopen to be called twice
+        # so a second mock is needed
+        with mocked_response(RESPONSE_DATA) as repeated_call:
+            jwks_client.get_jwk_set()
+
+        assert repeated_call.call_count == 1
+
+    def test_get_jwt_set_cache_disabled(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url, cache_jwk_set=False, lifespan=1)
+        with mocked_response(RESPONSE_DATA):
+            jwks_client.get_jwk_set()
+
+        time.sleep(1)
+
+        # mocked_response does not allow urllib.request.urlopen to be called twice
+        # so a second mock is needed
+        with mocked_response(RESPONSE_DATA) as repeated_call:
+            jwks_client.get_jwk_set()
+
+        assert repeated_call.call_count == 1
+
+

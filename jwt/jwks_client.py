@@ -12,12 +12,15 @@ from .exceptions import PyJWKClientError
 
 class PyJWKClient:
     def __init__(self, uri: str, cache_keys: bool = True, max_cached_keys: int = 16,
-                 cache_jwk_set: bool = True, lifespan: int = 5):
+                 cache_jwk_set: bool = True, lifespan: int = 300):
         self.uri = uri
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
+            # Default lifespan is 300 seconds (5 minutes).
             self.jwk_set_cache = JWKSetCache(lifespan)
+        else:
+            self.jwk_set_cache = None
 
         if cache_keys:
             # Cache signing keys
