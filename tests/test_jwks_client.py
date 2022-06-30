@@ -107,7 +107,7 @@ class TestPyJWKClient:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
-        jwks_client = PyJWKClient(url)
+        jwks_client = PyJWKClient(url, cache_keys=True)
 
         with mocked_response(RESPONSE_DATA):
             jwks_client.get_signing_key(kid)
@@ -123,9 +123,9 @@ class TestPyJWKClient:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
-        jwks_client = PyJWKClient(url, cache_keys=False, cache_jwk_set=False)
+        jwks_client = PyJWKClient(url, cache_jwk_set=False)
 
-        with mocked_response(RESPONSE_DATA) as first_call:
+        with mocked_response(RESPONSE_DATA):
             jwks_client.get_signing_key(kid)
 
         # mocked_response does not allow urllib.request.urlopen to be called twice
@@ -195,7 +195,7 @@ class TestPyJWKClient:
     def test_get_jwt_set_cache_disabled(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
-        jwks_client = PyJWKClient(url, cache_jwk_set=False, lifespan=1)
+        jwks_client = PyJWKClient(url, cache_jwk_set=False)
         with mocked_response(RESPONSE_DATA):
             jwks_client.get_jwk_set()
 

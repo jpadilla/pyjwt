@@ -11,7 +11,7 @@ from .exceptions import PyJWKClientError
 
 
 class PyJWKClient:
-    def __init__(self, uri: str, cache_keys: bool = True, max_cached_keys: int = 16,
+    def __init__(self, uri: str, cache_keys: bool = False, max_cached_keys: int = 16,
                  cache_jwk_set: bool = True, lifespan: int = 300):
         self.uri = uri
 
