@@ -123,9 +123,9 @@ class TestPyJWKClient:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
-        jwks_client = PyJWKClient(url, cache_keys=False)
+        jwks_client = PyJWKClient(url, cache_keys=False, cache_jwk_set=False)
 
-        with mocked_response(RESPONSE_DATA):
+        with mocked_response(RESPONSE_DATA) as first_call:
             jwks_client.get_signing_key(kid)
 
         # mocked_response does not allow urllib.request.urlopen to be called twice

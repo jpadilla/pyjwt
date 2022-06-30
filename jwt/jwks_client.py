@@ -1,5 +1,5 @@
 import json
-from urllib.request import urlopen
+import urllib.request
 from urllib.error import URLError
 from functools import lru_cache
 from typing import Any, List
@@ -29,7 +29,7 @@ class PyJWKClient:
 
     def fetch_data(self) -> Any:
         try:
-            with urlopen(self.uri) as response:
+            with urllib.request.urlopen(self.uri) as response:
                 jwk_set = json.load(response)
         except URLError as e:
             raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')
