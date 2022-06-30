@@ -2,7 +2,7 @@ import json
 import urllib.request
 from urllib.error import URLError
 from functools import lru_cache
-from typing import Any, List
+from typing import Any, List, Optional
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
@@ -39,9 +39,9 @@ class PyJWKClient:
 
         return jwk_set
 
-    def get_jwk_set(self) -> PyJWKSet:
+    def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
         data = None
-        if self.jwk_set_cache is not None:
+        if self.jwk_set_cache is not None and not refresh:
             data = self.jwk_set_cache.get()
 
         if data is None:
@@ -49,8 +49,8 @@ class PyJWKClient:
 
         return PyJWKSet.from_dict(data)
 
-    def get_signing_keys(self) -> List[PyJWK]:
-        jwk_set = self.get_jwk_set()
+    def get_signing_keys(self, refresh: bool = False) -> List[PyJWK]:
+        jwk_set = self.get_jwk_set(refresh)
         signing_keys = [
             jwk_set_key
             for jwk_set_key in jwk_set.keys
@@ -64,17 +64,17 @@ class PyJWKClient:
 
     def get_signing_key(self, kid: str) -> PyJWK:
         signing_keys = self.get_signing_keys()
-        signing_key = None
-
-        for key in signing_keys:
-            if key.key_id == kid:
-                signing_key = key
-                break
+        signing_key = self.match_kid(signing_keys, kid)
 
         if not signing_key:
-            raise PyJWKClientError(
-                f'Unable to find a signing key that matches: "{kid}"'
-            )
+            # If no matching signing key from the cached jwk set, refresh the jwk set.
+            signing_keys = self.get_signing_keys(refresh=True)
+            signing_key = self.match_kid(signing_keys, kid)
+
+            if not signing_key:
+                raise PyJWKClientError(
+                    f'Unable to find a signing key that matches: "{kid}"'
+                )
 
         return signing_key
 
@@ -82,3 +82,14 @@ class PyJWKClient:
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
         return self.get_signing_key(header.get("kid"))
+
+    @staticmethod
+    def match_kid(signing_keys: list[PyJWK], kid: str) -> Optional[PyJWK]:
+        signing_key = None
+
+        for key in signing_keys:
+            if key.key_id == kid:
+                signing_key = key
+                break
+
+        return signing_key
