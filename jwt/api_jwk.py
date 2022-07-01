@@ -112,12 +112,12 @@ class PyJWKSet:
 
 
 class PyJWTSetWithTimestamp:
-    def __init__(self, jwt_set: PyJWKSet):
-        self.jwt_set = jwt_set
+    def __init__(self, jwk_set: PyJWKSet):
+        self.jwk_set = jwk_set
         self.timestamp = time.monotonic()
 
     def get_jwk_set(self):
-        return self.jwt_set
+        return self.jwk_set
 
     def get_timestamp(self):
         return self.timestamp
