@@ -256,7 +256,8 @@ class TestPyJWKClient:
 
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
-        # The first call will return
+        # The first call will return response with no matching kid,
+        # the function should make another call to try to refresh the cache.
         with mocked_first_call_wrong_kid_second_call_correct_kid(
                 RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_WITH_MATCHING_KID) as call_data:
             jwks_client.get_signing_key(kid)
