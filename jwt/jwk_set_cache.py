@@ -1,6 +1,5 @@
 import time
 from typing import Optional
-from datetime import datetime, timezone, timedelta
 
 from .api_jwk import PyJWKSet, PyJWTSetWithTimestamp
 
@@ -17,7 +16,7 @@ class JWKSetCache:
             # clear cache
             self.jwk_set_with_timestamp = None
 
-    def get(self) -> Optional:
+    def get(self) -> Optional[PyJWKSet]:
         if self.jwk_set_with_timestamp is None or self.is_expired():
             return None
 
