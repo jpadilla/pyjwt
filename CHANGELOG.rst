@@ -18,6 +18,10 @@ Fixed
 Added
 ~~~~~
 
+- Add ``compute_hash_digest`` as a method of ``Algorithm`` objects, which uses
+  the underlying hash algorithm to compute a digest. If there is no appropriate
+  hash algorithm, a ``NotImplementedError`` will be raised
+
 `v2.6.0 <https://github.com/jpadilla/pyjwt/compare/2.5.0...2.6.0>`__
 -----------------------------------------------------------------------
 
