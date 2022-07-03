@@ -17,6 +17,7 @@ from jwt.exceptions import (
     MissingRequiredClaimError,
 )
 from jwt.utils import base64url_decode
+from jwt.warnings import RemovedInPyjwt3Warning
 
 from .utils import crypto_required, key_path, utc_timestamp
 
@@ -682,3 +683,21 @@ class TestJWT:
         jwt_message = jwt.encode(payload, secret)
         jwt.decode(jwt_message, secret, options=options, algorithms=["HS256"])
         assert options == orig_options
+
+    def test_decode_warns_on_unsupported_kwarg(self, jwt, payload):
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.warns(RemovedInPyjwt3Warning) as record:
+            jwt.decode(jwt_message, secret, algorithms=["HS256"], foo="bar")
+        assert len(record) == 1
+        assert "foo" in str(record[0].message)
+
+    def test_decode_complete_warns_on_unsupported_kwarg(self, jwt, payload):
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.warns(RemovedInPyjwt3Warning) as record:
+            jwt.decode_complete(jwt_message, secret, algorithms=["HS256"], foo="bar")
+        assert len(record) == 1
+        assert "foo" in str(record[0].message)

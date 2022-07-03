@@ -11,6 +11,9 @@ Changed
 ~~~~~~~
 - Skip keys with incompatible alg when loading JWKSet by @DaGuich in https://github.com/jpadilla/pyjwt/pull/762
 - Remove support for python3.6
+- PyJWT now emits a warning for unsupported keyword arguments being passed to
+  ``decode`` and ``decode_complete``. Additional keyword arguments are still
+  supported, but will be rejected in a future version.
 
 Fixed
 ~~~~~
