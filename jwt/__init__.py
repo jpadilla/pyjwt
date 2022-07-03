@@ -1,6 +1,7 @@
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jws import (
     PyJWS,
+    get_algorithm_by_name,
     get_unverified_header,
     register_algorithm,
     unregister_algorithm,
@@ -51,6 +52,7 @@ __all__ = [
     "get_unverified_header",
     "register_algorithm",
     "unregister_algorithm",
+    "get_algorithm_by_name",
     # Exceptions
     "DecodeError",
     "ExpiredSignatureError",

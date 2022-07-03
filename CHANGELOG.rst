@@ -19,6 +19,8 @@ Fixed
 Added
 ~~~~~
 - Add to_jwk static method to ECAlgorithm by @leonsmith in https://github.com/jpadilla/pyjwt/pull/732
+- Add ``get_algorithm_by_name`` as a method of ``PyJWS`` objects, and expose
+  the global PyJWS method as part of the public API
 
 `v2.4.0 <https://github.com/jpadilla/pyjwt/compare/2.3.0...2.4.0>`__
 -----------------------------------------------------------------------
