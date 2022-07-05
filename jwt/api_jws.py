@@ -1,5 +1,6 @@
 import binascii
 import json
+import warnings
 from collections.abc import Mapping
 from typing import Any, Dict, List, Optional, Type
 
@@ -16,6 +17,7 @@ from .exceptions import (
     InvalidTokenError,
 )
 from .utils import base64url_decode, base64url_encode
+from .warnings import RemovedInPyjwt3Warning
 
 
 class PyJWS:
@@ -167,6 +169,13 @@ class PyJWS:
         detached_payload: Optional[bytes] = None,
         **kwargs,
     ) -> Dict[str, Any]:
+        if kwargs:
+            warnings.warn(
+                "passing additional kwargs to decode_complete() is deprecated "
+                "and will be removed in pyjwt version 3. "
+                f"Unsupported kwargs: {tuple(kwargs.keys())}",
+                RemovedInPyjwt3Warning,
+            )
         if options is None:
             options = {}
         merged_options = {**self.options, **options}
@@ -202,9 +211,19 @@ class PyJWS:
         key: str = "",
         algorithms: Optional[List[str]] = None,
         options: Optional[Dict[str, Any]] = None,
+        detached_payload: Optional[bytes] = None,
         **kwargs,
     ) -> str:
-        decoded = self.decode_complete(jwt, key, algorithms, options, **kwargs)
+        if kwargs:
+            warnings.warn(
+                "passing additional kwargs to decode() is deprecated "
+                "and will be removed in pyjwt version 3. "
+                f"Unsupported kwargs: {tuple(kwargs.keys())}",
+                RemovedInPyjwt3Warning,
+            )
+        decoded = self.decode_complete(
+            jwt, key, algorithms, options, detached_payload=detached_payload
+        )
         return decoded["payload"]
 
     def get_unverified_header(self, jwt):
