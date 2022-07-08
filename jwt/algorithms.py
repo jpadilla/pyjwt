@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+from typing import Union, Dict, Any
 
 from .exceptions import InvalidKeyError
 from .utils import (
@@ -34,8 +35,10 @@ try:
     )
     from cryptography.hazmat.primitives.asymmetric.rsa import (
         RSAPrivateKey,
+        RSAPrivateKeyWithSerialization,
         RSAPrivateNumbers,
         RSAPublicKey,
+        RSAPublicKeyWithSerialization,
         RSAPublicNumbers,
         rsa_crt_dmp1,
         rsa_crt_dmq1,
@@ -72,7 +75,7 @@ requires_cryptography = {
 }
 
 
-def get_default_algorithms():
+def get_default_algorithms() -> Dict[str, "Algorithm"]:
     """
     Returns the algorithms that are implemented by the library.
     """
@@ -179,10 +182,10 @@ class HMACAlgorithm(Algorithm):
     SHA384 = hashlib.sha384
     SHA512 = hashlib.sha512
 
-    def __init__(self, hash_alg):
+    def __init__(self, hash_alg) -> None:
         self.hash_alg = hash_alg
 
-    def prepare_key(self, key):
+    def prepare_key(self, key: Union[str, bytes]) -> bytes:
         key = force_bytes(key)
 
         if is_pem_format(key) or is_ssh_key(key):
@@ -194,7 +197,7 @@ class HMACAlgorithm(Algorithm):
         return key
 
     @staticmethod
-    def to_jwk(key_obj):
+    def to_jwk(key_obj: Union[str, bytes]) -> str:
         return json.dumps(
             {
                 "k": base64url_encode(force_bytes(key_obj)).decode(),
@@ -203,7 +206,7 @@ class HMACAlgorithm(Algorithm):
         )
 
     @staticmethod
-    def from_jwk(jwk):
+    def from_jwk(jwk: Union[Dict[str, Any], str]) -> bytes:
         try:
             if isinstance(jwk, str):
                 obj = json.loads(jwk)
@@ -219,10 +222,10 @@ class HMACAlgorithm(Algorithm):
 
         return base64url_decode(obj["k"])
 
-    def sign(self, msg, key):
+    def sign(self, msg: bytes, key: bytes) -> bytes:
         return hmac.new(key, msg, self.hash_alg).digest()
 
-    def verify(self, msg, key, sig):
+    def verify(self, msg: bytes, key: bytes, sig: bytes) -> bool:
         return hmac.compare_digest(sig, self.sign(msg, key))
 
 
@@ -238,10 +241,12 @@ if has_crypto:
         SHA384 = hashes.SHA384
         SHA512 = hashes.SHA512
 
-        def __init__(self, hash_alg):
+        def __init__(self, hash_alg) -> None:
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key):
+        def prepare_key(
+            self, key: Union["RSAPublicKey", "RSAPrivateKey", str, bytes]
+        ) -> Union["RSAPublicKey", "RSAPrivateKey"]:
             if isinstance(key, (RSAPrivateKey, RSAPublicKey)):
                 return key
 
@@ -257,10 +262,21 @@ if has_crypto:
                     key = load_pem_private_key(key, password=None)
             except ValueError:
                 key = load_pem_public_key(key)
+
+            # Explicit check the key to prevent confusing errors
+            if not isinstance(key, (RSAPublicKey, RSAPrivateKey)):
+                raise InvalidKeyError(
+                    "Expecting a RSAPublicKey/RSAPrivateKey. Wrong key provided for RSA algorithms"
+                )
+
             return key
 
         @staticmethod
-        def to_jwk(key_obj):
+        def to_jwk(
+            key_obj: Union[
+                "RSAPublicKeyWithSerialization", "RSAPrivateKeyWithSerialization"
+            ]
+        ) -> str:
             obj = None
 
             if getattr(key_obj, "private_numbers", None):
@@ -281,7 +297,7 @@ if has_crypto:
                 }
 
             elif getattr(key_obj, "verify", None):
-                # Public key
+                # Public Key
                 numbers = key_obj.public_numbers()
 
                 obj = {
@@ -296,7 +312,9 @@ if has_crypto:
             return json.dumps(obj)
 
         @staticmethod
-        def from_jwk(jwk):
+        def from_jwk(
+            jwk: Union[Dict[str, Any], str]
+        ) -> Union["RSAPublicKey", "RSAPrivateKey"]:
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
@@ -369,10 +387,10 @@ if has_crypto:
             else:
                 raise InvalidKeyError("Not a public or private key")
 
-        def sign(self, msg, key):
+        def sign(self, msg: bytes, key: "RSAPrivateKey") -> bytes:
             return key.sign(msg, padding.PKCS1v15(), self.hash_alg())
 
-        def verify(self, msg, key, sig):
+        def verify(self, msg: bytes, key: "RSAPublicKey", sig: bytes) -> bool:
             try:
                 key.verify(sig, msg, padding.PKCS1v15(), self.hash_alg())
                 return True
@@ -389,10 +407,13 @@ if has_crypto:
         SHA384 = hashes.SHA384
         SHA512 = hashes.SHA512
 
-        def __init__(self, hash_alg):
+        def __init__(self, hash_alg) -> None:
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key):
+        def prepare_key(
+            self,
+            key: Union["EllipticCurvePublicKey", "EllipticCurvePrivateKey", str, bytes],
+        ) -> Union["EllipticCurvePublicKey", "EllipticCurvePrivateKey"]:
             if isinstance(key, (EllipticCurvePrivateKey, EllipticCurvePublicKey)):
                 return key
 
@@ -420,12 +441,12 @@ if has_crypto:
 
             return key
 
-        def sign(self, msg, key):
+        def sign(self, msg: bytes, key: "EllipticCurvePrivateKey") -> bytes:
             der_sig = key.sign(msg, ec.ECDSA(self.hash_alg()))
 
             return der_to_raw_signature(der_sig, key.curve)
 
-        def verify(self, msg, key, sig):
+        def verify(self, msg: bytes, key: "EllipticCurvePublicKey", sig: bytes) -> bool:
             try:
                 der_sig = raw_to_der_signature(sig, key.curve)
             except ValueError:
@@ -440,7 +461,9 @@ if has_crypto:
                 return False
 
         @staticmethod
-        def to_jwk(key_obj):
+        def to_jwk(
+            key_obj: Union["EllipticCurvePublicKey", "EllipticCurvePrivateKey"]
+        ) -> str:
 
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 public_numbers = key_obj.public_key().public_numbers()
@@ -475,7 +498,9 @@ if has_crypto:
             return json.dumps(obj)
 
         @staticmethod
-        def from_jwk(jwk):
+        def from_jwk(
+            jwk: Union[Dict[str, Any], str]
+        ) -> Union["EllipticCurvePublicKey", "EllipticCurvePrivateKey"]:
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
@@ -577,10 +602,25 @@ if has_crypto:
         This class requires ``cryptography>=2.6`` to be installed.
         """
 
-        def __init__(self, **kwargs):
+        def __init__(self, **kwargs: Any) -> None:
             pass
 
-        def prepare_key(self, key):
+        def prepare_key(
+            self,
+            key: Union[
+                "Ed448PublicKey",
+                "Ed25519PublicKey",
+                "Ed448PrivateKey",
+                "Ed25519PrivateKey",
+                str,
+                bytes,
+            ],
+        ) -> Union[
+            "Ed448PublicKey",
+            "Ed25519PublicKey",
+            "Ed448PrivateKey",
+            "Ed25519PrivateKey",
+        ]:
             if isinstance(key, (bytes, str)):
                 if isinstance(key, str):
                     key = key.encode("utf-8")
@@ -604,7 +644,11 @@ if has_crypto:
 
             return key
 
-        def sign(self, msg, key):
+        def sign(
+            self,
+            msg: Union[str, bytes],
+            key: Union["Ed448PrivateKey", "Ed25519PrivateKey"],
+        ) -> bytes:
             """
             Sign a message ``msg`` using the EdDSA private key ``key``
             :param str|bytes msg: Message to sign
@@ -612,10 +656,20 @@ if has_crypto:
                 or :class:`.Ed448PrivateKey` isinstance
             :return bytes signature: The signature, as bytes
             """
-            msg = bytes(msg, "utf-8") if type(msg) is not bytes else msg
+            msg = msg if isinstance(msg, bytes) else bytes(msg, "utf-8")
             return key.sign(msg)
 
-        def verify(self, msg, key, sig):
+        def verify(
+            self,
+            msg: Union[str, bytes],
+            key: Union[
+                "Ed448PublicKey",
+                "Ed25519PublicKey",
+                "Ed448PrivateKey",
+                "Ed25519PrivateKey",
+            ],
+            sig: Union[str, bytes],
+        ) -> bool:
             """
             Verify a given ``msg`` against a signature ``sig`` using the EdDSA key ``key``
 
@@ -626,8 +680,8 @@ if has_crypto:
             :return bool verified: True if signature is valid, False if not.
             """
             try:
-                msg = bytes(msg, "utf-8") if type(msg) is not bytes else msg
-                sig = bytes(sig, "utf-8") if type(sig) is not bytes else sig
+                msg = msg if isinstance(msg, bytes) else bytes(msg, "utf-8")
+                sig = sig if isinstance(sig, bytes) else bytes(sig, "utf-8")
 
                 if isinstance(key, (Ed25519PrivateKey, Ed448PrivateKey)):
                     key = key.public_key()
@@ -637,7 +691,14 @@ if has_crypto:
                 return False
 
         @staticmethod
-        def to_jwk(key):
+        def to_jwk(
+            key: Union[
+                "Ed448PublicKey",
+                "Ed25519PublicKey",
+                "Ed448PrivateKey",
+                "Ed25519PublicKey",
+            ]
+        ) -> str:
             if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
                 x = key.public_bytes(
                     encoding=Encoding.Raw,
@@ -677,7 +738,11 @@ if has_crypto:
             raise InvalidKeyError("Not a public or private key")
 
         @staticmethod
-        def from_jwk(jwk):
+        def from_jwk(
+            jwk: Union[Dict[str, Any], str]
+        ) -> Union[
+            "Ed448PublicKey", "Ed25519PublicKey", "Ed448PrivateKey", "Ed25519PublicKey"
+        ]:
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
@@ -692,7 +757,7 @@ if has_crypto:
                 raise InvalidKeyError("Not an Octet Key Pair")
 
             curve = obj.get("crv")
-            if curve != "Ed25519" and curve != "Ed448":
+            if curve not in {"Ed25519", "Ed448"}:
                 raise InvalidKeyError(f"Invalid curve: {curve}")
 
             if "x" not in obj:
