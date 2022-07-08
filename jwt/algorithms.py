@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 import json
-from typing import Union, Dict, Any
+from typing import Any, Dict, Union
 
 from .exceptions import InvalidKeyError
 from .utils import (
