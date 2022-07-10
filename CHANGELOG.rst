@@ -325,7 +325,7 @@ Pull Requests
    by @jdufresne
 -  Remove unnecessary Unicode decoding before json.loads() (#542) by
    @jdufresne
--  Remove unnecessary force\_bytes() calls priot to base64url\_decode()
+-  Remove unnecessary force\_bytes() calls prior to base64url\_decode()
    (#543) by @jdufresne
 -  Remove deprecated arguments from docs (#544) by @jdufresne
 -  Update code blocks in docs (#545) by @jdufresne
