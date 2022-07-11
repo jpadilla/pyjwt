@@ -63,12 +63,17 @@ def mocked_failed_response():
 
 
 @contextlib.contextmanager
-def mocked_first_call_wrong_kid_second_call_correct_kid(response_data_one, response_data_two):
+def mocked_first_call_wrong_kid_second_call_correct_kid(
+    response_data_one, response_data_two
+):
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         response = mock.Mock()
         response.__enter__ = mock.Mock(return_value=response)
         response.__exit__ = mock.Mock()
-        response.read.side_effect = [json.dumps(response_data_one), json.dumps(response_data_two)]
+        response.read.side_effect = [
+            json.dumps(response_data_one),
+            json.dumps(response_data_two),
+        ]
         urlopen_mock.return_value = response
         yield urlopen_mock
 
@@ -259,7 +264,8 @@ class TestPyJWKClient:
         # The first call will return response with no matching kid,
         # the function should make another call to try to refresh the cache.
         with mocked_first_call_wrong_kid_second_call_correct_kid(
-                RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_WITH_MATCHING_KID) as call_data:
+            RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_WITH_MATCHING_KID
+        ) as call_data:
             jwks_client.get_signing_key(kid)
 
         assert call_data.call_count == 2

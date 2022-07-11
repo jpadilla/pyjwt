@@ -24,7 +24,9 @@ class JWKSetCache:
 
     def is_expired(self) -> bool:
 
-        return self.jwk_set_with_timestamp is not None \
-               and self.lifespan > -1 \
-               and time.monotonic() > \
-               self.jwk_set_with_timestamp.get_timestamp() + self.lifespan
+        return (
+            self.jwk_set_with_timestamp is not None
+            and self.lifespan > -1
+            and time.monotonic()
+            > self.jwk_set_with_timestamp.get_timestamp() + self.lifespan
+        )

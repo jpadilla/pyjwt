@@ -1,25 +1,33 @@
 import json
 import urllib.request
-from urllib.error import URLError
 from functools import lru_cache
 from typing import Any, List, Optional
+from urllib.error import URLError
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
-from .jwk_set_cache import JWKSetCache
 from .exceptions import PyJWKClientError
+from .jwk_set_cache import JWKSetCache
 
 
 class PyJWKClient:
-    def __init__(self, uri: str, cache_keys: bool = False, max_cached_keys: int = 16,
-                 cache_jwk_set: bool = True, lifespan: int = 300):
+    def __init__(
+        self,
+        uri: str,
+        cache_keys: bool = False,
+        max_cached_keys: int = 16,
+        cache_jwk_set: bool = True,
+        lifespan: int = 300,
+    ):
         self.uri = uri
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
             # Default lifespan is 300 seconds (5 minutes).
             if lifespan < 0:
-                raise PyJWKClientError(f'Lifespan must be greater than 0, the input is "{lifespan}"')
+                raise PyJWKClientError(
+                    f'Lifespan must be greater than 0, the input is "{lifespan}"'
+                )
             self.jwk_set_cache = JWKSetCache(lifespan)
         else:
             self.jwk_set_cache = None
