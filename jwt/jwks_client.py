@@ -18,6 +18,8 @@ class PyJWKClient:
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
             # Default lifespan is 300 seconds (5 minutes).
+            if lifespan < 0:
+                raise PyJWKClientError(f'Lifespan must be greater than 0, the input is "{lifespan}"')
             self.jwk_set_cache = JWKSetCache(lifespan)
         else:
             self.jwk_set_cache = None
