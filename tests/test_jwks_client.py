@@ -281,7 +281,7 @@ class TestPyJWKClient:
 
         with pytest.raises(PyJWKClientError):
             with mocked_first_call_wrong_kid_second_call_correct_kid(
-                    RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_NO_MATCHING_KID
+                RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_NO_MATCHING_KID
             ):
                 jwks_client.get_signing_key(kid)
 
