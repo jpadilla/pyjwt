@@ -94,7 +94,7 @@ class PyJWKClient:
         return self.get_signing_key(header.get("kid"))
 
     @staticmethod
-    def match_kid(signing_keys: list[PyJWK], kid: str) -> Optional[PyJWK]:
+    def match_kid(signing_keys: List[PyJWK], kid: str) -> Optional[PyJWK]:
         signing_key = None
 
         for key in signing_keys:
