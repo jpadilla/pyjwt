@@ -12,6 +12,7 @@ from jwt.exceptions import (
     InvalidTokenError,
 )
 from jwt.utils import base64url_decode
+from jwt.warnings import RemovedInPyjwt3Warning
 
 from .utils import crypto_required, key_path, no_crypto_required
 
@@ -770,3 +771,37 @@ class TestJWS:
             'It is required that you pass in a value for the "detached_payload" argument to decode a message having the b64 header set to false.'
             in str(exc.value)
         )
+
+    def test_decode_warns_on_unsupported_kwarg(self, jws, payload):
+        secret = "secret"
+        jws_message = jws.encode(
+            payload, secret, algorithm="HS256", is_payload_detached=True
+        )
+
+        with pytest.warns(RemovedInPyjwt3Warning) as record:
+            jws.decode(
+                jws_message,
+                secret,
+                algorithms=["HS256"],
+                detached_payload=payload,
+                foo="bar",
+            )
+        assert len(record) == 1
+        assert "foo" in str(record[0].message)
+
+    def test_decode_complete_warns_on_unuspported_kwarg(self, jws, payload):
+        secret = "secret"
+        jws_message = jws.encode(
+            payload, secret, algorithm="HS256", is_payload_detached=True
+        )
+
+        with pytest.warns(RemovedInPyjwt3Warning) as record:
+            jws.decode_complete(
+                jws_message,
+                secret,
+                algorithms=["HS256"],
+                detached_payload=payload,
+                foo="bar",
+            )
+        assert len(record) == 1
+        assert "foo" in str(record[0].message)

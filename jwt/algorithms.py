@@ -609,7 +609,7 @@ if has_crypto:
             Sign a message ``msg`` using the EdDSA private key ``key``
             :param str|bytes msg: Message to sign
             :param Ed25519PrivateKey}Ed448PrivateKey key: A :class:`.Ed25519PrivateKey`
-                or :class:`.Ed448PrivateKey` iinstance
+                or :class:`.Ed448PrivateKey` isinstance
             :return bytes signature: The signature, as bytes
             """
             msg = bytes(msg, "utf-8") if type(msg) is not bytes else msg
