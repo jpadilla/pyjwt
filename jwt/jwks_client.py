@@ -20,6 +20,7 @@ class PyJWKClient:
         lifespan: int = 300,
     ):
         self.uri = uri
+        self.jwk_set_cache: Optional[JWKSetCache] = None
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
