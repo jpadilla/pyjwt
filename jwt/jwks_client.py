@@ -69,7 +69,7 @@ class PyJWKClient:
         signing_key = self.match_kid(signing_keys, kid)
 
         if not signing_key:
-            # If no matching signing key from the cached jwk set, refresh the jwk set.
+            # If no matching signing key from the jwk set, refresh the jwk set and try again.
             signing_keys = self.get_signing_keys(refresh=True)
             signing_key = self.match_kid(signing_keys, kid)
 
