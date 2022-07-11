@@ -202,6 +202,7 @@ class TestPyJWKClient:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url)
+        assert jwks_client.jwk_set_cache is not None
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
             jwks_client.get_jwk_set()
@@ -233,8 +234,12 @@ class TestPyJWKClient:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url, cache_jwk_set=False)
+        assert jwks_client.jwk_set_cache is None
+
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
             jwks_client.get_jwk_set()
+
+        assert jwks_client.jwk_set_cache is None
 
         time.sleep(2)
 

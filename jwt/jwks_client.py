@@ -45,11 +45,11 @@ class PyJWKClient:
                 jwk_set = json.load(response)
         except URLError as e:
             raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')
+        else:
+            return jwk_set
         finally:
             if self.jwk_set_cache is not None:
                 self.jwk_set_cache.put(jwk_set)
-
-        return jwk_set
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
         data = None
