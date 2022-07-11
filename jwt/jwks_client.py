@@ -12,12 +12,12 @@ from .jwk_set_cache import JWKSetCache
 
 class PyJWKClient:
     def __init__(
-        self,
-        uri: str,
-        cache_keys: bool = False,
-        max_cached_keys: int = 16,
-        cache_jwk_set: bool = True,
-        lifespan: int = 300,
+            self,
+            uri: str,
+            cache_keys: bool = False,
+            max_cached_keys: int = 16,
+            cache_jwk_set: bool = True,
+            lifespan: int = 300,
     ):
         self.uri = uri
         self.jwk_set_cache: Optional[JWKSetCache] = None
@@ -25,7 +25,7 @@ class PyJWKClient:
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
             # Default lifespan is 300 seconds (5 minutes).
-            if lifespan < 0:
+            if lifespan <= 0:
                 raise PyJWKClientError(
                     f'Lifespan must be greater than 0, the input is "{lifespan}"'
                 )
@@ -39,14 +39,15 @@ class PyJWKClient:
             self.get_signing_key = lru_cache(maxsize=max_cached_keys)(self.get_signing_key)  # type: ignore
 
     def fetch_data(self) -> Any:
+        jwk_set: Any = None
         try:
             with urllib.request.urlopen(self.uri) as response:
                 jwk_set = json.load(response)
         except URLError as e:
             raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')
-
-        if self.jwk_set_cache is not None:
-            self.jwk_set_cache.put(jwk_set)
+        finally:
+            if self.jwk_set_cache is not None:
+                self.jwk_set_cache.put(jwk_set)
 
         return jwk_set
 

@@ -220,7 +220,7 @@ class TestPyJWKClient:
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
             jwks_client.get_jwk_set()
 
-        time.sleep(1)
+        time.sleep(2)
 
         # mocked_response does not allow urllib.request.urlopen to be called twice
         # so a second mock is needed
@@ -236,7 +236,7 @@ class TestPyJWKClient:
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
             jwks_client.get_jwk_set()
 
-        time.sleep(1)
+        time.sleep(2)
 
         # mocked_response does not allow urllib.request.urlopen to be called twice
         # so a second mock is needed
@@ -245,13 +245,16 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 1
 
-    def test_get_jwt_set_failed_request(self):
+    def test_get_jwt_set_failed_request_should_clear_cache(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url)
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            jwks_client.get_jwk_set()
+
         with pytest.raises(PyJWKClientError):
             with mocked_failed_response():
-                jwks_client.get_jwk_set()
+                jwks_client.get_jwk_set(refresh=True)
 
             assert jwks_client.jwk_set_cache is None
 
@@ -269,3 +272,22 @@ class TestPyJWKClient:
             jwks_client.get_signing_key(kid)
 
         assert call_data.call_count == 2
+
+    def test_get_jwt_set_no_matching_kid_after_second_attempt(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url)
+
+        kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
+
+        with pytest.raises(PyJWKClientError):
+            with mocked_first_call_wrong_kid_second_call_correct_kid(
+                    RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_NO_MATCHING_KID
+            ):
+                jwks_client.get_signing_key(kid)
+
+    def test_get_jwt_set_invalid_lifespan(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        with pytest.raises(PyJWKClientError):
+            jwks_client = PyJWKClient(url, lifespan=-1)
+            assert jwks_client is None
