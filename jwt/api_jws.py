@@ -99,6 +99,7 @@ class PyJWS:
             if not header["typ"]:
                 del header["typ"]
 
+        # Fix for headers misorder - issue #715
         json_header = json.dumps(
             header, separators=(",", ":"), cls=json_encoder, sort_keys=True
         ).encode()
