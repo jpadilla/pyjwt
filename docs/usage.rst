@@ -45,6 +45,9 @@ If your private key needs a passphrase, you need to pass in a ``PrivateKey`` obj
     )
     encoded = jwt.encode({"some": "payload"}, private_key, algorithm="RS256")
 
+If you are repeatedly encoding with the same private key, reusing the same
+``RSAPrivateKey`` also has performance benefits because it avoids the
+CPU-intensive ``RSA_check_key`` primality test.
 
 Specifying Additional Headers
 -----------------------------

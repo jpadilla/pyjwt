@@ -9,6 +9,8 @@ from .utils import (
     der_to_raw_signature,
     force_bytes,
     from_base64url_uint,
+    is_pem_format,
+    is_ssh_key,
     raw_to_der_signature,
     to_base64url_uint,
 )
@@ -183,14 +185,7 @@ class HMACAlgorithm(Algorithm):
     def prepare_key(self, key):
         key = force_bytes(key)
 
-        invalid_strings = [
-            b"-----BEGIN PUBLIC KEY-----",
-            b"-----BEGIN CERTIFICATE-----",
-            b"-----BEGIN RSA PUBLIC KEY-----",
-            b"ssh-rsa",
-        ]
-
-        if any(string_value in key for string_value in invalid_strings):
+        if is_pem_format(key) or is_ssh_key(key):
             raise InvalidKeyError(
                 "The specified key is an asymmetric key or x509 certificate and"
                 " should not be used as an HMAC secret."
@@ -445,6 +440,41 @@ if has_crypto:
                 return False
 
         @staticmethod
+        def to_jwk(key_obj):
+
+            if isinstance(key_obj, EllipticCurvePrivateKey):
+                public_numbers = key_obj.public_key().public_numbers()
+            elif isinstance(key_obj, EllipticCurvePublicKey):
+                public_numbers = key_obj.public_numbers()
+            else:
+                raise InvalidKeyError("Not a public or private key")
+
+            if isinstance(key_obj.curve, ec.SECP256R1):
+                crv = "P-256"
+            elif isinstance(key_obj.curve, ec.SECP384R1):
+                crv = "P-384"
+            elif isinstance(key_obj.curve, ec.SECP521R1):
+                crv = "P-521"
+            elif isinstance(key_obj.curve, ec.SECP256K1):
+                crv = "secp256k1"
+            else:
+                raise InvalidKeyError(f"Invalid curve: {key_obj.curve}")
+
+            obj = {
+                "kty": "EC",
+                "crv": crv,
+                "x": to_base64url_uint(public_numbers.x).decode(),
+                "y": to_base64url_uint(public_numbers.y).decode(),
+            }
+
+            if isinstance(key_obj, EllipticCurvePrivateKey):
+                obj["d"] = to_base64url_uint(
+                    key_obj.private_numbers().private_value
+                ).decode()
+
+            return json.dumps(obj)
+
+        @staticmethod
         def from_jwk(jwk):
             try:
                 if isinstance(jwk, str):
@@ -551,33 +581,35 @@ if has_crypto:
             pass
 
         def prepare_key(self, key):
-
-            if isinstance(
-                key,
-                (Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey),
-            ):
-                return key
-
             if isinstance(key, (bytes, str)):
                 if isinstance(key, str):
                     key = key.encode("utf-8")
                 str_key = key.decode("utf-8")
 
                 if "-----BEGIN PUBLIC" in str_key:
-                    return load_pem_public_key(key)
-                if "-----BEGIN PRIVATE" in str_key:
-                    return load_pem_private_key(key, password=None)
-                if str_key[0:4] == "ssh-":
-                    return load_ssh_public_key(key)
+                    key = load_pem_public_key(key)
+                elif "-----BEGIN PRIVATE" in str_key:
+                    key = load_pem_private_key(key, password=None)
+                elif str_key[0:4] == "ssh-":
+                    key = load_ssh_public_key(key)
 
-            raise TypeError("Expecting a PEM-formatted or OpenSSH key.")
+            # Explicit check the key to prevent confusing errors from cryptography
+            if not isinstance(
+                key,
+                (Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey),
+            ):
+                raise InvalidKeyError(
+                    "Expecting a EllipticCurvePrivateKey/EllipticCurvePublicKey. Wrong key provided for EdDSA algorithms"
+                )
+
+            return key
 
         def sign(self, msg, key):
             """
             Sign a message ``msg`` using the EdDSA private key ``key``
             :param str|bytes msg: Message to sign
             :param Ed25519PrivateKey}Ed448PrivateKey key: A :class:`.Ed25519PrivateKey`
-                or :class:`.Ed448PrivateKey` iinstance
+                or :class:`.Ed448PrivateKey` isinstance
             :return bytes signature: The signature, as bytes
             """
             msg = bytes(msg, "utf-8") if type(msg) is not bytes else msg

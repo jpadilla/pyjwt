@@ -12,6 +12,7 @@ from jwt.exceptions import (
     InvalidTokenError,
 )
 from jwt.utils import base64url_decode
+from jwt.warnings import RemovedInPyjwt3Warning
 
 from .utils import crypto_required, key_path, no_crypto_required
 
@@ -83,7 +84,7 @@ class TestJWS:
 
     def test_options_must_be_dict(self, jws):
         pytest.raises(TypeError, PyJWS, options=object())
-        pytest.raises(TypeError, PyJWS, options=("something"))
+        pytest.raises((TypeError, ValueError), PyJWS, options=("something"))
 
     def test_encode_decode(self, jws, payload):
         secret = "secret"
@@ -607,7 +608,7 @@ class TestJWS:
         with pytest.raises(TypeError):
             jws.decode(token, "secret", options=object())
 
-        with pytest.raises(TypeError):
+        with pytest.raises((TypeError, ValueError)):
             jws.decode(token, "secret", options="something")
 
     def test_custom_json_encoder(self, jws, payload):
@@ -719,3 +720,88 @@ class TestJWS:
             jws.encode(payload, "secret", headers={"kid": None})
 
         assert "Key ID header parameter must be a string" == str(exc.value)
+
+    def test_encode_decode_with_detached_content(self, jws, payload):
+        secret = "secret"
+        jws_message = jws.encode(
+            payload, secret, algorithm="HS256", is_payload_detached=True
+        )
+
+        jws.decode(jws_message, secret, algorithms=["HS256"], detached_payload=payload)
+
+    def test_encode_detached_content_with_b64_header(self, jws, payload):
+        secret = "secret"
+
+        # Check that detached content is automatically detected when b64 is false
+        headers = {"b64": False}
+        token = jws.encode(payload, secret, "HS256", headers)
+
+        msg_header, msg_payload, _ = token.split(".")
+        msg_header = base64url_decode(msg_header.encode())
+        msg_header_obj = json.loads(msg_header)
+
+        assert "b64" in msg_header_obj
+        assert msg_header_obj["b64"] is False
+        # Check that the payload is not inside the token
+        assert not msg_payload
+
+        # Check that content is not detached and b64 header removed when b64 is true
+        headers = {"b64": True}
+        token = jws.encode(payload, secret, "HS256", headers)
+
+        msg_header, msg_payload, _ = token.split(".")
+        msg_header = base64url_decode(msg_header.encode())
+        msg_header_obj = json.loads(msg_header)
+
+        assert "b64" not in msg_header_obj
+        assert msg_payload
+
+    def test_decode_detached_content_without_proper_argument(self, jws):
+        example_jws = (
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2V9"
+            "."
+            ".65yNkX_ZH4A_6pHaTL_eI84OXOHtfl4K0k5UnlXZ8f4"
+        )
+        example_secret = "secret"
+
+        with pytest.raises(DecodeError) as exc:
+            jws.decode(example_jws, example_secret, algorithms=["HS256"])
+
+        assert (
+            'It is required that you pass in a value for the "detached_payload" argument to decode a message having the b64 header set to false.'
+            in str(exc.value)
+        )
+
+    def test_decode_warns_on_unsupported_kwarg(self, jws, payload):
+        secret = "secret"
+        jws_message = jws.encode(
+            payload, secret, algorithm="HS256", is_payload_detached=True
+        )
+
+        with pytest.warns(RemovedInPyjwt3Warning) as record:
+            jws.decode(
+                jws_message,
+                secret,
+                algorithms=["HS256"],
+                detached_payload=payload,
+                foo="bar",
+            )
+        assert len(record) == 1
+        assert "foo" in str(record[0].message)
+
+    def test_decode_complete_warns_on_unuspported_kwarg(self, jws, payload):
+        secret = "secret"
+        jws_message = jws.encode(
+            payload, secret, algorithm="HS256", is_payload_detached=True
+        )
+
+        with pytest.warns(RemovedInPyjwt3Warning) as record:
+            jws.decode_complete(
+                jws_message,
+                secret,
+                algorithms=["HS256"],
+                detached_payload=payload,
+                foo="bar",
+            )
+        assert len(record) == 1
+        assert "foo" in str(record[0].message)

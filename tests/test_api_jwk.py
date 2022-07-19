@@ -4,7 +4,7 @@ import pytest
 
 from jwt.algorithms import has_crypto
 from jwt.api_jwk import PyJWK, PyJWKSet
-from jwt.exceptions import InvalidKeyError, PyJWKError
+from jwt.exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 
 from .utils import crypto_required, key_path
 
@@ -252,3 +252,44 @@ class TestPyJWKSet:
         assert jwk.key_type == "RSA"
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
+
+    @crypto_required
+    def test_keyset_should_index_by_kid(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            pub_key = algo.from_jwk(keyfile.read())
+
+        key_data_str = algo.to_jwk(pub_key)
+        key_data = json.loads(key_data_str)
+
+        # TODO Should `to_jwk` set these?
+        key_data["alg"] = "RS256"
+        key_data["use"] = "sig"
+        key_data["kid"] = "keyid-abc123"
+
+        jwk_set = PyJWKSet.from_dict({"keys": [key_data]})
+
+        jwk = jwk_set.keys[0]
+        assert jwk == jwk_set["keyid-abc123"]
+
+        with pytest.raises(KeyError):
+            _ = jwk_set["this-kid-does-not-exist"]
+
+    @crypto_required
+    def test_keyset_with_unknown_alg(self):
+        # first keyset with unusable key and usable key
+        with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
+            jwks_text = keyfile.read()
+        jwks = json.loads(jwks_text)
+        assert len(jwks.get("keys")) == 2
+        keyset = PyJWKSet.from_json(jwks_text)
+        assert len(keyset.keys) == 1
+
+        # second keyset with only unusable key -> catch exception
+        with open(key_path("jwk_keyset_only_unknown_alg.json")) as keyfile:
+            jwks_text = keyfile.read()
+            jwks = json.loads(jwks_text)
+            assert len(jwks.get("keys")) == 1
+            with pytest.raises(PyJWKSetError):
+                _ = PyJWKSet.from_json(jwks_text)

@@ -18,11 +18,13 @@ jobs:
     strategy:
       matrix:
         platform: ["ubuntu-latest", "windows-latest"]
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10",
+                         "3.11.0-beta - 3.11", "pypy-3.8", "pypy-3.9"]
 
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-python@v4"
+
         with:
           python-version: "${{ matrix.python-version }}"
 
@@ -38,7 +40,7 @@ jobs:
 
       # We always use a modern Python version for combining coverage to prevent
       # parsing errors in older versions for modern code.
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/setup-python@v4"
         with:
           python-version: "3.8"
 
@@ -52,7 +54,7 @@ jobs:
 
       - name: "Upload coverage to Codecov"
         if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
-        uses: "codecov/codecov-action@v1"
+        uses: "codecov/codecov-action@v3"
         with:
           fail_ci_if_error: true
 
@@ -61,8 +63,9 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-python@v4"
+
         with:
           python-version: "3.8"
 
@@ -87,8 +90,9 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-python@v4"
+
         with:
           python-version: "3.8"
 

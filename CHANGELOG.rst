@@ -9,12 +9,56 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
 Changed
 ~~~~~~~
+- Skip keys with incompatible alg when loading JWKSet by @DaGuich in https://github.com/jpadilla/pyjwt/pull/762
+- Remove support for python3.6
+- PyJWT now emits a warning for unsupported keyword arguments being passed to
+  ``decode`` and ``decode_complete``. Additional keyword arguments are still
+  supported, but will be rejected in a future version.
 
 Fixed
 ~~~~~
 
+- Fix for pyright on strict mode `#747 <https://github.com/jpadilla/pyjwt/pull/747>`_
+
 Added
 ~~~~~
+- Add to_jwk static method to ECAlgorithm by @leonsmith in https://github.com/jpadilla/pyjwt/pull/732
+- Add ``get_algorithm_by_name`` as a method of ``PyJWS`` objects, and expose
+  the global PyJWS method as part of the public API
+
+`v2.4.0 <https://github.com/jpadilla/pyjwt/compare/2.3.0...2.4.0>`__
+-----------------------------------------------------------------------
+
+Security
+~~~~~~~~
+
+- [CVE-2022-29217] Prevent key confusion through non-blocklisted public key formats. https://github.com/jpadilla/pyjwt/security/advisories/GHSA-ffqj-6fqr-9h24
+
+Changed
+~~~~~~~
+
+- Explicit check the key for ECAlgorithm by @estin in https://github.com/jpadilla/pyjwt/pull/713
+- Raise DeprecationWarning for jwt.decode(verify=...) by @akx in https://github.com/jpadilla/pyjwt/pull/742
+
+Fixed
+~~~~~
+
+- Don't use implicit optionals by @rekyungmin in https://github.com/jpadilla/pyjwt/pull/705
+- documentation fix: show correct scope for decode_complete() by @sseering in https://github.com/jpadilla/pyjwt/pull/661
+- fix: Update copyright information by @kkirsche in https://github.com/jpadilla/pyjwt/pull/729
+- Don't mutate options dictionary in .decode_complete() by @akx in https://github.com/jpadilla/pyjwt/pull/743
+
+Added
+~~~~~
+
+- Add support for Python 3.10 by @hugovk in https://github.com/jpadilla/pyjwt/pull/699
+- api_jwk: Add PyJWKSet.__getitem__ by @woodruffw in https://github.com/jpadilla/pyjwt/pull/725
+- Update usage.rst by @guneybilen in https://github.com/jpadilla/pyjwt/pull/727
+- Docs: mention performance reasons for reusing RSAPrivateKey when encoding by @dmahr1 in https://github.com/jpadilla/pyjwt/pull/734
+- Fixed typo in usage.rst by @israelabraham in https://github.com/jpadilla/pyjwt/pull/738
+- Add detached payload support for JWS encoding and decoding by @fviard in https://github.com/jpadilla/pyjwt/pull/723
+- Replace various string interpolations with f-strings by @akx in https://github.com/jpadilla/pyjwt/pull/744
+- Update CHANGELOG.rst by @hipertracker in https://github.com/jpadilla/pyjwt/pull/751
 
 `v2.3.0 <https://github.com/jpadilla/pyjwt/compare/2.2.0...2.3.0>`__
 -----------------------------------------------------------------------
@@ -162,6 +206,11 @@ For example, instead of
 use
 ``jwt.decode(encoded, key, algorithms=["HS256"], options={"require": ["exp"]})``.
 
+And the old v1.x syntax
+``jwt.decode(token, verify=False)``
+is now:
+``jwt.decode(jwt=token, key='secret', algorithms=['HS256'], options={"verify_signature": False, "verify_exp": True})``
+
 Added
 ~~~~~
 
@@ -276,7 +325,7 @@ Pull Requests
    by @jdufresne
 -  Remove unnecessary Unicode decoding before json.loads() (#542) by
    @jdufresne
--  Remove unnecessary force\_bytes() calls priot to base64url\_decode()
+-  Remove unnecessary force\_bytes() calls prior to base64url\_decode()
    (#543) by @jdufresne
 -  Remove deprecated arguments from docs (#544) by @jdufresne
 -  Update code blocks in docs (#545) by @jdufresne
