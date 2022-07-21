@@ -76,7 +76,7 @@ class PyJWT:
         detached_payload: Optional[bytes] = None,
         # passthrough arguments to _validate_claims
         # consider putting in options
-        audience: Optional[str] = None,
+        audience: Optional[Union[str, Iterable]] = None,
         issuer: Optional[str] = None,
         leeway: Union[int, float, timedelta] = 0,
         # kwargs
@@ -150,7 +150,7 @@ class PyJWT:
         detached_payload: Optional[bytes] = None,
         # passthrough arguments to _validate_claims
         # consider putting in options
-        audience: Optional[str] = None,
+        audience: Optional[Union[str, Iterable]] = None,
         issuer: Optional[str] = None,
         leeway: Union[int, float, timedelta] = 0,
         # kwargs
@@ -180,8 +180,8 @@ class PyJWT:
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
 
-        if not isinstance(audience, (bytes, str, type(None), Iterable)):
-            raise TypeError("audience must be a string, iterable, or None")
+        if audience and not isinstance(audience, (str, Iterable)):
+            raise TypeError("audience must be a string, iterable or None")
 
         self._validate_required_claims(payload, options)
 

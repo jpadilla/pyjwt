@@ -119,7 +119,7 @@ class TestJWT:
             jwt.decode(example_jwt, secret, audience=1, algorithms=["HS256"])
 
         exception = context.value
-        assert str(exception) == "audience must be a string, iterable, or None"
+        assert str(exception) == "audience must be a string, iterable or None"
 
     def test_decode_with_nonlist_aud_claim_throws_exception(self, jwt):
         secret = "secret"
