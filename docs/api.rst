@@ -62,7 +62,7 @@ API Reference
             if ``verify_exp``, ``verify_iat``, and ``verify_nbf`` respectively
             is set to ``True``).
 
-    :param Iterable audience: optional, the value for ``verify_aud`` check
+    :param Union[str, Iterable] audience: optional, the value for ``verify_aud`` check
     :param str issuer: optional, the value for ``verify_iss`` check
     :param float leeway: a time margin in seconds for the expiration check
     :rtype: dict
