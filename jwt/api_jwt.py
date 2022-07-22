@@ -182,7 +182,7 @@ class PyJWT:
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
 
-        if audience and not isinstance(audience, (str, Iterable)):
+        if audience is not None and not isinstance(audience, (str, Iterable)):
             raise TypeError("audience must be a string, iterable or None")
 
         self._validate_required_claims(payload, options)
