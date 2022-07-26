@@ -31,8 +31,8 @@ def info() -> Dict[str, Dict[str, str]]:
     elif implementation == "PyPy":
         implementation_version = (
             f"{sys.pypy_version_info.major}."  # type: ignore[attr-defined]
-            f"{sys.pypy_version_info.minor}."  # type: ignore[attr-defined]
-            f"{sys.pypy_version_info.micro}"  # type: ignore[attr-defined]
+            f"{sys.pypy_version_info.minor}."
+            f"{sys.pypy_version_info.micro}"
         )
         if sys.pypy_version_info.releaselevel != "final":  # type: ignore[attr-defined]
             implementation_version = "".join(
