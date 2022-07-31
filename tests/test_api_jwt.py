@@ -119,7 +119,7 @@ class TestJWT:
             jwt.decode(example_jwt, secret, audience=1, algorithms=["HS256"])
 
         exception = context.value
-        assert str(exception) == "audience must be a string, iterable, or None"
+        assert str(exception) == "audience must be a string, iterable or None"
 
     def test_decode_with_nonlist_aud_claim_throws_exception(self, jwt):
         secret = "secret"
@@ -418,6 +418,14 @@ class TestJWT:
 
         with pytest.raises(InvalidAudienceError):
             jwt.decode(token, "secret", audience="urn-me", algorithms=["HS256"])
+
+    def test_raise_exception_audience_as_bytes(self, jwt):
+        payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
+        token = jwt.encode(payload, "secret")
+        with pytest.raises(InvalidAudienceError):
+            jwt.decode(
+                token, "secret", audience="urn:me".encode(), algorithms=["HS256"]
+            )
 
     def test_raise_exception_invalid_audience_in_array(self, jwt):
         payload = {
