@@ -208,8 +208,8 @@ class TestPyJWK:
             PyJWK.from_dict(v)
 
 
+@crypto_required
 class TestPyJWKSet:
-    @crypto_required
     def test_should_load_keys_from_jwk_data_dict(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -231,7 +231,6 @@ class TestPyJWKSet:
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
 
-    @crypto_required
     def test_should_load_keys_from_jwk_data_json_string(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -253,7 +252,6 @@ class TestPyJWKSet:
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
 
-    @crypto_required
     def test_keyset_should_index_by_kid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -276,7 +274,6 @@ class TestPyJWKSet:
         with pytest.raises(KeyError):
             _ = jwk_set["this-kid-does-not-exist"]
 
-    @crypto_required
     def test_keyset_with_unknown_alg(self):
         # first keyset with unusable key and usable key
         with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
