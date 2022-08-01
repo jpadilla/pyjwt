@@ -290,3 +290,13 @@ class TestPyJWKSet:
             assert len(jwks.get("keys")) == 1
             with pytest.raises(PyJWKSetError):
                 _ = PyJWKSet.from_json(jwks_text)
+
+    def test_invalid_keys_list(self):
+        with pytest.raises(PyJWKSetError) as err:
+            PyJWKSet(keys="string")
+        assert str(err.value) == "Invalid JWK Set value"
+
+    def test_empty_keys_list(self):
+        with pytest.raises(PyJWKSetError) as err:
+            PyJWKSet(keys=[])
+        assert str(err.value) == "Invalid JWK Set value"
