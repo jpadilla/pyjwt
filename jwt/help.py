@@ -8,7 +8,7 @@ from . import __version__ as pyjwt_version
 try:
     import cryptography
 except ModuleNotFoundError:
-    cryptography = None  # type: ignore
+    cryptography = None
 
 
 def info() -> Dict[str, Dict[str, str]]:
@@ -29,14 +29,15 @@ def info() -> Dict[str, Dict[str, str]]:
     if implementation == "CPython":
         implementation_version = platform.python_version()
     elif implementation == "PyPy":
+        pypy_version_info = getattr(sys, "pypy_version_info")
         implementation_version = (
-            f"{sys.pypy_version_info.major}."  # type: ignore[attr-defined]
-            f"{sys.pypy_version_info.minor}."
-            f"{sys.pypy_version_info.micro}"
+            f"{pypy_version_info.major}."
+            f"{pypy_version_info.minor}."
+            f"{pypy_version_info.micro}"
         )
-        if sys.pypy_version_info.releaselevel != "final":  # type: ignore[attr-defined]
+        if pypy_version_info.releaselevel != "final":
             implementation_version = "".join(
-                [implementation_version, sys.pypy_version_info.releaselevel]  # type: ignore[attr-defined]
+                [implementation_version, pypy_version_info.releaselevel]
             )
     else:
         implementation_version = "Unknown"
