@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 
 from .algorithms import get_default_algorithms
 from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
@@ -110,3 +111,15 @@ class PyJWKSet:
             if key.key_id == kid:
                 return key
         raise KeyError(f"keyset has no key for kid: {kid}")
+
+
+class PyJWTSetWithTimestamp:
+    def __init__(self, jwk_set: PyJWKSet):
+        self.jwk_set = jwk_set
+        self.timestamp = time.monotonic()
+
+    def get_jwk_set(self):
+        return self.jwk_set
+
+    def get_timestamp(self):
+        return self.timestamp
