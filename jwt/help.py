@@ -1,6 +1,7 @@
 import json
 import platform
 import sys
+from typing import Dict
 
 from . import __version__ as pyjwt_version
 
@@ -10,7 +11,7 @@ except ModuleNotFoundError:
     cryptography = None  # type: ignore
 
 
-def info():
+def info() -> Dict[str, Dict[str, str]]:
     """
     Generate information for a bug report.
     Based on the requests package help utility module.
@@ -29,13 +30,13 @@ def info():
         implementation_version = platform.python_version()
     elif implementation == "PyPy":
         implementation_version = (
-            f"{sys.pypy_version_info.major}."
+            f"{sys.pypy_version_info.major}."  # type: ignore[attr-defined]
             f"{sys.pypy_version_info.minor}."
             f"{sys.pypy_version_info.micro}"
         )
-        if sys.pypy_version_info.releaselevel != "final":
+        if sys.pypy_version_info.releaselevel != "final":  # type: ignore[attr-defined]
             implementation_version = "".join(
-                [implementation_version, sys.pypy_version_info.releaselevel]
+                [implementation_version, sys.pypy_version_info.releaselevel]  # type: ignore[attr-defined]
             )
     else:
         implementation_version = "Unknown"
@@ -51,7 +52,7 @@ def info():
     }
 
 
-def main():
+def main() -> None:
     """Pretty-print the bug information as JSON."""
     print(json.dumps(info(), sort_keys=True, indent=2))
 
