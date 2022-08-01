@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from .algorithms import get_default_algorithms
@@ -74,14 +76,14 @@ class PyJWK:
 
 
 class PyJWKSet:
-    def __init__(self, keys):
+    def __init__(self, keys: list[dict]) -> None:
         self.keys = []
 
-        if not keys or not isinstance(keys, list):
-            raise PyJWKSetError("Invalid JWK Set value")
-
-        if len(keys) == 0:
+        if not keys:
             raise PyJWKSetError("The JWK Set did not contain any keys")
+
+        if not isinstance(keys, list):
+            raise PyJWKSetError("Invalid JWK Set value")
 
         for key in keys:
             try:
