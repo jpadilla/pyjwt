@@ -2,7 +2,6 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-
 [tool.coverage.run]
 parallel = true
 branch = true
@@ -14,8 +13,13 @@ source = ["jwt", ".tox/*/site-packages"]
 [tool.coverage.report]
 show_missing = true
 
-
 [tool.isort]
 profile = "black"
 atomic = true
 combine_as_imports = true
+
+[tool.mypy]
+python_version = 3.7
+ignore_missing_imports = true
+warn_unused_ignores = true
+no_implicit_optional = true

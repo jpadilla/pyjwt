@@ -1,7 +1,7 @@
 import base64
 import binascii
 import re
-from typing import Any, Union
+from typing import Union
 
 try:
     from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurve
@@ -10,7 +10,7 @@ try:
         encode_dss_signature,
     )
 except ModuleNotFoundError:
-    EllipticCurve = Any  # type: ignore
+    EllipticCurve = None
 
 
 def force_bytes(value: Union[str, bytes]) -> bytes:
