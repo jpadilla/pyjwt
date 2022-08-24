@@ -15,6 +15,7 @@ Fixed
 
 Added
 ~~~~~
+- Adding validation for `issued_at` when `iat > (now + leeway)` as `ImmatureSignatureError` by @sriharan16 in https://github.com/jpadilla/pyjwt/pull/794
 
 `v2.5.0 <https://github.com/jpadilla/pyjwt/compare/2.4.0...2.5.0>`__
 -----------------------------------------------------------------------
