@@ -230,7 +230,7 @@ class PyJWT:
         except ValueError:
             raise DecodeError("Expiration Time claim (exp) must be an" " integer.")
 
-        if exp < (now - leeway):
+        if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")
 
     def _validate_aud(self, payload, audience):
