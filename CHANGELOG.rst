@@ -16,7 +16,7 @@ Fixed
 Added
 ~~~~~
 
-`v2.4.0 <https://github.com/jpadilla/pyjwt/compare/2.4.0...2.5.0>`__
+`v2.5.0 <https://github.com/jpadilla/pyjwt/compare/2.4.0...2.5.0>`__
 -----------------------------------------------------------------------
 
 Changed
