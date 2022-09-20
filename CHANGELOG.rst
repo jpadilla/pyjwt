@@ -4,27 +4,49 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.3.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.5.0...HEAD>`__
 -----------------------------------------------------------------------
 
 Changed
 ~~~~~~~
-- Skip keys with incompatible alg when loading JWKSet by @DaGuich in https://github.com/jpadilla/pyjwt/pull/762
-- Remove support for python3.6
-- PyJWT now emits a warning for unsupported keyword arguments being passed to
-  ``decode`` and ``decode_complete``. Additional keyword arguments are still
-  supported, but will be rejected in a future version.
 
 Fixed
 ~~~~~
 
-- Fix for pyright on strict mode `#747 <https://github.com/jpadilla/pyjwt/pull/747>`_
+Added
+~~~~~
+
+`v2.5.0 <https://github.com/jpadilla/pyjwt/compare/2.4.0...2.5.0>`__
+-----------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
+- Skip keys with incompatible alg when loading JWKSet by @DaGuich in `#762 <https://github.com/jpadilla/pyjwt/pull/762>`__
+- Remove support for python3.6 by @sirosen in `#777 <https://github.com/jpadilla/pyjwt/pull/777>`__
+- Emit a deprecation warning for unsupported kwargs by @sirosen in `#776 <https://github.com/jpadilla/pyjwt/pull/776>`__
+- Remove redundant wheel dep from pyproject.toml by @mgorny in `#765 <https://github.com/jpadilla/pyjwt/pull/765>`__
+- Do not fail when an unusable key occurs by @DaGuich in `#762 <https://github.com/jpadilla/pyjwt/pull/762>`__
+- Update audience typing by @JulianMaurin in `#782 <https://github.com/jpadilla/pyjwt/pull/782>`__
+- Improve PyJWKSet error accuracy by @JulianMaurin in `#786 <https://github.com/jpadilla/pyjwt/pull/786>`__
+- Mypy as pre-commit check + api_jws typing by @JulianMaurin in `#787 <https://github.com/jpadilla/pyjwt/pull/787>`__
+
+Fixed
+~~~~~
+
+- Adjust expected exceptions in option merging tests for PyPy3 by @mgorny in `#763 <https://github.com/jpadilla/pyjwt/pull/763>`__
+- Fixes for pyright on strict mode by @brandon-leapyear in `#747 <https://github.com/jpadilla/pyjwt/pull/747>`__
+- docs: fix simple typo, iinstance -> isinstance by @timgates42 in `#774 <https://github.com/jpadilla/pyjwt/pull/774>`__
+- Fix typo: priot -> prior by @jdufresne in `#780 <https://github.com/jpadilla/pyjwt/pull/780>`__
+- Fix for headers disorder issue by @kadabusha in `#721 <https://github.com/jpadilla/pyjwt/pull/721>`__
 
 Added
 ~~~~~
-- Add to_jwk static method to ECAlgorithm by @leonsmith in https://github.com/jpadilla/pyjwt/pull/732
-- Add ``get_algorithm_by_name`` as a method of ``PyJWS`` objects, and expose
-  the global PyJWS method as part of the public API
+
+- Add to_jwk static method to ECAlgorithm by @leonsmith in `#732 <https://github.com/jpadilla/pyjwt/pull/732>`__
+- Expose get_algorithm_by_name as new method by @sirosen in `#773 <https://github.com/jpadilla/pyjwt/pull/773>`__
+- Add type hints to jwt/help.py and add missing types dependency by @kkirsche in `#784 <https://github.com/jpadilla/pyjwt/pull/784>`__
+- Add cacheing functionality for JWK set by @wuhaoyujerry in `#781 <https://github.com/jpadilla/pyjwt/pull/781>`__
 
 `v2.4.0 <https://github.com/jpadilla/pyjwt/compare/2.3.0...2.4.0>`__
 -----------------------------------------------------------------------
