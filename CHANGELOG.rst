@@ -13,6 +13,8 @@ Changed
 Fixed
 ~~~~~
 
+- Invalidate token on the exact second the token expires `#797 <https://github.com/jpadilla/pyjwt/pull/797>`_
+
 Added
 ~~~~~
 
