@@ -210,10 +210,13 @@ class PyJWT:
                 raise MissingRequiredClaimError(claim)
 
     def _validate_iat(self, payload, now, leeway):
+        iat = payload["iat"]
         try:
-            int(payload["iat"])
+            int(iat)
         except ValueError:
             raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.")
+        if iat > (now + leeway):
+            raise ImmatureSignatureError("The token is not yet valid (iat)")
 
     def _validate_nbf(self, payload, now, leeway):
         try:
