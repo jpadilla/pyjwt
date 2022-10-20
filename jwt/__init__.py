@@ -26,7 +26,7 @@ from .exceptions import (
 )
 from .jwks_client import PyJWKClient
 
-__version__ = "2.5.0"
+__version__ = "2.6.0"
 
 __title__ = "PyJWT"
 __description__ = "JSON Web Token implementation in Python"

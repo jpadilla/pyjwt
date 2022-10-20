@@ -4,7 +4,7 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.5.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.6.0...HEAD>`__
 -----------------------------------------------------------------------
 
 Changed
@@ -13,7 +13,23 @@ Changed
 Fixed
 ~~~~~
 
+Added
+~~~~~
+
+`v2.6.0 <https://github.com/jpadilla/pyjwt/compare/2.5.0...2.6.0>`__
+-----------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
+- bump up cryptography >= 3.4.0 by @jpadilla in `#807 <https://github.com/jpadilla/pyjwt/pull/807>`_
+- Remove `types-cryptography` from `crypto` extra by @lautat in `#805 <https://github.com/jpadilla/pyjwt/pull/805>`_
+
+Fixed
+~~~~~
+
 - Invalidate token on the exact second the token expires `#797 <https://github.com/jpadilla/pyjwt/pull/797>`_
+- fix: version 2.5.0 heading typo by @c0state in `#803 <https://github.com/jpadilla/pyjwt/pull/803>`_
 
 Added
 ~~~~~
