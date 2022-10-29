@@ -13,6 +13,8 @@ Changed
 Fixed
 ~~~~~
 
+- Add classifier for Python 3.11 by @eseifert in `#818 <https://github.com/jpadilla/pyjwt/pull/818>`_
+
 Added
 ~~~~~
 
