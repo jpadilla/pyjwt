@@ -16,7 +16,6 @@ from .utils import (
 )
 
 try:
-    print('trying to import cryptography')
     import cryptography.exceptions
     from cryptography.exceptions import InvalidSignature
     from cryptography.hazmat.backends import default_backend
@@ -26,7 +25,6 @@ try:
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
     )
-    print('made it to 1')
     from cryptography.hazmat.primitives.asymmetric.ed448 import (
         Ed448PrivateKey,
         Ed448PublicKey,
@@ -56,9 +54,7 @@ try:
     )
 
     has_crypto = True
-except ModuleNotFoundError as e:
-    print(e)
-    print('what?')
+except ModuleNotFoundError:
     has_crypto = False
 
 requires_cryptography = {
