@@ -84,7 +84,7 @@ class TestPyJWKClient:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as mock_request:
-            custom_headers = {'User-agent': 'my-custom-agent'}
+            custom_headers = {"User-agent": "my-custom-agent"}
             jwks_client = PyJWKClient(url, headers=custom_headers)
             jwk_set = jwks_client.get_jwk_set()
             request_params = mock_request.call_args[0][0]
