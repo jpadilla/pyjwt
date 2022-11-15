@@ -21,6 +21,8 @@ Added
 - Add ``compute_hash_digest`` as a method of ``Algorithm`` objects, which uses
   the underlying hash algorithm to compute a digest. If there is no appropriate
   hash algorithm, a ``NotImplementedError`` will be raised
+- Add optional ``headers`` argument to ``PyJWKClient``. If provided, the headers
+  will be included in requests that the client uses when fetching the JWK set.
 
 `v2.6.0 <https://github.com/jpadilla/pyjwt/compare/2.5.0...2.6.0>`__
 -----------------------------------------------------------------------
