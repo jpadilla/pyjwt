@@ -18,9 +18,11 @@ class PyJWKClient:
         max_cached_keys: int = 16,
         cache_jwk_set: bool = True,
         lifespan: int = 300,
+        headers: dict = {},
     ):
         self.uri = uri
         self.jwk_set_cache: Optional[JWKSetCache] = None
+        self.headers = headers
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
@@ -41,7 +43,8 @@ class PyJWKClient:
     def fetch_data(self) -> Any:
         jwk_set: Any = None
         try:
-            with urllib.request.urlopen(self.uri) as response:
+            r = urllib.request.Request(url=self.uri, headers=self.headers)
+            with urllib.request.urlopen(r) as response:
                 jwk_set = json.load(response)
         except URLError as e:
             raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')

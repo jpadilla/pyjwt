@@ -80,6 +80,19 @@ def mocked_first_call_wrong_kid_second_call_correct_kid(
 
 @crypto_required
 class TestPyJWKClient:
+    def test_fetch_data_forwards_headers_to_correct_url(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as mock_request:
+            custom_headers = {"User-agent": "my-custom-agent"}
+            jwks_client = PyJWKClient(url, headers=custom_headers)
+            jwk_set = jwks_client.get_jwk_set()
+            request_params = mock_request.call_args[0][0]
+            assert request_params.full_url == url
+            assert request_params.headers == custom_headers
+
+        assert len(jwk_set.keys) == 1
+
     def test_get_jwk_set(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
