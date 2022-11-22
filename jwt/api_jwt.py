@@ -125,12 +125,7 @@ class PyJWT:
             detached_payload=detached_payload,
         )
 
-        try:
-            payload = json.loads(decoded["payload"])
-        except ValueError as e:
-            raise DecodeError(f"Invalid payload string: {e}")
-        if not isinstance(payload, dict):
-            raise DecodeError("Invalid payload string: must be a json object")
+        payload = self._decode_payload(decoded)
 
         merged_options = {**self.options, **options}
         self._validate_claims(
@@ -139,6 +134,22 @@ class PyJWT:
 
         decoded["payload"] = payload
         return decoded
+
+    def _decode_payload(self, decoded: Dict[str, Any]) -> Any:
+        """
+        Decode the payload from a JWS dictionary (payload, signature, header).
+
+        This method is intended to be overridden by subclasses that need to
+        decode the payload in a different way, e.g. decompress compressed
+        payloads.
+        """
+        try:
+            payload = json.loads(decoded["payload"])
+        except ValueError as e:
+            raise DecodeError(f"Invalid payload string: {e}")
+        if not isinstance(payload, dict):
+            raise DecodeError("Invalid payload string: must be a json object")
+        return payload
 
     def decode(
         self,
