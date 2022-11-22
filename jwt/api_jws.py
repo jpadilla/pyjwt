@@ -27,7 +27,7 @@ class PyJWS:
     def __init__(
         self,
         algorithms: Optional[List[str]] = None,
-        options: Optional[dict] = None,
+        options: Optional[dict[str, Any]] = None,
     ) -> None:
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
@@ -219,7 +219,7 @@ class PyJWS:
         options: dict[str, Any] | None = None,
         detached_payload: bytes | None = None,
         **kwargs,
-    ) -> str:
+    ) -> Any:
         if kwargs:
             warnings.warn(
                 "passing additional kwargs to decode() is deprecated "
