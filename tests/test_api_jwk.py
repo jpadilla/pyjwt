@@ -293,7 +293,7 @@ class TestPyJWKSet:
 
     def test_invalid_keys_list(self):
         with pytest.raises(PyJWKSetError) as err:
-            PyJWKSet(keys="string")
+            PyJWKSet(keys="string")  # type: ignore
         assert str(err.value) == "Invalid JWK Set value"
 
     def test_empty_keys_list(self):
