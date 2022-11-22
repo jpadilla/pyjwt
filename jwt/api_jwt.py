@@ -21,10 +21,10 @@ from .warnings import RemovedInPyjwt3Warning
 
 
 class PyJWT:
-    def __init__(self, options=None):
+    def __init__(self, options: Optional[dict[str, Any]] = None) -> None:
         if options is None:
             options = {}
-        self.options = {**self._get_default_options(), **options}
+        self.options: dict[str, Any] = {**self._get_default_options(), **options}
 
     @staticmethod
     def _get_default_options() -> Dict[str, Union[bool, List[str]]]:
@@ -68,8 +68,8 @@ class PyJWT:
 
     def decode_complete(
         self,
-        jwt: str,
-        key: str = "",
+        jwt: str | bytes,
+        key: str | bytes = "",
         algorithms: Optional[List[str]] = None,
         options: Optional[Dict[str, Any]] = None,
         # deprecated arg, remove in pyjwt3
@@ -142,8 +142,8 @@ class PyJWT:
 
     def decode(
         self,
-        jwt: str,
-        key: str = "",
+        jwt: str | bytes,
+        key: str | bytes = "",
         algorithms: Optional[List[str]] = None,
         options: Optional[Dict[str, Any]] = None,
         # deprecated arg, remove in pyjwt3
@@ -157,7 +157,7 @@ class PyJWT:
         leeway: Union[int, float, timedelta] = 0,
         # kwargs
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> Any:
         if kwargs:
             warnings.warn(
                 "passing additional kwargs to decode() is deprecated "
@@ -178,7 +178,14 @@ class PyJWT:
         )
         return decoded["payload"]
 
-    def _validate_claims(self, payload, options, audience=None, issuer=None, leeway=0):
+    def _validate_claims(
+        self,
+        payload: dict[str, Any],
+        options: dict[str, Any],
+        audience=None,
+        issuer=None,
+        leeway: float | timedelta = 0,
+    ) -> None:
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
 
@@ -204,12 +211,21 @@ class PyJWT:
         if options["verify_aud"]:
             self._validate_aud(payload, audience)
 
-    def _validate_required_claims(self, payload, options):
+    def _validate_required_claims(
+        self,
+        payload: dict[str, Any],
+        options: dict[str, Any],
+    ) -> None:
         for claim in options["require"]:
             if payload.get(claim) is None:
                 raise MissingRequiredClaimError(claim)
 
-    def _validate_iat(self, payload, now, leeway):
+    def _validate_iat(
+        self,
+        payload: dict[str, Any],
+        now: float,
+        leeway: float,
+    ) -> None:
         iat = payload["iat"]
         try:
             int(iat)
@@ -218,7 +234,12 @@ class PyJWT:
         if iat > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
 
-    def _validate_nbf(self, payload, now, leeway):
+    def _validate_nbf(
+        self,
+        payload: dict[str, Any],
+        now: float,
+        leeway: float,
+    ) -> None:
         try:
             nbf = int(payload["nbf"])
         except ValueError:
@@ -227,7 +248,12 @@ class PyJWT:
         if nbf > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (nbf)")
 
-    def _validate_exp(self, payload, now, leeway):
+    def _validate_exp(
+        self,
+        payload: dict[str, Any],
+        now: float,
+        leeway: float,
+    ) -> None:
         try:
             exp = int(payload["exp"])
         except ValueError:
@@ -236,7 +262,11 @@ class PyJWT:
         if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")
 
-    def _validate_aud(self, payload, audience):
+    def _validate_aud(
+        self,
+        payload: dict[str, Any],
+        audience: Optional[Union[str, Iterable[str]]],
+    ) -> None:
         if audience is None:
             if "aud" not in payload or not payload["aud"]:
                 return
@@ -264,7 +294,7 @@ class PyJWT:
         if all(aud not in audience_claims for aud in audience):
             raise InvalidAudienceError("Invalid audience")
 
-    def _validate_iss(self, payload, issuer):
+    def _validate_iss(self, payload: dict[str, Any], issuer: Any) -> None:
         if issuer is None:
             return
 
