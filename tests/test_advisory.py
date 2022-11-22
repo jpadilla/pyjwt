@@ -1,6 +1,7 @@
 import pytest
 
 import jwt
+from jwt.algorithms import get_default_algorithms
 from jwt.exceptions import InvalidKeyError
 
 from .utils import crypto_required
@@ -50,18 +51,20 @@ class TestAdvisory:
         # public key is a HMAC secret
         encoded_bad = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0ZXN0IjoxMjM0fQ.6ulDpqSlbHmQ8bZXhZRLFko9SwcHrghCwh8d-exJEE4"
 
+        algorithm_names = list(get_default_algorithms())
+
         # Both of the jwt tokens are validated as valid
         jwt.decode(
             encoded_good,
             pub_key_bytes,
-            algorithms=jwt.algorithms.get_default_algorithms(),
+            algorithms=algorithm_names,
         )
 
         with pytest.raises(InvalidKeyError):
             jwt.decode(
                 encoded_bad,
                 pub_key_bytes,
-                algorithms=jwt.algorithms.get_default_algorithms(),
+                algorithms=algorithm_names,
             )
 
         # Of course the receiver should specify ed25519 algorithm to be used if
@@ -100,16 +103,17 @@ class TestAdvisory:
         # encoded_bad = jwt.encode({"test": 1234}, ssh_key_bytes, algorithm="HS256")
         encoded_bad = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZXN0IjoxMjM0fQ.5eYfbrbeGYmWfypQ6rMWXNZ8bdHcqKng5GPr9MJZITU"
 
+        algorithm_names = list(get_default_algorithms())
         # Both of the jwt tokens are validated as valid
         jwt.decode(
             encoded_good,
             ssh_key_bytes,
-            algorithms=jwt.algorithms.get_default_algorithms(),
+            algorithms=algorithm_names,
         )
 
         with pytest.raises(InvalidKeyError):
             jwt.decode(
                 encoded_bad,
                 ssh_key_bytes,
-                algorithms=jwt.algorithms.get_default_algorithms(),
+                algorithms=algorithm_names,
             )
