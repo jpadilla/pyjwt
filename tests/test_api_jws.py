@@ -414,6 +414,22 @@ class TestJWS:
 
         assert decoded_payload == payload
 
+    def test_sorting_headers(self, jws, payload):
+        secret = "\xc2"
+        encoded_without_sorting = jws.encode(payload, secret, sort_headers=False)
+        encoded_with_sorting = jws.encode(payload, secret, sort_headers=True)
+
+        assert encoded_with_sorting != encoded_without_sorting
+
+        decoded_without_sorting = jws.decode(
+            encoded_without_sorting, secret, algorithms=["HS256"]
+        )
+        decoded_with_sorting = jws.decode(
+            encoded_with_sorting, secret, algorithms=["HS256"]
+        )
+
+        assert decoded_without_sorting == decoded_with_sorting
+
     def test_decode_invalid_header_padding(self, jws):
         example_jws = (
             "aeyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
