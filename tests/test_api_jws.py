@@ -14,6 +14,7 @@ from jwt.exceptions import (
 )
 from jwt.utils import base64url_decode
 from jwt.warnings import RemovedInPyjwt3Warning
+
 from .utils import crypto_required, key_path, no_crypto_required
 
 try:
