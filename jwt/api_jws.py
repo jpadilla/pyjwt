@@ -134,7 +134,6 @@ class PyJWS:
             # True is the standard value for b64, so no need for it
             del header["b64"]
 
-        # Fix for headers misorder - issue #715
         json_header = json.dumps(
             header, separators=(",", ":"), cls=json_encoder, sort_keys=sort_headers
         ).encode()
