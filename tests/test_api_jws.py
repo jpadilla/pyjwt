@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 from decimal import Decimal
 
 import pytest
@@ -13,7 +14,6 @@ from jwt.exceptions import (
 )
 from jwt.utils import base64url_decode
 from jwt.warnings import RemovedInPyjwt3Warning
-
 from .utils import crypto_required, key_path, no_crypto_required
 
 try:
@@ -414,21 +414,25 @@ class TestJWS:
 
         assert decoded_payload == payload
 
-    def test_sorting_headers(self, jws, payload):
+    def test_sorting_of_headers(self, jws, payload):
+        headers = OrderedDict([("b", "1"), ("a", "2")])
         secret = "\xc2"
-        encoded_without_sorting = jws.encode(payload, secret, sort_headers=False)
-        encoded_with_sorting = jws.encode(payload, secret, sort_headers=True)
 
-        assert encoded_with_sorting != encoded_without_sorting
-
-        decoded_without_sorting = jws.decode(
-            encoded_without_sorting, secret, algorithms=["HS256"]
+        jws_message_unsorted = jws.encode(
+            payload, secret, headers=headers, sort_headers=False
         )
-        decoded_with_sorting = jws.decode(
-            encoded_with_sorting, secret, algorithms=["HS256"]
+        jws_message_sorted = jws.encode(
+            payload, secret, headers=headers, sort_headers=True
         )
 
-        assert decoded_without_sorting == decoded_with_sorting
+        message_unsorted_splitted, *_ = jws_message_unsorted.split(".")
+        header_unsorted = base64url_decode(message_unsorted_splitted)
+
+        message_sorted_splitted, *_ = jws_message_sorted.split(".")
+        header_sorted = base64url_decode(message_sorted_splitted)
+
+        assert header_unsorted == b'{"typ":"JWT","alg":"HS256","b":"1","a":"2"}'
+        assert header_sorted == b'{"a":"2","alg":"HS256","b":"1","typ":"JWT"}'
 
     def test_decode_invalid_header_padding(self, jws):
         example_jws = (
