@@ -45,6 +45,7 @@ class PyJWT:
         algorithm: Optional[str] = "HS256",
         headers: Optional[Dict[str, Any]] = None,
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
+        sort_headers: bool = True,
     ) -> str:
         # Check that we get a mapping
         if not isinstance(payload, Mapping):
@@ -66,7 +67,14 @@ class PyJWT:
             json_encoder=json_encoder,
         )
 
-        return api_jws.encode(json_payload, key, algorithm, headers, json_encoder)
+        return api_jws.encode(
+            json_payload,
+            key,
+            algorithm,
+            headers,
+            json_encoder,
+            sort_headers=sort_headers,
+        )
 
     def _encode_payload(
         self,

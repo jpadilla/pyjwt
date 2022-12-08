@@ -101,6 +101,7 @@ class PyJWS:
         headers: dict[str, Any] | None = None,
         json_encoder: Type[json.JSONEncoder] | None = None,
         is_payload_detached: bool = False,
+        sort_headers: bool = True,
     ) -> str:
         segments = []
 
@@ -133,9 +134,8 @@ class PyJWS:
             # True is the standard value for b64, so no need for it
             del header["b64"]
 
-        # Fix for headers misorder - issue #715
         json_header = json.dumps(
-            header, separators=(",", ":"), cls=json_encoder, sort_keys=True
+            header, separators=(",", ":"), cls=json_encoder, sort_keys=sort_headers
         ).encode()
 
         segments.append(base64url_encode(json_header))
