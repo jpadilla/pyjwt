@@ -1,5 +1,4 @@
 import json
-from collections import OrderedDict
 from decimal import Decimal
 
 import pytest
@@ -420,7 +419,7 @@ class TestJWS:
         jws_message = jws.encode(
             payload,
             key="\xc2",
-            headers=OrderedDict([("b", "1"), ("a", "2")]),
+            headers=dict([("b", "1"), ("a", "2")]),
             sort_headers=sort_headers,
         )
         header_json = base64url_decode(jws_message.split(".")[0])
