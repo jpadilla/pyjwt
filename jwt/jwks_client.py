@@ -1,7 +1,7 @@
 import json
 import urllib.request
 from functools import lru_cache
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 from urllib.error import URLError
 
 from .api_jwk import PyJWK, PyJWKSet
@@ -18,8 +18,10 @@ class PyJWKClient:
         max_cached_keys: int = 16,
         cache_jwk_set: bool = True,
         lifespan: int = 300,
-        headers: dict = {},
+        headers: Optional[Dict[str, Any]] = None,
     ):
+        if headers is None:
+            headers = {}
         self.uri = uri
         self.jwk_set_cache: Optional[JWKSetCache] = None
         self.headers = headers
@@ -61,6 +63,9 @@ class PyJWKClient:
 
         if data is None:
             data = self.fetch_data()
+
+        if not isinstance(data, dict):
+            raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 
         return PyJWKSet.from_dict(data)
 

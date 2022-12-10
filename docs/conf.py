@@ -4,7 +4,7 @@ import re
 import sphinx_rtd_theme
 
 
-def read(*parts):
+def read(*parts) -> str:
     """
     Build an absolute path from *parts* and and return the contents of the
     resulting file.  Assume UTF-8 encoding.
@@ -14,7 +14,7 @@ def read(*parts):
         return f.read()
 
 
-def find_version(*file_paths):
+def find_version(*file_paths) -> str:
     """
     Build a path from *file_paths* and search for a ``__version__``
     string inside.

@@ -25,19 +25,19 @@ class TestAlgorithms:
         algo = Algorithm()
 
         with pytest.raises(NotImplementedError):
-            algo.sign("message", "key")
+            algo.sign(b"message", "key")
 
     def test_algorithm_should_throw_exception_if_verify_not_impl(self):
         algo = Algorithm()
 
         with pytest.raises(NotImplementedError):
-            algo.verify("message", "key", "signature")
+            algo.verify(b"message", "key", b"signature")
 
     def test_algorithm_should_throw_exception_if_to_jwk_not_impl(self):
         algo = Algorithm()
 
         with pytest.raises(NotImplementedError):
-            algo.from_jwk("value")
+            algo.from_jwk({"val": "ue"})
 
     def test_algorithm_should_throw_exception_if_from_jwk_not_impl(self):
         algo = Algorithm()
