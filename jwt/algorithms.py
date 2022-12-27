@@ -423,7 +423,7 @@ if has_crypto:
         SHA384: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA384
         SHA512: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        def __init__(self, hash_alg) -> None:
+        def __init__(self, hash_alg: Type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
         def prepare_key(self, key):
