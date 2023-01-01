@@ -23,3 +23,11 @@ python_version = 3.7
 ignore_missing_imports = true
 warn_unused_ignores = true
 no_implicit_optional = true
+strict = true
+# TODO: remove these strict loosenings when possible
+allow_incomplete_defs = true
+allow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_calls = false

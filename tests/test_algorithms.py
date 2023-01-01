@@ -25,25 +25,31 @@ class TestAlgorithms:
         algo = Algorithm()
 
         with pytest.raises(NotImplementedError):
-            algo.sign("message", "key")
+            algo.sign(b"message", "key")
 
     def test_algorithm_should_throw_exception_if_verify_not_impl(self):
         algo = Algorithm()
 
         with pytest.raises(NotImplementedError):
-            algo.verify("message", "key", "signature")
+            algo.verify(b"message", "key", b"signature")
 
     def test_algorithm_should_throw_exception_if_to_jwk_not_impl(self):
         algo = Algorithm()
 
         with pytest.raises(NotImplementedError):
-            algo.from_jwk("value")
+            algo.from_jwk({"val": "ue"})
 
     def test_algorithm_should_throw_exception_if_from_jwk_not_impl(self):
         algo = Algorithm()
 
         with pytest.raises(NotImplementedError):
             algo.to_jwk("value")
+
+    def test_algorithm_should_throw_exception_if_compute_hash_digest_not_impl(self):
+        algo = Algorithm()
+
+        with pytest.raises(NotImplementedError):
+            algo.compute_hash_digest(b"value")
 
     def test_none_algorithm_should_throw_exception_if_key_is_not_none(self):
         algo = NoneAlgorithm()
@@ -1054,3 +1060,20 @@ class TestOKPAlgorithms:
         signature_2 = algo.sign(b"Hello World!", priv_key_2)
         assert algo.verify(b"Hello World!", pub_key_2, signature_1)
         assert algo.verify(b"Hello World!", pub_key_2, signature_2)
+
+    @crypto_required
+    def test_rsa_can_compute_digest(self):
+        # this is the well-known sha256 hash of "foo"
+        foo_hash = base64.b64decode(b"LCa0a2j/xo/5m0U8HTBBNBNCLXBkg7+g+YpeiGJm564=")
+
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        computed_hash = algo.compute_hash_digest(b"foo")
+        assert computed_hash == foo_hash
+
+    def test_hmac_can_compute_digest(self):
+        # this is the well-known sha256 hash of "foo"
+        foo_hash = base64.b64decode(b"LCa0a2j/xo/5m0U8HTBBNBNCLXBkg7+g+YpeiGJm564=")
+
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        computed_hash = algo.compute_hash_digest(b"foo")
+        assert computed_hash == foo_hash

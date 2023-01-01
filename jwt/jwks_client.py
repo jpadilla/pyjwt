@@ -1,7 +1,7 @@
 import json
 import urllib.request
 from functools import lru_cache
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 from urllib.error import URLError
 
 from .api_jwk import PyJWK, PyJWKSet
@@ -18,9 +18,13 @@ class PyJWKClient:
         max_cached_keys: int = 16,
         cache_jwk_set: bool = True,
         lifespan: int = 300,
+        headers: Optional[Dict[str, Any]] = None,
     ):
+        if headers is None:
+            headers = {}
         self.uri = uri
         self.jwk_set_cache: Optional[JWKSetCache] = None
+        self.headers = headers
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
@@ -41,7 +45,8 @@ class PyJWKClient:
     def fetch_data(self) -> Any:
         jwk_set: Any = None
         try:
-            with urllib.request.urlopen(self.uri) as response:
+            r = urllib.request.Request(url=self.uri, headers=self.headers)
+            with urllib.request.urlopen(r) as response:
                 jwk_set = json.load(response)
         except URLError as e:
             raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')
@@ -58,6 +63,9 @@ class PyJWKClient:
 
         if data is None:
             data = self.fetch_data()
+
+        if not isinstance(data, dict):
+            raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 
         return PyJWKSet.from_dict(data)
 

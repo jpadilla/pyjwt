@@ -286,7 +286,8 @@ Retrieve RSA signing keys from a JWKS endpoint
     >>> token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
     >>> kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
     >>> url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
-    >>> jwks_client = PyJWKClient(url)
+    >>> optional_custom_headers = {"User-agent": "custom-user-agent"}
+    >>> jwks_client = PyJWKClient(url, headers=optional_custom_headers)
     >>> signing_key = jwks_client.get_signing_key_from_jwt(token)
     >>> data = jwt.decode(
     ...     token,
@@ -297,3 +298,74 @@ Retrieve RSA signing keys from a JWKS endpoint
     ... )
     >>> print(data)
     {'iss': 'https://dev-87evx9ru.auth0.com/', 'sub': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC@clients', 'aud': 'https://expenses-api', 'iat': 1572006954, 'exp': 1572006964, 'azp': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC', 'gty': 'client-credentials'}
+
+OIDC Login Flow
+---------------
+
+The following usage demonstrates an OIDC login flow using pyjwt. Further
+reading about the OIDC spec is recommended for implementers.
+
+In particular, this demonstrates validation of the ``at_hash`` claim.
+This claim relies on data from outside of the the JWT for validation. Methods
+are provided which support computation and validation of this claim, but it
+is not built into pyjwt.
+
+.. code-block:: python
+
+    import base64
+    import jwt
+    import requests
+
+
+    # Part 1: setup
+    # get the OIDC config and JWKs to use
+
+    # in OIDC, you must know your client_id (this is the OAuth 2.0 client_id)
+    client_id = ...
+
+    # example of fetching data from your OIDC server
+    # see: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
+    oidc_server = ...
+    oidc_config = requests.get(
+        f"https://{oidc_server}/.well-known/openid-configuration"
+    ).json()
+    signing_algos = oidc_config["id_token_signing_alg_values_supported"]
+
+    # setup a PyJWKClient to get the appropriate signing key
+    jwks_client = jwt.PyJWKClient(oidc_config["jwks_uri"])
+
+
+    # Part 2: login / authorization
+    # when a user completes an OIDC login flow, there will be a well-formed
+    # response object to parse/handle
+
+    # data from the login flow
+    # see: https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse
+    token_response = ...
+    id_token = token_response["id_token"]
+    access_token = token_response["access_token"]
+
+
+    # Part 3: decode and validate at_hash
+    # after the login is complete, the id_token needs to be decoded
+    # this is the stage at which an OIDC client must verify the at_hash
+
+    # get signing_key from id_token
+    signing_key = jwks_client.get_signing_key_from_jwt(id_token)
+
+    # now, decode_complete to get payload + header
+    data = jwt.decode_complete(
+        id_token,
+        key=signing_key.key,
+        algorithms=signing_algos,
+        audience=client_id,
+    )
+    payload, header = data["payload"], data["header"]
+
+    # get the pyjwt algorithm object
+    alg_obj = jwt.get_algorithm_by_name(header["alg"])
+
+    # compute at_hash, then validate / assert
+    digest = alg_obj.compute_hash_digest(access_token)
+    at_hash = base64.urlsafe_b64encode(digest[: (len(digest) // 2)]).rstrip("=")
+    assert at_hash == payload["at_hash"]

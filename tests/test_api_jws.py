@@ -414,6 +414,17 @@ class TestJWS:
 
         assert decoded_payload == payload
 
+    @pytest.mark.parametrize("sort_headers", (False, True))
+    def test_sorting_of_headers(self, jws, payload, sort_headers):
+        jws_message = jws.encode(
+            payload,
+            key="\xc2",
+            headers={"b": "1", "a": "2"},
+            sort_headers=sort_headers,
+        )
+        header_json = base64url_decode(jws_message.split(".")[0])
+        assert sort_headers == (header_json.index(b'"a"') < header_json.index(b'"b"'))
+
     def test_decode_invalid_header_padding(self, jws):
         example_jws = (
             "aeyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"

@@ -219,6 +219,14 @@ class TestJWT:
         with pytest.raises(InvalidIssuedAtError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
+    def test_decode_raises_exception_if_iat_is_greater_than_now(self, jwt, payload):
+        payload["iat"] = utc_timestamp() + 10
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.raises(ImmatureSignatureError):
+            jwt.decode(jwt_message, secret, algorithms=["HS256"])
+
     def test_decode_raises_exception_if_nbf_is_not_int(self, jwt):
         # >>> jwt.encode({'nbf': 'not-an-int'}, 'secret')
         example_jwt = (
