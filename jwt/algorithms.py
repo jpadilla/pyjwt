@@ -1,10 +1,10 @@
 import hashlib
 import hmac
 import json
-from typing import Any, Dict, Union
+from typing import Any, ClassVar, Dict, Type, Union
 
 from .exceptions import InvalidKeyError
-from .types import JWKDict
+from .types import HashlibHash, JWKDict
 from .utils import (
     base64url_decode,
     base64url_encode,
@@ -212,11 +212,11 @@ class HMACAlgorithm(Algorithm):
     and the specified hash function.
     """
 
-    SHA256 = hashlib.sha256
-    SHA384 = hashlib.sha384
-    SHA512 = hashlib.sha512
+    SHA256: ClassVar[HashlibHash] = hashlib.sha256
+    SHA384: ClassVar[HashlibHash] = hashlib.sha384
+    SHA512: ClassVar[HashlibHash] = hashlib.sha512
 
-    def __init__(self, hash_alg) -> None:
+    def __init__(self, hash_alg: HashlibHash) -> None:
         self.hash_alg = hash_alg
 
     def prepare_key(self, key):
@@ -271,11 +271,11 @@ if has_crypto:
         RSASSA-PKCS-v1_5 and the specified hash function.
         """
 
-        SHA256 = hashes.SHA256
-        SHA384 = hashes.SHA384
-        SHA512 = hashes.SHA512
+        SHA256: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA256
+        SHA384: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA384
+        SHA512: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        def __init__(self, hash_alg) -> None:
+        def __init__(self, hash_alg: Type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
         def prepare_key(self, key):
@@ -419,11 +419,11 @@ if has_crypto:
         ECDSA and the specified hash function
         """
 
-        SHA256 = hashes.SHA256
-        SHA384 = hashes.SHA384
-        SHA512 = hashes.SHA512
+        SHA256: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA256
+        SHA384: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA384
+        SHA512: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        def __init__(self, hash_alg) -> None:
+        def __init__(self, hash_alg: Type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
         def prepare_key(self, key):
