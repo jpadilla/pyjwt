@@ -10,6 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Changed
 ~~~~~~~
 
+- Changed the error message when the token audience doesn't match the expected audience by @irdkwmnsb `#809 <https://github.com/jpadilla/pyjwt/pull/809>`__
+
 Fixed
 ~~~~~
 
