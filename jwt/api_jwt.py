@@ -265,9 +265,8 @@ class PyJWT:
         now: float,
         leeway: float,
     ) -> None:
-        iat = payload["iat"]
         try:
-            int(iat)
+            iat = int(payload["iat"])
         except ValueError:
             raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.")
         if iat > (now + leeway):
