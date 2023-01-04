@@ -6,7 +6,7 @@ from jwt.algorithms import has_crypto
 from jwt.api_jwk import PyJWK, PyJWKSet
 from jwt.exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 
-from .utils import crypto_required, key_path
+from .utils import crypto_required, key_path, no_crypto_required
 
 if has_crypto:
     from jwt.algorithms import ECAlgorithm, HMACAlgorithm, OKPAlgorithm, RSAAlgorithm
@@ -207,6 +207,11 @@ class TestPyJWK:
         with pytest.raises(InvalidKeyError):
             PyJWK.from_dict(v)
 
+    @no_crypto_required
+    def test_missing_crypto_library_good_error_message(self):
+        with pytest.raises(PyJWKError) as exc:
+            PyJWK({"kty": "dummy"}, algorithm="RS256")
+            assert "cryptography" in str(exc.value)
 
 @crypto_required
 class TestPyJWKSet:
