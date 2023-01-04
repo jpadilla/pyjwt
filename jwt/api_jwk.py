@@ -4,7 +4,7 @@ import json
 import time
 from typing import Any, Optional
 
-from .algorithms import get_default_algorithms
+from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
 from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
 from .types import JWKDict
 
@@ -49,10 +49,13 @@ class PyJWK:
             else:
                 raise InvalidKeyError(f"Unsupported kty: {kty}")
 
+        if not has_crypto and algorithm in requires_cryptography:
+            raise PyJWKError(f"{algorithm} requires 'cryptography' to be installed.")
+
         self.Algorithm = self._algorithms.get(algorithm)
 
         if not self.Algorithm:
-            raise PyJWKError(f"Unable to find a algorithm for key: {self._jwk_data}")
+            raise PyJWKError(f"Unable to find an algorithm for key: {self._jwk_data}")
 
         self.key = self.Algorithm.from_jwk(self._jwk_data)
 
@@ -66,11 +69,11 @@ class PyJWK:
         return PyJWK.from_dict(obj, algorithm)
 
     @property
-    def key_type(self) -> str:
+    def key_type(self) -> Optional[str]:
         return self._jwk_data.get("kty", None)
 
     @property
-    def key_id(self) -> str:
+    def key_id(self) -> Optional[str]:
         return self._jwk_data.get("kid", None)
 
     @property
@@ -96,7 +99,9 @@ class PyJWKSet:
                 continue
 
         if len(self.keys) == 0:
-            raise PyJWKSetError("The JWK Set did not contain any usable keys")
+            raise PyJWKSetError(
+                "The JWK Set did not contain any usable keys. Perhaps 'cryptography' is not installed?"
+            )
 
     @staticmethod
     def from_dict(obj: dict[str, Any]) -> "PyJWKSet":
