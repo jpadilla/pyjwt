@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from jwt.algorithms import Algorithm, HMACAlgorithm, NoneAlgorithm, has_crypto
+from jwt.algorithms import HMACAlgorithm, NoneAlgorithm, has_crypto
 from jwt.exceptions import InvalidKeyError
 from jwt.utils import base64url_decode
 
@@ -15,47 +15,23 @@ if has_crypto:
 
 
 class TestAlgorithms:
-    def test_algorithm_should_throw_exception_if_prepare_key_not_impl(self):
-        algo = Algorithm()
-
-        with pytest.raises(NotImplementedError):
-            algo.prepare_key("test")
-
-    def test_algorithm_should_throw_exception_if_sign_not_impl(self):
-        algo = Algorithm()
-
-        with pytest.raises(NotImplementedError):
-            algo.sign(b"message", "key")
-
-    def test_algorithm_should_throw_exception_if_verify_not_impl(self):
-        algo = Algorithm()
-
-        with pytest.raises(NotImplementedError):
-            algo.verify(b"message", "key", b"signature")
-
-    def test_algorithm_should_throw_exception_if_to_jwk_not_impl(self):
-        algo = Algorithm()
-
-        with pytest.raises(NotImplementedError):
-            algo.from_jwk({"val": "ue"})
-
-    def test_algorithm_should_throw_exception_if_from_jwk_not_impl(self):
-        algo = Algorithm()
-
-        with pytest.raises(NotImplementedError):
-            algo.to_jwk("value")
-
-    def test_algorithm_should_throw_exception_if_compute_hash_digest_not_impl(self):
-        algo = Algorithm()
-
-        with pytest.raises(NotImplementedError):
-            algo.compute_hash_digest(b"value")
-
     def test_none_algorithm_should_throw_exception_if_key_is_not_none(self):
         algo = NoneAlgorithm()
 
         with pytest.raises(InvalidKeyError):
             algo.prepare_key("123")
+
+    def test_none_algorithm_should_throw_exception_on_to_jwk(self):
+        algo = NoneAlgorithm()
+
+        with pytest.raises(NotImplementedError):
+            algo.to_jwk("dummy")  # Using a dummy argument as is it not relevant
+
+    def test_none_algorithm_should_throw_exception_on_from_jwk(self):
+        algo = NoneAlgorithm()
+
+        with pytest.raises(NotImplementedError):
+            algo.from_jwk({})  # Using a dummy argument as is it not relevant
 
     def test_hmac_should_reject_nonstring_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
