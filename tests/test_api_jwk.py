@@ -213,6 +213,7 @@ class TestPyJWK:
             PyJWK({"kty": "dummy"}, algorithm="RS256")
             assert "cryptography" in str(exc.value)
 
+
 @crypto_required
 class TestPyJWKSet:
     def test_should_load_keys_from_jwk_data_dict(self):
