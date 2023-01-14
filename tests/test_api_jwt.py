@@ -227,6 +227,13 @@ class TestJWT:
         with pytest.raises(ImmatureSignatureError):
             jwt.decode(jwt_message, secret, algorithms=["HS256"])
 
+    def test_decode_works_if_iat_is_str_of_a_number(self, jwt, payload):
+        payload["iat"] = "1638202770"
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+        data = jwt.decode(jwt_message, secret, algorithms=["HS256"])
+        assert data["iat"] == "1638202770"
+
     def test_decode_raises_exception_if_nbf_is_not_int(self, jwt):
         # >>> jwt.encode({'nbf': 'not-an-int'}, 'secret')
         example_jwt = (
