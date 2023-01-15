@@ -16,6 +16,7 @@ Fixed
 ~~~~~
 
 - Add classifier for Python 3.11 by @eseifert in `#818 <https://github.com/jpadilla/pyjwt/pull/818>`_
+- Fix ``_validate_iat`` validation by @Viicos in `#847 <https://github.com/jpadilla/pyjwt/pull/847>`_
 
 Added
 ~~~~~
