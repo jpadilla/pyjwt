@@ -475,7 +475,6 @@ if has_crypto:
 
         @staticmethod
         def to_jwk(key_obj):
-
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 public_numbers = key_obj.public_key().public_numbers()
             elif isinstance(key_obj, EllipticCurvePublicKey):

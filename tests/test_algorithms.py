@@ -169,7 +169,7 @@ class TestAlgorithms:
             "P-521": ECAlgorithm.SHA512,
             "secp256k1": ECAlgorithm.SHA256,
         }
-        for (curve, hash) in tests.items():
+        for curve, hash in tests.items():
             algo = ECAlgorithm(hash)
 
             with open(key_path(f"jwk_ec_pub_{curve}.json")) as keyfile:
@@ -236,7 +236,7 @@ class TestAlgorithms:
                 )
 
         # EC private key length invalid
-        for (curve, point) in valid_points.items():
+        for curve, point in valid_points.items():
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(
                     f'{{"kty": "EC", "crv": "{curve}", "x": "{point["x"]}", "y": "{point["y"]}", "d": "dGVzdA=="}}'
@@ -318,7 +318,7 @@ class TestAlgorithms:
             "P-521": ECAlgorithm.SHA512,
             "secp256k1": ECAlgorithm.SHA256,
         }
-        for (curve, hash) in tests.items():
+        for curve, hash in tests.items():
             algo = ECAlgorithm(hash)
 
             with open(key_path(f"jwk_ec_pub_{curve}.json")) as keyfile:

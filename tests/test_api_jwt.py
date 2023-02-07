@@ -160,7 +160,6 @@ class TestJWT:
         assert str(exception) == "Invalid claim format in token"
 
     def test_encode_bad_type(self, jwt):
-
         types = ["string", tuple(), list(), 42, set()]
 
         for t in types:

@@ -158,7 +158,6 @@ class TestJWS:
         assert str(exception) == "Invalid header string: must be a json object"
 
     def test_encode_algorithm_param_should_be_case_sensitive(self, jws, payload):
-
         jws.encode(payload, "secret", algorithm="HS256")
 
         with pytest.raises(NotImplementedError) as context:
