@@ -57,7 +57,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_without_alg_from_dict(self):
-
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -69,7 +68,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_from_dict_with_algorithm(self):
-
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -81,7 +79,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_ec_p256_from_dict(self):
-
         with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -93,7 +90,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_ec_p384_from_dict(self):
-
         with open(key_path("jwk_ec_pub_P-384.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -105,7 +101,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_ec_p521_from_dict(self):
-
         with open(key_path("jwk_ec_pub_P-521.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -117,7 +112,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_ec_secp256k1_from_dict(self):
-
         with open(key_path("jwk_ec_pub_secp256k1.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -129,7 +123,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_hmac_from_dict(self):
-
         with open(key_path("jwk_hmac.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -141,7 +134,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_hmac_without_alg_from_dict(self):
-
         with open(key_path("jwk_hmac.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -154,7 +146,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_should_load_key_okp_without_alg_from_dict(self):
-
         with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -165,7 +156,6 @@ class TestPyJWK:
 
     @crypto_required
     def test_from_dict_should_throw_exception_if_arg_is_invalid(self):
-
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             valid_rsa_pub = json.loads(keyfile.read())
         with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
