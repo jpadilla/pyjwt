@@ -74,7 +74,7 @@ class PyJWKClient:
         signing_keys = [
             jwk_set_key
             for jwk_set_key in jwk_set.keys
-            if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id
+            if jwk_set_key.public_key_use in ["sig", None]
         ]
 
         if not signing_keys:
