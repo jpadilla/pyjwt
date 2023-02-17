@@ -78,7 +78,9 @@ class PyJWKClient:
         ]
 
         if not signing_keys:
-            raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
+            raise PyJWKClientError(
+                "The JWKS endpoint did not contain any recognized signing keys. Did you mean to use pyjwt[crypto]?"
+            )
 
         return signing_keys
 
