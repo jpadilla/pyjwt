@@ -308,7 +308,7 @@ if has_crypto:
         def to_jwk(key_obj):
             obj = None
 
-            if getattr(key_obj, "private_numbers", None):
+            if hasattr(key_obj, "private_numbers"):
                 # Private key
                 numbers = key_obj.private_numbers()
 
@@ -325,7 +325,7 @@ if has_crypto:
                     "qi": to_base64url_uint(numbers.iqmp).decode(),
                 }
 
-            elif getattr(key_obj, "verify", None):
+            elif hasattr(key_obj, "verify"):
                 # Public key
                 numbers = key_obj.public_numbers()
 
