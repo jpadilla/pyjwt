@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import warnings
 from calendar import timegm
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -47,10 +47,10 @@ class PyJWT:
         json_encoder: Optional[Type[json.JSONEncoder]] = None,
         sort_headers: bool = True,
     ) -> str:
-        # Check that we get a mapping
-        if not isinstance(payload, Mapping):
+        # Check that we get a dict
+        if not isinstance(payload, dict):
             raise TypeError(
-                "Expecting a mapping object, as JWT only supports "
+                "Expecting a dict object, as JWT only supports "
                 "JSON objects as payloads."
             )
 
