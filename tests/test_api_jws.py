@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from jwt.algorithms import Algorithm, has_crypto
+from jwt.algorithms import NoneAlgorithm, has_crypto
 from jwt.api_jws import PyJWS
 from jwt.exceptions import (
     DecodeError,
@@ -39,10 +39,10 @@ def payload():
 
 class TestJWS:
     def test_register_algo_does_not_allow_duplicate_registration(self, jws):
-        jws.register_algorithm("AAA", Algorithm())
+        jws.register_algorithm("AAA", NoneAlgorithm())
 
         with pytest.raises(ValueError):
-            jws.register_algorithm("AAA", Algorithm())
+            jws.register_algorithm("AAA", NoneAlgorithm())
 
     def test_register_algo_rejects_non_algorithm_obj(self, jws):
         with pytest.raises(TypeError):
