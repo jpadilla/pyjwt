@@ -261,7 +261,7 @@ use
 And the old v1.x syntax
 ``jwt.decode(token, verify=False)``
 is now:
-``jwt.decode(jwt=token, key='secret', algorithms=['HS256'], options={"verify_signature": False, "verify_exp": True})``
+``jwt.decode(jwt=token, key='secret', algorithms=['HS256'], options={"verify_signature": False})``
 
 Added
 ~~~~~
