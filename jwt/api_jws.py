@@ -3,7 +3,7 @@ from __future__ import annotations
 import binascii
 import json
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .algorithms import (
     Algorithm,
@@ -19,6 +19,9 @@ from .exceptions import (
 )
 from .utils import base64url_decode, base64url_encode
 from .warnings import RemovedInPyjwt3Warning
+
+if TYPE_CHECKING:
+    from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
 
 
 class PyJWS:
@@ -100,7 +103,7 @@ class PyJWS:
     def encode(
         self,
         payload: bytes,
-        key: str,
+        key: AllowedPrivateKeys | str | bytes,
         algorithm: str | None = "HS256",
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
@@ -169,7 +172,7 @@ class PyJWS:
     def decode_complete(
         self,
         jwt: str | bytes,
-        key: str | bytes = "",
+        key: AllowedPublicKeys | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         detached_payload: bytes | None = None,
@@ -214,7 +217,7 @@ class PyJWS:
     def decode(
         self,
         jwt: str | bytes,
-        key: str | bytes = "",
+        key: AllowedPublicKeys | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         detached_payload: bytes | None = None,
@@ -286,7 +289,7 @@ class PyJWS:
         signing_input: bytes,
         header: dict[str, Any],
         signature: bytes,
-        key: str | bytes = "",
+        key: AllowedPublicKeys | str | bytes = "",
         algorithms: list[str] | None = None,
     ) -> None:
         try:
@@ -301,9 +304,9 @@ class PyJWS:
             alg_obj = self.get_algorithm_by_name(alg)
         except NotImplementedError as e:
             raise InvalidAlgorithmError("Algorithm not supported") from e
-        key = alg_obj.prepare_key(key)
+        prepared_key = alg_obj.prepare_key(key)
 
-        if not alg_obj.verify(signing_input, key, signature):
+        if not alg_obj.verify(signing_input, prepared_key, signature):
             raise InvalidSignatureError("Signature verification failed")
 
     def _validate_headers(self, headers: dict[str, Any]) -> None:

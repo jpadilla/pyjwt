@@ -5,7 +5,7 @@ import warnings
 from calendar import timegm
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from . import api_jws
 from .exceptions import (
@@ -18,6 +18,9 @@ from .exceptions import (
     MissingRequiredClaimError,
 )
 from .warnings import RemovedInPyjwt3Warning
+
+if TYPE_CHECKING:
+    from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
 
 
 class PyJWT:
@@ -41,7 +44,7 @@ class PyJWT:
     def encode(
         self,
         payload: dict[str, Any],
-        key: str,
+        key: AllowedPrivateKeys | str | bytes,
         algorithm: str | None = "HS256",
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
@@ -97,7 +100,7 @@ class PyJWT:
     def decode_complete(
         self,
         jwt: str | bytes,
-        key: str | bytes = "",
+        key: AllowedPublicKeys | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         # deprecated arg, remove in pyjwt3
@@ -110,7 +113,7 @@ class PyJWT:
         issuer: str | None = None,
         leeway: float | timedelta = 0,
         # kwargs
-        **kwargs,
+        **kwargs: Any,
     ) -> dict[str, Any]:
         if kwargs:
             warnings.warn(
@@ -182,7 +185,7 @@ class PyJWT:
     def decode(
         self,
         jwt: str | bytes,
-        key: str | bytes = "",
+        key: AllowedPublicKeys | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         # deprecated arg, remove in pyjwt3
@@ -195,7 +198,7 @@ class PyJWT:
         issuer: str | None = None,
         leeway: float | timedelta = 0,
         # kwargs
-        **kwargs,
+        **kwargs: Any,
     ) -> Any:
         if kwargs:
             warnings.warn(

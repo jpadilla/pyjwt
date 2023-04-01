@@ -1,7 +1,7 @@
 import base64
 import binascii
 import re
-from typing import Any, AnyStr
+from typing import AnyStr
 
 try:
     from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurve
@@ -13,7 +13,7 @@ except ModuleNotFoundError:
     pass
 
 
-def force_bytes(value: Any) -> bytes:
+def force_bytes(value: AnyStr) -> bytes:
     if isinstance(value, str):
         return value.encode("utf-8")
     elif isinstance(value, bytes):
