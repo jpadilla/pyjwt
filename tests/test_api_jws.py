@@ -82,7 +82,7 @@ class TestJWS:
 
         assert jws.options["verify_signature"]
 
-    def test_options_must_be_dict(self, jws):
+    def test_options_must_be_dict(self):
         pytest.raises(TypeError, PyJWS, options=object())
         pytest.raises((TypeError, ValueError), PyJWS, options=("something"))
 

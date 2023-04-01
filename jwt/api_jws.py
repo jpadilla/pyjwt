@@ -3,7 +3,7 @@ from __future__ import annotations
 import binascii
 import json
 import warnings
-from typing import Any, List, Optional, Type
+from typing import Any
 
 from .algorithms import (
     Algorithm,
@@ -26,8 +26,8 @@ class PyJWS:
 
     def __init__(
         self,
-        algorithms: Optional[List[str]] = None,
-        options: Optional[dict[str, Any]] = None,
+        algorithms: list[str] | None = None,
+        options: dict[str, Any] | None = None,
     ) -> None:
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
@@ -103,7 +103,7 @@ class PyJWS:
         key: str,
         algorithm: str | None = "HS256",
         headers: dict[str, Any] | None = None,
-        json_encoder: Type[json.JSONEncoder] | None = None,
+        json_encoder: type[json.JSONEncoder] | None = None,
         is_payload_detached: bool = False,
         sort_headers: bool = True,
     ) -> str:
