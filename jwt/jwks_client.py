@@ -19,12 +19,14 @@ class PyJWKClient:
         cache_jwk_set: bool = True,
         lifespan: int = 300,
         headers: Optional[Dict[str, Any]] = None,
+        timeout: int = 30,
     ):
         if headers is None:
             headers = {}
         self.uri = uri
         self.jwk_set_cache: Optional[JWKSetCache] = None
         self.headers = headers
+        self.timeout = timeout
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
@@ -46,9 +48,9 @@ class PyJWKClient:
         jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
-            with urllib.request.urlopen(r) as response:
+            with urllib.request.urlopen(r, timeout=self.timeout) as response:
                 jwk_set = json.load(response)
-        except URLError as e:
+        except (URLError, TimeoutError) as e:
             raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')
         else:
             return jwk_set

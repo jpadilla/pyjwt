@@ -78,6 +78,13 @@ def mocked_first_call_wrong_kid_second_call_correct_kid(
         yield urlopen_mock
 
 
+@contextlib.contextmanager
+def mocked_timeout():
+    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+        urlopen_mock.side_effect = TimeoutError("timed out")
+        yield urlopen_mock
+
+
 @crypto_required
 class TestPyJWKClient:
     def test_fetch_data_forwards_headers_to_correct_url(self):
@@ -309,3 +316,13 @@ class TestPyJWKClient:
         with pytest.raises(PyJWKClientError):
             jwks_client = PyJWKClient(url, lifespan=-1)
             assert jwks_client is None
+
+    def test_get_jwt_set_timeout(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url, timeout=5)
+
+        with pytest.raises(PyJWKClientError) as exc:
+            with mocked_timeout():
+                jwks_client.get_jwk_set()
+
+        assert 'Fail to fetch data from the url, err: "timed out"' in str(exc.value)
