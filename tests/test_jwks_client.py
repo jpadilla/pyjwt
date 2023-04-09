@@ -9,7 +9,7 @@ import pytest
 import jwt
 from jwt import PyJWKClient
 from jwt.api_jwk import PyJWK
-from jwt.exceptions import PyJWKClientError
+from jwt.exceptions import PyJWKClientConnectionError, PyJWKClientError
 
 from .utils import crypto_required
 
@@ -282,6 +282,15 @@ class TestPyJWKClient:
                 jwks_client.get_jwk_set(refresh=True)
 
             assert jwks_client.jwk_set_cache is None
+
+    def test_failed_request_should_raise_connection_error(self):
+        token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with pytest.raises(PyJWKClientConnectionError):
+            with mocked_failed_response():
+                jwks_client.get_signing_key_from_jwt(token)
 
     def test_get_jwt_set_refresh_cache(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"

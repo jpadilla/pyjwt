@@ -6,7 +6,7 @@ from urllib.error import URLError
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
-from .exceptions import PyJWKClientError
+from .exceptions import PyJWKClientConnectionError, PyJWKClientError
 from .jwk_set_cache import JWKSetCache
 
 
@@ -51,7 +51,9 @@ class PyJWKClient:
             with urllib.request.urlopen(r, timeout=self.timeout) as response:
                 jwk_set = json.load(response)
         except (URLError, TimeoutError) as e:
-            raise PyJWKClientError(f'Fail to fetch data from the url, err: "{e}"')
+            raise PyJWKClientConnectionError(
+                f'Fail to fetch data from the url, err: "{e}"'
+            )
         else:
             return jwk_set
         finally:
