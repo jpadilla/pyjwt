@@ -660,7 +660,9 @@ if has_crypto:
         def __init__(self, **kwargs: Any) -> None:
             pass
 
-        def prepare_key(self, key: Union["AllowedOKPKeys", str, bytes]) -> "AllowedOKPKeys":
+        def prepare_key(
+            self, key: Union["AllowedOKPKeys", str, bytes]
+        ) -> "AllowedOKPKeys":
             if isinstance(key, (bytes, str)):
                 key_str = key.decode("utf-8") if isinstance(key, bytes) else key
                 key_bytes = key.encode("utf-8") if isinstance(key, str) else key
