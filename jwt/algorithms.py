@@ -172,10 +172,6 @@ class Algorithm(ABC):
         else:
             return bytes(hash_alg(bytestr).digest())
 
-    # TODO: all key-related `Any`s in this class should optimally be made
-    #       variadic (TypeVar) but as discussed in https://github.com/jpadilla/pyjwt/pull/605
-    #       that may still be poorly supported.
-
     @abstractmethod
     def prepare_key(self, key: Any) -> Any:
         """
