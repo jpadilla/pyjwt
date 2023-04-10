@@ -314,7 +314,7 @@ if has_crypto:
         def __init__(self, hash_alg: Type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key: Union[AllowedRSAKeys, AnyStr]) -> AllowedRSAKeys:
+        def prepare_key(self, key: Union["AllowedRSAKeys", AnyStr]) -> "AllowedRSAKeys":
             if isinstance(key, (RSAPrivateKey, RSAPublicKey)):
                 return key
 
@@ -334,7 +334,7 @@ if has_crypto:
                 return cast(RSAPublicKey, load_pem_public_key(key_bytes))
 
         @staticmethod
-        def to_jwk(key_obj: AllowedRSAKeys) -> str:
+        def to_jwk(key_obj: "AllowedRSAKeys") -> str:
             obj: Optional[Dict[str, Any]] = None
 
             if hasattr(key_obj, "private_numbers"):
@@ -370,7 +370,7 @@ if has_crypto:
             return json.dumps(obj)
 
         @staticmethod
-        def from_jwk(jwk: Union[str, JWKDict]) -> AllowedRSAKeys:
+        def from_jwk(jwk: Union[str, JWKDict]) -> "AllowedRSAKeys":
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
@@ -464,7 +464,7 @@ if has_crypto:
         def __init__(self, hash_alg: Type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key: Union[AllowedECKeys, AnyStr]) -> AllowedECKeys:
+        def prepare_key(self, key: Union["AllowedECKeys", AnyStr]) -> "AllowedECKeys":
             if isinstance(key, (EllipticCurvePrivateKey, EllipticCurvePublicKey)):
                 return key
 
@@ -499,7 +499,7 @@ if has_crypto:
 
             return der_to_raw_signature(der_sig, key.curve)
 
-        def verify(self, msg: bytes, key: AllowedECKeys, sig: bytes) -> bool:
+        def verify(self, msg: bytes, key: "AllowedECKeys", sig: bytes) -> bool:
             try:
                 der_sig = raw_to_der_signature(sig, key.curve)
             except ValueError:
@@ -517,7 +517,7 @@ if has_crypto:
                 return False
 
         @staticmethod
-        def to_jwk(key_obj: AllowedECKeys) -> str:
+        def to_jwk(key_obj: "AllowedECKeys") -> str:
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 public_numbers = key_obj.public_key().public_numbers()
             elif isinstance(key_obj, EllipticCurvePublicKey):
@@ -553,7 +553,7 @@ if has_crypto:
         @staticmethod
         def from_jwk(
             jwk: Union[str, JWKDict],
-        ) -> AllowedECKeys:
+        ) -> "AllowedECKeys":
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
@@ -660,7 +660,7 @@ if has_crypto:
         def __init__(self, **kwargs: Any) -> None:
             pass
 
-        def prepare_key(self, key: Union[AllowedOKPKeys, str, bytes]) -> AllowedOKPKeys:
+        def prepare_key(self, key: Union["AllowedOKPKeys", str, bytes]) -> "AllowedOKPKeys":
             if isinstance(key, (bytes, str)):
                 key_str = key.decode("utf-8") if isinstance(key, bytes) else key
                 key_bytes = key.encode("utf-8") if isinstance(key, str) else key
@@ -697,7 +697,7 @@ if has_crypto:
             return key.sign(msg_bytes)
 
         def verify(
-            self, msg: Union[str, bytes], key: AllowedOKPKeys, sig: Union[str, bytes]
+            self, msg: Union[str, bytes], key: "AllowedOKPKeys", sig: Union[str, bytes]
         ) -> bool:
             """
             Verify a given ``msg`` against a signature ``sig`` using the EdDSA key ``key``
@@ -723,7 +723,7 @@ if has_crypto:
                 return False
 
         @staticmethod
-        def to_jwk(key: AllowedOKPKeys) -> str:
+        def to_jwk(key: "AllowedOKPKeys") -> str:
             if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
                 x = key.public_bytes(
                     encoding=Encoding.Raw,
@@ -763,7 +763,7 @@ if has_crypto:
             raise InvalidKeyError("Not a public or private key")
 
         @staticmethod
-        def from_jwk(jwk: Union[str, JWKDict]) -> AllowedOKPKeys:
+        def from_jwk(jwk: Union[str, JWKDict]) -> "AllowedOKPKeys":
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
