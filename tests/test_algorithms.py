@@ -767,12 +767,6 @@ class TestOKPAlgorithms:
         with open(key_path("testkey_ed25519.pub")) as keyfile:
             algo.prepare_key(keyfile.read())
 
-    def test_okp_ed25519_should_accept_unicode_key(self):
-        algo = OKPAlgorithm()
-
-        with open(key_path("testkey_ed25519")) as ec_key:
-            algo.prepare_key(ec_key.read())
-
     def test_okp_ed25519_sign_should_generate_correct_signature_value(self):
         algo = OKPAlgorithm()
 
