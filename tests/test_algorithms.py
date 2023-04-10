@@ -37,7 +37,7 @@ class TestAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(TypeError) as context:
-            algo.prepare_key(object())
+            algo.prepare_key(object())  # type: ignore[type-var]
 
         exception = context.value
         assert str(exception) == "Expected a string value"
@@ -861,7 +861,7 @@ class TestOKPAlgorithms:
 
         # Invalid instance type
         with pytest.raises(InvalidKeyError):
-            algo.from_jwk(123)
+            algo.from_jwk(123)  # type: ignore[arg-type]
 
         # Invalid JSON
         with pytest.raises(InvalidKeyError):
@@ -970,7 +970,7 @@ class TestOKPAlgorithms:
 
         # Invalid instance type
         with pytest.raises(InvalidKeyError):
-            algo.from_jwk(123)
+            algo.from_jwk(123)  # type: ignore[arg-type]
 
         # Invalid JSON
         with pytest.raises(InvalidKeyError):
