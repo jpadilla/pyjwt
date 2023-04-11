@@ -4,13 +4,7 @@ import hashlib
 import hmac
 import json
 from abc import ABC, abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    ClassVar,
-    NoReturn,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, cast
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
@@ -80,10 +74,16 @@ if TYPE_CHECKING:
     # Type aliases for convenience in algorithms method signatures
     AllowedRSAKeys = RSAPrivateKey | RSAPublicKey
     AllowedECKeys = EllipticCurvePrivateKey | EllipticCurvePublicKey
-    AllowedOKPKeys = Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
+    AllowedOKPKeys = (
+        Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
+    )
     AllowedKeys = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
-    AllowedPrivateKeys = RSAPrivateKey | EllipticCurvePrivateKey | Ed25519PrivateKey | Ed448PrivateKey
-    AllowedPublicKeys = RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
+    AllowedPrivateKeys = (
+        RSAPrivateKey | EllipticCurvePrivateKey | Ed25519PrivateKey | Ed448PrivateKey
+    )
+    AllowedPublicKeys = (
+        RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
+    )
 
 
 requires_cryptography = {
@@ -321,7 +321,7 @@ if has_crypto:
                 return cast(RSAPublicKey, load_pem_public_key(key_bytes))
 
         @staticmethod
-        def to_jwk(key_obj: AllowedRSAKeys)  -> str:
+        def to_jwk(key_obj: AllowedRSAKeys) -> str:
             obj: dict[str, Any] | None = None
 
             if hasattr(key_obj, "private_numbers"):
