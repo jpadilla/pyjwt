@@ -7,13 +7,8 @@ from abc import ABC, abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
-    AnyStr,
     ClassVar,
-    Dict,
     NoReturn,
-    Optional,
-    Type,
-    Union,
     cast,
 )
 
@@ -83,18 +78,12 @@ except ModuleNotFoundError:
 
 if TYPE_CHECKING:
     # Type aliases for convenience in algorithms method signatures
-    AllowedRSAKeys = Union[RSAPrivateKey, RSAPublicKey]
-    AllowedECKeys = Union[EllipticCurvePrivateKey, EllipticCurvePublicKey]
-    AllowedOKPKeys = Union[
-        Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey
-    ]
-    AllowedKeys = Union[AllowedRSAKeys, AllowedECKeys, AllowedOKPKeys]
-    AllowedPrivateKeys = Union[
-        RSAPrivateKey, EllipticCurvePrivateKey, Ed25519PrivateKey, Ed448PrivateKey
-    ]
-    AllowedPublicKeys = Union[
-        RSAPublicKey, EllipticCurvePublicKey, Ed25519PublicKey, Ed448PublicKey
-    ]
+    AllowedRSAKeys = RSAPrivateKey | RSAPublicKey
+    AllowedECKeys = EllipticCurvePrivateKey | EllipticCurvePublicKey
+    AllowedOKPKeys = Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
+    AllowedKeys = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
+    AllowedPrivateKeys = RSAPrivateKey | EllipticCurvePrivateKey | Ed25519PrivateKey | Ed448PrivateKey
+    AllowedPublicKeys = RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
 
 
 requires_cryptography = {
@@ -113,7 +102,7 @@ requires_cryptography = {
 }
 
 
-def get_default_algorithms() -> Dict[str, "Algorithm"]:
+def get_default_algorithms() -> dict[str, Algorithm]:
     """
     Returns the algorithms that are implemented by the library.
     """
@@ -204,7 +193,7 @@ class Algorithm(ABC):
 
     @staticmethod
     @abstractmethod
-    def from_jwk(jwk: Union[str, JWKDict]) -> Any:
+    def from_jwk(jwk: str | JWKDict) -> Any:
         """
         Deserializes a given key from JWK back into a key object
         """
@@ -216,7 +205,7 @@ class NoneAlgorithm(Algorithm):
     operations are required.
     """
 
-    def prepare_key(self, key: Optional[str]) -> None:
+    def prepare_key(self, key: str | None) -> None:
         if key == "":
             key = None
 
@@ -236,7 +225,7 @@ class NoneAlgorithm(Algorithm):
         raise NotImplementedError()
 
     @staticmethod
-    def from_jwk(jwk: Union[str, JWKDict]) -> NoReturn:
+    def from_jwk(jwk: str | JWKDict) -> NoReturn:
         raise NotImplementedError()
 
 
@@ -253,7 +242,7 @@ class HMACAlgorithm(Algorithm):
     def __init__(self, hash_alg: HashlibHash) -> None:
         self.hash_alg = hash_alg
 
-    def prepare_key(self, key: AnyStr) -> bytes:
+    def prepare_key(self, key: str | bytes) -> bytes:
         key_bytes = force_bytes(key)
 
         if is_pem_format(key_bytes) or is_ssh_key(key_bytes):
@@ -265,7 +254,7 @@ class HMACAlgorithm(Algorithm):
         return key_bytes
 
     @staticmethod
-    def to_jwk(key_obj: AnyStr) -> str:
+    def to_jwk(key_obj: str | bytes) -> str:
         return json.dumps(
             {
                 "k": base64url_encode(force_bytes(key_obj)).decode(),
@@ -274,7 +263,7 @@ class HMACAlgorithm(Algorithm):
         )
 
     @staticmethod
-    def from_jwk(jwk: Union[str, JWKDict]) -> bytes:
+    def from_jwk(jwk: str | JWKDict) -> bytes:
         try:
             if isinstance(jwk, str):
                 obj: JWKDict = json.loads(jwk)
@@ -305,14 +294,14 @@ if has_crypto:
         RSASSA-PKCS-v1_5 and the specified hash function.
         """
 
-        SHA256: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA256
-        SHA384: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA384
-        SHA512: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA512
+        SHA256: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA256
+        SHA384: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA384
+        SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        def __init__(self, hash_alg: Type[hashes.HashAlgorithm]) -> None:
+        def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key: Union["AllowedRSAKeys", AnyStr]) -> "AllowedRSAKeys":
+        def prepare_key(self, key: AllowedRSAKeys | str | bytes) -> AllowedRSAKeys:
             if isinstance(key, (RSAPrivateKey, RSAPublicKey)):
                 return key
 
@@ -332,8 +321,8 @@ if has_crypto:
                 return cast(RSAPublicKey, load_pem_public_key(key_bytes))
 
         @staticmethod
-        def to_jwk(key_obj: "AllowedRSAKeys") -> str:
-            obj: Optional[Dict[str, Any]] = None
+        def to_jwk(key_obj: AllowedRSAKeys)  -> str:
+            obj: dict[str, Any] | None = None
 
             if hasattr(key_obj, "private_numbers"):
                 # Private key
@@ -368,7 +357,7 @@ if has_crypto:
             return json.dumps(obj)
 
         @staticmethod
-        def from_jwk(jwk: Union[str, JWKDict]) -> "AllowedRSAKeys":
+        def from_jwk(jwk: str | JWKDict) -> AllowedRSAKeys:
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
@@ -455,14 +444,14 @@ if has_crypto:
         ECDSA and the specified hash function
         """
 
-        SHA256: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA256
-        SHA384: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA384
-        SHA512: ClassVar[Type[hashes.HashAlgorithm]] = hashes.SHA512
+        SHA256: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA256
+        SHA384: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA384
+        SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        def __init__(self, hash_alg: Type[hashes.HashAlgorithm]) -> None:
+        def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key: Union["AllowedECKeys", AnyStr]) -> "AllowedECKeys":
+        def prepare_key(self, key: AllowedECKeys | str | bytes) -> AllowedECKeys:
             if isinstance(key, (EllipticCurvePrivateKey, EllipticCurvePublicKey)):
                 return key
 
@@ -515,7 +504,7 @@ if has_crypto:
                 return False
 
         @staticmethod
-        def to_jwk(key_obj: "AllowedECKeys") -> str:
+        def to_jwk(key_obj: AllowedECKeys) -> str:
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 public_numbers = key_obj.public_key().public_numbers()
             elif isinstance(key_obj, EllipticCurvePublicKey):
@@ -534,7 +523,7 @@ if has_crypto:
             else:
                 raise InvalidKeyError(f"Invalid curve: {key_obj.curve}")
 
-            obj: Dict[str, Any] = {
+            obj: dict[str, Any] = {
                 "kty": "EC",
                 "crv": crv,
                 "x": to_base64url_uint(public_numbers.x).decode(),
@@ -549,9 +538,7 @@ if has_crypto:
             return json.dumps(obj)
 
         @staticmethod
-        def from_jwk(
-            jwk: Union[str, JWKDict],
-        ) -> "AllowedECKeys":
+        def from_jwk(jwk: str | JWKDict) -> AllowedECKeys:
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
@@ -658,9 +645,7 @@ if has_crypto:
         def __init__(self, **kwargs: Any) -> None:
             pass
 
-        def prepare_key(
-            self, key: Union["AllowedOKPKeys", str, bytes]
-        ) -> "AllowedOKPKeys":
+        def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
             if isinstance(key, (bytes, str)):
                 key_str = key.decode("utf-8") if isinstance(key, bytes) else key
                 key_bytes = key.encode("utf-8") if isinstance(key, str) else key
@@ -684,7 +669,7 @@ if has_crypto:
             return key
 
         def sign(
-            self, msg: Union[str, bytes], key: Union[Ed25519PrivateKey, Ed448PrivateKey]
+            self, msg: str | bytes, key: Ed25519PrivateKey | Ed448PrivateKey
         ) -> bytes:
             """
             Sign a message ``msg`` using the EdDSA private key ``key``
@@ -697,7 +682,7 @@ if has_crypto:
             return key.sign(msg_bytes)
 
         def verify(
-            self, msg: Union[str, bytes], key: "AllowedOKPKeys", sig: Union[str, bytes]
+            self, msg: str | bytes, key: AllowedOKPKeys, sig: str | bytes
         ) -> bool:
             """
             Verify a given ``msg`` against a signature ``sig`` using the EdDSA key ``key``
@@ -723,7 +708,7 @@ if has_crypto:
                 return False
 
         @staticmethod
-        def to_jwk(key: "AllowedOKPKeys") -> str:
+        def to_jwk(key: AllowedOKPKeys) -> str:
             if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
                 x = key.public_bytes(
                     encoding=Encoding.Raw,
@@ -763,7 +748,7 @@ if has_crypto:
             raise InvalidKeyError("Not a public or private key")
 
         @staticmethod
-        def from_jwk(jwk: Union[str, JWKDict]) -> "AllowedOKPKeys":
+        def from_jwk(jwk: str | JWKDict) -> AllowedOKPKeys:
             try:
                 if isinstance(jwk, str):
                     obj = json.loads(jwk)
