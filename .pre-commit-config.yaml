@@ -39,5 +39,4 @@ repos:
     rev: "v1.1.1"
     hooks:
       - id: mypy
-        args: [--python-version 3.11, --ignore-missing-imports]
         additional_dependencies: [cryptography>=3.4.0]
