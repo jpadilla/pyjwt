@@ -37,7 +37,7 @@ class TestAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(TypeError) as context:
-            algo.prepare_key(object())  # type: ignore[type-var]
+            algo.prepare_key(object())  # type: ignore[arg-type]
 
         exception = context.value
         assert str(exception) == "Expected a string value"
@@ -112,7 +112,7 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
-            algo.prepare_key(None)
+            algo.prepare_key(None)  # type: ignore[arg-type]
 
     @crypto_required
     def test_rsa_verify_should_return_false_if_signature_invalid(self):
@@ -284,7 +284,7 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[arg-type]
 
     @crypto_required
     def test_ec_to_jwk_with_valid_curves(self):
@@ -505,7 +505,7 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[arg-type]
 
     @crypto_required
     def test_rsa_from_jwk_raises_exception_on_invalid_key(self):
@@ -520,7 +520,7 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
-            algo.prepare_key(None)
+            algo.prepare_key(None)  # type: ignore[arg-type]
 
     @crypto_required
     def test_ec_should_accept_pem_private_key_bytes(self):
@@ -926,7 +926,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[arg-type]
 
     def test_okp_ed448_jwk_private_key_should_parse_and_verify(self):
         algo = OKPAlgorithm()
