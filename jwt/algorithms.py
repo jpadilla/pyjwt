@@ -2,7 +2,9 @@ import hashlib
 import hmac
 import json
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Dict, Literal, Type, Union, overload
+from typing import Any, ClassVar, Dict, Type, Union, overload
+
+from typing_extensions import Literal
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
