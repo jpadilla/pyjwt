@@ -1,5 +1,6 @@
 import base64
 import json
+from typing import Any
 
 import pytest
 
@@ -76,7 +77,7 @@ class TestAlgorithms:
     @pytest.mark.parametrize("as_dict", (False, True))
     def test_hmac_to_jwk_returns_correct_values(self, as_dict):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
-        key = algo.to_jwk("secret", as_dict=as_dict)
+        key: Any = algo.to_jwk("secret", as_dict=as_dict)
 
         if not as_dict:
             key = json.loads(key)
@@ -254,7 +255,7 @@ class TestAlgorithms:
         with open(key_path("testkey_ec.pub")) as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
 
-        key = algo.to_jwk(pub_key, as_dict=as_dict)
+        key: Any = algo.to_jwk(pub_key, as_dict=as_dict)
 
         if not as_dict:
             key = json.loads(key)
@@ -276,7 +277,7 @@ class TestAlgorithms:
         with open(key_path("testkey_ec.priv")) as keyfile:
             priv_key = algo.prepare_key(keyfile.read())
 
-        key = algo.to_jwk(priv_key, as_dict=as_dict)
+        key: Any = algo.to_jwk(priv_key, as_dict=as_dict)
 
         if not as_dict:
             key = json.loads(key)
@@ -312,7 +313,7 @@ class TestAlgorithms:
 
             with open(key_path(f"jwk_ec_pub_{curve}.json")) as keyfile:
                 pub_key = algo.from_jwk(keyfile.read())
-                jwk = algo.to_jwk(pub_key, as_dict=as_dict)
+                jwk: Any = algo.to_jwk(pub_key, as_dict=as_dict)
 
                 if not as_dict:
                     jwk = json.loads(jwk)
@@ -450,7 +451,7 @@ class TestAlgorithms:
         with open(key_path("testkey_rsa.pub")) as keyfile:
             pub_key = algo.prepare_key(keyfile.read())
 
-        key = algo.to_jwk(pub_key, as_dict=as_dict)
+        key: Any = algo.to_jwk(pub_key, as_dict=as_dict)
 
         if not as_dict:
             key = json.loads(key)
@@ -478,7 +479,7 @@ class TestAlgorithms:
         with open(key_path("testkey_rsa.priv")) as keyfile:
             priv_key = algo.prepare_key(keyfile.read())
 
-        key = algo.to_jwk(priv_key, as_dict=as_dict)
+        key: Any = algo.to_jwk(priv_key, as_dict=as_dict)
 
         if not as_dict:
             key = json.loads(key)
