@@ -798,7 +798,6 @@ if has_crypto:
                 else:
                     return json.dumps(obj)
 
-
             raise InvalidKeyError("Not a public or private key")
 
         @staticmethod
