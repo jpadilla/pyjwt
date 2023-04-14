@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import json
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Dict, Type, Union
+from typing import Any, ClassVar, Dict, Literal, Type, Union, overload
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
@@ -170,9 +170,21 @@ class Algorithm(ABC):
         for the specified message and key values.
         """
 
+    @overload
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj) -> JWKDict:
+    def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict:
+        ...
+
+    @overload
+    @staticmethod
+    @abstractmethod
+    def to_jwk(key_obj, as_dict: Literal[False] = False) -> str:
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
         """
         Serializes a given RSA key into a JWK
         """
@@ -206,8 +218,18 @@ class NoneAlgorithm(Algorithm):
     def verify(self, msg, key, sig):
         return False
 
+    @overload
     @staticmethod
-    def to_jwk(key_obj) -> JWKDict:
+    def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict:
+        ...
+
+    @overload
+    @staticmethod
+    def to_jwk(key_obj, as_dict: Literal[False] = False) -> str:
+        ...
+
+    @staticmethod
+    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
         raise NotImplementedError()
 
     @staticmethod
@@ -239,14 +261,27 @@ class HMACAlgorithm(Algorithm):
 
         return key
 
+    @overload
     @staticmethod
-    def to_jwk(key_obj):
-        return json.dumps(
-            {
-                "k": base64url_encode(force_bytes(key_obj)).decode(),
-                "kty": "oct",
-            }
-        )
+    def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict:
+        ...
+
+    @overload
+    @staticmethod
+    def to_jwk(key_obj, as_dict: Literal[False] = False) -> str:
+        ...
+
+    @staticmethod
+    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
+        jwk = {
+            "k": base64url_encode(force_bytes(key_obj)).decode(),
+            "kty": "oct",
+        }
+
+        if as_dict:
+            return jwk
+        else:
+            return json.dumps(jwk)
 
     @staticmethod
     def from_jwk(jwk):
@@ -304,8 +339,18 @@ if has_crypto:
             except ValueError:
                 return load_pem_public_key(key_bytes)
 
+        @overload
         @staticmethod
-        def to_jwk(key_obj):
+        def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict:
+            ...
+
+        @overload
+        @staticmethod
+        def to_jwk(key_obj, as_dict: Literal[False] = False) -> str:
+            ...
+
+        @staticmethod
+        def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
             obj = None
 
             if hasattr(key_obj, "private_numbers"):
@@ -338,7 +383,10 @@ if has_crypto:
             else:
                 raise InvalidKeyError("Not a public or private key")
 
-            return json.dumps(obj)
+            if as_dict:
+                return obj
+            else:
+                return json.dumps(obj)
 
         @staticmethod
         def from_jwk(jwk):
@@ -482,8 +530,18 @@ if has_crypto:
             except InvalidSignature:
                 return False
 
+        @overload
         @staticmethod
-        def to_jwk(key_obj):
+        def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict:
+            ...
+
+        @overload
+        @staticmethod
+        def to_jwk(key_obj, as_dict: Literal[False] = False) -> str:
+            ...
+
+        @staticmethod
+        def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 public_numbers = key_obj.public_key().public_numbers()
             elif isinstance(key_obj, EllipticCurvePublicKey):
@@ -514,7 +572,10 @@ if has_crypto:
                     key_obj.private_numbers().private_value
                 ).decode()
 
-            return json.dumps(obj)
+            if as_dict:
+                return obj
+            else:
+                return json.dumps(obj)
 
         @staticmethod
         def from_jwk(
@@ -682,21 +743,35 @@ if has_crypto:
             except cryptography.exceptions.InvalidSignature:
                 return False
 
+        @overload
         @staticmethod
-        def to_jwk(key):
+        def to_jwk(key, as_dict: Literal[True]) -> JWKDict:
+            ...
+
+        @overload
+        @staticmethod
+        def to_jwk(key, as_dict: Literal[False] = False) -> str:
+            ...
+
+        @staticmethod
+        def to_jwk(key, as_dict: bool = False) -> JWKDict | str:
             if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
                 x = key.public_bytes(
                     encoding=Encoding.Raw,
                     format=PublicFormat.Raw,
                 )
                 crv = "Ed25519" if isinstance(key, Ed25519PublicKey) else "Ed448"
-                return json.dumps(
-                    {
-                        "x": base64url_encode(force_bytes(x)).decode(),
-                        "kty": "OKP",
-                        "crv": crv,
-                    }
-                )
+
+                obj = {
+                    "x": base64url_encode(force_bytes(x)).decode(),
+                    "kty": "OKP",
+                    "crv": crv,
+                }
+
+                if as_dict:
+                    return obj
+                else:
+                    return json.dumps(obj)
 
             if isinstance(key, (Ed25519PrivateKey, Ed448PrivateKey)):
                 d = key.private_bytes(
@@ -711,14 +786,18 @@ if has_crypto:
                 )
 
                 crv = "Ed25519" if isinstance(key, Ed25519PrivateKey) else "Ed448"
-                return json.dumps(
-                    {
-                        "x": base64url_encode(force_bytes(x)).decode(),
-                        "d": base64url_encode(force_bytes(d)).decode(),
-                        "kty": "OKP",
-                        "crv": crv,
-                    }
-                )
+                obj = {
+                    "x": base64url_encode(force_bytes(x)).decode(),
+                    "d": base64url_encode(force_bytes(d)).decode(),
+                    "kty": "OKP",
+                    "crv": crv,
+                }
+
+                if as_dict:
+                    return obj
+                else:
+                    return json.dumps(obj)
+
 
             raise InvalidKeyError("Not a public or private key")
 
