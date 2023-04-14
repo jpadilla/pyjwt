@@ -184,7 +184,7 @@ class Algorithm(ABC):
 
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
+    def to_jwk(key_obj, as_dict: bool = False) -> Union[JWKDict, str]:
         """
         Serializes a given RSA key into a JWK
         """
@@ -229,7 +229,7 @@ class NoneAlgorithm(Algorithm):
         ...
 
     @staticmethod
-    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
+    def to_jwk(key_obj, as_dict: bool = False) -> Union[JWKDict, str]:
         raise NotImplementedError()
 
     @staticmethod
@@ -272,7 +272,7 @@ class HMACAlgorithm(Algorithm):
         ...
 
     @staticmethod
-    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
+    def to_jwk(key_obj, as_dict: bool = False) -> Union[JWKDict, str]:
         jwk = {
             "k": base64url_encode(force_bytes(key_obj)).decode(),
             "kty": "oct",
@@ -350,7 +350,7 @@ if has_crypto:
             ...
 
         @staticmethod
-        def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
+        def to_jwk(key_obj, as_dict: bool = False) -> Union[JWKDict, str]:
             obj = None
 
             if hasattr(key_obj, "private_numbers"):
@@ -541,7 +541,7 @@ if has_crypto:
             ...
 
         @staticmethod
-        def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
+        def to_jwk(key_obj, as_dict: bool = False) -> Union[JWKDict, str]:
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 public_numbers = key_obj.public_key().public_numbers()
             elif isinstance(key_obj, EllipticCurvePublicKey):
@@ -754,7 +754,7 @@ if has_crypto:
             ...
 
         @staticmethod
-        def to_jwk(key, as_dict: bool = False) -> JWKDict | str:
+        def to_jwk(key, as_dict: bool = False) -> Union[JWKDict, str]:
             if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
                 x = key.public_bytes(
                     encoding=Encoding.Raw,
