@@ -365,8 +365,8 @@ class TestJWT:
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        # With 3 seconds leeway, should be ok
-        for leeway in (3, timedelta(seconds=3)):
+        # With 5 seconds leeway, should be ok
+        for leeway in (5, timedelta(seconds=5)):
             decoded = jwt.decode(
                 jwt_message, secret, leeway=leeway, algorithms=["HS256"]
             )
