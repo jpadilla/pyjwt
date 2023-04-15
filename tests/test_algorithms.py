@@ -12,9 +12,6 @@ from .keys import load_ec_pub_key_p_521, load_hmac_key, load_rsa_pub_key
 from .utils import crypto_required, key_path
 
 if has_crypto:
-    from jwt.algorithms import ECAlgorithm, OKPAlgorithm, RSAAlgorithm, RSAPSSAlgorithm
-
-if TYPE_CHECKING:
     from cryptography.hazmat.primitives.asymmetric.ec import (
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
@@ -31,6 +28,8 @@ if TYPE_CHECKING:
         RSAPrivateKey,
         RSAPublicKey,
     )
+
+    from jwt.algorithms import ECAlgorithm, OKPAlgorithm, RSAAlgorithm, RSAPSSAlgorithm
 
 
 class TestAlgorithms:
