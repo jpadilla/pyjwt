@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import pytest
 
