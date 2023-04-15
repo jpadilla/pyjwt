@@ -1,5 +1,6 @@
 import base64
 import json
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -12,6 +13,24 @@ from .utils import crypto_required, key_path
 
 if has_crypto:
     from jwt.algorithms import ECAlgorithm, OKPAlgorithm, RSAAlgorithm, RSAPSSAlgorithm
+
+if TYPE_CHECKING:
+    from cryptography.hazmat.primitives.asymmetric.ec import (
+        EllipticCurvePrivateKey,
+        EllipticCurvePublicKey,
+    )
+    from cryptography.hazmat.primitives.asymmetric.ed448 import (
+        Ed448PrivateKey,
+        Ed448PublicKey,
+    )
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+        Ed25519PrivateKey,
+        Ed25519PublicKey,
+    )
+    from cryptography.hazmat.primitives.asymmetric.rsa import (
+        RSAPrivateKey,
+        RSAPublicKey,
+    )
 
 
 class TestAlgorithms:
@@ -132,7 +151,7 @@ class TestAlgorithms:
         sig += b"123"  # Signature is now invalid
 
         with open(key_path("testkey_rsa.pub")) as keyfile:
-            pub_key = algo.prepare_key(keyfile.read())
+            pub_key = cast(RSAPublicKey, algo.prepare_key(keyfile.read()))
 
         result = algo.verify(message, pub_key, sig)
         assert not result
@@ -149,10 +168,10 @@ class TestAlgorithms:
             algo = ECAlgorithm(hash)
 
             with open(key_path(f"jwk_ec_pub_{curve}.json")) as keyfile:
-                pub_key = algo.from_jwk(keyfile.read())
+                pub_key = cast(EllipticCurvePublicKey, algo.from_jwk(keyfile.read()))
 
             with open(key_path(f"jwk_ec_key_{curve}.json")) as keyfile:
-                priv_key = algo.from_jwk(keyfile.read())
+                priv_key = cast(EllipticCurvePrivateKey, algo.from_jwk(keyfile.read()))
 
             signature = algo.sign(b"Hello World!", priv_key)
             assert algo.verify(b"Hello World!", pub_key, signature)
@@ -223,9 +242,9 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with open(key_path("testkey_ec.priv")) as ec_key:
-            orig_key = algo.prepare_key(ec_key.read())
+            orig_key = cast(EllipticCurvePrivateKey, algo.prepare_key(ec_key.read()))
 
-        parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
+        parsed_key = cast(EllipticCurvePrivateKey, algo.from_jwk(algo.to_jwk(orig_key)))
         assert parsed_key.private_numbers() == orig_key.private_numbers()
         assert (
             parsed_key.private_numbers().public_numbers
@@ -237,9 +256,9 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with open(key_path("testkey_ec.pub")) as ec_key:
-            orig_key = algo.prepare_key(ec_key.read())
+            orig_key = cast(EllipticCurvePublicKey, algo.prepare_key(ec_key.read()))
 
-        parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
+        parsed_key = cast(EllipticCurvePublicKey, algo.from_jwk(algo.to_jwk(orig_key)))
         assert parsed_key.public_numbers() == orig_key.public_numbers()
 
     @crypto_required
@@ -320,10 +339,10 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
-            pub_key = algo.from_jwk(keyfile.read())
+            pub_key = cast(RSAPublicKey, algo.from_jwk(keyfile.read()))
 
         with open(key_path("jwk_rsa_key.json")) as keyfile:
-            priv_key = algo.from_jwk(keyfile.read())
+            priv_key = cast(RSAPrivateKey, algo.from_jwk(keyfile.read()))
 
         signature = algo.sign(b"Hello World!", priv_key)
         assert algo.verify(b"Hello World!", pub_key, signature)
@@ -333,9 +352,9 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("testkey_rsa.priv")) as rsa_key:
-            orig_key = algo.prepare_key(rsa_key.read())
+            orig_key = cast(RSAPrivateKey, algo.prepare_key(rsa_key.read()))
 
-        parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
+        parsed_key = cast(RSAPrivateKey, algo.from_jwk(algo.to_jwk(orig_key)))
         assert parsed_key.private_numbers() == orig_key.private_numbers()
         assert (
             parsed_key.private_numbers().public_numbers
@@ -347,9 +366,9 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("testkey_rsa.pub")) as rsa_key:
-            orig_key = algo.prepare_key(rsa_key.read())
+            orig_key = cast(RSAPublicKey, algo.prepare_key(rsa_key.read()))
 
-        parsed_key = algo.from_jwk(algo.to_jwk(orig_key))
+        parsed_key = cast(RSAPublicKey, algo.from_jwk(algo.to_jwk(orig_key)))
         assert parsed_key.public_numbers() == orig_key.public_numbers()
 
     @crypto_required
@@ -380,14 +399,16 @@ class TestAlgorithms:
 
         with open(key_path("jwk_rsa_key.json")) as keyfile:
             keybytes = keyfile.read()
-            control_key = algo.from_jwk(keybytes).private_numbers()
+            control_key = cast(RSAPrivateKey, algo.from_jwk(keybytes)).private_numbers()
 
             keydata = json.loads(keybytes)
             delete_these = ["p", "q", "dp", "dq", "qi"]
             for field in delete_these:
                 del keydata[field]
 
-            parsed_key = algo.from_jwk(json.dumps(keydata)).private_numbers()
+            parsed_key = cast(
+                RSAPrivateKey, algo.from_jwk(json.dumps(keydata))
+            ).private_numbers()
 
         assert control_key.d == parsed_key.d
         assert control_key.p == parsed_key.p
@@ -590,11 +611,11 @@ class TestAlgorithms:
         message = b"Hello World!"
 
         with open(key_path("testkey_rsa.priv")) as keyfile:
-            priv_key = algo.prepare_key(keyfile.read())
+            priv_key = cast(RSAPrivateKey, algo.prepare_key(keyfile.read()))
             sig = algo.sign(message, priv_key)
 
         with open(key_path("testkey_rsa.pub")) as keyfile:
-            pub_key = algo.prepare_key(keyfile.read())
+            pub_key = cast(RSAPublicKey, algo.prepare_key(keyfile.read()))
 
         result = algo.verify(message, pub_key, sig)
         assert result
@@ -617,7 +638,7 @@ class TestAlgorithms:
         jwt_sig += b"123"  # Signature is now invalid
 
         with open(key_path("testkey_rsa.pub")) as keyfile:
-            jwt_pub_key = algo.prepare_key(keyfile.read())
+            jwt_pub_key = cast(RSAPublicKey, algo.prepare_key(keyfile.read()))
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert not result
@@ -678,7 +699,7 @@ class TestAlgorithmsRFC7520:
         )
 
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
-        key = algo.prepare_key(load_rsa_pub_key())
+        key = cast(RSAPublicKey, algo.prepare_key(load_rsa_pub_key()))
 
         result = algo.verify(signing_input, key, signature)
         assert result
@@ -709,7 +730,7 @@ class TestAlgorithmsRFC7520:
         )
 
         algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384)
-        key = algo.prepare_key(load_rsa_pub_key())
+        key = cast(RSAPublicKey, algo.prepare_key(load_rsa_pub_key()))
 
         result = algo.verify(signing_input, key, signature)
         assert result
@@ -759,7 +780,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with pytest.raises(InvalidKeyError):
-            algo.prepare_key(None)
+            algo.prepare_key(None)  # type: ignore[arg-type]
 
         with open(key_path("testkey_ed25519")) as keyfile:
             algo.prepare_key(keyfile.read())
@@ -775,10 +796,10 @@ class TestOKPAlgorithms:
         expected_sig = base64.b64decode(self.hello_world_sig)
 
         with open(key_path("testkey_ed25519")) as keyfile:
-            jwt_key = algo.prepare_key(keyfile.read())
+            jwt_key = cast(Ed25519PrivateKey, algo.prepare_key(keyfile.read()))
 
         with open(key_path("testkey_ed25519.pub")) as keyfile:
-            jwt_pub_key = algo.prepare_key(keyfile.read())
+            jwt_pub_key = cast(Ed25519PublicKey, algo.prepare_key(keyfile.read()))
 
         algo.sign(jwt_message, jwt_key)
         result = algo.verify(jwt_message, jwt_pub_key, expected_sig)
@@ -823,7 +844,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
-            key = algo.from_jwk(keyfile.read())
+            key = cast(Ed25519PrivateKey, algo.from_jwk(keyfile.read()))
 
         signature = algo.sign(b"Hello World!", key)
         assert algo.verify(b"Hello World!", key.public_key(), signature)
@@ -834,7 +855,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
-            key = algo.from_jwk(keyfile.read())
+            key = cast(Ed25519PrivateKey, algo.from_jwk(keyfile.read()))
 
         signature = algo.sign(b"Hello World!", key)
         assert algo.verify(b"Hello World!", key, signature)
@@ -843,10 +864,10 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
-            priv_key = algo.from_jwk(keyfile.read())
+            priv_key = cast(Ed25519PrivateKey, algo.from_jwk(keyfile.read()))
 
         with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
-            pub_key = algo.from_jwk(keyfile.read())
+            pub_key = cast(Ed25519PublicKey, algo.from_jwk(keyfile.read()))
 
         signature = algo.sign(b"Hello World!", priv_key)
         assert algo.verify(b"Hello World!", pub_key, signature)
@@ -907,15 +928,15 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
-            priv_key_1 = algo.from_jwk(keyfile.read())
+            priv_key_1 = cast(Ed25519PrivateKey, algo.from_jwk(keyfile.read()))
 
         with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
-            pub_key_1 = algo.from_jwk(keyfile.read())
+            pub_key_1 = cast(Ed25519PublicKey, algo.from_jwk(keyfile.read()))
 
         pub = algo.to_jwk(pub_key_1)
         pub_key_2 = algo.from_jwk(pub)
         pri = algo.to_jwk(priv_key_1)
-        priv_key_2 = algo.from_jwk(pri)
+        priv_key_2 = cast(Ed25519PrivateKey, algo.from_jwk(pri))
 
         signature_1 = algo.sign(b"Hello World!", priv_key_1)
         signature_2 = algo.sign(b"Hello World!", priv_key_2)
@@ -932,7 +953,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed448.json")) as keyfile:
-            key = algo.from_jwk(keyfile.read())
+            key = cast(Ed448PrivateKey, algo.from_jwk(keyfile.read()))
 
         signature = algo.sign(b"Hello World!", key)
         assert algo.verify(b"Hello World!", key.public_key(), signature)
@@ -943,7 +964,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed448.json")) as keyfile:
-            key = algo.from_jwk(keyfile.read())
+            key = cast(Ed448PrivateKey, algo.from_jwk(keyfile.read()))
 
         signature = algo.sign(b"Hello World!", key)
         assert algo.verify(b"Hello World!", key, signature)
@@ -952,10 +973,10 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed448.json")) as keyfile:
-            priv_key = algo.from_jwk(keyfile.read())
+            priv_key = cast(Ed448PrivateKey, algo.from_jwk(keyfile.read()))
 
         with open(key_path("jwk_okp_pub_Ed448.json")) as keyfile:
-            pub_key = algo.from_jwk(keyfile.read())
+            pub_key = cast(Ed448PublicKey, algo.from_jwk(keyfile.read()))
 
         signature = algo.sign(b"Hello World!", priv_key)
         assert algo.verify(b"Hello World!", pub_key, signature)
@@ -1016,15 +1037,15 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed448.json")) as keyfile:
-            priv_key_1 = algo.from_jwk(keyfile.read())
+            priv_key_1 = cast(Ed448PrivateKey, algo.from_jwk(keyfile.read()))
 
         with open(key_path("jwk_okp_pub_Ed448.json")) as keyfile:
-            pub_key_1 = algo.from_jwk(keyfile.read())
+            pub_key_1 = cast(Ed448PublicKey, algo.from_jwk(keyfile.read()))
 
         pub = algo.to_jwk(pub_key_1)
         pub_key_2 = algo.from_jwk(pub)
         pri = algo.to_jwk(priv_key_1)
-        priv_key_2 = algo.from_jwk(pri)
+        priv_key_2 = cast(Ed448PrivateKey, algo.from_jwk(pri))
 
         signature_1 = algo.sign(b"Hello World!", priv_key_1)
         signature_2 = algo.sign(b"Hello World!", priv_key_2)
