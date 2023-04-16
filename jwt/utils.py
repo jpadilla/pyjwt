@@ -1,7 +1,7 @@
 import base64
 import binascii
 import re
-from typing import Any, AnyStr
+from typing import Union
 
 try:
     from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurve
@@ -13,7 +13,7 @@ except ModuleNotFoundError:
     pass
 
 
-def force_bytes(value: Any) -> bytes:
+def force_bytes(value: Union[bytes, str]) -> bytes:
     if isinstance(value, str):
         return value.encode("utf-8")
     elif isinstance(value, bytes):
@@ -22,7 +22,7 @@ def force_bytes(value: Any) -> bytes:
         raise TypeError("Expected a string value")
 
 
-def base64url_decode(input: AnyStr) -> bytes:
+def base64url_decode(input: Union[bytes, str]) -> bytes:
     input_bytes = force_bytes(input)
 
     rem = len(input_bytes) % 4
@@ -49,7 +49,7 @@ def to_base64url_uint(val: int) -> bytes:
     return base64url_encode(int_bytes)
 
 
-def from_base64url_uint(val: AnyStr) -> int:
+def from_base64url_uint(val: Union[bytes, str]) -> int:
     data = base64url_decode(force_bytes(val))
     return int.from_bytes(data, byteorder="big")
 

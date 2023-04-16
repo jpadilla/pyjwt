@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any, Optional
+from typing import Any
 
 from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
 from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
@@ -10,7 +10,7 @@ from .types import JWKDict
 
 
 class PyJWK:
-    def __init__(self, jwk_data: JWKDict, algorithm: Optional[str] = None) -> None:
+    def __init__(self, jwk_data: JWKDict, algorithm: str | None = None) -> None:
         self._algorithms = get_default_algorithms()
         self._jwk_data = jwk_data
 
@@ -60,7 +60,7 @@ class PyJWK:
         self.key = self.Algorithm.from_jwk(self._jwk_data)
 
     @staticmethod
-    def from_dict(obj: JWKDict, algorithm: Optional[str] = None) -> "PyJWK":
+    def from_dict(obj: JWKDict, algorithm: str | None = None) -> "PyJWK":
         return PyJWK(obj, algorithm)
 
     @staticmethod
@@ -69,15 +69,15 @@ class PyJWK:
         return PyJWK.from_dict(obj, algorithm)
 
     @property
-    def key_type(self) -> Optional[str]:
+    def key_type(self) -> str | None:
         return self._jwk_data.get("kty", None)
 
     @property
-    def key_id(self) -> Optional[str]:
+    def key_id(self) -> str | None:
         return self._jwk_data.get("kid", None)
 
     @property
-    def public_key_use(self) -> Optional[str]:
+    def public_key_use(self) -> str | None:
         return self._jwk_data.get("use", None)
 
 
