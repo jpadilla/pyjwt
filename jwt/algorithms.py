@@ -235,7 +235,7 @@ class NoneAlgorithm(Algorithm):
         return False
 
     @staticmethod
-    def to_jwk(key_obj: Any) -> NoReturn:
+    def to_jwk(key_obj: Any, as_dict: bool = False) -> NoReturn:
         raise NotImplementedError()
 
     @staticmethod

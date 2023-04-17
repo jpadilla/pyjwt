@@ -314,7 +314,7 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})  # type: ignore[arg-type]
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload]
 
     @crypto_required
     @pytest.mark.parametrize("as_dict", (False, True))
@@ -556,7 +556,7 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})  # type: ignore[arg-type]
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload]
 
     @crypto_required
     def test_rsa_from_jwk_raises_exception_on_invalid_key(self):
@@ -977,7 +977,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})  # type: ignore[arg-type]
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload]
 
     def test_okp_ed448_jwk_private_key_should_parse_and_verify(self):
         algo = OKPAlgorithm()
