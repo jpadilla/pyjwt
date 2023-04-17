@@ -82,7 +82,7 @@ class TestJWS:
 
         assert jws.options["verify_signature"]
 
-    def test_options_must_be_dict(self, jws):
+    def test_options_must_be_dict(self):
         pytest.raises(TypeError, PyJWS, options=object())
         pytest.raises((TypeError, ValueError), PyJWS, options=("something"))
 
@@ -533,11 +533,11 @@ class TestJWS:
 
         # string-formatted key
         with open(key_path("testkey_rsa.priv")) as rsa_priv_file:
-            priv_rsakey = rsa_priv_file.read()
+            priv_rsakey = rsa_priv_file.read()  # type: ignore[assignment]
             jws_message = jws.encode(payload, priv_rsakey, algorithm=algo)
 
         with open(key_path("testkey_rsa.pub")) as rsa_pub_file:
-            pub_rsakey = rsa_pub_file.read()
+            pub_rsakey = rsa_pub_file.read()  # type: ignore[assignment]
             jws.decode(jws_message, pub_rsakey, algorithms=[algo])
 
     def test_rsa_related_algorithms(self, jws):
@@ -582,11 +582,11 @@ class TestJWS:
 
         # string-formatted key
         with open(key_path("testkey_ec.priv")) as ec_priv_file:
-            priv_eckey = ec_priv_file.read()
+            priv_eckey = ec_priv_file.read()  # type: ignore[assignment]
             jws_message = jws.encode(payload, priv_eckey, algorithm=algo)
 
         with open(key_path("testkey_ec.pub")) as ec_pub_file:
-            pub_eckey = ec_pub_file.read()
+            pub_eckey = ec_pub_file.read()  # type: ignore[assignment]
             jws.decode(jws_message, pub_eckey, algorithms=[algo])
 
     def test_ecdsa_related_algorithms(self, jws):

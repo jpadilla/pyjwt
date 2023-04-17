@@ -12,6 +12,7 @@ source = ["jwt", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
+exclude_lines = ["if TYPE_CHECKING:"]
 
 [tool.isort]
 profile = "black"
@@ -19,7 +20,7 @@ atomic = true
 combine_as_imports = true
 
 [tool.mypy]
-python_version = 3.7
+python_version = 3.11
 ignore_missing_imports = true
 warn_unused_ignores = true
 no_implicit_optional = true
