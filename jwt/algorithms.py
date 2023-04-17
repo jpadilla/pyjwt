@@ -4,7 +4,8 @@ import hashlib
 import hmac
 import json
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, cast, Union, overload
+from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, Union, cast, overload
+
 from typing_extensions import Literal
 
 from .exceptions import InvalidKeyError
