@@ -4,9 +4,16 @@ import hashlib
 import hmac
 import json
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, Union, cast, overload
-
-from typing_extensions import Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    NoReturn,
+    Union,
+    cast,
+    overload,
+)
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
