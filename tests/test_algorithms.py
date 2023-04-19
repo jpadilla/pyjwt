@@ -954,7 +954,8 @@ class TestOKPAlgorithms:
         with pytest.raises(InvalidKeyError):
             algo.from_jwk(v)
 
-    def test_okp_ed25519_to_jwk_works_with_from_jwk(self):
+    @pytest.mark.parametrize("as_dict", (False, True))
+    def test_okp_ed25519_to_jwk_works_with_from_jwk(self, as_dict):
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
@@ -963,9 +964,9 @@ class TestOKPAlgorithms:
         with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
             pub_key_1 = cast(Ed25519PublicKey, algo.from_jwk(keyfile.read()))
 
-        pub = algo.to_jwk(pub_key_1)
+        pub = algo.to_jwk(pub_key_1, as_dict=as_dict)
         pub_key_2 = algo.from_jwk(pub)
-        pri = algo.to_jwk(priv_key_1)
+        pri = algo.to_jwk(priv_key_1, as_dict=as_dict)
         priv_key_2 = cast(Ed25519PrivateKey, algo.from_jwk(pri))
 
         signature_1 = algo.sign(b"Hello World!", priv_key_1)
@@ -1063,7 +1064,8 @@ class TestOKPAlgorithms:
         with pytest.raises(InvalidKeyError):
             algo.from_jwk(v)
 
-    def test_okp_ed448_to_jwk_works_with_from_jwk(self):
+    @pytest.mark.parametrize("as_dict", (False, True))
+    def test_okp_ed448_to_jwk_works_with_from_jwk(self, as_dict):
         algo = OKPAlgorithm()
 
         with open(key_path("jwk_okp_key_Ed448.json")) as keyfile:
@@ -1072,9 +1074,9 @@ class TestOKPAlgorithms:
         with open(key_path("jwk_okp_pub_Ed448.json")) as keyfile:
             pub_key_1 = cast(Ed448PublicKey, algo.from_jwk(keyfile.read()))
 
-        pub = algo.to_jwk(pub_key_1)
+        pub = algo.to_jwk(pub_key_1, as_dict=as_dict)
         pub_key_2 = algo.from_jwk(pub)
-        pri = algo.to_jwk(priv_key_1)
+        pri = algo.to_jwk(priv_key_1, as_dict=as_dict)
         priv_key_2 = cast(Ed448PrivateKey, algo.from_jwk(pri))
 
         signature_1 = algo.sign(b"Hello World!", priv_key_1)
