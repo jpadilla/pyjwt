@@ -225,6 +225,13 @@ class TestJWT:
 
         with pytest.raises(ImmatureSignatureError):
             jwt.decode(jwt_message, secret, algorithms=["HS256"])
+    
+    def test_decode_not_raises_exception_if_iat_is_equal_to_now(self, jwt, payload):
+        payload["iat"] = utc_timestamp()
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        jwt.decode(jwt_message, secret, algorithms=["HS256"])
 
     def test_decode_works_if_iat_is_str_of_a_number(self, jwt, payload):
         payload["iat"] = "1638202770"
