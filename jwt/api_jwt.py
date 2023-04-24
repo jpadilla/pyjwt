@@ -272,7 +272,7 @@ class PyJWT:
             iat = int(payload["iat"])
         except ValueError:
             raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.")
-        if iat > (now + leeway):
+        if iat >= (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
 
     def _validate_nbf(
