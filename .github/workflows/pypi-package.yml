@@ -3,10 +3,10 @@ name: Build & maybe upload PyPI package
 
 on:
   push:
-    branches: [main]
+    branches: [master, main]
     tags: ["*"]
   pull_request:
-    branches: [main]
+    branches: [master, main]
   release:
     types:
       - published
