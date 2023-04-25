@@ -3,10 +3,10 @@ name: Build & maybe upload PyPI package
 
 on:
   push:
-    branches: [master, main]
+    branches: [master]
     tags: ["*"]
   pull_request:
-    branches: [master, main]
+    branches: [master]
   release:
     types:
       - published
@@ -30,11 +30,11 @@ jobs:
 
       - uses: hynek/build-and-inspect-python-package@v1
 
-  # Upload to Test PyPI on every commit on main.
+  # Upload to Test PyPI on every commit on master.
   release-test-pypi:
     name: Publish in-dev package to test.pypi.org
     environment: release-test-pypi
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: build-package
 
