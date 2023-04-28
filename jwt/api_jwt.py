@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
-from . import api_jws, api_jwk
+from . import api_jwk, api_jws
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
