@@ -192,7 +192,10 @@ class PyJWS:
         verify_signature = merged_options["verify_signature"]
 
         if isinstance(key, PyJWK):
+            if algorithms is None:
+                algorithms = [key.algorithm]
             key = key.key
+
         if verify_signature and not algorithms:
             raise DecodeError(
                 'It is required that you pass in a value for the "algorithms" argument when calling decode().'
