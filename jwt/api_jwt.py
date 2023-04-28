@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
-from . import api_jws
+from . import api_jws, api_jwk
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
@@ -21,6 +21,7 @@ from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
     from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
+    from .api_jwk import PyJWK
 
 
 class PyJWT:
@@ -100,7 +101,7 @@ class PyJWT:
     def decode_complete(
         self,
         jwt: str | bytes,
-        key: AllowedPublicKeys | str | bytes = "",
+        key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         # deprecated arg, remove in pyjwt3
@@ -185,7 +186,7 @@ class PyJWT:
     def decode(
         self,
         jwt: str | bytes,
-        key: AllowedPublicKeys | str | bytes = "",
+        key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         # deprecated arg, remove in pyjwt3

@@ -11,6 +11,7 @@ from .algorithms import (
     has_crypto,
     requires_cryptography,
 )
+from .api_jwk import PyJWK
 from .exceptions import (
     DecodeError,
     InvalidAlgorithmError,
@@ -172,7 +173,7 @@ class PyJWS:
     def decode_complete(
         self,
         jwt: str | bytes,
-        key: AllowedPublicKeys | str | bytes = "",
+        key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         detached_payload: bytes | None = None,
@@ -190,6 +191,8 @@ class PyJWS:
         merged_options = {**self.options, **options}
         verify_signature = merged_options["verify_signature"]
 
+        if isinstance(key, PyJWK):
+            key = key.key
         if verify_signature and not algorithms:
             raise DecodeError(
                 'It is required that you pass in a value for the "algorithms" argument when calling decode().'
@@ -217,7 +220,7 @@ class PyJWS:
     def decode(
         self,
         jwt: str | bytes,
-        key: AllowedPublicKeys | str | bytes = "",
+        key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
         options: dict[str, Any] | None = None,
         detached_payload: bytes | None = None,
