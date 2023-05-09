@@ -25,6 +25,7 @@ Changed
 - Changed the error message when the token audience doesn't match the expected audience by @irdkwmnsb `#809 <https://github.com/jpadilla/pyjwt/pull/809>`__
 - Improve error messages when cryptography isn't installed by @Viicos in `#846 <https://github.com/jpadilla/pyjwt/pull/846>`__
 - Make `Algorithm` an abstract base class by @Viicos in `#845 <https://github.com/jpadilla/pyjwt/pull/845>`__
+- ignore invalid keys in a jwks by @timw6n in `#863 <https://github.com/jpadilla/pyjwt/pull/863>`__
 
 Fixed
 ~~~~~
@@ -49,6 +50,7 @@ Added
 - Add a timeout for PyJWKClient requests by @daviddavis in `#875 <https://github.com/jpadilla/pyjwt/pull/875>`__
 - Add client connection error exception by @daviddavis in `#876 <https://github.com/jpadilla/pyjwt/pull/876>`__
 - Add complete types to take all allowed keys into account by @Viicos in `#873 <https://github.com/jpadilla/pyjwt/pull/873>`__
+- Add `as_dict` option to `Algorithm.to_jwk` by @fluxth in `#881 <https://github.com/jpadilla/pyjwt/pull/881>`__
 
 
 `v2.6.0 <https://github.com/jpadilla/pyjwt/compare/2.5.0...2.6.0>`__
