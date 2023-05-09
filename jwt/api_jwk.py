@@ -5,7 +5,7 @@ import time
 from typing import Any
 
 from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
-from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
+from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError, PyJWTError
 from .types import JWKDict
 
 
@@ -94,7 +94,7 @@ class PyJWKSet:
         for key in keys:
             try:
                 self.keys.append(PyJWK(key))
-            except PyJWKError:
+            except PyJWTError:
                 # skip unusable keys
                 continue
 
