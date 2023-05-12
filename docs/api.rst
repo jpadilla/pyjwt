@@ -8,7 +8,7 @@ API Reference
     Encode the ``payload`` as JSON Web Token.
 
     :param dict payload: JWT claims, e.g. ``dict(iss=..., aud=..., sub=...)``
-    :param str key: a key suitable for the chosen algorithm:
+    :param str|bytes|AllowedPrivateKeys key: a key suitable for the chosen algorithm:
 
         * for **asymmetric algorithms**: PEM-formatted private key, a multiline string
         * for **symmetric algorithms**: plain string, sufficiently long for security
@@ -25,7 +25,7 @@ API Reference
     Verify the ``jwt`` token signature and return the token claims.
 
     :param str jwt: the token to be decoded
-    :param str key: the key suitable for the allowed algorithm
+    :param str|bytes|AllowedPublicKeys key: the key suitable for the allowed algorithm
 
     :param list algorithms: allowed algorithms, e.g. ``["ES256"]``
 
