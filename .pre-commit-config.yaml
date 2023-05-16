@@ -36,7 +36,7 @@ repos:
         args: [--no-build-isolation]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.2.0"
+    rev: "v1.3.0"
     hooks:
       - id: mypy
         additional_dependencies: [cryptography>=3.4.0]
