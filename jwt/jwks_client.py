@@ -21,7 +21,7 @@ class PyJWKClient:
         lifespan: int = 300,
         headers: Optional[Dict[str, Any]] = None,
         timeout: int = 30,
-        ssl_context: Optional[SSLConext] = None,
+        ssl_context: Optional[SSLContext] = None,
     ):
         if headers is None:
             headers = {}
