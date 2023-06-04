@@ -1,10 +1,11 @@
-import certifi
 import json
 import ssl
 import urllib.request
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 from urllib.error import URLError
+
+import certifi
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
@@ -50,7 +51,11 @@ class PyJWKClient:
         jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
-            with urllib.request.urlopen(r, timeout=self.timeout, context=ssl.create_default_context(cafile=certifi.where())) as response:
+            with urllib.request.urlopen(
+                r,
+                timeout=self.timeout,
+                context=ssl.create_default_context(cafile=certifi.where()),
+            ) as response:
                 jwk_set = json.load(response)
         except (URLError, TimeoutError) as e:
             raise PyJWKClientConnectionError(
