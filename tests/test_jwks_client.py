@@ -339,7 +339,7 @@ class TestPyJWKClient:
 
     def test_get_jwt_set_sslcontext_default(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
-        jwks_client = PyJWKClient(url, ssl_context = ssl.create_default_context())
+        jwks_client = PyJWKClient(url, ssl_context=ssl.create_default_context())
 
         jwk_set = jwks_client.get_jwk_set()
 
@@ -347,10 +347,11 @@ class TestPyJWKClient:
 
     def test_get_jwt_set_sslcontext_no_ca(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
-        jwks_client = PyJWKClient(url,
-                ssl_context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT))
+        jwks_client = PyJWKClient(
+            url, ssl_context=ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
+        )
 
         with pytest.raises(PyJWKClientError):
             jwks_client.get_jwk_set()
 
-        assert 'Failed to get an expected error'
+        assert "Failed to get an expected error"
