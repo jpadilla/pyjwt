@@ -51,7 +51,9 @@ class PyJWKClient:
         jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
-            with urllib.request.urlopen(r, timeout=self.timeout, context=self.ssl_context) as response:
+            with urllib.request.urlopen(
+                r, timeout=self.timeout, context=self.ssl_context
+            ) as response:
                 jwk_set = json.load(response)
         except (URLError, TimeoutError) as e:
             raise PyJWKClientConnectionError(
