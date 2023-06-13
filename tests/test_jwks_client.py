@@ -1,5 +1,6 @@
 import contextlib
 import json
+import ssl
 import time
 from unittest import mock
 from urllib.error import URLError
@@ -335,3 +336,22 @@ class TestPyJWKClient:
                 jwks_client.get_jwk_set()
 
         assert 'Fail to fetch data from the url, err: "timed out"' in str(exc.value)
+
+    def test_get_jwt_set_sslcontext_default(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url, ssl_context=ssl.create_default_context())
+
+        jwk_set = jwks_client.get_jwk_set()
+
+        assert jwk_set is not None
+
+    def test_get_jwt_set_sslcontext_no_ca(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(
+            url, ssl_context=ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
+        )
+
+        with pytest.raises(PyJWKClientError):
+            jwks_client.get_jwk_set()
+
+        assert "Failed to get an expected error"

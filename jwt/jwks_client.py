@@ -1,6 +1,7 @@
 import json
 import urllib.request
 from functools import lru_cache
+from ssl import SSLContext
 from typing import Any, Dict, List, Optional
 from urllib.error import URLError
 
@@ -20,6 +21,7 @@ class PyJWKClient:
         lifespan: int = 300,
         headers: Optional[Dict[str, Any]] = None,
         timeout: int = 30,
+        ssl_context: Optional[SSLContext] = None,
     ):
         if headers is None:
             headers = {}
@@ -27,6 +29,7 @@ class PyJWKClient:
         self.jwk_set_cache: Optional[JWKSetCache] = None
         self.headers = headers
         self.timeout = timeout
+        self.ssl_context = ssl_context
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
@@ -48,7 +51,9 @@ class PyJWKClient:
         jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
-            with urllib.request.urlopen(r, timeout=self.timeout) as response:
+            with urllib.request.urlopen(
+                r, timeout=self.timeout, context=self.ssl_context
+            ) as response:
                 jwk_set = json.load(response)
         except (URLError, TimeoutError) as e:
             raise PyJWKClientConnectionError(
