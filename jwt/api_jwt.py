@@ -63,6 +63,12 @@ class PyJWT:
             # Convert datetime to a intDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
                 payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+        # RFC 7519: Optional "iss", "sub", "aud" values are case-sensitive strings
+        for registered_claim in ["iss", "sub"]:
+            if registered_claim in payload:
+                payload[registered_claim] = str(payload[registered_claim])
+        if "aud" in payload and not isinstance(payload["aud"], list):
+            payload["aud"] = str(payload["aud"])
 
         json_payload = self._encode_payload(
             payload,
