@@ -251,7 +251,9 @@ class PyJWT:
             self._validate_iss(payload, issuer)
 
         if options["verify_aud"]:
-            self._validate_aud(payload, audience)
+            self._validate_aud(
+                payload, audience, strict=options.get("strict_aud", False)
+            )
 
     def _validate_required_claims(
         self,
@@ -307,6 +309,8 @@ class PyJWT:
         self,
         payload: dict[str, Any],
         audience: str | Iterable[str] | None,
+        *,
+        strict: bool = False,
     ) -> None:
         if audience is None:
             if "aud" not in payload or not payload["aud"]:
@@ -321,6 +325,22 @@ class PyJWT:
             raise MissingRequiredClaimError("aud")
 
         audience_claims = payload["aud"]
+
+        # In strict mode, we forbid list matching: the supplied audience
+        # must be a string, and it must exactly match the audience claim.
+        if strict:
+            # Only a single audience is allowed in strict mode.
+            if not isinstance(audience, str):
+                raise InvalidAudienceError("Invalid audience (strict)")
+
+            # Only a single audience claim is allowed in strict mode.
+            if not isinstance(audience_claims, str):
+                raise InvalidAudienceError("Invalid claim format in token (strict)")
+
+            if audience != audience_claims:
+                raise InvalidAudienceError("Audience doesn't match (strict)")
+
+            return
 
         if isinstance(audience_claims, str):
             audience_claims = [audience_claims]

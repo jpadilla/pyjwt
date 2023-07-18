@@ -723,3 +723,82 @@ class TestJWT:
             jwt.decode_complete(jwt_message, secret, algorithms=["HS256"], foo="bar")
         assert len(record) == 1
         assert "foo" in str(record[0].message)
+
+    def test_decode_strict_aud_forbids_list_audience(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = "urn:foo"
+        jwt_message = jwt.encode(payload, secret)
+
+        # Decodes without `strict_aud`.
+        jwt.decode(
+            jwt_message,
+            secret,
+            audience=["urn:foo", "urn:bar"],
+            options={"strict_aud": False},
+            algorithms=["HS256"],
+        )
+
+        # Fails with `strict_aud`.
+        with pytest.raises(InvalidAudienceError, match=r"Invalid audience \(strict\)"):
+            jwt.decode(
+                jwt_message,
+                secret,
+                audience=["urn:foo", "urn:bar"],
+                options={"strict_aud": True},
+                algorithms=["HS256"],
+            )
+
+    def test_decode_strict_aud_forbids_list_claim(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = ["urn:foo", "urn:bar"]
+        jwt_message = jwt.encode(payload, secret)
+
+        # Decodes without `strict_aud`.
+        jwt.decode(
+            jwt_message,
+            secret,
+            audience="urn:foo",
+            options={"strict_aud": False},
+            algorithms=["HS256"],
+        )
+
+        # Fails with `strict_aud`.
+        with pytest.raises(
+            InvalidAudienceError, match=r"Invalid claim format in token \(strict\)"
+        ):
+            jwt.decode(
+                jwt_message,
+                secret,
+                audience="urn:foo",
+                options={"strict_aud": True},
+                algorithms=["HS256"],
+            )
+
+    def test_decode_strict_aud_does_not_match(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = "urn:foo"
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.raises(
+            InvalidAudienceError, match=r"Audience doesn't match \(strict\)"
+        ):
+            jwt.decode(
+                jwt_message,
+                secret,
+                audience="urn:bar",
+                options={"strict_aud": True},
+                algorithms=["HS256"],
+            )
+
+    def test_decode_strict_ok(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = "urn:foo"
+        jwt_message = jwt.encode(payload, secret)
+
+        jwt.decode(
+            jwt_message,
+            secret,
+            audience="urn:foo",
+            options={"strict_aud": True},
+            algorithms=["HS256"],
+        )
