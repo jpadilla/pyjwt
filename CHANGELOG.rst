@@ -16,6 +16,8 @@ Fixed
 Added
 ~~~~~
 
+- Add ``strict_aud`` as an option to ``jwt.decode`` by @woodruffw in `#902 <https://github.com/jpadilla/pyjwt/pull/902>`__
+
 `v2.7.0 <https://github.com/jpadilla/pyjwt/compare/2.6.0...2.7.0>`__
 -----------------------------------------------------------------------
 
