@@ -16,7 +16,23 @@ Fixed
 Added
 ~~~~~
 
+`v2.8.0 <https://github.com/jpadilla/pyjwt/compare/2.7.0...2.8.0>`__
+-----------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
+- Update python version test matrix by @auvipy in `#895 <https://github.com/jpadilla/pyjwt/pull/895>`__
+
+Fixed
+~~~~~
+
+Added
+~~~~~
+
 - Add ``strict_aud`` as an option to ``jwt.decode`` by @woodruffw in `#902 <https://github.com/jpadilla/pyjwt/pull/902>`__
+- Export PyJWKClientConnectionError class by @daviddavis in `#887 <https://github.com/jpadilla/pyjwt/pull/887>`__
+- Allows passing of ssl.SSLContext to PyJWKClient by @juur in `#891 <https://github.com/jpadilla/pyjwt/pull/891>`__
 
 `v2.7.0 <https://github.com/jpadilla/pyjwt/compare/2.6.0...2.7.0>`__
 -----------------------------------------------------------------------
