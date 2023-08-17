@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         platform: ["ubuntu-latest", "windows-latest"]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "pypy-3.8", "pypy-3.9"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.8", "pypy3.9"]
 
     steps:
       - uses: "actions/checkout@v3"
@@ -26,6 +26,7 @@ jobs:
 
         with:
           python-version: "${{ matrix.python-version }}"
+          allow-prereleases: true
 
       - name: "Install dependencies"
         run: |
