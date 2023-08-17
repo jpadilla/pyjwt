@@ -3,9 +3,17 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, Union, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    NoReturn,
+    Union,
+    cast,
+    overload,
+)
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
@@ -20,12 +28,6 @@ from .utils import (
     raw_to_der_signature,
     to_base64url_uint,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 try:
     from cryptography.exceptions import InvalidSignature
