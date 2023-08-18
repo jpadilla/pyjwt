@@ -437,9 +437,7 @@ class TestJWT:
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
         token = jwt.encode(payload, "secret")
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(
-                token, "secret", audience="urn:me".encode(), algorithms=["HS256"]
-            )
+            jwt.decode(token, "secret", audience=b"urn:me", algorithms=["HS256"])
 
     def test_raise_exception_invalid_audience_in_array(self, jwt):
         payload = {

@@ -3,13 +3,13 @@ repos:
     rev: 23.7.0
     hooks:
       - id: black
-        args: ["--target-version=py37"]
+        args: ["--target-version=py38"]
 
   - repo: https://github.com/asottile/blacken-docs
     rev: 1.15.0
     hooks:
       - id: blacken-docs
-        args: ["--target-version=py37"]
+        args: ["--target-version=py38"]
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0

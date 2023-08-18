@@ -60,11 +60,11 @@ class PyJWK:
         self.key = self.Algorithm.from_jwk(self._jwk_data)
 
     @staticmethod
-    def from_dict(obj: JWKDict, algorithm: str | None = None) -> "PyJWK":
+    def from_dict(obj: JWKDict, algorithm: str | None = None) -> PyJWK:
         return PyJWK(obj, algorithm)
 
     @staticmethod
-    def from_json(data: str, algorithm: None = None) -> "PyJWK":
+    def from_json(data: str, algorithm: None = None) -> PyJWK:
         obj = json.loads(data)
         return PyJWK.from_dict(obj, algorithm)
 
@@ -104,16 +104,16 @@ class PyJWKSet:
             )
 
     @staticmethod
-    def from_dict(obj: dict[str, Any]) -> "PyJWKSet":
+    def from_dict(obj: dict[str, Any]) -> PyJWKSet:
         keys = obj.get("keys", [])
         return PyJWKSet(keys)
 
     @staticmethod
-    def from_json(data: str) -> "PyJWKSet":
+    def from_json(data: str) -> PyJWKSet:
         obj = json.loads(data)
         return PyJWKSet.from_dict(obj)
 
-    def __getitem__(self, kid: str) -> "PyJWK":
+    def __getitem__(self, kid: str) -> PyJWK:
         for key in self.keys:
             if key.key_id == kid:
                 return key

@@ -3,9 +3,8 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ClassVar, NoReturn, Union, cast, overload
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
@@ -20,12 +19,6 @@ from .utils import (
     raw_to_der_signature,
     to_base64url_uint,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 try:
     from cryptography.exceptions import InvalidSignature
@@ -205,7 +198,7 @@ class Algorithm(ABC):
 
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj, as_dict: bool = False) -> Union[JWKDict, str]:
+    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
         """
         Serializes a given key into a JWK
         """
@@ -283,7 +276,7 @@ class HMACAlgorithm(Algorithm):
         ...  # pragma: no cover
 
     @staticmethod
-    def to_jwk(key_obj: str | bytes, as_dict: bool = False) -> Union[JWKDict, str]:
+    def to_jwk(key_obj: str | bytes, as_dict: bool = False) -> JWKDict | str:
         jwk = {
             "k": base64url_encode(force_bytes(key_obj)).decode(),
             "kty": "oct",
@@ -363,9 +356,7 @@ if has_crypto:
             ...  # pragma: no cover
 
         @staticmethod
-        def to_jwk(
-            key_obj: AllowedRSAKeys, as_dict: bool = False
-        ) -> Union[JWKDict, str]:
+        def to_jwk(key_obj: AllowedRSAKeys, as_dict: bool = False) -> JWKDict | str:
             obj: dict[str, Any] | None = None
 
             if hasattr(key_obj, "private_numbers"):
@@ -533,7 +524,7 @@ if has_crypto:
 
             return der_to_raw_signature(der_sig, key.curve)
 
-        def verify(self, msg: bytes, key: "AllowedECKeys", sig: bytes) -> bool:
+        def verify(self, msg: bytes, key: AllowedECKeys, sig: bytes) -> bool:
             try:
                 der_sig = raw_to_der_signature(sig, key.curve)
             except ValueError:
@@ -561,9 +552,7 @@ if has_crypto:
             ...  # pragma: no cover
 
         @staticmethod
-        def to_jwk(
-            key_obj: AllowedECKeys, as_dict: bool = False
-        ) -> Union[JWKDict, str]:
+        def to_jwk(key_obj: AllowedECKeys, as_dict: bool = False) -> JWKDict | str:
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 public_numbers = key_obj.public_key().public_numbers()
             elif isinstance(key_obj, EllipticCurvePublicKey):
@@ -780,7 +769,7 @@ if has_crypto:
             ...  # pragma: no cover
 
         @staticmethod
-        def to_jwk(key: AllowedOKPKeys, as_dict: bool = False) -> Union[JWKDict, str]:
+        def to_jwk(key: AllowedOKPKeys, as_dict: bool = False) -> JWKDict | str:
             if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
                 x = key.public_bytes(
                     encoding=Encoding.Raw,
