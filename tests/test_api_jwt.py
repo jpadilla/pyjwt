@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
+
 from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
     DecodeError,
