@@ -70,13 +70,15 @@ class PyJWKClient:
         if self.jwk_set_cache is not None and not refresh:
             data = self.jwk_set_cache.get()
 
-        if data is None:
-            data = self.fetch_data()
+        if data:
+            return data
+        
+        json_data = self.fetch_data()
 
-        if not isinstance(data, dict):
+        if not isinstance(json_data, dict):
             raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 
-        return PyJWKSet.from_dict(data)
+        return PyJWKSet.from_dict(json_data)
 
     def get_signing_keys(self, refresh: bool = False) -> List[PyJWK]:
         jwk_set = self.get_jwk_set(refresh)
