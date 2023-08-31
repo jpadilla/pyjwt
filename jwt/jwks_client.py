@@ -72,7 +72,7 @@ class PyJWKClient:
 
         if data:
             return data
-        
+
         json_data = self.fetch_data()
 
         if not isinstance(json_data, dict):
