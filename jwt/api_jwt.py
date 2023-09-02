@@ -300,7 +300,7 @@ class PyJWT:
         try:
             exp = int(payload["exp"])
         except ValueError:
-            raise DecodeError("Expiration Time claim (exp) must be an" " integer.")
+            raise DecodeError("Expiration Time claim (exp) must be an integer.")
 
         if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")
