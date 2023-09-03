@@ -5,7 +5,7 @@ import warnings
 from calendar import timegm
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, List
 
 from . import api_jws
 from .exceptions import (
@@ -110,7 +110,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
-        issuer: str | None = None,
+        issuer: str | List[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -195,7 +195,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
-        issuer: str | None = None,
+        issuer: str | List[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -362,8 +362,12 @@ class PyJWT:
         if "iss" not in payload:
             raise MissingRequiredClaimError("iss")
 
-        if payload["iss"] != issuer:
-            raise InvalidIssuerError("Invalid issuer")
+        if isinstance(issuer, list):
+            if payload["iss"] not in issuer:
+                raise InvalidIssuerError("Invalid issuer")
+        else:
+            if payload["iss"] != issuer:
+                raise InvalidIssuerError("Invalid issuer")
 
 
 _jwt_global_obj = PyJWT()
