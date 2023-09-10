@@ -21,7 +21,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.8", "pypy3.9"]
 
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
       - uses: "actions/setup-python@v4"
 
         with:
@@ -63,7 +63,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
       - uses: "actions/setup-python@v4"
 
         with:
@@ -90,7 +90,7 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
       - uses: "actions/setup-python@v4"
 
         with:
