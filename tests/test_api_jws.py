@@ -267,6 +267,40 @@ class TestJWS:
 
         assert decoded_payload == payload
 
+
+    def test_decodes_with_jwk_and_no_algorithm(self, jws, payload):
+        jwk = PyJWK({
+            "kty": "oct",
+            "alg": "HS256",
+            "k": "c2VjcmV0",  # "secret"
+        })
+        example_jws = (
+            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            b"aGVsbG8gd29ybGQ."
+            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+        )
+
+        decoded_payload = jws.decode(example_jws, jwk)
+
+        assert decoded_payload == payload
+
+
+    def test_decodes_with_jwk_and_mismatched_algorithm(self, jws, payload):
+        jwk = PyJWK({
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "PTTjIY84aLtaZCxLTrG_d8I0G6YKCV7lg8M4xkKfwQ4",
+            "y": "ank6KA34vv24HZLXlChVs85NEGlpg2sbqNmR_BcgyJU"
+        })
+        example_jws = (
+            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            b"aGVsbG8gd29ybGQ."
+            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+        )
+
+        with pytest.raises(InvalidAlgorithmError):
+            jws.decode(example_jws, jwk)
+
     # 'Control' Elliptic Curve jws created by another library.
     # Used to test for regressions that could affect both
     # encoding / decoding operations equally (causing tests
