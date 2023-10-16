@@ -4,8 +4,8 @@ from decimal import Decimal
 import pytest
 
 from jwt.algorithms import NoneAlgorithm, has_crypto
-from jwt.api_jws import PyJWS
 from jwt.api_jwk import PyJWK
+from jwt.api_jws import PyJWS
 from jwt.exceptions import (
     DecodeError,
     InvalidAlgorithmError,
@@ -252,11 +252,13 @@ class TestJWS:
         }
 
     def test_decodes_with_jwk(self, jws, payload):
-        jwk = PyJWK({
-            "kty": "oct",
-            "alg": "HS256",
-            "k": "c2VjcmV0",  # "secret"
-        })
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS256",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
         example_jws = (
             b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
             b"aGVsbG8gd29ybGQ."
@@ -267,13 +269,14 @@ class TestJWS:
 
         assert decoded_payload == payload
 
-
     def test_decodes_with_jwk_and_no_algorithm(self, jws, payload):
-        jwk = PyJWK({
-            "kty": "oct",
-            "alg": "HS256",
-            "k": "c2VjcmV0",  # "secret"
-        })
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS256",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
         example_jws = (
             b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
             b"aGVsbG8gd29ybGQ."
@@ -284,14 +287,15 @@ class TestJWS:
 
         assert decoded_payload == payload
 
-
     def test_decodes_with_jwk_and_mismatched_algorithm(self, jws, payload):
-        jwk = PyJWK({
-            "kty": "EC",
-            "crv": "P-256",
-            "x": "PTTjIY84aLtaZCxLTrG_d8I0G6YKCV7lg8M4xkKfwQ4",
-            "y": "ank6KA34vv24HZLXlChVs85NEGlpg2sbqNmR_BcgyJU"
-        })
+        jwk = PyJWK(
+            {
+                "kty": "EC",
+                "crv": "P-256",
+                "x": "PTTjIY84aLtaZCxLTrG_d8I0G6YKCV7lg8M4xkKfwQ4",
+                "y": "ank6KA34vv24HZLXlChVs85NEGlpg2sbqNmR_BcgyJU",
+            }
+        )
         example_jws = (
             b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
             b"aGVsbG8gd29ybGQ."
