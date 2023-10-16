@@ -290,10 +290,9 @@ class TestJWS:
     def test_decodes_with_jwk_and_mismatched_algorithm(self, jws, payload):
         jwk = PyJWK(
             {
-                "kty": "EC",
-                "crv": "P-256",
-                "x": "PTTjIY84aLtaZCxLTrG_d8I0G6YKCV7lg8M4xkKfwQ4",
-                "y": "ank6KA34vv24HZLXlChVs85NEGlpg2sbqNmR_BcgyJU",
+                "kty": "oct",
+                "alg": "HS512",
+                "k": "c2VjcmV0",  # "secret"
             }
         )
         example_jws = (
