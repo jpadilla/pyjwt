@@ -52,7 +52,7 @@ class PyJWK:
         if not has_crypto and algorithm in requires_cryptography:
             raise PyJWKError(f"{algorithm} requires 'cryptography' to be installed.")
 
-        self.algorithm = algorithm
+        self.algorithm_name = algorithm
         self.Algorithm = self._algorithms.get(algorithm)
 
         if not self.Algorithm:

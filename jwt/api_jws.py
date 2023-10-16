@@ -193,7 +193,7 @@ class PyJWS:
 
         if isinstance(key, PyJWK):
             if algorithms is None:
-                algorithms = [key.algorithm]
+                algorithms = [key.algorithm_name]
             key = key.key
 
         if verify_signature and not algorithms:
