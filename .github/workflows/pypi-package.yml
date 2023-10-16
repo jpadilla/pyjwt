@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -34,7 +34,7 @@ jobs:
   release-test-pypi:
     name: Publish in-dev package to test.pypi.org
     environment: release-test-pypi
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.repository_owner == 'jpadilla' && github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: build-package
 
@@ -54,7 +54,7 @@ jobs:
   release-pypi:
     name: Publish released package to pypi.org
     environment: release-pypi
-    if: github.event.action == 'published'
+    if: github.repository_owner == 'jpadilla' && github.event.action == 'published'
     runs-on: ubuntu-latest
     needs: build-package
 

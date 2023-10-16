@@ -12,7 +12,7 @@ source = ["jwt", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
-exclude_lines = ["if TYPE_CHECKING:"]
+exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
 
 [tool.isort]
 profile = "black"

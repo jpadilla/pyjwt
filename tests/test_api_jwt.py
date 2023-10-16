@@ -437,9 +437,7 @@ class TestJWT:
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
         token = jwt.encode(payload, "secret")
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(
-                token, "secret", audience="urn:me".encode(), algorithms=["HS256"]
-            )
+            jwt.decode(token, "secret", audience=b"urn:me", algorithms=["HS256"])
 
     def test_raise_exception_invalid_audience_in_array(self, jwt):
         payload = {
@@ -488,8 +486,24 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
         jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
 
+    def test_check_issuer_list_when_valid(self, jwt):
+        issuer = ["urn:foo", "urn:bar"]
+        payload = {"some": "payload", "iss": "urn:foo"}
+        token = jwt.encode(payload, "secret")
+        jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
+
     def test_raise_exception_invalid_issuer(self, jwt):
         issuer = "urn:wrong"
+
+        payload = {"some": "payload", "iss": "urn:foo"}
+
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(InvalidIssuerError):
+            jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
+
+    def test_raise_exception_invalid_issuer_list(self, jwt):
+        issuer = ["urn:wrong", "urn:bar", "urn:baz"]
 
         payload = {"some": "payload", "iss": "urn:foo"}
 
@@ -723,3 +737,82 @@ class TestJWT:
             jwt.decode_complete(jwt_message, secret, algorithms=["HS256"], foo="bar")
         assert len(record) == 1
         assert "foo" in str(record[0].message)
+
+    def test_decode_strict_aud_forbids_list_audience(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = "urn:foo"
+        jwt_message = jwt.encode(payload, secret)
+
+        # Decodes without `strict_aud`.
+        jwt.decode(
+            jwt_message,
+            secret,
+            audience=["urn:foo", "urn:bar"],
+            options={"strict_aud": False},
+            algorithms=["HS256"],
+        )
+
+        # Fails with `strict_aud`.
+        with pytest.raises(InvalidAudienceError, match=r"Invalid audience \(strict\)"):
+            jwt.decode(
+                jwt_message,
+                secret,
+                audience=["urn:foo", "urn:bar"],
+                options={"strict_aud": True},
+                algorithms=["HS256"],
+            )
+
+    def test_decode_strict_aud_forbids_list_claim(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = ["urn:foo", "urn:bar"]
+        jwt_message = jwt.encode(payload, secret)
+
+        # Decodes without `strict_aud`.
+        jwt.decode(
+            jwt_message,
+            secret,
+            audience="urn:foo",
+            options={"strict_aud": False},
+            algorithms=["HS256"],
+        )
+
+        # Fails with `strict_aud`.
+        with pytest.raises(
+            InvalidAudienceError, match=r"Invalid claim format in token \(strict\)"
+        ):
+            jwt.decode(
+                jwt_message,
+                secret,
+                audience="urn:foo",
+                options={"strict_aud": True},
+                algorithms=["HS256"],
+            )
+
+    def test_decode_strict_aud_does_not_match(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = "urn:foo"
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.raises(
+            InvalidAudienceError, match=r"Audience doesn't match \(strict\)"
+        ):
+            jwt.decode(
+                jwt_message,
+                secret,
+                audience="urn:bar",
+                options={"strict_aud": True},
+                algorithms=["HS256"],
+            )
+
+    def test_decode_strict_ok(self, jwt, payload):
+        secret = "secret"
+        payload["aud"] = "urn:foo"
+        jwt_message = jwt.encode(payload, secret)
+
+        jwt.decode(
+            jwt_message,
+            secret,
+            audience="urn:foo",
+            options={"strict_aud": True},
+            algorithms=["HS256"],
+        )

@@ -5,7 +5,7 @@ import warnings
 from calendar import timegm
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, List
 
 from . import api_jws
 from .exceptions import (
@@ -111,7 +111,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
-        issuer: str | None = None,
+        issuer: str | List[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -196,7 +196,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
-        issuer: str | None = None,
+        issuer: str | List[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -252,7 +252,9 @@ class PyJWT:
             self._validate_iss(payload, issuer)
 
         if options["verify_aud"]:
-            self._validate_aud(payload, audience)
+            self._validate_aud(
+                payload, audience, strict=options.get("strict_aud", False)
+            )
 
     def _validate_required_claims(
         self,
@@ -299,7 +301,7 @@ class PyJWT:
         try:
             exp = int(payload["exp"])
         except ValueError:
-            raise DecodeError("Expiration Time claim (exp) must be an" " integer.")
+            raise DecodeError("Expiration Time claim (exp) must be an integer.")
 
         if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")
@@ -308,6 +310,8 @@ class PyJWT:
         self,
         payload: dict[str, Any],
         audience: str | Iterable[str] | None,
+        *,
+        strict: bool = False,
     ) -> None:
         if audience is None:
             if "aud" not in payload or not payload["aud"]:
@@ -322,6 +326,22 @@ class PyJWT:
             raise MissingRequiredClaimError("aud")
 
         audience_claims = payload["aud"]
+
+        # In strict mode, we forbid list matching: the supplied audience
+        # must be a string, and it must exactly match the audience claim.
+        if strict:
+            # Only a single audience is allowed in strict mode.
+            if not isinstance(audience, str):
+                raise InvalidAudienceError("Invalid audience (strict)")
+
+            # Only a single audience claim is allowed in strict mode.
+            if not isinstance(audience_claims, str):
+                raise InvalidAudienceError("Invalid claim format in token (strict)")
+
+            if audience != audience_claims:
+                raise InvalidAudienceError("Audience doesn't match (strict)")
+
+            return
 
         if isinstance(audience_claims, str):
             audience_claims = [audience_claims]
@@ -343,8 +363,12 @@ class PyJWT:
         if "iss" not in payload:
             raise MissingRequiredClaimError("iss")
 
-        if payload["iss"] != issuer:
-            raise InvalidIssuerError("Invalid issuer")
+        if isinstance(issuer, list):
+            if payload["iss"] not in issuer:
+                raise InvalidIssuerError("Invalid issuer")
+        else:
+            if payload["iss"] != issuer:
+                raise InvalidIssuerError("Invalid issuer")
 
 
 _jwt_global_obj = PyJWT()

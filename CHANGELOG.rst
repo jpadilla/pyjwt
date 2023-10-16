@@ -4,28 +4,72 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.6.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.7.0...HEAD>`__
+-----------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
+Fixed
+~~~~~
+
+Added
+~~~~~
+
+`v2.8.0 <https://github.com/jpadilla/pyjwt/compare/2.7.0...2.8.0>`__
+-----------------------------------------------------------------------
+
+Changed
+~~~~~~~
+
+- Update python version test matrix by @auvipy in `#895 <https://github.com/jpadilla/pyjwt/pull/895>`__
+
+Fixed
+~~~~~
+
+Added
+~~~~~
+
+- Add ``strict_aud`` as an option to ``jwt.decode`` by @woodruffw in `#902 <https://github.com/jpadilla/pyjwt/pull/902>`__
+- Export PyJWKClientConnectionError class by @daviddavis in `#887 <https://github.com/jpadilla/pyjwt/pull/887>`__
+- Allows passing of ssl.SSLContext to PyJWKClient by @juur in `#891 <https://github.com/jpadilla/pyjwt/pull/891>`__
+
+`v2.7.0 <https://github.com/jpadilla/pyjwt/compare/2.6.0...2.7.0>`__
 -----------------------------------------------------------------------
 
 Changed
 ~~~~~~~
 
 - Changed the error message when the token audience doesn't match the expected audience by @irdkwmnsb `#809 <https://github.com/jpadilla/pyjwt/pull/809>`__
+- Improve error messages when cryptography isn't installed by @Viicos in `#846 <https://github.com/jpadilla/pyjwt/pull/846>`__
+- Make `Algorithm` an abstract base class by @Viicos in `#845 <https://github.com/jpadilla/pyjwt/pull/845>`__
+- ignore invalid keys in a jwks by @timw6n in `#863 <https://github.com/jpadilla/pyjwt/pull/863>`__
 
 Fixed
 ~~~~~
 
-- Add classifier for Python 3.11 by @eseifert in `#818 <https://github.com/jpadilla/pyjwt/pull/818>`_
-- Fix ``_validate_iat`` validation by @Viicos in `#847 <https://github.com/jpadilla/pyjwt/pull/847>`_
+- Add classifier for Python 3.11 by @eseifert in `#818 <https://github.com/jpadilla/pyjwt/pull/818>`__
+- Fix ``_validate_iat`` validation by @Viicos in `#847 <https://github.com/jpadilla/pyjwt/pull/847>`__
+- fix: use datetime.datetime.timestamp function to have a milliseconds by @daillouf `#821 <https://github.com/jpadilla/pyjwt/pull/821>`__
+- docs: correct mistake in the changelog about verify param by @gbillig in `#866 <https://github.com/jpadilla/pyjwt/pull/866>`__
 
 Added
 ~~~~~
 
 - Add ``compute_hash_digest`` as a method of ``Algorithm`` objects, which uses
   the underlying hash algorithm to compute a digest. If there is no appropriate
-  hash algorithm, a ``NotImplementedError`` will be raised
+  hash algorithm, a ``NotImplementedError`` will be raised in `#775 <https://github.com/jpadilla/pyjwt/pull/775>`__
 - Add optional ``headers`` argument to ``PyJWKClient``. If provided, the headers
-  will be included in requests that the client uses when fetching the JWK set.
+  will be included in requests that the client uses when fetching the JWK set by @thundercat1 in `#823 <https://github.com/jpadilla/pyjwt/pull/823>`__
+- Add PyJWT._{de,en}code_payload hooks by @akx in `#829 <https://github.com/jpadilla/pyjwt/pull/829>`__
+- Add `sort_headers` parameter to `api_jwt.encode` by @evroon in `#832 <https://github.com/jpadilla/pyjwt/pull/832>`__
+- Make mypy configuration stricter and improve typing by @akx in `#830 <https://github.com/jpadilla/pyjwt/pull/830>`__
+- Add more types by @Viicos in `#843 <https://github.com/jpadilla/pyjwt/pull/843>`__
+- Add a timeout for PyJWKClient requests by @daviddavis in `#875 <https://github.com/jpadilla/pyjwt/pull/875>`__
+- Add client connection error exception by @daviddavis in `#876 <https://github.com/jpadilla/pyjwt/pull/876>`__
+- Add complete types to take all allowed keys into account by @Viicos in `#873 <https://github.com/jpadilla/pyjwt/pull/873>`__
+- Add `as_dict` option to `Algorithm.to_jwk` by @fluxth in `#881 <https://github.com/jpadilla/pyjwt/pull/881>`__
+
 
 `v2.6.0 <https://github.com/jpadilla/pyjwt/compare/2.5.0...2.6.0>`__
 -----------------------------------------------------------------------
