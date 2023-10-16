@@ -191,12 +191,7 @@ class PyJWS:
         merged_options = {**self.options, **options}
         verify_signature = merged_options["verify_signature"]
 
-        if isinstance(key, PyJWK):
-            if algorithms is None:
-                algorithms = [key.algorithm_name]
-            key = key.key
-
-        if verify_signature and not algorithms:
+        if verify_signature and not algorithms and not isinstance(key, PyJWK):
             raise DecodeError(
                 'It is required that you pass in a value for the "algorithms" argument when calling decode().'
             )
@@ -295,9 +290,11 @@ class PyJWS:
         signing_input: bytes,
         header: dict[str, Any],
         signature: bytes,
-        key: AllowedPublicKeys | str | bytes = "",
+        key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
     ) -> None:
+        if algorithms is None and isinstance(key, PyJWK):
+            algorithms = [key.algorithm_name]
         try:
             alg = header["alg"]
         except KeyError:
@@ -306,11 +303,15 @@ class PyJWS:
         if not alg or (algorithms is not None and alg not in algorithms):
             raise InvalidAlgorithmError("The specified alg value is not allowed")
 
-        try:
-            alg_obj = self.get_algorithm_by_name(alg)
-        except NotImplementedError as e:
-            raise InvalidAlgorithmError("Algorithm not supported") from e
-        prepared_key = alg_obj.prepare_key(key)
+        if isinstance(key, PyJWK):
+            alg_obj = key.Algorithm
+            prepared_key = key.key
+        else:
+            try:
+                alg_obj = self.get_algorithm_by_name(alg)
+            except NotImplementedError as e:
+                raise InvalidAlgorithmError("Algorithm not supported") from e
+            prepared_key = alg_obj.prepare_key(key)
 
         if not alg_obj.verify(signing_input, prepared_key, signature):
             raise InvalidSignatureError("Signature verification failed")

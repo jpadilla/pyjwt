@@ -53,9 +53,10 @@ class PyJWK:
             raise PyJWKError(f"{algorithm} requires 'cryptography' to be installed.")
 
         self.algorithm_name = algorithm
-        self.Algorithm = self._algorithms.get(algorithm)
 
-        if not self.Algorithm:
+        if algorithm in self._algorithms:
+            self.Algorithm = self._algorithms[algorithm]
+        else:
             raise PyJWKError(f"Unable to find an algorithm for key: {self._jwk_data}")
 
         self.key = self.Algorithm.from_jwk(self._jwk_data)
