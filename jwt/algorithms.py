@@ -62,6 +62,7 @@ try:
         PublicFormat,
         load_pem_private_key,
         load_pem_public_key,
+        load_ssh_private_key,
         load_ssh_public_key,
     )
 
@@ -338,10 +339,15 @@ if has_crypto:
             try:
                 if key_bytes.startswith(b"ssh-rsa"):
                     return cast(RSAPublicKey, load_ssh_public_key(key_bytes))
-                else:
+
+                if key_bytes.startswith(b"-----BEGIN OPENSSH PRIVATE KEY-----"):
                     return cast(
-                        RSAPrivateKey, load_pem_private_key(key_bytes, password=None)
+                        RSAPrivateKey, load_ssh_private_key(key_bytes, password=None)
                     )
+
+                return cast(
+                    RSAPrivateKey, load_pem_private_key(key_bytes, password=None)
+                )
             except ValueError:
                 return cast(RSAPublicKey, load_pem_public_key(key_bytes))
 

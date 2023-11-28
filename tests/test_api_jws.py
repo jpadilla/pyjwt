@@ -540,6 +540,15 @@ class TestJWS:
             pub_rsakey = rsa_pub_file.read()  # type: ignore[assignment]
             jws.decode(jws_message, pub_rsakey, algorithms=[algo])
 
+        # OpenSSH string-formatted key
+        with open(key_path("testkey_rsa_openssh.priv")) as rsa_priv_file:
+            priv_rsakey = rsa_priv_file.read()  # type: ignore[assignment]
+            jws_message = jws.encode(payload, priv_rsakey, algorithm=algo)
+
+        with open(key_path("testkey_rsa_openssh.pub")) as rsa_pub_file:
+            pub_rsakey = rsa_pub_file.read()  # type: ignore[assignment]
+            jws.decode(jws_message, pub_rsakey, algorithms=[algo])
+
     def test_rsa_related_algorithms(self, jws):
         jws = PyJWS()
         jws_algorithms = jws.get_algorithms()
