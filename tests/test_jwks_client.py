@@ -308,6 +308,20 @@ class TestPyJWKClient:
 
         assert call_data.call_count == 2
 
+    def test_get_jwt_set_no_second_attempt(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url)
+
+        kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
+
+        with pytest.raises(PyJWKClientError):
+            with mocked_first_call_wrong_kid_second_call_correct_kid(
+                RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_WITH_MATCHING_KID
+            ) as call_data:
+                jwks_client.get_signing_key(kid, False)
+
+            assert call_data.call_count == 1
+
     def test_get_jwt_set_no_matching_kid_after_second_attempt(self):
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         jwks_client = PyJWKClient(url)
