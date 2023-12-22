@@ -91,26 +91,26 @@ class PyJWKClient:
 
         return signing_keys
 
-    def get_signing_key(self, kid: str) -> PyJWK:
+    def get_signing_key(self, kid: str, retry: bool = True) -> PyJWK:
         signing_keys = self.get_signing_keys()
         signing_key = self.match_kid(signing_keys, kid)
 
-        if not signing_key:
+        if not signing_key and retry:
             # If no matching signing key from the jwk set, refresh the jwk set and try again.
             signing_keys = self.get_signing_keys(refresh=True)
             signing_key = self.match_kid(signing_keys, kid)
 
-            if not signing_key:
-                raise PyJWKClientError(
-                    f'Unable to find a signing key that matches: "{kid}"'
-                )
+        if not signing_key:
+            raise PyJWKClientError(
+                f'Unable to find a signing key that matches: "{kid}"'
+            )
 
         return signing_key
 
-    def get_signing_key_from_jwt(self, token: str) -> PyJWK:
+    def get_signing_key_from_jwt(self, token: str, retry: bool = True) -> PyJWK:
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
-        return self.get_signing_key(header.get("kid"))
+        return self.get_signing_key(header.get("kid"), retry)
 
     @staticmethod
     def match_kid(signing_keys: List[PyJWK], kid: str) -> Optional[PyJWK]:
