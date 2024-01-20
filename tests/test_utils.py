@@ -39,7 +39,17 @@ def test_force_bytes_raises_error_on_invalid_object():
         force_bytes({})  # type: ignore[arg-type]
 
 
-def test_is_ssh_key():
-    assert is_ssh_key(b"ecdsa-sha2-nistp256 any") is True
+@pytest.mark.parametrize(
+    "key_format",
+    (
+        b"ssh-ed25519",
+        b"ssh-rsa",
+        b"ssh-dss",
+        b"ecdsa-sha2-nistp256",
+        b"ecdsa-sha2-nistp384",
+        b"ecdsa-sha2-nistp521",
+    ),
+)
+def test_is_ssh_key(key_format):
+    assert is_ssh_key(key_format + b" any") is True
     assert is_ssh_key(b"not a ssh key") is False
-    assert is_ssh_key(b"any-cert-v01@openssh.com any") is True
