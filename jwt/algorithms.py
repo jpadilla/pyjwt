@@ -187,14 +187,12 @@ class Algorithm(ABC):
     @overload
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict:
-        ...  # pragma: no cover
+    def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict: ...  # pragma: no cover
 
     @overload
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj, as_dict: Literal[False] = False) -> str:
-        ...  # pragma: no cover
+    def to_jwk(key_obj, as_dict: Literal[False] = False) -> str: ...  # pragma: no cover
 
     @staticmethod
     @abstractmethod
@@ -267,13 +265,15 @@ class HMACAlgorithm(Algorithm):
 
     @overload
     @staticmethod
-    def to_jwk(key_obj: str | bytes, as_dict: Literal[True]) -> JWKDict:
-        ...  # pragma: no cover
+    def to_jwk(
+        key_obj: str | bytes, as_dict: Literal[True]
+    ) -> JWKDict: ...  # pragma: no cover
 
     @overload
     @staticmethod
-    def to_jwk(key_obj: str | bytes, as_dict: Literal[False] = False) -> str:
-        ...  # pragma: no cover
+    def to_jwk(
+        key_obj: str | bytes, as_dict: Literal[False] = False
+    ) -> str: ...  # pragma: no cover
 
     @staticmethod
     def to_jwk(key_obj: str | bytes, as_dict: bool = False) -> JWKDict | str:
@@ -347,13 +347,15 @@ if has_crypto:
 
         @overload
         @staticmethod
-        def to_jwk(key_obj: AllowedRSAKeys, as_dict: Literal[True]) -> JWKDict:
-            ...  # pragma: no cover
+        def to_jwk(
+            key_obj: AllowedRSAKeys, as_dict: Literal[True]
+        ) -> JWKDict: ...  # pragma: no cover
 
         @overload
         @staticmethod
-        def to_jwk(key_obj: AllowedRSAKeys, as_dict: Literal[False] = False) -> str:
-            ...  # pragma: no cover
+        def to_jwk(
+            key_obj: AllowedRSAKeys, as_dict: Literal[False] = False
+        ) -> str: ...  # pragma: no cover
 
         @staticmethod
         def to_jwk(key_obj: AllowedRSAKeys, as_dict: bool = False) -> JWKDict | str:
@@ -543,13 +545,15 @@ if has_crypto:
 
         @overload
         @staticmethod
-        def to_jwk(key_obj: AllowedECKeys, as_dict: Literal[True]) -> JWKDict:
-            ...  # pragma: no cover
+        def to_jwk(
+            key_obj: AllowedECKeys, as_dict: Literal[True]
+        ) -> JWKDict: ...  # pragma: no cover
 
         @overload
         @staticmethod
-        def to_jwk(key_obj: AllowedECKeys, as_dict: Literal[False] = False) -> str:
-            ...  # pragma: no cover
+        def to_jwk(
+            key_obj: AllowedECKeys, as_dict: Literal[False] = False
+        ) -> str: ...  # pragma: no cover
 
         @staticmethod
         def to_jwk(key_obj: AllowedECKeys, as_dict: bool = False) -> JWKDict | str:
@@ -760,13 +764,15 @@ if has_crypto:
 
         @overload
         @staticmethod
-        def to_jwk(key: AllowedOKPKeys, as_dict: Literal[True]) -> JWKDict:
-            ...  # pragma: no cover
+        def to_jwk(
+            key: AllowedOKPKeys, as_dict: Literal[True]
+        ) -> JWKDict: ...  # pragma: no cover
 
         @overload
         @staticmethod
-        def to_jwk(key: AllowedOKPKeys, as_dict: Literal[False] = False) -> str:
-            ...  # pragma: no cover
+        def to_jwk(
+            key: AllowedOKPKeys, as_dict: Literal[False] = False
+        ) -> str: ...  # pragma: no cover
 
         @staticmethod
         def to_jwk(key: AllowedOKPKeys, as_dict: bool = False) -> JWKDict | str:
