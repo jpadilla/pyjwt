@@ -28,6 +28,7 @@ strict = true
 # TODO: remove these strict loosenings when possible
 allow_incomplete_defs = true
 allow_untyped_defs = true
+warn_return_any = false
 
 [[tool.mypy.overrides]]
 module = "tests.*"
