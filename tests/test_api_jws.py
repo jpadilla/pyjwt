@@ -4,6 +4,7 @@ from decimal import Decimal
 import pytest
 
 from jwt.algorithms import NoneAlgorithm, has_crypto
+from jwt.api_jwk import PyJWK
 from jwt.api_jws import PyJWS
 from jwt.exceptions import (
     DecodeError,
@@ -249,6 +250,59 @@ class TestJWS:
                 b"\x1ff0\xe1\x9a\x8e\xddq\x08\xa9F\x19p\xc9\xf0\xf3"
             ),
         }
+
+    def test_decodes_with_jwk(self, jws, payload):
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS256",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
+        example_jws = (
+            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            b"aGVsbG8gd29ybGQ."
+            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+        )
+
+        decoded_payload = jws.decode(example_jws, jwk, algorithms=["HS256"])
+
+        assert decoded_payload == payload
+
+    def test_decodes_with_jwk_and_no_algorithm(self, jws, payload):
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS256",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
+        example_jws = (
+            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            b"aGVsbG8gd29ybGQ."
+            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+        )
+
+        decoded_payload = jws.decode(example_jws, jwk)
+
+        assert decoded_payload == payload
+
+    def test_decodes_with_jwk_and_mismatched_algorithm(self, jws, payload):
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS512",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
+        example_jws = (
+            b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
+            b"aGVsbG8gd29ybGQ."
+            b"gEW0pdU4kxPthjtehYdhxB9mMOGajt1xCKlGGXDJ8PM"
+        )
+
+        with pytest.raises(InvalidAlgorithmError):
+            jws.decode(example_jws, jwk)
 
     # 'Control' Elliptic Curve jws created by another library.
     # Used to test for regressions that could affect both
