@@ -21,7 +21,7 @@ from .utils import (
 )
 
 try:
-    from cryptography.exceptions import InvalidSignature
+    from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
     from cryptography.hazmat.backends import default_backend
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric import padding
@@ -343,7 +343,10 @@ if has_crypto:
                         RSAPrivateKey, load_pem_private_key(key_bytes, password=None)
                     )
             except ValueError:
-                return cast(RSAPublicKey, load_pem_public_key(key_bytes))
+                try:
+                    return cast(RSAPublicKey, load_pem_public_key(key_bytes))
+                except (ValueError, UnsupportedAlgorithm):
+                    raise InvalidKeyError("Could not parse the provided public key.")
 
         @overload
         @staticmethod
