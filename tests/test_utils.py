@@ -1,6 +1,6 @@
 import pytest
 
-from jwt.utils import force_bytes, from_base64url_uint, to_base64url_uint
+from jwt.utils import force_bytes, from_base64url_uint, is_ssh_key, to_base64url_uint
 
 
 @pytest.mark.parametrize(
@@ -37,3 +37,19 @@ def test_from_base64url_uint(inputval, expected):
 def test_force_bytes_raises_error_on_invalid_object():
     with pytest.raises(TypeError):
         force_bytes({})  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    "key_format",
+    (
+        b"ssh-ed25519",
+        b"ssh-rsa",
+        b"ssh-dss",
+        b"ecdsa-sha2-nistp256",
+        b"ecdsa-sha2-nistp384",
+        b"ecdsa-sha2-nistp521",
+    ),
+)
+def test_is_ssh_key(key_format):
+    assert is_ssh_key(key_format + b" any") is True
+    assert is_ssh_key(b"not a ssh key") is False
