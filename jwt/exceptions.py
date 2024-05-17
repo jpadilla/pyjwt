@@ -68,3 +68,6 @@ class PyJWKClientError(PyJWTError):
 
 class PyJWKClientConnectionError(PyJWKClientError):
     pass
+
+class PyJWKAsyncDisabledError(PyJWKClientError):
+    pass
