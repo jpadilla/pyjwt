@@ -7,18 +7,16 @@ from urllib.error import URLError
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
-from .exceptions import PyJWKClientConnectionError, PyJWKClientError, PyJWKClientError, PyJWKAsyncDisabledError
+from .exceptions import (
+    PyJWKAsyncDisabledError,
+    PyJWKClientConnectionError,
+    PyJWKClientError,
+)
 from .jwk_set_cache import JWKSetCache
-
-
 
 try:
     from async_lru import alru_cache
-    from httpx import (
-        AsyncClient,
-        HTTPError,
-        Timeout
-    )
+    from httpx import AsyncClient, HTTPError, Timeout
 
     has_async = True
 except ModuleNotFoundError:
@@ -80,7 +78,7 @@ class PyJWKClient:
         finally:
             if self.jwk_set_cache is not None:
                 self.jwk_set_cache.put(jwk_set)
-    
+
     async def fetch_data_async(self) -> Any:
         if not has_async:
             raise PyJWKAsyncDisabledError()
@@ -102,7 +100,6 @@ class PyJWKClient:
             if self.jwk_set_cache is not None:
                 self.jwk_set_cache.put(jwk_set)
 
-
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
         data = None
         if self.jwk_set_cache is not None and not refresh:
@@ -115,7 +112,7 @@ class PyJWKClient:
             raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 
         return PyJWKSet.from_dict(data)
-    
+
     async def get_jwk_set_async(self, refresh: bool = False) -> PyJWKSet:
         if not has_async:
             raise PyJWKAsyncDisabledError()
@@ -143,7 +140,7 @@ class PyJWKClient:
             raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
 
         return signing_keys
-    
+
     async def get_signing_keys_async(self, refresh: bool = False) -> List[PyJWK]:
         if not has_async:
             raise PyJWKAsyncDisabledError()
@@ -197,7 +194,7 @@ class PyJWKClient:
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
         return self.get_signing_key(header.get("kid"))
-    
+
     async def get_signing_key_from_jwt_async(self, token: str) -> PyJWK:
         if not has_async:
             raise PyJWKAsyncDisabledError()

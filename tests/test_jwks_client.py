@@ -55,9 +55,12 @@ def mocked_success_response(data):
         urlopen_mock.return_value = response
         yield urlopen_mock
 
+
 @contextlib.contextmanager
 async def mocked_success_response_async(data):
-    with mock.patch.object(jwt.jwks_client, "AsyncClient", mock.AsyncMock()) as async_client_mock:
+    with mock.patch.object(
+        jwt.jwks_client, "AsyncClient", mock.AsyncMock()
+    ) as async_client_mock:
         response = mock.AsyncMock()
         response.__aenter__ = mock.AsyncMock(return_value=response)
         response.__aexit__ = mock.AsyncMock()
@@ -228,7 +231,6 @@ class TestPyJWKClient:
             "azp": "aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC",
             "gty": "client-credentials",
         }
-
 
     @pytest.mark.asyncio
     async def test_get_signing_key_from_jwt_async(self):
