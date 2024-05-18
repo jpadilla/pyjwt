@@ -84,9 +84,13 @@ class PyJWKClient:
             raise PyJWKAsyncDisabledError()
         jwk_set: Any = None
         try:
-            async with AsyncClient(timeout=Timeout(self.timeout)) as client:
+            async with AsyncClient(
+                timeout=Timeout(self.timeout),
+                verify=self.ssl_context,
+            ) as client:
                 response = await client.get(
-                    url=self.uri, headers=self.headers, verify=self.ssl_context
+                    url=self.uri,
+                    headers=self.headers,
                 )
                 response.raise_for_status()  # Raise an exception for HTTP errors
                 jwk_set = response.json()
