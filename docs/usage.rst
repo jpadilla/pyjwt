@@ -289,6 +289,7 @@ Retrieve RSA signing keys from a JWKS endpoint
     >>> optional_custom_headers = {"User-agent": "custom-user-agent"}
     >>> jwks_client = PyJWKClient(url, headers=optional_custom_headers)
     >>> signing_key = jwks_client.get_signing_key_from_jwt(token)
+    >>> # signing_key = await jwks_client.get_siging_key_from_jwt_async(token)  # if calling from an async context
     >>> data = jwt.decode(
     ...     token,
     ...     signing_key,
