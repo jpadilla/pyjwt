@@ -2,6 +2,9 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.check-manifest]
+ignore = [".tool-versions"]
+
 [tool.coverage.run]
 parallel = true
 branch = true

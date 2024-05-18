@@ -56,10 +56,11 @@ def mocked_success_response(data):
         yield urlopen_mock
 
 
-@contextlib.contextmanager
+@contextlib.asynccontextmanager
 async def mocked_success_response_async(data):
     with mock.patch.object(
-        jwt.jwks_client, "AsyncClient", mock.AsyncMock()
+        jwt.jwks_client,
+        "AsyncClient",
     ) as async_client_mock:
         response = mock.AsyncMock()
         response.__aenter__ = mock.AsyncMock(return_value=response)
