@@ -1100,3 +1100,14 @@ class TestOKPAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
         computed_hash = algo.compute_hash_digest(b"foo")
         assert computed_hash == foo_hash
+
+    @crypto_required
+    def test_rsa_prepare_key_raises_invalid_key_error_on_invalid_pem(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        invalid_key = "invalid key"
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(invalid_key)
+
+        # Check that the exception message is correct
+        assert "Could not parse the provided public key." in str(excinfo.value)
