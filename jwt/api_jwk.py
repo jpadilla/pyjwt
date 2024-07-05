@@ -5,7 +5,13 @@ import time
 from typing import Any
 
 from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
-from .exceptions import InvalidKeyError, PyJWKError, PyJWKSetError, PyJWTError, MissingCryptographyError
+from .exceptions import (
+    InvalidKeyError,
+    MissingCryptographyError,
+    PyJWKError,
+    PyJWKSetError,
+    PyJWTError,
+)
 from .types import JWKDict
 
 
@@ -50,7 +56,9 @@ class PyJWK:
                 raise InvalidKeyError(f"Unsupported kty: {kty}")
 
         if not has_crypto and algorithm in requires_cryptography:
-            raise MissingCryptographyError(f"{algorithm} requires 'cryptography' to be installed.")
+            raise MissingCryptographyError(
+                f"{algorithm} requires 'cryptography' to be installed."
+            )
 
         self.algorithm_name = algorithm
 
