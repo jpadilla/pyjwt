@@ -4,7 +4,12 @@ import pytest
 
 from jwt.algorithms import has_crypto
 from jwt.api_jwk import PyJWK, PyJWKSet
-from jwt.exceptions import InvalidKeyError, PyJWKError, PyJWKSetError, MissingCryptographyError
+from jwt.exceptions import (
+    InvalidKeyError,
+    MissingCryptographyError,
+    PyJWKError,
+    PyJWKSetError,
+)
 
 from .utils import crypto_required, key_path, no_crypto_required
 
