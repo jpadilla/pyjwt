@@ -4,7 +4,12 @@ import pytest
 
 from jwt.algorithms import has_crypto
 from jwt.api_jwk import PyJWK, PyJWKSet
-from jwt.exceptions import InvalidKeyError, PyJWKError, PyJWKSetError
+from jwt.exceptions import (
+    InvalidKeyError,
+    MissingCryptographyError,
+    PyJWKError,
+    PyJWKSetError,
+)
 
 from .utils import crypto_required, key_path, no_crypto_required
 
@@ -212,9 +217,14 @@ class TestPyJWK:
             PyJWK({"kty": "dummy"}, algorithm="RS256")
             assert "cryptography" in str(exc.value)
 
+    @no_crypto_required
+    def test_missing_crypto_library_raises_missing_cryptography_error(self):
+        with pytest.raises(MissingCryptographyError):
+            PyJWK({"kty": "dummy"}, algorithm="RS256")
 
-@crypto_required
+
 class TestPyJWKSet:
+    @crypto_required
     def test_should_load_keys_from_jwk_data_dict(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -236,6 +246,7 @@ class TestPyJWKSet:
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
 
+    @crypto_required
     def test_should_load_keys_from_jwk_data_json_string(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -257,6 +268,7 @@ class TestPyJWKSet:
         assert jwk.key_id == "keyid-abc123"
         assert jwk.public_key_use == "sig"
 
+    @crypto_required
     def test_keyset_should_index_by_kid(self):
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -279,6 +291,7 @@ class TestPyJWKSet:
         with pytest.raises(KeyError):
             _ = jwk_set["this-kid-does-not-exist"]
 
+    @crypto_required
     def test_keyset_with_unknown_alg(self):
         # first keyset with unusable key and usable key
         with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
@@ -296,12 +309,19 @@ class TestPyJWKSet:
             with pytest.raises(PyJWKSetError):
                 _ = PyJWKSet.from_json(jwks_text)
 
+    @crypto_required
     def test_invalid_keys_list(self):
         with pytest.raises(PyJWKSetError) as err:
             PyJWKSet(keys="string")  # type: ignore
         assert str(err.value) == "Invalid JWK Set value"
 
+    @crypto_required
     def test_empty_keys_list(self):
         with pytest.raises(PyJWKSetError) as err:
             PyJWKSet(keys=[])
         assert str(err.value) == "The JWK Set did not contain any keys"
+
+    @no_crypto_required
+    def test_missing_crypto_library_raises_when_required(self):
+        with pytest.raises(MissingCryptographyError):
+            PyJWKSet(keys=[{"kty": "RSA"}])
