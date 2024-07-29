@@ -31,7 +31,7 @@ Fixed
 - Fix unnecessary string concatenation by @sirosen in `#904 <https://github.com/jpadilla/pyjwt/pull/904>`__
 - Fix docs for ``jwt.decode_complete`` to include ``strict_aud`` option by @woodruffw in `#923 <https://github.com/jpadilla/pyjwt/pull/923>`__
 - Fix docs step by @jpadilla in `#950 <https://github.com/jpadilla/pyjwt/pull/950>`__
-- Fix: Remove an unused variable from example code block by @kenkoooo in `#958 <https://github.com/jpadilla/pyjwt/pull/958>`
+- Fix: Remove an unused variable from example code block by @kenkoooo in `#958 <https://github.com/jpadilla/pyjwt/pull/958>`__
 
 Added
 ~~~~~
@@ -39,7 +39,7 @@ Added
 - Add support for Python 3.12 by @hugovk in `#910 <https://github.com/jpadilla/pyjwt/pull/910>`__
 - Improve performance of ``is_ssh_key`` + add unit test by @bdraco in `#940 <https://github.com/jpadilla/pyjwt/pull/940>`__
 - Allow ``jwt.decode()`` to accept a PyJWK object by @luhn in `#886 <https://github.com/jpadilla/pyjwt/pull/886>`__
-- Make ``algorithm_name`` attribute available on PyJWK by @luhn in `#886 <https://github.com/jpadilla/pyjwt/pull/886>`__ 
+- Make ``algorithm_name`` attribute available on PyJWK by @luhn in `#886 <https://github.com/jpadilla/pyjwt/pull/886>`__
 - Raise ``InvalidKeyError`` on invalid PEM keys to be compatible with cryptography 42.x.x by @CollinEMac in `#952 <https://github.com/jpadilla/pyjwt/pull/952>`__
 - Raise an exception when required cryptography dependency is missing by @tobloef in `<https://github.com/jpadilla/pyjwt/pull/963>`__
 
