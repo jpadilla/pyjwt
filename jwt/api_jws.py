@@ -18,6 +18,7 @@ from .exceptions import (
     InvalidSignatureError,
     InvalidTokenError,
 )
+from .types import JwsOptions
 from .utils import base64url_decode, base64url_encode
 from .warnings import RemovedInPyjwt3Warning
 
@@ -31,7 +32,7 @@ class PyJWS:
     def __init__(
         self,
         algorithms: list[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: JwsOptions | None = None,
     ) -> None:
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
@@ -44,11 +45,12 @@ class PyJWS:
                 del self._algorithms[key]
 
         if options is None:
-            options = {}
-        self.options = {**self._get_default_options(), **options}
+            self.options = self._get_default_options()
+        else:
+            self.options = options
 
     @staticmethod
-    def _get_default_options() -> dict[str, bool]:
+    def _get_default_options() -> JwsOptions:
         return {"verify_signature": True}
 
     def register_algorithm(self, alg_id: str, alg_obj: Algorithm) -> None:
@@ -175,7 +177,7 @@ class PyJWS:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: JwsOptions | None = None,
         detached_payload: bytes | None = None,
         **kwargs,
     ) -> dict[str, Any]:
@@ -187,9 +189,9 @@ class PyJWS:
                 RemovedInPyjwt3Warning,
             )
         if options is None:
-            options = {}
-        merged_options = {**self.options, **options}
-        verify_signature = merged_options["verify_signature"]
+            options = self.options
+
+        verify_signature = options["verify_signature"]
 
         if verify_signature and not algorithms and not isinstance(key, PyJWK):
             raise DecodeError(
@@ -220,7 +222,7 @@ class PyJWS:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: JwsOptions | None = None,
         detached_payload: bytes | None = None,
         **kwargs,
     ) -> Any:

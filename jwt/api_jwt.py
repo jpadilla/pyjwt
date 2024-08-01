@@ -17,6 +17,7 @@ from .exceptions import (
     InvalidIssuerError,
     MissingRequiredClaimError,
 )
+from .types import JwtOptions
 from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
@@ -25,13 +26,14 @@ if TYPE_CHECKING:
 
 
 class PyJWT:
-    def __init__(self, options: dict[str, Any] | None = None) -> None:
+    def __init__(self, options: JwtOptions | None = None) -> None:
         if options is None:
-            options = {}
-        self.options: dict[str, Any] = {**self._get_default_options(), **options}
+            self.options = self._get_default_options()
+        else:
+            self.options = options
 
     @staticmethod
-    def _get_default_options() -> dict[str, bool | list[str]]:
+    def _get_default_options() -> JwtOptions:
         return {
             "verify_signature": True,
             "verify_exp": True,
@@ -103,7 +105,7 @@ class PyJWT:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: JwtOptions | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
         # could be used as passthrough to api_jws, consider removal in pyjwt3
@@ -115,7 +117,7 @@ class PyJWT:
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
-    ) -> dict[str, Any]:
+    ) -> Any:
         if kwargs:
             warnings.warn(
                 "passing additional kwargs to decode_complete() is deprecated "
@@ -123,8 +125,14 @@ class PyJWT:
                 f"Unsupported kwargs: {tuple(kwargs.keys())}",
                 RemovedInPyjwt3Warning,
             )
-        options = dict(options or {})  # shallow-copy or initialize an empty dict
-        options.setdefault("verify_signature", True)
+        if options is None:
+            options = self.options
+        if options["verify_signature"] is False:
+            options.setdefault("verify_exp", False)
+            options.setdefault("verify_nbf", False)
+            options.setdefault("verify_iat", False)
+            options.setdefault("verify_aud", False)
+            options.setdefault("verify_iss", False)
 
         # If the user has set the legacy `verify` argument, and it doesn't match
         # what the relevant `options` entry for the argument is, inform the user
@@ -136,13 +144,6 @@ class PyJWT:
                 "This invocation has a mismatch between the kwarg and the option entry.",
                 category=DeprecationWarning,
             )
-
-        if not options["verify_signature"]:
-            options.setdefault("verify_exp", False)
-            options.setdefault("verify_nbf", False)
-            options.setdefault("verify_iat", False)
-            options.setdefault("verify_aud", False)
-            options.setdefault("verify_iss", False)
 
         if options["verify_signature"] and not algorithms:
             raise DecodeError(
@@ -188,7 +189,7 @@ class PyJWT:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: list[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: JwtOptions | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
         # could be used as passthrough to api_jws, consider removal in pyjwt3

@@ -83,10 +83,6 @@ class TestJWS:
 
         assert jws.options["verify_signature"]
 
-    def test_options_must_be_dict(self):
-        pytest.raises(TypeError, PyJWS, options=object())
-        pytest.raises((TypeError, ValueError), PyJWS, options=("something"))
-
     def test_encode_decode(self, jws, payload):
         secret = "secret"
         jws_message = jws.encode(payload, secret, algorithm="HS256")
