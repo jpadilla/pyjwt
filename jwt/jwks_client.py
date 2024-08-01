@@ -9,6 +9,7 @@ from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
 from .exceptions import PyJWKClientConnectionError, PyJWKClientError
 from .jwk_set_cache import JWKSetCache
+from .types import JwtOptions
 
 
 class PyJWKClient:
