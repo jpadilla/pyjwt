@@ -3,6 +3,7 @@ from __future__ import annotations
 import binascii
 import json
 import warnings
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 from .algorithms import (
@@ -30,7 +31,7 @@ class PyJWS:
 
     def __init__(
         self,
-        algorithms: list[str] | None = None,
+        algorithms: Sequence[str] | None = None,
         options: dict[str, Any] | None = None,
     ) -> None:
         self._algorithms = get_default_algorithms()
@@ -174,7 +175,7 @@ class PyJWS:
         self,
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
-        algorithms: list[str] | None = None,
+        algorithms: Sequence[str] | None = None,
         options: dict[str, Any] | None = None,
         detached_payload: bytes | None = None,
         **kwargs,
@@ -219,7 +220,7 @@ class PyJWS:
         self,
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
-        algorithms: list[str] | None = None,
+        algorithms: Sequence[str] | None = None,
         options: dict[str, Any] | None = None,
         detached_payload: bytes | None = None,
         **kwargs,
@@ -291,7 +292,7 @@ class PyJWS:
         header: dict[str, Any],
         signature: bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
-        algorithms: list[str] | None = None,
+        algorithms: Sequence[str] | None = None,
     ) -> None:
         if algorithms is None and isinstance(key, PyJWK):
             algorithms = [key.algorithm_name]
