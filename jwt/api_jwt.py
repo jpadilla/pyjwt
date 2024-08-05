@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 import warnings
 from calendar import timegm
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any, List
+from typing import TYPE_CHECKING, Any
 
 from . import api_jws
 from .exceptions import (
@@ -31,7 +31,7 @@ class PyJWT:
         self.options: dict[str, Any] = {**self._get_default_options(), **options}
 
     @staticmethod
-    def _get_default_options() -> dict[str, bool | list[str]]:
+    def _get_default_options() -> dict[str, bool | Sequence[str]]:
         return {
             "verify_signature": True,
             "verify_exp": True,
@@ -102,7 +102,7 @@ class PyJWT:
         self,
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
-        algorithms: list[str] | None = None,
+        algorithms: Sequence[str] | None = None,
         options: dict[str, Any] | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
@@ -111,7 +111,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
-        issuer: str | List[str] | None = None,
+        issuer: str | Sequence[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -187,7 +187,7 @@ class PyJWT:
         self,
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
-        algorithms: list[str] | None = None,
+        algorithms: Sequence[str] | None = None,
         options: dict[str, Any] | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
@@ -196,7 +196,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
-        issuer: str | List[str] | None = None,
+        issuer: str | Sequence[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -363,7 +363,7 @@ class PyJWT:
         if "iss" not in payload:
             raise MissingRequiredClaimError("iss")
 
-        if isinstance(issuer, list):
+        if isinstance(issuer, Sequence):
             if payload["iss"] not in issuer:
                 raise InvalidIssuerError("Invalid issuer")
         else:
