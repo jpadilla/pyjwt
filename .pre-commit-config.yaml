@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.8.0
     hooks:
       - id: black
         args: ["--target-version=py38"]
@@ -12,7 +12,7 @@ repos:
         args: ["--target-version=py38"]
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.0
+    rev: 7.1.1
     hooks:
       - id: flake8
         language_version: python3.9
@@ -36,7 +36,7 @@ repos:
         args: [--no-build-isolation]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.11.0"
+    rev: "v1.11.1"
     hooks:
       - id: mypy
         additional_dependencies: [cryptography>=3.4.0]
