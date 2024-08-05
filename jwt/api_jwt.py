@@ -31,7 +31,7 @@ class PyJWT:
         self.options: dict[str, Any] = {**self._get_default_options(), **options}
 
     @staticmethod
-    def _get_default_options() -> dict[str, bool | Sequence[str]]:
+    def _get_default_options() -> dict[str, bool | list[str]]:
         return {
             "verify_signature": True,
             "verify_exp": True,
