@@ -159,11 +159,11 @@ Exceptions
 
 .. class:: InvalidIssuedAtError
 
-    Raised when a token's ``iat`` claim is in the future
+    Raised when a token's ``iat`` claim is non-numeric
 
 .. class:: ImmatureSignatureError
 
-    Raised when a token's ``nbf`` claim represents a time in the future
+    Raised when a token's ``nbf`` or ``iat`` claims represent a time in the future
 
 .. class:: InvalidKeyError
 
