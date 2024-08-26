@@ -144,11 +144,6 @@ class PyJWT:
             options.setdefault("verify_aud", False)
             options.setdefault("verify_iss", False)
 
-        if options["verify_signature"] and not algorithms:
-            raise DecodeError(
-                'It is required that you pass in a value for the "algorithms" argument when calling decode().'
-            )
-
         decoded = api_jws.decode_complete(
             jwt,
             key=key,
