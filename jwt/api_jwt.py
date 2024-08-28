@@ -45,8 +45,8 @@ class PyJWT:
     def encode(
         self,
         payload: dict[str, Any],
-        key: AllowedPrivateKeys | str | bytes,
-        algorithm: str | None = "HS256",
+        key: AllowedPrivateKeys | PyJWK | str | bytes,
+        algorithm: str | None = api_jws.DEFAULT_ALGORITHM,
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
         sort_headers: bool = True,
