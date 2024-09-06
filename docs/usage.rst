@@ -356,6 +356,7 @@ is not built into pyjwt.
         id_token,
         key=signing_key,
         audience=client_id,
+        algorithms=signing_algos,
     )
     payload, header = data["payload"], data["header"]
 
