@@ -22,12 +22,12 @@ RSA encoding and decoding require the ``cryptography`` module. See :ref:`install
 .. code-block:: pycon
 
     >>> import jwt
-    >>> private_key = b"-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS..."
-    >>> public_key = b"-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEAC..."
+    >>> private_key = b"-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAwhvqCC+37A+UXgcvDl+7nbVjDI3QErdZBkI1VypVBMkKKWHM\nNLMdHk0bIKL+1aDYTRRsCKBy9ZmSSX1pwQlO/3+gRs/MWG27gdRNtf57uLk1+lQI\n6hBDozuyBR0YayQDIx6VsmpBn3Y8LS13p4pTBvirlsdX+jXrbOEaQphn0OdQo0WD\noOwwsPCNCKoIMbUOtUCowvjesFXlWkwG1zeMzlD1aDDS478PDZdckPjT96ICzqe4\nO1Ok6fRGnor2UTmuPy0f1tI0F7Ol5DHAD6pZbkhB70aTBuWDGLDR0iLenzyQecmD\n4aU19r1XC9AHsVbQzxHrP8FveZGlV/nJOBJwFwIDAQABAoIBAFCVFBA39yvJv/dV\nFiTqe1HahnckvFe4w/2EKO65xTfKWiyZzBOotBLrQbLH1/FJ5+H/82WVboQlMATQ\nSsH3olMRYbFj/NpNG8WnJGfEcQpb4Vu93UGGZP3z/1B+Jq/78E15Gf5KfFm91PeQ\nY5crJpLDU0CyGwTls4ms3aD98kNXuxhCGVbje5lCARizNKfm/+2qsnTYfKnAzN+n\nnm0WCjcHmvGYO8kGHWbFWMWvIlkoZ5YubSX2raNeg+YdMJUHz2ej1ocfW0A8/tmL\nwtFoBSuBe1Z2ykhX4t6mRHp0airhyc+MO0bIlW61vU/cPGPos16PoS7/V08S7ZED\nX64rkyECgYEA4iqeJZqny/PjOcYRuVOHBU9nEbsr2VJIf34/I9hta/mRq8hPxOdD\n/7ES/ZTZynTMnOdKht19Fi73Sf28NYE83y5WjGJV/JNj5uq2mLR7t2R0ZV8uK8tU\n4RR6b2bHBbhVLXZ9gqWtu9bWtsxWOkG1bs0iONgD3k5oZCXp+IWuklECgYEA27bA\n7UW+iBeB/2z4x1p/0wY+whBOtIUiZy6YCAOv/HtqppsUJM+W9GeaiMpPHlwDUWxr\n4xr6GbJSHrspkMtkX5bL9e7+9zBguqG5SiQVIzuues9Jio3ZHG1N2aNrr87+wMiB\nxX6Cyi0x1asmsmIBO7MdP/tSNB2ebr8qM6/6mecCgYBA82ZJfFm1+8uEuvo6E9/R\nyZTbBbq5BaVmX9Y4MB50hM6t26/050mi87J1err1Jofgg5fmlVMn/MLtz92uK/hU\nS9V1KYRyLc3h8gQQZLym1UWMG0KCNzmgDiZ/Oa/sV5y2mrG+xF/ZcwBkrNgSkO5O\n7MBoPLkXrcLTCARiZ9nTkQKBgQCsaBGnnkzOObQWnIny1L7s9j+UxHseCEJguR0v\nXMVh1+5uYc5CvGp1yj5nDGldJ1KrN+rIwMh0FYt+9dq99fwDTi8qAqoridi9Wl4t\nIXc8uH5HfBT3FivBtLucBjJgOIuK90ttj8JNp30tbynkXCcfk4NmS23L21oRCQyy\nlmqNDQKBgQDRvzEB26isJBr7/fwS0QbuIlgzEZ9T3ZkrGTFQNfUJZWcUllYI0ptv\ny7ShHOqyvjsC3LPrKGyEjeufaM5J8EFrqwtx6UB/tkGJ2bmd1YwOWFHvfHgHCZLP\n34ZNURCvxRV9ZojS1zmDRBJrSo7+/K0t28hXbiaTOjJA18XAyyWmGg==\n-----END RSA PRIVATE KEY-----\n"
+    >>> public_key = b"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwhvqCC+37A+UXgcvDl+7\nnbVjDI3QErdZBkI1VypVBMkKKWHMNLMdHk0bIKL+1aDYTRRsCKBy9ZmSSX1pwQlO\n/3+gRs/MWG27gdRNtf57uLk1+lQI6hBDozuyBR0YayQDIx6VsmpBn3Y8LS13p4pT\nBvirlsdX+jXrbOEaQphn0OdQo0WDoOwwsPCNCKoIMbUOtUCowvjesFXlWkwG1zeM\nzlD1aDDS478PDZdckPjT96ICzqe4O1Ok6fRGnor2UTmuPy0f1tI0F7Ol5DHAD6pZ\nbkhB70aTBuWDGLDR0iLenzyQecmD4aU19r1XC9AHsVbQzxHrP8FveZGlV/nJOBJw\nFwIDAQAB\n-----END PUBLIC KEY-----\n"
     >>> encoded = jwt.encode({"some": "payload"}, private_key, algorithm="RS256")
     >>> print(encoded)
-    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg
-    >>> decoded = jwt.decode(encoded, public_key, algorithms=["RS256"])
+    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.ACNvAmKejouaO7fOVAqiqTQ2nE7jtvA2hpUJk3XduO9qp1mhCSJGIMQRNokyzNZgJFibGLZhcfwf0_4amlYqwBQ3HTB58zDdV-iAoSIxnvOERMc9qxUKNupAs4B0aL0vzIvpIMoDxIMDAnNviDIDzWPnprnpwHNdza7Y40_O1h4trmJcstE0xjmcyV0CEemwOCSARcFnxVK8rE5dItdL05IWrzOx-twBPH5jIU9zwtDvyci9LXUpG010CiejDxI1Iu0ezbN8iX2wkNVbmsYPNnMvgmGCMJbSiatzXJNDdrGXM_YiJKxXvOHcL6aUDYM0vc5oymT4-aAHwKEUB8592A
+    >>> jwt.decode(encoded, public_key, algorithms=["RS256"])
     {'some': 'payload'}
 
 If your private key needs a passphrase, you need to pass in a ``PrivateKey`` object from ``cryptography``.
@@ -37,8 +37,8 @@ If your private key needs a passphrase, you need to pass in a ``PrivateKey`` obj
     from cryptography.hazmat.primitives import serialization
     from cryptography.hazmat.backends import default_backend
 
-    pem_bytes = b"-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS..."
-    passphrase = b"your password"
+    pem_bytes = b"-----BEGIN RSA PRIVATE KEY-----\nProc-Type: 4,ENCRYPTED\nDEK-Info: AES-128-CBC,C9C8F89EC68D15F26EB9B9695216C6DC\nE3lvX0dYjDxC0DIDitwNj+mEvU48Cqlp9esIeVmfcFmM6KpuQEA4asg/19kldbRq\ntOAYwmMuzz6GNYtX6sQXcStUE3pKMiMaTuP9WXzTc0boSYsGpGoQLtGv3h+0lkPu\nTGaktEhIfplAYlmsS/twr9Jh9QZjEs3dEMwpuF8A/iDZFeIE2thZL0bo38VWorgZ\nTCoOlC7qGtaeDvXXYrMvAUw3lN9A+DvxuPvbGqfqiHVBhxRcQEcR5p65lKP/V0WQ\nDe0AqCx1ghYGnExT7I4GLfr7Ux3F1UcVldPPsNeCTR/5YMOYDw7o5CZZ2TM39T33\nDBwfRhDqKe4bMUQcvcD54S2tfW7tEekm6mx5JwzW11sd0Gprj2uggDTOj3ce2yzM\nzl/dfbyFgh6v4jFeblIgvQ4VPg9nfCaRhatw5KXnfHBvmvdxlQ1Qp5P43ThXjI2a\njaJdm2lu1DLhf1OYGeQ0ytDDPzvhrZrdEJ8jbB3VCn4O/hvCtdsp7jVw2Djxmw2A\niRz2zlZJUlaytbi/DMpEVFwIzpuiDkpJ+ekzAsBbm/rGR/tjCEtHzVuoQNUWI93k\n0FML+Zzb6AkBWYjBXDZtzwJpMdNr8Vvh3krZySbRzQstqL2PYuNoSZ8/1xnnVqTV\nA0pDX7OS856AXQzQ1FRjjk/Jd0k6jGj8d7LzVgMnb8VknKvshlLmZDz8Sqa1coN4\n0Z1VfiT0Hzlk0fkoGtRjhSc3MB6ZLg7vVlY5vb4bRrTX79s/p8Y/OecYnGC6qhTi\n+VyJiMfwXyjFjIWYH8Y3G0QLkvOrTxLAY/3B2TU5wVSD7lfnPKOatMK1W0DHu5jp\nG9PPTzK9ol3v6Pk0prYg1fiApb6CCBUeZBvCIbJCzYrL/yBV/xYlCwAekLNGz9Vj\nNQUoiJqi27fOQi+ZXCrF7gYj8afo/xrg0tf7YqoOty8qfsozXzqwHKn+PcZOcqa5\n5rIqjLOO2f6KO2dxBeZK6zmzg7K/8RjvsNkEuXffec/nwnC10OVoMbE4wyPmNUQi\ndSuZ6xWBqiREjodLL+Ez/N1Qa52kuLSigrrSBTM2e42PWDV1sNW5V2wwlnolXFF6\n2Xp74WaGdnwF4Afrm7AnaBxdmfjk/a+c2uzPkZkpVnxrW3l8afphhKpRoTLzqDPp\nZGc5Fx9UZsmX18B8D1OGbf4aVLUkoqPPHbccCI+wByoAgIoq+y2391fP/Db6fY9A\nR4t2uuP2sNqDfYtzPYikePBXhYlldE1UHJ378g8pTiRHOI9BhuKIOIbVngPUYk4I\nwhYct2K84HjvR3iRnobK0UmmNOqtK0AtUqne+xaj1f3OwMZSvTUe7/jESgw1e1tn\nulKiWnKnmTSZkeTIp6itui2T7ewfNyitPtvnhoH1fBnMyUVACip0SLXp1fwQ7iCc\namPFFKo7p+C7P3l0ItegaMHywOSTBvK39DQTIpF9ml8VCQ+UyPOv/LnSJk1mbJN/\nc2Hdoj5dMa6T7ysIwZGEissJ/MEP+dpRs7VmCjWrHCDHfeAIO0n32g4zbzlNc/OA\nIdCXTvi4xUEn2n3JPt5Ba9qDUevaHSERlLxI+9a4ZaZeg4t+AzY0ur6+RWx+PaXB\n-----END RSA PRIVATE KEY-----\n"
+    passphrase = b"abc123"
 
     private_key = serialization.load_pem_private_key(
         pem_bytes, password=passphrase, backend=default_backend()
@@ -60,7 +60,7 @@ Specifying Additional Headers
     ...     algorithm="HS256",
     ...     headers={"kid": "230498151c214b788dd97f22b85410a5"},
     ... )
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJzb21lIjoicGF5bG9hZCJ9.DogbDGmMHgA_bU05TAB-R6geQ2nMU2BRM-LnYEtefwg'
+    'eyJhbGciOiJIUzI1NiIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1IiwidHlwIjoiSldUIn0.eyJzb21lIjoicGF5bG9hZCJ9.0n16c-shKKnw6gervyk1Dge35tvzbzQ_KCV3H3bgoJ0'
 
 
 Reading the Claimset without Validation
@@ -90,8 +90,14 @@ key in the header.
 
 .. code-block:: pycon
 
+    >>> encoded = jwt.encode(
+    ...     {"some": "payload"},
+    ...     "secret",
+    ...     algorithm="HS256",
+    ...     headers={"kid": "230498151c214b788dd97f22b85410a5"},
+    ... )
     >>> jwt.get_unverified_header(encoded)
-    {'alg': 'RS256', 'typ': 'JWT', 'kid': 'key-id-12345...'}
+    {'alg': 'HS256', 'kid': '230498151c214b788dd97f22b85410a5', 'typ': 'JWT'}
 
 Registered Claim Names
 ----------------------
@@ -119,21 +125,23 @@ Expiration Time Claim (exp)
 You can pass the expiration time as a UTC UNIX timestamp (an int) or as a
 datetime, which will be converted into an int. For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    jwt.encode({"exp": 1371720939}, "secret")
-    jwt.encode({"exp": datetime.now(tz=timezone.utc)}, "secret")
+    >>> from datetime import datetime, timezone
+    >>> token = jwt.encode({"exp": 1371720939}, "secret")
+    >>> token = jwt.encode({"exp": datetime.now(tz=timezone.utc)}, "secret")
 
 Expiration time is automatically verified in `jwt.decode()` and raises
 `jwt.ExpiredSignatureError` if the expiration time is in the past:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    try:
-        jwt.decode("JWT_STRING", "secret", algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
-        # Signature has expired
-        ...
+    >>> try:
+    ...     jwt.decode(token, "secret", algorithms=["HS256"])
+    ... except jwt.ExpiredSignatureError:
+    ...     print("expired")
+    ...
+    expired
 
 Expiration time will be compared to the current UTC time (as given by
 `timegm(datetime.now(tz=timezone.utc).utctimetuple())`), so be sure to use a UTC timestamp
@@ -147,27 +155,25 @@ For example, if you have a JWT payload with a expiration time set to 30 seconds
 after creation but you know that sometimes you will process it after 30 seconds,
 you can set a leeway of 10 seconds in order to have some margin:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    jwt_payload = jwt.encode(
-        {"exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=30)},
-        "secret",
-    )
-
-    time.sleep(32)
-
-    # JWT payload is now expired
-    # But with some leeway, it will still validate
-    jwt.decode(jwt_payload, "secret", leeway=10, algorithms=["HS256"])
+    >>> import time, datetime
+    >>> from datetime import timezone
+    >>> payload = {"exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=1)}
+    >>> token = jwt.encode(payload, "secret")
+    >>> time.sleep(2)
+    >>> # JWT payload is now expired
+    >>> # But with some leeway, it will still validate
+    >>> decoded = jwt.decode(token, "secret", leeway=5, algorithms=["HS256"])
 
 Instead of specifying the leeway as a number of seconds, a `datetime.timedelta`
 instance can be used. The last line in the example above is equivalent to:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    jwt.decode(
-        jwt_payload, "secret", leeway=datetime.timedelta(seconds=10), algorithms=["HS256"]
-    )
+    >>> decoded = jwt.decode(
+    ...     token, "secret", leeway=datetime.timedelta(seconds=10), algorithms=["HS256"]
+    ... )
 
 Not Before Time Claim (nbf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,10 +188,10 @@ Not Before Time Claim (nbf)
 
 The `nbf` claim works similarly to the `exp` claim above.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    jwt.encode({"nbf": 1371720939}, "secret")
-    jwt.encode({"nbf": datetime.now(tz=timezone.utc)}, "secret")
+    >>> token = jwt.encode({"nbf": 1371720939}, "secret")
+    >>> token = jwt.encode({"nbf": datetime.datetime.now(tz=timezone.utc)}, "secret")
 
 Issuer Claim (iss)
 ~~~~~~~~~~~~~~~~~~
@@ -195,12 +201,16 @@ Issuer Claim (iss)
     The "iss" value is a case-sensitive string containing a StringOrURI
     value.  Use of this claim is OPTIONAL.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    payload = {"some": "payload", "iss": "urn:foo"}
-
-    token = jwt.encode(payload, "secret")
-    decoded = jwt.decode(token, "secret", issuer="urn:foo", algorithms=["HS256"])
+    >>> payload = {"some": "payload", "iss": "urn:foo"}
+    >>> token = jwt.encode(payload, "secret")
+    >>> try:
+    ...     jwt.decode(token, "secret", issuer="urn:invalid", algorithms=["HS256"])
+    ... except jwt.InvalidIssuerError:
+    ...     print("invalid issuer")
+    ...
+    invalid issuer
 
 If the issuer claim is incorrect, `jwt.InvalidIssuerError` will be raised.
 
@@ -217,34 +227,36 @@ Audience Claim (aud)
 In the general case, the "aud" value is an array of case-
 sensitive strings, each containing a StringOrURI value.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    payload = {"some": "payload", "aud": ["urn:foo", "urn:bar"]}
-
-    token = jwt.encode(payload, "secret")
-    decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
+    >>> payload = {"some": "payload", "aud": ["urn:foo", "urn:bar"]}
+    >>> token = jwt.encode(payload, "secret")
+    >>> decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
+    >>> decoded = jwt.decode(token, "secret", audience="urn:bar", algorithms=["HS256"])
 
 In the special case when the JWT has one audience, the "aud" value MAY be
 a single case-sensitive string containing a StringOrURI value.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    payload = {"some": "payload", "aud": "urn:foo"}
-
-    token = jwt.encode(payload, "secret")
-    decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
+    >>> payload = {"some": "payload", "aud": "urn:foo"}
+    >>> token = jwt.encode(payload, "secret")
+    >>> decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
 
 If multiple audiences are accepted, the ``audience`` parameter for
 ``jwt.decode`` can also be an iterable
 
-.. code-block:: python
+.. code-block:: pycon
 
-    payload = {"some": "payload", "aud": "urn:foo"}
-
-    token = jwt.encode(payload, "secret")
-    decoded = jwt.decode(
-        token, "secret", audience=["urn:foo", "urn:bar"], algorithms=["HS256"]
-    )
+    >>> payload = {"some": "payload", "aud": "urn:foo"}
+    >>> token = jwt.encode(payload, "secret")
+    >>> decoded = jwt.decode(token, "secret", audience=["urn:foo", "urn:bar"], algorithms=["HS256"])
+    >>> try:
+    ...     jwt.decode(token, "secret", audience=["urn:invalid"], algorithms=["HS256"])
+    ... except jwt.InvalidAudienceError:
+    ...     print("invalid audience")
+    ...
+    invalid audience
 
 The interpretation of audience values is generally application specific.
 Use of this claim is OPTIONAL.
@@ -260,10 +272,10 @@ Issued At Claim (iat)
 
     If the `iat` claim is not a number, an `jwt.InvalidIssuedAtError` exception will be raised.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    jwt.encode({"iat": 1371720939}, "secret")
-    jwt.encode({"iat": datetime.now(tz=timezone.utc)}, "secret")
+    >>> token = jwt.encode({"iat": 1371720939}, "secret")
+    >>> token = jwt.encode({"iat": datetime.datetime.now(tz=timezone.utc)}, "secret")
 
 Requiring Presence of Claims
 ----------------------------
@@ -272,8 +284,13 @@ If you wish to require one or more claims to be present in the claimset, you can
 
 .. code-block:: pycon
 
-    >>> jwt.decode(encoded, options={"require": ["exp", "iss", "sub"]})
-    {'exp': 1371720939, 'iss': 'urn:foo', 'sub': '25c37522-f148-4cbf-8ee6-c4a9718dd0af'}
+    >>> token = jwt.encode({"sub":"1234567890","iat":1371720939}, "secret")
+    >>> try:
+    ...     jwt.decode(token, "secret", options={"require": ["exp", "iss", "sub"]}, algorithms=["HS256"])
+    ... except jwt.MissingRequiredClaimError as e:
+    ...     print(e)
+    ...
+    Token is missing the "exp" claim
 
 Retrieve RSA signing keys from a JWKS endpoint
 ----------------------------------------------
@@ -288,13 +305,13 @@ Retrieve RSA signing keys from a JWKS endpoint
     >>> optional_custom_headers = {"User-agent": "custom-user-agent"}
     >>> jwks_client = PyJWKClient(url, headers=optional_custom_headers)
     >>> signing_key = jwks_client.get_signing_key_from_jwt(token)
-    >>> data = jwt.decode(
+    >>> jwt.decode(
     ...     token,
     ...     signing_key,
     ...     audience="https://expenses-api",
     ...     options={"verify_exp": False},
+    ...     algorithms=["RS256"])
     ... )
-    >>> print(data)
     {'iss': 'https://dev-87evx9ru.auth0.com/', 'sub': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC@clients', 'aud': 'https://expenses-api', 'iat': 1572006954, 'exp': 1572006964, 'azp': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC', 'gty': 'client-credentials'}
 
 OIDC Login Flow
@@ -314,7 +331,6 @@ is not built into pyjwt.
     import jwt
     import requests
 
-
     # Part 1: setup
     # get the OIDC config and JWKs to use
 
@@ -324,14 +340,11 @@ is not built into pyjwt.
     # example of fetching data from your OIDC server
     # see: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
     oidc_server = ...
-    oidc_config = requests.get(
-        f"https://{oidc_server}/.well-known/openid-configuration"
-    ).json()
+    oidc_config = requests.get(f"https://{oidc_server}/.well-known/openid-configuration").json()
     signing_algos = oidc_config["id_token_signing_alg_values_supported"]
 
     # setup a PyJWKClient to get the appropriate signing key
     jwks_client = jwt.PyJWKClient(oidc_config["jwks_uri"])
-
 
     # Part 2: login / authorization
     # when a user completes an OIDC login flow, there will be a well-formed
@@ -343,7 +356,6 @@ is not built into pyjwt.
     id_token = token_response["id_token"]
     access_token = token_response["access_token"]
 
-
     # Part 3: decode and validate at_hash
     # after the login is complete, the id_token needs to be decoded
     # this is the stage at which an OIDC client must verify the at_hash
@@ -352,7 +364,7 @@ is not built into pyjwt.
     signing_key = jwks_client.get_signing_key_from_jwt(id_token)
 
     # now, decode_complete to get payload + header
-    data = jwt.api_jwt.decode_complete(
+    data = jwt.decode_complete(
         id_token,
         key=signing_key,
         audience=client_id,
