@@ -5,6 +5,7 @@ include AUTHORS.rst
 include CHANGELOG.rst
 include LICENSE
 include README.rst
+include SECURITY.md
 include tox.ini
 include jwt/py.typed
 graft docs
