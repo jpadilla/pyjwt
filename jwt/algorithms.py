@@ -788,7 +788,7 @@ if has_crypto:
 
             # Explicit check the key to prevent confusing errors from cryptography
             self.check_crypto_key_type(loaded_key)
-            return cast("AllowedOKPKeys", key)
+            return cast("AllowedOKPKeys", loaded_key)
 
         def sign(
             self, msg: str | bytes, key: Ed25519PrivateKey | Ed448PrivateKey
