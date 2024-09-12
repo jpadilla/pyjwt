@@ -66,6 +66,7 @@ try:
     )
 
     # pyjwt-964: we use these both for type checking below, as well as for validating the key passed in.
+    # in Py >= 3.10, we can replace this with the Union types below
     ALLOWED_RSA_KEY_TYPES = (RSAPrivateKey, RSAPublicKey)
     ALLOWED_EC_KEY_TYPES = (EllipticCurvePrivateKey, EllipticCurvePublicKey)
     ALLOWED_OKP_KEY_TYPES = (Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey)
@@ -79,15 +80,20 @@ except ModuleNotFoundError:
 
 
 if TYPE_CHECKING:
-    # TODO: should we move this to the top-level?
-    from typing import Union
+    from typing import TypeAlias
     # Type aliases for convenience in algorithms method signatures
-    AllowedRSAKeys = Union[ALLOWED_RSA_KEY_TYPES]
-    AllowedECKeys = Union[ALLOWED_EC_KEY_TYPES]
-    AllowedOKPKeys = Union[ALLOWED_OKP_KEY_TYPES]
-    AllowedKeys = Union[ALLOWED_KEY_TYPES]
-    AllowedPrivateKeys = Union[ALLOWED_PRIVATE_KEY_TYPES]
-    AllowedPublicKeys = Union[ALLOWED_PUBLIC_KEY_TYPES]
+    AllowedRSAKeys: TypeAlias = RSAPrivateKey | RSAPublicKey
+    AllowedECKeys: TypeAlias = EllipticCurvePrivateKey | EllipticCurvePublicKey
+    AllowedOKPKeys: TypeAlias = (
+        Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
+    )
+    AllowedKeys: TypeAlias = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
+    AllowedPrivateKeys: TypeAlias = (
+        RSAPrivateKey | EllipticCurvePrivateKey | Ed25519PrivateKey | Ed448PrivateKey
+    )
+    AllowedPublicKeys: TypeAlias = (
+        RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
+    )
 
 
 requires_cryptography = {
@@ -350,7 +356,7 @@ if has_crypto:
         SHA384: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA384
         SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        _key_types = ALLOWED_RSA_KEY_TYPES
+        _crypto_key_types = ALLOWED_RSA_KEY_TYPES
 
         def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
@@ -366,19 +372,20 @@ if has_crypto:
 
             try:
                 if key_bytes.startswith(b"ssh-rsa"):
-                    loaded_key = cast(RSAPublicKey, load_ssh_public_key(key_bytes))
+                    loaded_key = load_ssh_public_key(key_bytes)
+                    self.check_crypto_key_type(loaded_key)
+                    return cast(RSAPublicKey, loaded_key)
                 else:
-                    loaded_key = cast(
-                        RSAPrivateKey, load_pem_private_key(key_bytes, password=None)
-                    )
+                    loaded_key = load_pem_private_key(key_bytes, password=None)
+                    self.check_crypto_key_type(loaded_key)
+                    return cast(RSAPrivateKey, loaded_key)
             except ValueError:
                 try:
-                    loaded_key = cast(RSAPublicKey, load_pem_public_key(key_bytes))
+                    loaded_key = load_pem_public_key(key_bytes)
+                    self.check_crypto_key_type(loaded_key)
+                    return cast(RSAPublicKey, loaded_key)
                 except (ValueError, UnsupportedAlgorithm):
                     raise InvalidKeyError("Could not parse the provided public key.")
-
-            self.check_crypto_key_type(loaded_key)
-            return loaded_key
 
         @overload
         @staticmethod
