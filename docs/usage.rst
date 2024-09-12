@@ -310,7 +310,7 @@ Retrieve RSA signing keys from a JWKS endpoint
     ...     signing_key,
     ...     audience="https://expenses-api",
     ...     options={"verify_exp": False},
-    ...     algorithms=["RS256"])
+    ...     algorithms=["RS256"],
     ... )
     {'iss': 'https://dev-87evx9ru.auth0.com/', 'sub': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC@clients', 'aud': 'https://expenses-api', 'iat': 1572006954, 'exp': 1572006964, 'azp': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC', 'gty': 'client-credentials'}
 
