@@ -69,10 +69,27 @@ try:
     # in Py >= 3.10, we can replace this with the Union types below
     ALLOWED_RSA_KEY_TYPES = (RSAPrivateKey, RSAPublicKey)
     ALLOWED_EC_KEY_TYPES = (EllipticCurvePrivateKey, EllipticCurvePublicKey)
-    ALLOWED_OKP_KEY_TYPES = (Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey)
-    ALLOWED_KEY_TYPES = ALLOWED_RSA_KEY_TYPES + ALLOWED_EC_KEY_TYPES + ALLOWED_OKP_KEY_TYPES
-    ALLOWED_PRIVATE_KEY_TYPES = (RSAPrivateKey, EllipticCurvePrivateKey, Ed25519PrivateKey, Ed448PrivateKey)
-    ALLOWED_PUBLIC_KEY_TYPES = (RSAPublicKey, EllipticCurvePublicKey, Ed25519PublicKey, Ed448PublicKey)
+    ALLOWED_OKP_KEY_TYPES = (
+        Ed25519PrivateKey,
+        Ed25519PublicKey,
+        Ed448PrivateKey,
+        Ed448PublicKey,
+    )
+    ALLOWED_KEY_TYPES = (
+        ALLOWED_RSA_KEY_TYPES + ALLOWED_EC_KEY_TYPES + ALLOWED_OKP_KEY_TYPES
+    )
+    ALLOWED_PRIVATE_KEY_TYPES = (
+        RSAPrivateKey,
+        EllipticCurvePrivateKey,
+        Ed25519PrivateKey,
+        Ed448PrivateKey,
+    )
+    ALLOWED_PUBLIC_KEY_TYPES = (
+        RSAPublicKey,
+        EllipticCurvePublicKey,
+        Ed25519PublicKey,
+        Ed448PublicKey,
+    )
 
     has_crypto = True
 except ModuleNotFoundError:
@@ -81,7 +98,12 @@ except ModuleNotFoundError:
 
 if TYPE_CHECKING:
     from typing import TypeAlias
-    from cryptography.hazmat.primitives.asymmetric.types import PublicKeyTypes, PrivateKeyTypes
+
+    from cryptography.hazmat.primitives.asymmetric.types import (
+        PrivateKeyTypes,
+        PublicKeyTypes,
+    )
+
     # Type aliases for convenience in algorithms method signatures
     AllowedRSAKeys: TypeAlias = RSAPrivateKey | RSAPublicKey
     AllowedECKeys: TypeAlias = EllipticCurvePrivateKey | EllipticCurvePublicKey
@@ -195,7 +217,9 @@ class Algorithm(ABC):
             valid_classes = (cls.__name__ for cls in self._crypto_key_types)
             actual_class = key.__class__.__name__
             self_class = self.__class__.__name__
-            raise InvalidKeyError(f"Expected one of {valid_classes}, got: {actual_class}. Invalid Key type for {self_class}")
+            raise InvalidKeyError(
+                f"Expected one of {valid_classes}, got: {actual_class}. Invalid Key type for {self_class}"
+            )
 
     @abstractmethod
     def prepare_key(self, key: Any) -> Any:
@@ -377,7 +401,9 @@ if has_crypto:
                     self.check_crypto_key_type(public_key)
                     return cast(RSAPublicKey, public_key)
                 else:
-                    private_key: PrivateKeyTypes = load_pem_private_key(key_bytes, password=None)
+                    private_key: PrivateKeyTypes = load_pem_private_key(
+                        key_bytes, password=None
+                    )
                     self.check_crypto_key_type(private_key)
                     return cast(RSAPrivateKey, private_key)
             except ValueError:
