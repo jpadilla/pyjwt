@@ -81,6 +81,7 @@ except ModuleNotFoundError:
 
 if TYPE_CHECKING:
     from typing import TypeAlias
+    from cryptography.hazmat.primitives.asymmetric.types import PublicKeyTypes, PrivateKeyTypes
     # Type aliases for convenience in algorithms method signatures
     AllowedRSAKeys: TypeAlias = RSAPrivateKey | RSAPublicKey
     AllowedECKeys: TypeAlias = EllipticCurvePrivateKey | EllipticCurvePublicKey
@@ -152,7 +153,7 @@ class Algorithm(ABC):
     """
 
     # pyjwt-964: Validate to ensure the key passed in was decoded to the correct cryptography key family
-    _crypto_key_types: tuple[AllowedKeys, ...] = None
+    _crypto_key_types: tuple[type[AllowedKeys], ...] | None = None
 
     def compute_hash_digest(self, bytestr: bytes) -> bytes:
         """
@@ -176,7 +177,7 @@ class Algorithm(ABC):
         else:
             return bytes(hash_alg(bytestr).digest())
 
-    def check_crypto_key_type(self, key: Any):
+    def check_crypto_key_type(self, key: PublicKeyTypes | PrivateKeyTypes):
         """Check that the key belongs to the right cryptographic family.
 
         Note that this method only works when cryptography is installed.
@@ -372,18 +373,18 @@ if has_crypto:
 
             try:
                 if key_bytes.startswith(b"ssh-rsa"):
-                    loaded_key = load_ssh_public_key(key_bytes)
-                    self.check_crypto_key_type(loaded_key)
-                    return cast(RSAPublicKey, loaded_key)
+                    public_key: PublicKeyTypes = load_ssh_public_key(key_bytes)
+                    self.check_crypto_key_type(public_key)
+                    return cast(RSAPublicKey, public_key)
                 else:
-                    loaded_key = load_pem_private_key(key_bytes, password=None)
-                    self.check_crypto_key_type(loaded_key)
-                    return cast(RSAPrivateKey, loaded_key)
+                    private_key: PrivateKeyTypes = load_pem_private_key(key_bytes, password=None)
+                    self.check_crypto_key_type(private_key)
+                    return cast(RSAPrivateKey, private_key)
             except ValueError:
                 try:
-                    loaded_key = load_pem_public_key(key_bytes)
-                    self.check_crypto_key_type(loaded_key)
-                    return cast(RSAPublicKey, loaded_key)
+                    public_key = load_pem_public_key(key_bytes)
+                    self.check_crypto_key_type(public_key)
+                    return cast(RSAPublicKey, public_key)
                 except (ValueError, UnsupportedAlgorithm):
                     raise InvalidKeyError("Could not parse the provided public key.")
 
@@ -549,16 +550,17 @@ if has_crypto:
             # the Verifying Key first.
             try:
                 if key_bytes.startswith(b"ecdsa-sha2-"):
-                    crypto_key = load_ssh_public_key(key_bytes)
+                    public_key: PublicKeyTypes = load_ssh_public_key(key_bytes)
                 else:
-                    crypto_key = load_pem_public_key(key_bytes)  # type: ignore[assignment]
+                    public_key = load_pem_public_key(key_bytes)
+
+                # Explicit check the key to prevent confusing errors from cryptography
+                self.check_crypto_key_type(public_key)
+                return cast(EllipticCurvePublicKey, public_key)
             except ValueError:
-                crypto_key = load_pem_private_key(key_bytes, password=None)  # type: ignore[assignment]
-
-            # Explicit check the key to prevent confusing errors from cryptography
-            self.check_crypto_key_type(crypto_key)
-
-            return crypto_key
+                private_key = load_pem_private_key(key_bytes, password=None)
+                self.check_crypto_key_type(private_key)
+                return cast(EllipticCurvePrivateKey, private_key)
 
         def sign(self, msg: bytes, key: EllipticCurvePrivateKey) -> bytes:
             der_sig = key.sign(msg, ECDSA(self.hash_alg()))
@@ -742,21 +744,25 @@ if has_crypto:
             pass
 
         def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
-            if isinstance(key, (bytes, str)):
-                key_str = key.decode("utf-8") if isinstance(key, bytes) else key
-                key_bytes = key.encode("utf-8") if isinstance(key, str) else key
+            if isinstance(key, self._crypto_key_types):
+                return key
 
-                if "-----BEGIN PUBLIC" in key_str:
-                    key = load_pem_public_key(key_bytes)  # type: ignore[assignment]
-                elif "-----BEGIN PRIVATE" in key_str:
-                    key = load_pem_private_key(key_bytes, password=None)  # type: ignore[assignment]
-                elif key_str[0:4] == "ssh-":
-                    key = load_ssh_public_key(key_bytes)  # type: ignore[assignment]
+            key_str = key.decode("utf-8") if isinstance(key, bytes) else key
+            key_bytes = key.encode("utf-8") if isinstance(key, str) else key
+
+            loaded_key: PublicKeyTypes | PrivateKeyTypes
+            if "-----BEGIN PUBLIC" in key_str:
+                loaded_key = load_pem_public_key(key_bytes)
+            elif "-----BEGIN PRIVATE" in key_str:
+                loaded_key = load_pem_private_key(key_bytes, password=None)
+            elif key_str[0:4] == "ssh-":
+                loaded_key = load_ssh_public_key(key_bytes)
+            else:
+                raise InvalidKeyError("Not a public or private key")
 
             # Explicit check the key to prevent confusing errors from cryptography
-            self.check_crypto_key_type(key)
-
-            return key
+            self.check_crypto_key_type(loaded_key)
+            return cast("AllowedOKPKeys", key)
 
         def sign(
             self, msg: str | bytes, key: Ed25519PrivateKey | Ed448PrivateKey
