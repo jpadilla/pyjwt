@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 import pytest
 
 from jwt.utils import force_bytes, from_base64url_uint, is_ssh_key, to_base64url_uint
@@ -6,17 +7,18 @@ from jwt.utils import force_bytes, from_base64url_uint, is_ssh_key, to_base64url
 @pytest.mark.parametrize(
     "inputval,expected",
     [
-        (0, b"AA"),
-        (1, b"AQ"),
-        (255, b"_w"),
-        (65537, b"AQAB"),
-        (123456789, b"B1vNFQ"),
-        pytest.param(-1, "", marks=pytest.mark.xfail(raises=ValueError)),
+        (0, nullcontext(b"AA")),
+        (1, nullcontext(b"AQ")),
+        (255, nullcontext(b"_w")),
+        (65537, nullcontext(b"AQAB")),
+        (123456789, nullcontext(b"B1vNFQ")),
+        (-1, pytest.raises(ValueError)),
     ],
 )
 def test_to_base64url_uint(inputval, expected):
-    actual = to_base64url_uint(inputval)
-    assert actual == expected
+    with expected as e:
+        actual = to_base64url_uint(inputval)
+        assert actual == e
 
 
 @pytest.mark.parametrize(
