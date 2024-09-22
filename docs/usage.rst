@@ -159,7 +159,9 @@ you can set a leeway of 10 seconds in order to have some margin:
 
     >>> import time, datetime
     >>> from datetime import timezone
-    >>> payload = {"exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=1)}
+    >>> payload = {
+    ...     "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=1)
+    ... }
     >>> token = jwt.encode(payload, "secret")
     >>> time.sleep(2)
     >>> # JWT payload is now expired
@@ -250,7 +252,9 @@ If multiple audiences are accepted, the ``audience`` parameter for
 
     >>> payload = {"some": "payload", "aud": "urn:foo"}
     >>> token = jwt.encode(payload, "secret")
-    >>> decoded = jwt.decode(token, "secret", audience=["urn:foo", "urn:bar"], algorithms=["HS256"])
+    >>> decoded = jwt.decode(
+    ...     token, "secret", audience=["urn:foo", "urn:bar"], algorithms=["HS256"]
+    ... )
     >>> try:
     ...     jwt.decode(token, "secret", audience=["urn:invalid"], algorithms=["HS256"])
     ... except jwt.InvalidAudienceError:
@@ -284,9 +288,14 @@ If you wish to require one or more claims to be present in the claimset, you can
 
 .. code-block:: pycon
 
-    >>> token = jwt.encode({"sub":"1234567890","iat":1371720939}, "secret")
+    >>> token = jwt.encode({"sub": "1234567890", "iat": 1371720939}, "secret")
     >>> try:
-    ...     jwt.decode(token, "secret", options={"require": ["exp", "iss", "sub"]}, algorithms=["HS256"])
+    ...     jwt.decode(
+    ...         token,
+    ...         "secret",
+    ...         options={"require": ["exp", "iss", "sub"]},
+    ...         algorithms=["HS256"],
+    ...     )
     ... except jwt.MissingRequiredClaimError as e:
     ...     print(e)
     ...
@@ -310,7 +319,7 @@ Retrieve RSA signing keys from a JWKS endpoint
     ...     signing_key,
     ...     audience="https://expenses-api",
     ...     options={"verify_exp": False},
-    ...     algorithms=["RS256"])
+    ...     algorithms=["RS256"],
     ... )
     {'iss': 'https://dev-87evx9ru.auth0.com/', 'sub': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC@clients', 'aud': 'https://expenses-api', 'iat': 1572006954, 'exp': 1572006964, 'azp': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC', 'gty': 'client-credentials'}
 
@@ -340,7 +349,9 @@ is not built into pyjwt.
     # example of fetching data from your OIDC server
     # see: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
     oidc_server = ...
-    oidc_config = requests.get(f"https://{oidc_server}/.well-known/openid-configuration").json()
+    oidc_config = requests.get(
+        f"https://{oidc_server}/.well-known/openid-configuration"
+    ).json()
     signing_algos = oidc_config["id_token_signing_alg_values_supported"]
 
     # setup a PyJWKClient to get the appropriate signing key
