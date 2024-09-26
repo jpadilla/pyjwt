@@ -46,7 +46,7 @@ class PyJWT:
         self,
         payload: dict[str, Any],
         key: AllowedPrivateKeys | PyJWK | str | bytes,
-        algorithm: str | None = api_jws.DEFAULT_ALGORITHM,
+        algorithm: str | None = None,
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
         sort_headers: bool = True,
