@@ -92,9 +92,6 @@ source = [
     "jwt",
 ]
 
-[tool.flake8]
-extend-ignore = "E203, E501"
-
 [tool.isort]
 atomic = true
 combine_as_imports = true
