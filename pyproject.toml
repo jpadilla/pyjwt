@@ -29,8 +29,8 @@ strict = true
 allow_incomplete_defs = true
 allow_untyped_defs = true
 warn_return_any = false
-method-assign=false
-unused-ignore=false
+method_assign=false
+unused_ignore=false
 
 [[tool.mypy.overrides]]
 module = "tests.*"
