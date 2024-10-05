@@ -122,6 +122,7 @@ class PyJWT:
                 "and will be removed in pyjwt version 3. "
                 f"Unsupported kwargs: {tuple(kwargs.keys())}",
                 RemovedInPyjwt3Warning,
+                stacklevel=2,
             )
         options = dict(options or {})  # shallow-copy or initialize an empty dict
         options.setdefault("verify_signature", True)
@@ -135,6 +136,7 @@ class PyJWT:
                 "The equivalent is setting `verify_signature` to False in the `options` dictionary. "
                 "This invocation has a mismatch between the kwarg and the option entry.",
                 category=DeprecationWarning,
+                stacklevel=2,
             )
 
         if not options["verify_signature"]:
@@ -202,6 +204,7 @@ class PyJWT:
                 "and will be removed in pyjwt version 3. "
                 f"Unsupported kwargs: {tuple(kwargs.keys())}",
                 RemovedInPyjwt3Warning,
+                stacklevel=2,
             )
         decoded = self.decode_complete(
             jwt,

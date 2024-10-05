@@ -186,6 +186,7 @@ class PyJWS:
                 "and will be removed in pyjwt version 3. "
                 f"Unsupported kwargs: {tuple(kwargs.keys())}",
                 RemovedInPyjwt3Warning,
+                stacklevel=2,
             )
         if options is None:
             options = {}
@@ -231,6 +232,7 @@ class PyJWS:
                 "and will be removed in pyjwt version 3. "
                 f"Unsupported kwargs: {tuple(kwargs.keys())}",
                 RemovedInPyjwt3Warning,
+                stacklevel=2,
             )
         decoded = self.decode_complete(
             jwt, key, algorithms, options, detached_payload=detached_payload
