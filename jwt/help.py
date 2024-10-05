@@ -38,10 +38,12 @@ def info() -> Dict[str, Dict[str, str]]:
             f"{pypy_version_info.micro}"
         )
         if pypy_version_info.releaselevel != "final":
-            implementation_version = "".join([
-                implementation_version,
-                pypy_version_info.releaselevel,
-            ])
+            implementation_version = "".join(
+                [
+                    implementation_version,
+                    pypy_version_info.releaselevel,
+                ]
+            )
     else:
         implementation_version = "Unknown"
 

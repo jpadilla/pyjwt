@@ -114,20 +114,24 @@ def get_default_algorithms() -> dict[str, Algorithm]:
     }
 
     if has_crypto:
-        default_algorithms.update({
-            "RS256": RSAAlgorithm(RSAAlgorithm.SHA256),
-            "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
-            "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
-            "ES256": ECAlgorithm(ECAlgorithm.SHA256),
-            "ES256K": ECAlgorithm(ECAlgorithm.SHA256),
-            "ES384": ECAlgorithm(ECAlgorithm.SHA384),
-            "ES521": ECAlgorithm(ECAlgorithm.SHA512),
-            "ES512": ECAlgorithm(ECAlgorithm.SHA512),  # Backward compat for #219 fix
-            "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
-            "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
-            "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
-            "EdDSA": OKPAlgorithm(),
-        })
+        default_algorithms.update(
+            {
+                "RS256": RSAAlgorithm(RSAAlgorithm.SHA256),
+                "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
+                "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
+                "ES256": ECAlgorithm(ECAlgorithm.SHA256),
+                "ES256K": ECAlgorithm(ECAlgorithm.SHA256),
+                "ES384": ECAlgorithm(ECAlgorithm.SHA384),
+                "ES521": ECAlgorithm(ECAlgorithm.SHA512),
+                "ES512": ECAlgorithm(
+                    ECAlgorithm.SHA512
+                ),  # Backward compat for #219 fix
+                "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
+                "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
+                "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
+                "EdDSA": OKPAlgorithm(),
+            }
+        )
 
     return default_algorithms
 

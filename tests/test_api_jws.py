@@ -252,11 +252,13 @@ class TestJWS:
         }
 
     def test_decodes_with_jwk(self, jws, payload):
-        jwk = PyJWK({
-            "kty": "oct",
-            "alg": "HS256",
-            "k": "c2VjcmV0",  # "secret"
-        })
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS256",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
         example_jws = (
             b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
             b"aGVsbG8gd29ybGQ."
@@ -268,11 +270,13 @@ class TestJWS:
         assert decoded_payload == payload
 
     def test_decodes_with_jwk_and_no_algorithm(self, jws, payload):
-        jwk = PyJWK({
-            "kty": "oct",
-            "alg": "HS256",
-            "k": "c2VjcmV0",  # "secret"
-        })
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS256",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
         example_jws = (
             b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
             b"aGVsbG8gd29ybGQ."
@@ -284,11 +288,13 @@ class TestJWS:
         assert decoded_payload == payload
 
     def test_decodes_with_jwk_and_mismatched_algorithm(self, jws, payload):
-        jwk = PyJWK({
-            "kty": "oct",
-            "alg": "HS512",
-            "k": "c2VjcmV0",  # "secret"
-        })
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS512",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
         example_jws = (
             b"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
             b"aGVsbG8gd29ybGQ."
