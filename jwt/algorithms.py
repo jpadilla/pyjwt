@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import base64
 import json
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
@@ -37,6 +38,7 @@ try:
         EllipticCurvePublicKey,
         EllipticCurvePublicNumbers,
     )
+    from cryptography.hazmat.primitives.asymmetric import ec
     from cryptography.hazmat.primitives.asymmetric.ed448 import (
         Ed448PrivateKey,
         Ed448PublicKey,
@@ -485,12 +487,15 @@ if has_crypto:
         def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
-        def prepare_key(self, key: AllowedECKeys | str | bytes) -> AllowedECKeys:
+        def prepare_key(self, key: AllowedECKeys | str | bytes | dict) -> AllowedECKeys:
             if isinstance(key, (EllipticCurvePrivateKey, EllipticCurvePublicKey)):
                 return key
 
+            if isinstance(key, dict):
+                return self._load_jwk(key)
+
             if not isinstance(key, (bytes, str)):
-                raise TypeError("Expecting a PEM-formatted key.")
+                raise TypeError("Expecting a PEM-formatted key or JWK.")
 
             key_bytes = force_bytes(key)
 
@@ -514,7 +519,38 @@ if has_crypto:
                 )
 
             return crypto_key
+        
+        def _load_jwk(self, jwk: dict) -> EllipticCurvePublicKey:
+            if jwk.get("kty") != "EC":
+                raise InvalidKeyError("Not an EC key")
 
+            curve = self._get_curve(jwk["crv"])
+            x = self._base64url_decode(jwk["x"])
+            y = self._base64url_decode(jwk["y"])
+
+            public_numbers = ec.EllipticCurvePublicNumbers(
+                x=int.from_bytes(x, byteorder="big"),
+                y=int.from_bytes(y, byteorder="big"),
+                curve=curve
+            )
+
+            return public_numbers.public_key()
+        def _get_curve(self, crv: str) -> ec.EllipticCurve:
+            if crv == "P-256":
+                return ec.SECP256R1()
+            elif crv == "P-384":
+                return ec.SECP384R1()
+            elif crv == "P-521":
+                return ec.SECP521R1()
+            elif crv == "secp256k1":
+                return ec.SECP256K1()
+            else:
+                raise InvalidKeyError(f"Invalid curve: {crv}")
+
+        def _base64url_decode(self, input: str) -> bytes:
+            input += '=' * (4 - len(input) % 4)
+            return base64.urlsafe_b64decode(input)
+    
         def sign(self, msg: bytes, key: EllipticCurvePrivateKey) -> bytes:
             der_sig = key.sign(msg, ECDSA(self.hash_alg()))
 
