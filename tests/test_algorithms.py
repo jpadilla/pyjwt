@@ -95,10 +95,10 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         jwk = {
-            'crv': 'P-256',
-            'kty': 'EC',
-            'x': 'PY5pUvmWTEz5mCVir-Tyfi1M0q07_qaZSU_UAN3HBSI',
-            'y': 'aH9ZAGpTidZjxNu2zKXeX9koNQX_BAtIBCa-h7YC_B0'
+            "crv": "P-256",
+            "kty": "EC",
+            "x": "PY5pUvmWTEz5mCVir-Tyfi1M0q07_qaZSU_UAN3HBSI",
+            "y": "aH9ZAGpTidZjxNu2zKXeX9koNQX_BAtIBCa-h7YC_B0",
         }
 
         pub_key = algo.prepare_key(jwk)

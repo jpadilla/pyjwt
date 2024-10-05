@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import hmac
-import base64
 import json
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
@@ -25,7 +25,7 @@ try:
     from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
     from cryptography.hazmat.backends import default_backend
     from cryptography.hazmat.primitives import hashes
-    from cryptography.hazmat.primitives.asymmetric import padding
+    from cryptography.hazmat.primitives.asymmetric import ec, padding
     from cryptography.hazmat.primitives.asymmetric.ec import (
         ECDSA,
         SECP256K1,
@@ -38,7 +38,6 @@ try:
         EllipticCurvePublicKey,
         EllipticCurvePublicNumbers,
     )
-    from cryptography.hazmat.primitives.asymmetric import ec
     from cryptography.hazmat.primitives.asymmetric.ed448 import (
         Ed448PrivateKey,
         Ed448PublicKey,
@@ -124,9 +123,7 @@ def get_default_algorithms() -> dict[str, Algorithm]:
             "ES256K": ECAlgorithm(ECAlgorithm.SHA256),
             "ES384": ECAlgorithm(ECAlgorithm.SHA384),
             "ES521": ECAlgorithm(ECAlgorithm.SHA512),
-            "ES512": ECAlgorithm(
-                ECAlgorithm.SHA512
-            ),  # Backward compat for #219 fix
+            "ES512": ECAlgorithm(ECAlgorithm.SHA512),  # Backward compat for #219 fix
             "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
             "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
             "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
@@ -342,7 +339,9 @@ if has_crypto:
                 try:
                     return cast(RSAPublicKey, load_pem_public_key(key_bytes))
                 except (ValueError, UnsupportedAlgorithm) as e:
-                    raise InvalidKeyError("Could not parse the provided public key.") from e
+                    raise InvalidKeyError(
+                        "Could not parse the provided public key."
+                    ) from e
 
         @overload
         @staticmethod
@@ -519,7 +518,7 @@ if has_crypto:
                 )
 
             return crypto_key
-        
+
         def _load_jwk(self, jwk: dict) -> EllipticCurvePublicKey:
             if jwk.get("kty") != "EC":
                 raise InvalidKeyError("Not an EC key")
@@ -531,10 +530,11 @@ if has_crypto:
             public_numbers = ec.EllipticCurvePublicNumbers(
                 x=int.from_bytes(x, byteorder="big"),
                 y=int.from_bytes(y, byteorder="big"),
-                curve=curve
+                curve=curve,
             )
 
             return public_numbers.public_key()
+
         def _get_curve(self, crv: str) -> ec.EllipticCurve:
             if crv == "P-256":
                 return ec.SECP256R1()
@@ -548,9 +548,9 @@ if has_crypto:
                 raise InvalidKeyError(f"Invalid curve: {crv}")
 
         def _base64url_decode(self, input: str) -> bytes:
-            input += '=' * (4 - len(input) % 4)
+            input += "=" * (4 - len(input) % 4)
             return base64.urlsafe_b64decode(input)
-    
+
         def sign(self, msg: bytes, key: EllipticCurvePrivateKey) -> bytes:
             der_sig = key.sign(msg, ECDSA(self.hash_alg()))
 
@@ -817,7 +817,7 @@ if has_crypto:
                 }
 
                 return obj if as_dict else json.dumps(obj)
-            
+
             if isinstance(key, (Ed25519PrivateKey, Ed448PrivateKey)):
                 d = key.private_bytes(
                     encoding=Encoding.Raw,

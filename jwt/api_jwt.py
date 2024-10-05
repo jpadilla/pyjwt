@@ -269,7 +269,9 @@ class PyJWT:
         try:
             iat = int(payload["iat"])
         except ValueError as e:
-            raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.") from e
+            raise InvalidIssuedAtError(
+                "Issued At claim (iat) must be an integer."
+            ) from e
         if iat > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
 
