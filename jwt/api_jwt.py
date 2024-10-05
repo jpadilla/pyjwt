@@ -269,7 +269,9 @@ class PyJWT:
         try:
             iat = int(payload["iat"])
         except ValueError:
-            raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.") from None
+            raise InvalidIssuedAtError(
+                "Issued At claim (iat) must be an integer."
+            ) from None
         if iat > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
 
@@ -296,7 +298,9 @@ class PyJWT:
         try:
             exp = int(payload["exp"])
         except ValueError:
-            raise DecodeError("Expiration Time claim (exp) must be an integer.") from None
+            raise DecodeError(
+                "Expiration Time claim (exp) must be an integer."
+            ) from None
 
         if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")

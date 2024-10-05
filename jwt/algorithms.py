@@ -346,7 +346,9 @@ if has_crypto:
                 try:
                     return cast(RSAPublicKey, load_pem_public_key(key_bytes))
                 except (ValueError, UnsupportedAlgorithm):
-                    raise InvalidKeyError("Could not parse the provided public key.") from None
+                    raise InvalidKeyError(
+                        "Could not parse the provided public key."
+                    ) from None
 
         @overload
         @staticmethod
@@ -623,17 +625,23 @@ if has_crypto:
                 if len(x) == len(y) == 32:
                     curve_obj = SECP256R1()
                 else:
-                    raise InvalidKeyError("Coords should be 32 bytes for curve P-256") from None
+                    raise InvalidKeyError(
+                        "Coords should be 32 bytes for curve P-256"
+                    ) from None
             elif curve == "P-384":
                 if len(x) == len(y) == 48:
                     curve_obj = SECP384R1()
                 else:
-                    raise InvalidKeyError("Coords should be 48 bytes for curve P-384") from None
+                    raise InvalidKeyError(
+                        "Coords should be 48 bytes for curve P-384"
+                    ) from None
             elif curve == "P-521":
                 if len(x) == len(y) == 66:
                     curve_obj = SECP521R1()
                 else:
-                    raise InvalidKeyError("Coords should be 66 bytes for curve P-521") from None
+                    raise InvalidKeyError(
+                        "Coords should be 66 bytes for curve P-521"
+                    ) from None
             elif curve == "secp256k1":
                 if len(x) == len(y) == 32:
                     curve_obj = SECP256K1()
