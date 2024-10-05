@@ -299,7 +299,7 @@ class PyJWS:
         try:
             alg = header["alg"]
         except KeyError:
-            raise InvalidAlgorithmError("Algorithm not specified")
+            raise InvalidAlgorithmError("Algorithm not specified") from None
 
         if not alg or (algorithms is not None and alg not in algorithms):
             raise InvalidAlgorithmError("The specified alg value is not allowed")

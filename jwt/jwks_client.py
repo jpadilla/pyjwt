@@ -60,7 +60,7 @@ class PyJWKClient:
         except (URLError, TimeoutError) as e:
             raise PyJWKClientConnectionError(
                 f'Fail to fetch data from the url, err: "{e}"'
-            )
+            ) from e
         else:
             return jwk_set
         finally:
