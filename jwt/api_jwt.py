@@ -173,7 +173,7 @@ class PyJWT:
         try:
             payload = json.loads(decoded["payload"])
         except ValueError as e:
-            raise DecodeError(f"Invalid payload string: {e}")
+            raise DecodeError(f"Invalid payload string: {e}") from e
         if not isinstance(payload, dict):
             raise DecodeError("Invalid payload string: must be a json object")
         return payload
@@ -268,8 +268,8 @@ class PyJWT:
     ) -> None:
         try:
             iat = int(payload["iat"])
-        except ValueError:
-            raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.")
+        except ValueError as e:
+            raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.") from e
         if iat > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
 
@@ -281,8 +281,8 @@ class PyJWT:
     ) -> None:
         try:
             nbf = int(payload["nbf"])
-        except ValueError:
-            raise DecodeError("Not Before claim (nbf) must be an integer.")
+        except ValueError as e:
+            raise DecodeError("Not Before claim (nbf) must be an integer.") from e
 
         if nbf > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (nbf)")
@@ -295,8 +295,8 @@ class PyJWT:
     ) -> None:
         try:
             exp = int(payload["exp"])
-        except ValueError:
-            raise DecodeError("Expiration Time claim (exp) must be an integer.")
+        except ValueError as e:
+            raise DecodeError("Expiration Time claim (exp) must be an integer.") from e
 
         if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")
@@ -358,12 +358,13 @@ class PyJWT:
         if "iss" not in payload:
             raise MissingRequiredClaimError("iss")
 
-        if isinstance(issuer, Sequence):
-            if payload["iss"] not in issuer:
-                raise InvalidIssuerError("Invalid issuer")
-        else:
-            if payload["iss"] != issuer:
-                raise InvalidIssuerError("Invalid issuer")
+        if (
+            isinstance(issuer, Sequence)
+            and payload["iss"] not in issuer
+            or not isinstance(issuer, Sequence)
+            and payload["iss"] != issuer
+        ):
+            raise InvalidIssuerError("Invalid issuer")
 
 
 _jwt_global_obj = PyJWT()

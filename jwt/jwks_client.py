@@ -58,7 +58,7 @@ class PyJWKClient:
         except (URLError, TimeoutError) as e:
             raise PyJWKClientConnectionError(
                 f'Fail to fetch data from the url, err: "{e}"'
-            )
+            ) from e
         else:
             return jwk_set
         finally:
@@ -80,16 +80,14 @@ class PyJWKClient:
 
     def get_signing_keys(self, refresh: bool = False) -> List[PyJWK]:
         jwk_set = self.get_jwk_set(refresh)
-        signing_keys = [
+        if signing_keys := [
             jwk_set_key
             for jwk_set_key in jwk_set.keys
             if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id
-        ]
-
-        if not signing_keys:
+        ]:
+            return signing_keys
+        else:
             raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
-
-        return signing_keys
 
     def get_signing_key(self, kid: str) -> PyJWK:
         signing_keys = self.get_signing_keys()
@@ -100,10 +98,10 @@ class PyJWKClient:
             signing_keys = self.get_signing_keys(refresh=True)
             signing_key = self.match_kid(signing_keys, kid)
 
-            if not signing_key:
-                raise PyJWKClientError(
-                    f'Unable to find a signing key that matches: "{kid}"'
-                )
+        if not signing_key:
+            raise PyJWKClientError(
+                f'Unable to find a signing key that matches: "{kid}"'
+            )
 
         return signing_key
 
@@ -114,11 +112,4 @@ class PyJWKClient:
 
     @staticmethod
     def match_kid(signing_keys: List[PyJWK], kid: str) -> Optional[PyJWK]:
-        signing_key = None
-
-        for key in signing_keys:
-            if key.key_id == kid:
-                signing_key = key
-                break
-
-        return signing_key
+        return next((key for key in signing_keys if key.key_id == kid), None)

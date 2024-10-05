@@ -114,24 +114,22 @@ def get_default_algorithms() -> dict[str, Algorithm]:
     }
 
     if has_crypto:
-        default_algorithms.update(
-            {
-                "RS256": RSAAlgorithm(RSAAlgorithm.SHA256),
-                "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
-                "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
-                "ES256": ECAlgorithm(ECAlgorithm.SHA256),
-                "ES256K": ECAlgorithm(ECAlgorithm.SHA256),
-                "ES384": ECAlgorithm(ECAlgorithm.SHA384),
-                "ES521": ECAlgorithm(ECAlgorithm.SHA512),
-                "ES512": ECAlgorithm(
-                    ECAlgorithm.SHA512
-                ),  # Backward compat for #219 fix
-                "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
-                "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
-                "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
-                "EdDSA": OKPAlgorithm(),
-            }
-        )
+        default_algorithms |= {
+            "RS256": RSAAlgorithm(RSAAlgorithm.SHA256),
+            "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
+            "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
+            "ES256": ECAlgorithm(ECAlgorithm.SHA256),
+            "ES256K": ECAlgorithm(ECAlgorithm.SHA256),
+            "ES384": ECAlgorithm(ECAlgorithm.SHA384),
+            "ES521": ECAlgorithm(ECAlgorithm.SHA512),
+            "ES512": ECAlgorithm(
+                ECAlgorithm.SHA512
+            ),  # Backward compat for #219 fix
+            "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
+            "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
+            "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
+            "EdDSA": OKPAlgorithm(),
+        }
 
     return default_algorithms
 
@@ -153,15 +151,14 @@ class Algorithm(ABC):
             raise NotImplementedError
 
         if (
-            has_crypto
-            and isinstance(hash_alg, type)
-            and issubclass(hash_alg, hashes.HashAlgorithm)
+            not has_crypto
+            or not isinstance(hash_alg, type)
+            or not issubclass(hash_alg, hashes.HashAlgorithm)
         ):
-            digest = hashes.Hash(hash_alg(), backend=default_backend())
-            digest.update(bytestr)
-            return bytes(digest.finalize())
-        else:
             return bytes(hash_alg(bytestr).digest())
+        digest = hashes.Hash(hash_alg(), backend=default_backend())
+        digest.update(bytestr)
+        return bytes(digest.finalize())
 
     @abstractmethod
     def prepare_key(self, key: Any) -> Any:
@@ -282,10 +279,7 @@ class HMACAlgorithm(Algorithm):
             "kty": "oct",
         }
 
-        if as_dict:
-            return jwk
-        else:
-            return json.dumps(jwk)
+        return jwk if as_dict else json.dumps(jwk)
 
     @staticmethod
     def from_jwk(jwk: str | JWKDict) -> bytes:
@@ -296,8 +290,8 @@ class HMACAlgorithm(Algorithm):
                 obj = jwk
             else:
                 raise ValueError
-        except ValueError:
-            raise InvalidKeyError("Key is not valid JSON")
+        except ValueError as e:
+            raise InvalidKeyError("Key is not valid JSON") from e
 
         if obj.get("kty") != "oct":
             raise InvalidKeyError("Not an HMAC key")
@@ -345,8 +339,8 @@ if has_crypto:
             except ValueError:
                 try:
                     return cast(RSAPublicKey, load_pem_public_key(key_bytes))
-                except (ValueError, UnsupportedAlgorithm):
-                    raise InvalidKeyError("Could not parse the provided public key.")
+                except (ValueError, UnsupportedAlgorithm) as e:
+                    raise InvalidKeyError("Could not parse the provided public key.") from e
 
         @overload
         @staticmethod
@@ -394,10 +388,7 @@ if has_crypto:
             else:
                 raise InvalidKeyError("Not a public or private key")
 
-            if as_dict:
-                return obj
-            else:
-                return json.dumps(obj)
+            return obj if as_dict else json.dumps(obj)
 
         @staticmethod
         def from_jwk(jwk: str | JWKDict) -> AllowedRSAKeys:
@@ -408,8 +399,8 @@ if has_crypto:
                     obj = jwk
                 else:
                     raise ValueError
-            except ValueError:
-                raise InvalidKeyError("Key is not valid JSON")
+            except ValueError as e:
+                raise InvalidKeyError("Key is not valid JSON") from e
 
             if obj.get("kty") != "RSA":
                 raise InvalidKeyError("Not an RSA key")
@@ -590,10 +581,7 @@ if has_crypto:
                     key_obj.private_numbers().private_value
                 ).decode()
 
-            if as_dict:
-                return obj
-            else:
-                return json.dumps(obj)
+            return obj if as_dict else json.dumps(obj)
 
         @staticmethod
         def from_jwk(jwk: str | JWKDict) -> AllowedECKeys:
@@ -604,8 +592,8 @@ if has_crypto:
                     obj = jwk
                 else:
                     raise ValueError
-            except ValueError:
-                raise InvalidKeyError("Key is not valid JSON")
+            except ValueError as e:
+                raise InvalidKeyError("Key is not valid JSON") from e
 
             if obj.get("kty") != "EC":
                 raise InvalidKeyError("Not an Elliptic curve key")
@@ -712,7 +700,7 @@ if has_crypto:
                     key = load_pem_public_key(key_bytes)  # type: ignore[assignment]
                 elif "-----BEGIN PRIVATE" in key_str:
                     key = load_pem_private_key(key_bytes, password=None)  # type: ignore[assignment]
-                elif key_str[0:4] == "ssh-":
+                elif key_str[:4] == "ssh-":
                     key = load_ssh_public_key(key_bytes)  # type: ignore[assignment]
 
             # Explicit check the key to prevent confusing errors from cryptography
@@ -792,11 +780,8 @@ if has_crypto:
                     "crv": crv,
                 }
 
-                if as_dict:
-                    return obj
-                else:
-                    return json.dumps(obj)
-
+                return obj if as_dict else json.dumps(obj)
+            
             if isinstance(key, (Ed25519PrivateKey, Ed448PrivateKey)):
                 d = key.private_bytes(
                     encoding=Encoding.Raw,
@@ -817,11 +802,7 @@ if has_crypto:
                     "crv": crv,
                 }
 
-                if as_dict:
-                    return obj
-                else:
-                    return json.dumps(obj)
-
+                return obj if as_dict else json.dumps(obj)
             raise InvalidKeyError("Not a public or private key")
 
         @staticmethod
@@ -833,14 +814,14 @@ if has_crypto:
                     obj = jwk
                 else:
                     raise ValueError
-            except ValueError:
-                raise InvalidKeyError("Key is not valid JSON")
+            except ValueError as e:
+                raise InvalidKeyError("Key is not valid JSON") from e
 
             if obj.get("kty") != "OKP":
                 raise InvalidKeyError("Not an Octet Key Pair")
 
             curve = obj.get("crv")
-            if curve != "Ed25519" and curve != "Ed448":
+            if curve not in ["Ed25519", "Ed448"]:
                 raise InvalidKeyError(f"Invalid curve: {curve}")
 
             if "x" not in obj:

@@ -112,15 +112,12 @@ class PyJWS:
         is_payload_detached: bool = False,
         sort_headers: bool = True,
     ) -> str:
-        segments = []
-
         # declare a new var to narrow the type for type checkers
         algorithm_: str = algorithm if algorithm is not None else "none"
 
         # Prefer headers values if present to function parameters.
         if headers:
-            headers_alg = headers.get("alg")
-            if headers_alg:
+            if headers_alg := headers.get("alg"):
                 algorithm_ = headers["alg"]
 
             headers_b64 = headers.get("b64")
@@ -132,7 +129,7 @@ class PyJWS:
 
         if headers:
             self._validate_headers(headers)
-            header.update(headers)
+            header |= headers
 
         if not header["typ"]:
             del header["typ"]
@@ -147,12 +144,8 @@ class PyJWS:
             header, separators=(",", ":"), cls=json_encoder, sort_keys=sort_headers
         ).encode()
 
-        segments.append(base64url_encode(json_header))
-
-        if is_payload_detached:
-            msg_payload = payload
-        else:
-            msg_payload = base64url_encode(payload)
+        segments = [base64url_encode(json_header)]
+        msg_payload = payload if is_payload_detached else base64url_encode(payload)
         segments.append(msg_payload)
 
         # Segments
