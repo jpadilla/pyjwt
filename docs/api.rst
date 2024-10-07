@@ -8,13 +8,15 @@ API Reference
     Encode the ``payload`` as JSON Web Token.
 
     :param dict payload: JWT claims, e.g. ``dict(iss=..., aud=..., sub=...)``
-    :param str key: a key suitable for the chosen algorithm:
+    :param key: a key suitable for the chosen algorithm:
 
         * for **asymmetric algorithms**: PEM-formatted private key, a multiline string
         * for **symmetric algorithms**: plain string, sufficiently long for security
 
+    :type key: str or bytes or jwt.PyJWK
     :param str algorithm: algorithm to sign the token with, e.g. ``"ES256"``.
         If ``headers`` includes ``alg``, it will be preferred to this parameter.
+        If ``key`` is a :class:`jwt.PyJWK` object, by default the key algorithm will be used.
     :param dict headers: additional JWT header fields, e.g. ``dict(kid="my-key-id")``.
     :param json.JSONEncoder json_encoder: custom JSON encoder for ``payload`` and ``headers``
     :rtype: str
@@ -25,9 +27,11 @@ API Reference
     Verify the ``jwt`` token signature and return the token claims.
 
     :param str jwt: the token to be decoded
-    :param str key: the key suitable for the allowed algorithm
+    :param key: the key suitable for the allowed algorithm
+    :type key: str or bytes or jwt.PyJWK
 
     :param list algorithms: allowed algorithms, e.g. ``["ES256"]``
+        If ``key`` is a :class:`jwt.PyJWK` object, allowed algorithms will default to the key algorithm.
 
         .. warning::
 
@@ -69,6 +73,54 @@ API Reference
     :param float leeway: a time margin in seconds for the expiration check
     :rtype: dict
     :returns: the JWT claims
+
+.. class:: PyJWK
+
+  A class that represents a `JSON Web Key <https://www.rfc-editor.org/rfc/rfc7517>`_.
+
+  .. method:: __init__(self, jwk_data, algorithm=None)
+
+    :param dict data:  The decoded JWK data.
+    :param algorithm:  The key algorithm.  If not specific, the key's ``alg`` will be used.
+    :type algorithm: str or None
+
+  .. staticmethod:: from_json(data, algorithm=None)
+
+    :param str data: The JWK data, as a JSON string.
+    :param algorithm:  The key algorithm.  If not specific, the key's ``alg`` will be used.
+    :type algorithm: str or None
+
+    :returntype: jwt.PyJWK
+
+    Create a :class:`jwt.PyJWK` object from a JSON string.
+
+  .. property:: algorithm_name
+
+    :type: str
+
+    The name of the algorithm used by the key.
+
+  .. property:: Algorithm
+
+    The ``Algorithm`` class associated with the key.
+
+  .. property:: key_type
+
+    :type: str or None
+
+    The ``kty`` property from the JWK.
+
+  .. property:: key_id
+
+    :type: str or None
+
+    The ``kid`` property from the JWK.
+
+  .. property:: public_key_use
+
+    :type: str or None
+
+    The ``use`` property from the JWK.
 
 .. module:: jwt.api_jwt
 
