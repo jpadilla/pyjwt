@@ -91,6 +91,19 @@ class TestAlgorithms:
         signature = algo.sign(b"Hello World!", key)
         assert algo.verify(b"Hello World!", key, signature)
 
+    def test_ec_should_accept_jwk(self):
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        jwk = {
+            "crv": "P-256",
+            "kty": "EC",
+            "x": "PY5pUvmWTEz5mCVir-Tyfi1M0q07_qaZSU_UAN3HBSI",
+            "y": "aH9ZAGpTidZjxNu2zKXeX9koNQX_BAtIBCa-h7YC_B0",
+        }
+
+        pub_key = algo.prepare_key(jwk)
+        assert isinstance(pub_key, EllipticCurvePublicKey)
+
     @pytest.mark.parametrize("as_dict", (False, True))
     def test_hmac_to_jwk_returns_correct_values(self, as_dict):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
