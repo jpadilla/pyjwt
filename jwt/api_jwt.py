@@ -163,7 +163,12 @@ class PyJWT:
 
         merged_options = {**self.options, **options}
         self._validate_claims(
-            payload, merged_options, audience=audience, issuer=issuer, leeway=leeway, subject=subject
+            payload,
+            merged_options,
+            audience=audience,
+            issuer=issuer,
+            leeway=leeway,
+            subject=subject,
         )
 
         decoded["payload"] = payload
