@@ -1,36 +1,131 @@
 [build-system]
-requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools",
+]
 
-[tool.coverage.run]
-parallel = true
-branch = true
-source = ["jwt"]
+[project]
+authors = [
+    { email = "hello@jpadilla.com", name = "Jose Padilla" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Utilities",
+]
+description = "JSON Web Token implementation in Python"
+dynamic = [
+    "version",
+]
+keywords = [
+    "json",
+    "jwt",
+    "security",
+    "signing",
+    "token",
+    "web",
+]
+name = "PyJWT"
+requires-python = ">=3.8"
+
+[project.license]
+text = "MIT"
+
+[project.optional-dependencies]
+crypto = [
+    "cryptography>=3.4.0",
+]
+dev = [
+    "coverage[toml]==5.0.4",
+    "cryptography>=3.4.0",
+    "pre-commit",
+    "pytest>=6.0.0,<7.0.0",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "zope.interface",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "zope.interface",
+]
+tests = [
+    "coverage[toml]==5.0.4",
+    "pytest>=6.0.0,<7.0.0",
+]
+
+[project.readme]
+content-type = "text/x-rst"
+file = "README.rst"
+
+[project.urls]
+Homepage = "https://github.com/jpadilla/pyjwt"
 
 [tool.coverage.paths]
-source = ["jwt", ".tox/*/site-packages"]
+source = [
+    ".tox/*/site-packages",
+    "jwt",
+]
 
 [tool.coverage.report]
+exclude_lines = [
+    "if TYPE_CHECKING:",
+    "pragma: no cover",
+]
 show_missing = true
-exclude_lines = ["if TYPE_CHECKING:", "pragma: no cover"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = [
+    "jwt",
+]
 
 [tool.isort]
-profile = "black"
 atomic = true
 combine_as_imports = true
+profile = "black"
 
 [tool.mypy]
-python_version = 3.11
-ignore_missing_imports = true
-warn_unused_ignores = true
-no_implicit_optional = true
-strict = true
-# TODO: remove these strict loosenings when possible
 allow_incomplete_defs = true
 allow_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+overrides = [
+    { disallow_untyped_calls = false, module = "tests.*" },
+]
+python_version = 3.11
+strict = true
 warn_return_any = false
 disable_error_code = ["method-assign", "unused-ignore"]
+warn_unused_ignores = true
 
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_calls = false
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.dynamic.version]
+attr = "jwt.__version__"
+
+[tool.setuptools.package-data]
+"*" = [
+    "py.typed",
+]
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests",
+    "tests.*",
+]
+namespaces = false

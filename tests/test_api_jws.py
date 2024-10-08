@@ -158,6 +158,18 @@ class TestJWS:
         exception = context.value
         assert str(exception) == "Invalid header string: must be a json object"
 
+    def test_encode_default_algorithm(self, jws, payload):
+        msg = jws.encode(payload, "secret")
+        decoded = jws.decode_complete(msg, "secret", algorithms=["HS256"])
+        assert decoded == {
+            "header": {"alg": "HS256", "typ": "JWT"},
+            "payload": payload,
+            "signature": (
+                b"H\x8a\xf4\xdf3:\xe1\xac\x16E\xd3\xeb\x00\xcf\xfa\xd5\x05\xac"
+                b"e\xc8@\xb6\x00\xd5\xde\x9aa|s\xcfZB"
+            ),
+        }
+
     def test_encode_algorithm_param_should_be_case_sensitive(self, jws, payload):
         jws.encode(payload, "secret", algorithm="HS256")
 
@@ -192,6 +204,25 @@ class TestJWS:
 
         msg = jws.encode(payload, priv_key, algorithm="HS256", headers={"alg": "ES256"})
         assert b"hello world" == jws.decode(msg, pub_key, algorithms=["ES256"])
+
+    def test_encode_with_jwk(self, jws, payload):
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS256",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
+        msg = jws.encode(payload, key=jwk)
+        decoded = jws.decode_complete(msg, key=jwk, algorithms=["HS256"])
+        assert decoded == {
+            "header": {"alg": "HS256", "typ": "JWT"},
+            "payload": payload,
+            "signature": (
+                b"H\x8a\xf4\xdf3:\xe1\xac\x16E\xd3\xeb\x00\xcf\xfa\xd5\x05\xac"
+                b"e\xc8@\xb6\x00\xd5\xde\x9aa|s\xcfZB"
+            ),
+        }
 
     def test_decode_algorithm_param_should_be_case_sensitive(self, jws):
         example_jws = (
@@ -531,13 +562,13 @@ class TestJWS:
         assert "Invalid crypto padding" in str(exc.value)
 
     def test_decode_with_algo_none_should_fail(self, jws, payload):
-        jws_message = jws.encode(payload, key=None, algorithm=None)
+        jws_message = jws.encode(payload, key=None, algorithm="none")
 
         with pytest.raises(DecodeError):
             jws.decode(jws_message, algorithms=["none"])
 
     def test_decode_with_algo_none_and_verify_false_should_pass(self, jws, payload):
-        jws_message = jws.encode(payload, key=None, algorithm=None)
+        jws_message = jws.encode(payload, key=None, algorithm="none")
         jws.decode(jws_message, options={"verify_signature": False})
 
     def test_get_unverified_header_returns_header_values(self, jws, payload):
