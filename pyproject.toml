@@ -100,6 +100,10 @@ profile = "black"
 [tool.mypy]
 allow_incomplete_defs = true
 allow_untyped_defs = true
+disable_error_code = [
+    "method-assign",
+    "unused-ignore",
+]
 ignore_missing_imports = true
 no_implicit_optional = true
 overrides = [
@@ -108,7 +112,6 @@ overrides = [
 python_version = 3.11
 strict = true
 warn_return_any = false
-disable_error_code = ["method-assign", "unused-ignore"]
 warn_unused_ignores = true
 
 [tool.setuptools]
