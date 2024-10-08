@@ -33,6 +33,8 @@ Fixed
 Added
 ~~~~~
 
+- Include checkers and linters for ``pyproject.toml`` in ``pre-commit`` by @cleder in `#1002 <https://github.com/jpadilla/pyjwt/pull/1002>`__
+
 `v2.9.0 <https://github.com/jpadilla/pyjwt/compare/2.8.0...2.9.0>`__
 -----------------------------------------------------------------------
 
