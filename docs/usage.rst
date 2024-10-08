@@ -59,6 +59,19 @@ RSA encoding and decoding require the ``cryptography`` module. See :ref:`install
     >>> jwt.decode(encoded, public_key, algorithms=["PS256"])
     {'some': 'payload'}
 
+Encoding & Decoding Tokens with EdDSA (Ed25519)
+-------------------------------------------
+
+EdDSA encoding and decoding require the ``cryptography`` module. See :ref:`installation_cryptography`.
+
+.. code-block:: pycon
+    >>> import jwt
+    >>> private_key = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIPtUxyxlhjOWetjIYmc98dmB2GxpeaMPP64qBhZmG13r\n-----END PRIVATE KEY-----\n"
+    >>> public_key = "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA7p4c1IU6aA65FWn6YZ+Bya5dRbfd4P6d4a6H0u9+gCg=\n-----END PUBLIC KEY-----\n"
+    >>> encoded = jwt.encode({"some": "payload"}, private_key, algorithm="EdDSA")
+    >>> jwt.decode(encoded, public_key, algorithms=["EdDSA"])
+    {'some': 'payload'}
+
 Specifying Additional Headers
 -----------------------------
 
