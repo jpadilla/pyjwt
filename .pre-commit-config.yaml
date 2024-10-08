@@ -40,3 +40,27 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [cryptography>=3.4.0]
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: "v0.20.2"
+    hooks:
+      - id: validate-pyproject
+
+  - repo: https://github.com/kieran-ryan/pyprojectsort
+    rev: "v0.3.0"
+    hooks:
+      - id: pyprojectsort
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: "0.29.3"
+    hooks:
+      - id: check-github-workflows
+      - id: check-github-actions
+      - id: check-readthedocs
+
+  - repo: https://github.com/regebro/pyroma
+    rev: "4.2"
+    hooks:
+      - id: pyroma
+
+...
