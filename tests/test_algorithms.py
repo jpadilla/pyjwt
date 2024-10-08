@@ -107,7 +107,7 @@ class TestAlgorithms:
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
-    
+
     def test_hmac_from_jwk_should_raise_exception_if_empty_json(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
