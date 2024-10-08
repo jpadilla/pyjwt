@@ -116,6 +116,7 @@ class PyJWT:
         # consider putting in options
         audience: str | Iterable[str] | None = None,
         issuer: str | Sequence[str] | None = None,
+        subject: str | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -162,7 +163,7 @@ class PyJWT:
 
         merged_options = {**self.options, **options}
         self._validate_claims(
-            payload, merged_options, audience=audience, issuer=issuer, leeway=leeway
+            payload, merged_options, audience=audience, issuer=issuer, leeway=leeway, subject=subject
         )
 
         decoded["payload"] = payload
@@ -197,6 +198,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
+        subject: str | None = None,
         issuer: str | Sequence[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
@@ -218,6 +220,7 @@ class PyJWT:
             detached_payload=detached_payload,
             audience=audience,
             issuer=issuer,
+            subject=subject,
             leeway=leeway,
         )
         return decoded["payload"]
@@ -228,7 +231,7 @@ class PyJWT:
         options: dict[str, Any],
         audience=None,
         issuer=None,
-        subject=None,
+        subject: str | None = None,
         leeway: float | timedelta = 0,
     ) -> None:
         if isinstance(leeway, timedelta):
