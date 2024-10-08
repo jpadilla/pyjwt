@@ -14,3 +14,5 @@ jobs:
     - uses: dangoslen/changelog-enforcer@204e7d3ef26579f4cd0fd759c57032656fdf23c7 # v3.6.1
       with:
         skipLabels: 'Skip-Changelog,dependencies,tests'
+        versionPattern: ^`(v\\d?\\.\\d?\\.\\d|Unreleased) <\\S+>`__
+        changeLogPath: CHANGELOG.rst
