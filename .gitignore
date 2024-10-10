@@ -63,3 +63,6 @@ target/
 .mypy_cache
 pip-wheel-metadata/
 .venv/
+
+
+.idea
