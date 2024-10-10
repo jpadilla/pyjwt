@@ -122,6 +122,7 @@ class PyJWT:
                 "and will be removed in pyjwt version 3. "
                 f"Unsupported kwargs: {tuple(kwargs.keys())}",
                 RemovedInPyjwt3Warning,
+                stacklevel=2,
             )
         options = dict(options or {})  # shallow-copy or initialize an empty dict
         options.setdefault("verify_signature", True)
@@ -135,6 +136,7 @@ class PyJWT:
                 "The equivalent is setting `verify_signature` to False in the `options` dictionary. "
                 "This invocation has a mismatch between the kwarg and the option entry.",
                 category=DeprecationWarning,
+                stacklevel=2,
             )
 
         if not options["verify_signature"]:
@@ -173,7 +175,7 @@ class PyJWT:
         try:
             payload = json.loads(decoded["payload"])
         except ValueError as e:
-            raise DecodeError(f"Invalid payload string: {e}")
+            raise DecodeError(f"Invalid payload string: {e}") from e
         if not isinstance(payload, dict):
             raise DecodeError("Invalid payload string: must be a json object")
         return payload
@@ -202,6 +204,7 @@ class PyJWT:
                 "and will be removed in pyjwt version 3. "
                 f"Unsupported kwargs: {tuple(kwargs.keys())}",
                 RemovedInPyjwt3Warning,
+                stacklevel=2,
             )
         decoded = self.decode_complete(
             jwt,
@@ -269,7 +272,9 @@ class PyJWT:
         try:
             iat = int(payload["iat"])
         except ValueError:
-            raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.")
+            raise InvalidIssuedAtError(
+                "Issued At claim (iat) must be an integer."
+            ) from None
         if iat > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
 
@@ -282,7 +287,7 @@ class PyJWT:
         try:
             nbf = int(payload["nbf"])
         except ValueError:
-            raise DecodeError("Not Before claim (nbf) must be an integer.")
+            raise DecodeError("Not Before claim (nbf) must be an integer.") from None
 
         if nbf > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (nbf)")
@@ -296,7 +301,9 @@ class PyJWT:
         try:
             exp = int(payload["exp"])
         except ValueError:
-            raise DecodeError("Expiration Time claim (exp) must be an integer.")
+            raise DecodeError(
+                "Expiration Time claim (exp) must be an integer."
+            ) from None
 
         if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")
