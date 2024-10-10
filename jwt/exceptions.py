@@ -46,6 +46,14 @@ class InvalidAlgorithmError(InvalidTokenError):
     pass
 
 
+class InvalidSubjectError(InvalidTokenError):
+    pass
+
+
+class InvalidJTIError(InvalidTokenError):
+    pass
+
+
 class MissingRequiredClaimError(InvalidTokenError):
     def __init__(self, claim: str) -> None:
         self.claim = claim
