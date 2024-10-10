@@ -39,6 +39,8 @@ class PyJWT:
             "verify_iat": True,
             "verify_aud": True,
             "verify_iss": True,
+            "verify_sub": True,
+            "verify_jti": True,
             "require": [],
         }
 
