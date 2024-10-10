@@ -583,13 +583,20 @@ if has_crypto:
             obj: dict[str, Any] = {
                 "kty": "EC",
                 "crv": crv,
-                "x": to_base64url_uint(public_numbers.x).decode(),
-                "y": to_base64url_uint(public_numbers.y).decode(),
+                "x": to_base64url_uint(
+                    public_numbers.x,
+                    bit_length=key_obj.curve.key_size,
+                ).decode(),
+                "y": to_base64url_uint(
+                    public_numbers.y,
+                    bit_length=key_obj.curve.key_size,
+                ).decode(),
             }
 
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 obj["d"] = to_base64url_uint(
-                    key_obj.private_numbers().private_value
+                    key_obj.private_numbers().private_value,
+                    bit_length=key_obj.curve.key_size,
                 ).decode()
 
             if as_dict:
