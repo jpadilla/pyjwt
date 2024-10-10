@@ -14,7 +14,9 @@ from jwt.exceptions import (
     InvalidAudienceError,
     InvalidIssuedAtError,
     InvalidIssuerError,
-    MissingRequiredClaimError, InvalidJTIError, InvalidSubjectError,
+    InvalidJTIError,
+    InvalidSubjectError,
+    MissingRequiredClaimError,
 )
 from jwt.utils import base64url_decode
 from jwt.warnings import RemovedInPyjwt3Warning
