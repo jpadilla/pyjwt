@@ -167,7 +167,7 @@ class TestJWT:
         for t in types:
             pytest.raises(
                 TypeError,
-                lambda: jwt.encode(t, "secret", algorithms=["HS256"]),
+                lambda t=t: jwt.encode(t, "secret", algorithms=["HS256"]),
             )
 
     def test_encode_with_typ(self, jwt):

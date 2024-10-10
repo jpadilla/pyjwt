@@ -100,6 +100,10 @@ profile = "black"
 [tool.mypy]
 allow_incomplete_defs = true
 allow_untyped_defs = true
+disable_error_code = [
+    "method-assign",
+    "unused-ignore",
+]
 ignore_missing_imports = true
 no_implicit_optional = true
 overrides = [

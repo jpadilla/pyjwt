@@ -11,12 +11,6 @@ repos:
       - id: blacken-docs
         args: ["--target-version=py38"]
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
-        language_version: python3.9
-
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
@@ -62,4 +56,12 @@ repos:
     hooks:
       - id: pyroma
 
-...
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.6.9
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format

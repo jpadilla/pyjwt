@@ -6,6 +6,7 @@ include CHANGELOG.rst
 include LICENSE
 include README.rst
 include SECURITY.md
+include ruff.toml
 include tox.ini
 include jwt/py.typed
 graft docs
