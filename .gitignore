@@ -62,3 +62,7 @@ target/
 .pytest_cache
 .mypy_cache
 pip-wheel-metadata/
+.venv/
+
+
+.idea/

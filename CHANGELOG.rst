@@ -26,6 +26,7 @@ Changed
   ```
   jwt.encode({"payload":"abc"}, key=None, algorithm='none')
   ```
+- Added validation for 'sub' (subject) and 'jti' (JWT ID) claims in tokens
 
 Fixed
 ~~~~~
