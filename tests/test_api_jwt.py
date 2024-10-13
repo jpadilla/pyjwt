@@ -832,18 +832,16 @@ class TestJWT:
         assert decoded["sub"] == "user123"
 
     def test_decode_without_and_not_required_sub_claim(self, jwt):
-        payload = {}
         secret = "your-256-bit-secret"
-        token = jwt.encode(payload, secret, algorithm="HS256")
+        token = jwt.encode({}, secret, algorithm="HS256")
 
         decoded = jwt.decode(token, secret, algorithms=["HS256"])
 
         assert "sub" not in decoded
 
     def test_decode_missing_sub_but_required_claim(self, jwt):
-        payload = {}
         secret = "your-256-bit-secret"
-        token = jwt.encode(payload, secret, algorithm="HS256")
+        token = jwt.encode({}, secret, algorithm="HS256")
 
         with pytest.raises(MissingRequiredClaimError):
             jwt.decode(
@@ -918,9 +916,8 @@ class TestJWT:
         assert "jti" in str(exc_info.value)
 
     def test_decode_missing_jti_claim(self, jwt):
-        payload = {}
         secret = "your-256-bit-secret"
-        token = jwt.encode(payload, secret, algorithm="HS256")
+        token = jwt.encode({}, secret, algorithm="HS256")
 
         decoded = jwt.decode(token, secret, algorithms=["HS256"])
 
