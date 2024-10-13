@@ -17,15 +17,13 @@ Changed
 
   Before:
 
-  ```
-  jwt.encode({"payload":"abc"}, key=None, algorithm=None)
-  ```
+  .. code-block:: python
+   jwt.encode({"payload":"abc"}, key=None, algorithm=None)
 
   After:
 
-  ```
-  jwt.encode({"payload":"abc"}, key=None, algorithm='none')
-  ```
+  .. code-block:: python
+   jwt.encode({"payload":"abc"}, key=None, algorithm='none')
 
 - Added validation for 'sub' (subject) and 'jti' (JWT ID) claims in tokens
 
