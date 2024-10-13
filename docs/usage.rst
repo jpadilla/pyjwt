@@ -60,7 +60,7 @@ RSA encoding and decoding require the ``cryptography`` module. See :ref:`install
     {'some': 'payload'}
 
 Encoding & Decoding Tokens with EdDSA (Ed25519)
--------------------------------------------
+-----------------------------------------------
 
 EdDSA encoding and decoding require the ``cryptography`` module. See :ref:`installation_cryptography`.
 
