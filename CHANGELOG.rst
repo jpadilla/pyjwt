@@ -32,6 +32,8 @@ Changed
 Fixed
 ~~~~~
 
+- Encode EC keys with a fixed bit length by @etianen in `#990 <https://github.com/jpadilla/pyjwt/pull/990>`__
+
 Added
 ~~~~~
 
