@@ -15,6 +15,8 @@ from .exceptions import (
     InvalidAudienceError,
     InvalidIssuedAtError,
     InvalidIssuerError,
+    InvalidJTIError,
+    InvalidSubjectError,
     MissingRequiredClaimError,
 )
 from .warnings import RemovedInPyjwt3Warning
@@ -39,6 +41,8 @@ class PyJWT:
             "verify_iat": True,
             "verify_aud": True,
             "verify_iss": True,
+            "verify_sub": True,
+            "verify_jti": True,
             "require": [],
         }
 
@@ -112,6 +116,7 @@ class PyJWT:
         # consider putting in options
         audience: str | Iterable[str] | None = None,
         issuer: str | Sequence[str] | None = None,
+        subject: str | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -145,6 +150,8 @@ class PyJWT:
             options.setdefault("verify_iat", False)
             options.setdefault("verify_aud", False)
             options.setdefault("verify_iss", False)
+            options.setdefault("verify_sub", False)
+            options.setdefault("verify_jti", False)
 
         decoded = api_jws.decode_complete(
             jwt,
@@ -158,7 +165,12 @@ class PyJWT:
 
         merged_options = {**self.options, **options}
         self._validate_claims(
-            payload, merged_options, audience=audience, issuer=issuer, leeway=leeway
+            payload,
+            merged_options,
+            audience=audience,
+            issuer=issuer,
+            leeway=leeway,
+            subject=subject,
         )
 
         decoded["payload"] = payload
@@ -193,6 +205,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
+        subject: str | None = None,
         issuer: str | Sequence[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
@@ -214,6 +227,7 @@ class PyJWT:
             verify=verify,
             detached_payload=detached_payload,
             audience=audience,
+            subject=subject,
             issuer=issuer,
             leeway=leeway,
         )
@@ -225,6 +239,7 @@ class PyJWT:
         options: dict[str, Any],
         audience=None,
         issuer=None,
+        subject: str | None = None,
         leeway: float | timedelta = 0,
     ) -> None:
         if isinstance(leeway, timedelta):
@@ -254,6 +269,12 @@ class PyJWT:
                 payload, audience, strict=options.get("strict_aud", False)
             )
 
+        if options["verify_sub"]:
+            self._validate_sub(payload, subject)
+
+        if options["verify_jti"]:
+            self._validate_jti(payload)
+
     def _validate_required_claims(
         self,
         payload: dict[str, Any],
@@ -262,6 +283,39 @@ class PyJWT:
         for claim in options["require"]:
             if payload.get(claim) is None:
                 raise MissingRequiredClaimError(claim)
+
+    def _validate_sub(self, payload: dict[str, Any], subject=None) -> None:
+        """
+        Checks whether "sub" if in the payload is valid ot not.
+        This is an Optional claim
+
+        :param payload(dict): The payload which needs to be validated
+        :param subject(str): The subject of the token
+        """
+
+        if "sub" not in payload:
+            return
+
+        if not isinstance(payload["sub"], str):
+            raise InvalidSubjectError("Subject must be a string")
+
+        if subject is not None:
+            if payload.get("sub") != subject:
+                raise InvalidSubjectError("Invalid subject")
+
+    def _validate_jti(self, payload: dict[str, Any]) -> None:
+        """
+        Checks whether "jti" if in the payload is valid ot not
+        This is an Optional claim
+
+        :param payload(dict): The payload which needs to be validated
+        """
+
+        if "jti" not in payload:
+            return
+
+        if not isinstance(payload.get("jti"), str):
+            raise InvalidJTIError("JWT ID must be a string")
 
     def _validate_iat(
         self,
