@@ -65,6 +65,7 @@ Encoding & Decoding Tokens with EdDSA (Ed25519)
 EdDSA encoding and decoding require the ``cryptography`` module. See :ref:`installation_cryptography`.
 
 .. code-block:: pycon
+
     >>> import jwt
     >>> private_key = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIPtUxyxlhjOWetjIYmc98dmB2GxpeaMPP64qBhZmG13r\n-----END PRIVATE KEY-----\n"
     >>> public_key = "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA7p4c1IU6aA65FWn6YZ+Bya5dRbfd4P6d4a6H0u9+gCg=\n-----END PUBLIC KEY-----\n"
@@ -73,7 +74,7 @@ EdDSA encoding and decoding require the ``cryptography`` module. See :ref:`insta
     {'some': 'payload'}
 
 Encoding & Decoding Tokens with ES256 (ECDSA)
--------------------------------------------
+---------------------------------------------
 
 ECDSA encoding and decoding require the ``cryptography`` module. See :ref:`installation_cryptography`.
 
