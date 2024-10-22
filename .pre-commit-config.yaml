@@ -3,13 +3,13 @@ repos:
     rev: 24.10.0
     hooks:
       - id: black
-        args: ["--target-version=py38"]
+        args: ["--target-version=py39"]
 
   - repo: https://github.com/asottile/blacken-docs
     rev: 1.19.0
     hooks:
       - id: blacken-docs
-        args: ["--target-version=py38"]
+        args: ["--target-version=py39"]
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
