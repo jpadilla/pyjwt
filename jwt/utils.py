@@ -1,7 +1,7 @@
 import base64
 import binascii
 import re
-from typing import Optional, Union, Literal
+from typing import Literal, Optional, Union
 
 try:
     from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurve
