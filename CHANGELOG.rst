@@ -35,6 +35,7 @@ Fixed
 ~~~~~
 
 - Encode EC keys with a fixed bit length by @etianen in `#990 <https://github.com/jpadilla/pyjwt/pull/990>`__
+- Use `typing.Literal` when exact string types are expected in utility functions by @kkirsche in `#1008 <https://github.com/jpadilla/pyjwt/pull/1008>`__
 
 Added
 ~~~~~
