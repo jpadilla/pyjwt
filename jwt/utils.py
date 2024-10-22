@@ -1,7 +1,7 @@
 import base64
 import binascii
 import re
-from typing import Optional, Union
+from typing import Optional, Union, Literal
 
 try:
     from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurve
@@ -71,7 +71,7 @@ def bytes_from_int(val: int, *, bit_length: Optional[int] = None) -> bytes:
     return val.to_bytes(byte_length, "big", signed=False)
 
 
-def der_to_raw_signature(der_sig: bytes, curve: "EllipticCurve") -> bytes:
+def der_to_raw_signature(der_sig: bytes, curve: Literal["EllipticCurve"]) -> bytes:
     num_bits = curve.key_size
     num_bytes = (num_bits + 7) // 8
 
@@ -80,7 +80,7 @@ def der_to_raw_signature(der_sig: bytes, curve: "EllipticCurve") -> bytes:
     return number_to_bytes(r, num_bytes) + number_to_bytes(s, num_bytes)
 
 
-def raw_to_der_signature(raw_sig: bytes, curve: "EllipticCurve") -> bytes:
+def raw_to_der_signature(raw_sig: bytes, curve: Literal["EllipticCurve"]) -> bytes:
     num_bits = curve.key_size
     num_bytes = (num_bits + 7) // 8
 
