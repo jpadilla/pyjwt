@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.0...HEAD>`__
------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 
 
@@ -36,7 +36,7 @@ Changed
    >>> jwt.encode({"payload": "abc"}, key=None, algorithm="none")
 
 - Added validation for 'sub' (subject) and 'jti' (JWT ID) claims in tokens by @Divan009 in `#1005 <https://github.com/jpadilla/pyjwt/pull/1005>`__
-- Refactor project configuration files from ``setup.cfg`` to ``pyproject.toml``by @cleder in `#995 <https://github.com/jpadilla/pyjwt/pull/995>`__
+- Refactor project configuration files from ``setup.cfg`` to ``pyproject.toml`` by @cleder in `#995 <https://github.com/jpadilla/pyjwt/pull/995>`__
 - Ruff linter and formatter changes by @gagandeepp in `#1001 <https://github.com/jpadilla/pyjwt/pull/1001>`__
 - Drop support for Python 3.8 (EOL) by @kkirsche in `#1007 <https://github.com/jpadilla/pyjwt/pull/1007>`__
 
