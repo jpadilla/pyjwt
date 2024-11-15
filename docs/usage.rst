@@ -414,7 +414,7 @@ is not built into pyjwt.
     signing_key = jwks_client.get_signing_key_from_jwt(id_token)
 
     # now, decode_complete to get payload + header
-    data = jwt.decode_complete(
+    data = jwt.jwt_api.decode_complete(
         id_token,
         key=signing_key,
         audience=client_id,
