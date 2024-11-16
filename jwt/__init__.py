@@ -6,7 +6,7 @@ from .api_jws import (
     register_algorithm,
     unregister_algorithm,
 )
-from .api_jwt import PyJWT, decode, encode
+from .api_jwt import PyJWT, decode, decode_complete, encode
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
@@ -49,6 +49,7 @@ __all__ = [
     "PyJWK",
     "PyJWKSet",
     "decode",
+    "decode_complete",
     "encode",
     "get_unverified_header",
     "register_algorithm",
