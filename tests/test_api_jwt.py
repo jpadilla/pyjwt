@@ -464,6 +464,16 @@ class TestJWT:
 
         assert exc.value.claim == "iss"
 
+    def test_rasise_exception_on_partial_issuer_match(self, jwt):
+        issuer = "urn:expected"
+
+        payload = {"iss": "urn:"}
+
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(InvalidIssuerError):
+            jwt.decode(token, "secret", issuer=issuer, algorithms=["HS256"])
+        
     def test_raise_exception_token_without_audience(self, jwt):
         payload = {"some": "payload"}
         token = jwt.encode(payload, "secret")
