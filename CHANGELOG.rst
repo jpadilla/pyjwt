@@ -4,9 +4,18 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.1...HEAD>`__
 ------------------------------------------------------------------------
 
+
+`v2.10.1 <https://github.com/jpadilla/pyjwt/compare/2.10.0...2.10.1>`__
+-----------------------------------------------------------------------
+
+
+Fixed
+~~~~~
+
+- Prevent partial matching of `iss` claim by @fabianbadoi in `GHSA-75c5-xw7c-p5pm <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-75c5-xw7c-p5pm>`__
 
 
 `v2.10.0 <https://github.com/jpadilla/pyjwt/compare/2.9.0...2.10.0>`__
