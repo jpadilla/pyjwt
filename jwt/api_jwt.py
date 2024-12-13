@@ -286,7 +286,7 @@ class PyJWT:
 
     def _validate_sub(self, payload: dict[str, Any], subject=None) -> None:
         """
-        Checks whether "sub" if in the payload is valid ot not.
+        Checks whether "sub" if in the payload is valid or not.
         This is an Optional claim
 
         :param payload(dict): The payload which needs to be validated
