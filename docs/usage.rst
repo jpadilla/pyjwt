@@ -235,8 +235,8 @@ The `nbf` claim works similarly to the `exp` claim above.
     >>> token = jwt.encode({"nbf": datetime.datetime.now(tz=timezone.utc)}, "secret")
 
 The `nbf` claim also supports the leeway feature similar to the `exp` claim. This
-allows you to validate a “not before” time that is slightly in the future. Using 
-leeway with the nbf claim can be particularly helpful in scenarios where clock 
+allows you to validate a “not before” time that is slightly in the future. Using
+leeway with the nbf claim can be particularly helpful in scenarios where clock
 synchronization between the token issuer and the validator is imprecise.
 
 .. code-block:: pycon
