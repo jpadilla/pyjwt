@@ -244,7 +244,6 @@ synchronization between the token issuer and the validator is imprecise.
     >>> import time, datetime
     >>> from datetime import timezone
     >>> payload = {
-    ...     "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=1)
     ...     "nbf": datetime.datetime.now(tz=timezone.utc) - datetime.timedelta(seconds=3)
     ... }
     >>> token = jwt.encode(payload, "secret")
