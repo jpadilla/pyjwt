@@ -355,7 +355,7 @@ class HMACAlgorithm(Algorithm):
             else:
                 raise ValueError
         except ValueError:
-            raise InvalidKeyError("Key is not valid JSON")
+            raise InvalidKeyError("Key is not valid JSON") from None
 
         if obj.get("kty") != "oct":
             raise InvalidKeyError("Not an HMAC key")
@@ -412,7 +412,9 @@ if has_crypto:
                     self.check_crypto_key_type(public_key)
                     return cast(RSAPublicKey, public_key)
                 except (ValueError, UnsupportedAlgorithm):
-                    raise InvalidKeyError("Could not parse the provided public key.")
+                    raise InvalidKeyError(
+                        "Could not parse the provided public key."
+                    ) from None
 
         @overload
         @staticmethod
@@ -475,10 +477,10 @@ if has_crypto:
                 else:
                     raise ValueError
             except ValueError:
-                raise InvalidKeyError("Key is not valid JSON")
+                raise InvalidKeyError("Key is not valid JSON") from None
 
             if obj.get("kty") != "RSA":
-                raise InvalidKeyError("Not an RSA key")
+                raise InvalidKeyError("Not an RSA key") from None
 
             if "d" in obj and "e" in obj and "n" in obj:
                 # Private key
@@ -494,7 +496,7 @@ if has_crypto:
                 if any_props_found and not all(props_found):
                     raise InvalidKeyError(
                         "RSA key must include all parameters if any are present besides d"
-                    )
+                    ) from None
 
                 public_numbers = RSAPublicNumbers(
                     from_base64url_uint(obj["e"]),
@@ -645,13 +647,20 @@ if has_crypto:
             obj: dict[str, Any] = {
                 "kty": "EC",
                 "crv": crv,
-                "x": to_base64url_uint(public_numbers.x).decode(),
-                "y": to_base64url_uint(public_numbers.y).decode(),
+                "x": to_base64url_uint(
+                    public_numbers.x,
+                    bit_length=key_obj.curve.key_size,
+                ).decode(),
+                "y": to_base64url_uint(
+                    public_numbers.y,
+                    bit_length=key_obj.curve.key_size,
+                ).decode(),
             }
 
             if isinstance(key_obj, EllipticCurvePrivateKey):
                 obj["d"] = to_base64url_uint(
-                    key_obj.private_numbers().private_value
+                    key_obj.private_numbers().private_value,
+                    bit_length=key_obj.curve.key_size,
                 ).decode()
 
             if as_dict:
@@ -669,13 +678,13 @@ if has_crypto:
                 else:
                     raise ValueError
             except ValueError:
-                raise InvalidKeyError("Key is not valid JSON")
+                raise InvalidKeyError("Key is not valid JSON") from None
 
             if obj.get("kty") != "EC":
-                raise InvalidKeyError("Not an Elliptic curve key")
+                raise InvalidKeyError("Not an Elliptic curve key") from None
 
             if "x" not in obj or "y" not in obj:
-                raise InvalidKeyError("Not an Elliptic curve key")
+                raise InvalidKeyError("Not an Elliptic curve key") from None
 
             x = base64url_decode(obj.get("x"))
             y = base64url_decode(obj.get("y"))
@@ -687,17 +696,23 @@ if has_crypto:
                 if len(x) == len(y) == 32:
                     curve_obj = SECP256R1()
                 else:
-                    raise InvalidKeyError("Coords should be 32 bytes for curve P-256")
+                    raise InvalidKeyError(
+                        "Coords should be 32 bytes for curve P-256"
+                    ) from None
             elif curve == "P-384":
                 if len(x) == len(y) == 48:
                     curve_obj = SECP384R1()
                 else:
-                    raise InvalidKeyError("Coords should be 48 bytes for curve P-384")
+                    raise InvalidKeyError(
+                        "Coords should be 48 bytes for curve P-384"
+                    ) from None
             elif curve == "P-521":
                 if len(x) == len(y) == 66:
                     curve_obj = SECP521R1()
                 else:
-                    raise InvalidKeyError("Coords should be 66 bytes for curve P-521")
+                    raise InvalidKeyError(
+                        "Coords should be 66 bytes for curve P-521"
+                    ) from None
             elif curve == "secp256k1":
                 if len(x) == len(y) == 32:
                     curve_obj = SECP256K1()
@@ -899,7 +914,7 @@ if has_crypto:
                 else:
                     raise ValueError
             except ValueError:
-                raise InvalidKeyError("Key is not valid JSON")
+                raise InvalidKeyError("Key is not valid JSON") from None
 
             if obj.get("kty") != "OKP":
                 raise InvalidKeyError("Not an Octet Key Pair")

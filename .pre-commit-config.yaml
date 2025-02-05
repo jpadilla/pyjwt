@@ -1,42 +1,68 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 25.1.0
     hooks:
       - id: black
-        args: ["--target-version=py38"]
+        args: ["--target-version=py39"]
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.17.0
+    rev: 1.19.1
     hooks:
       - id: blacken-docs
-        args: ["--target-version=py38"]
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
-        language_version: python3.9
+        args: ["--target-version=py39"]
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
+    rev: 6.0.0
     hooks:
       - id: isort
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: debug-statements
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.49"
+    rev: "0.50"
     hooks:
       - id: check-manifest
         args: [--no-build-isolation]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.11.2"
+    rev: "v1.14.1"
     hooks:
       - id: mypy
         additional_dependencies: [cryptography>=3.4.0]
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: "v0.23"
+    hooks:
+      - id: validate-pyproject
+
+  # conflict with the backend dependencies: tomli-w==1.1.0 is incompatible with tomli-w==1.0.0.
+  # - repo: https://github.com/kieran-ryan/pyprojectsort
+  #   rev: "v0.3.0"
+  #   hooks:
+  #     - id: pyprojectsort
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: "0.31.1"
+    hooks:
+      - id: check-github-workflows
+      - id: check-readthedocs
+
+  - repo: https://github.com/regebro/pyroma
+    rev: "4.2"
+    hooks:
+      - id: pyroma
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.9.4
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format

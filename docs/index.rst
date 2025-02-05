@@ -5,6 +5,15 @@ Welcome to ``PyJWT``
 Tokens (JWT). JWT is an open, industry-standard (`RFC 7519`_) for representing
 claims securely between two parties.
 
+Sponsor
+-------
+.. |auth0-logo| image:: https://github.com/user-attachments/assets/ee98379e-ee76-4bcb-943a-e25c4ea6d174
+   :width: 160px
+
++--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| |auth0-logo| | If you want to quickly add secure token-based authentication to Python projects, feel free to check Auth0's Python SDK and free plan at `auth0.com/signup <https://auth0.com/signup?utm_source=external_sites&utm_medium=pyjwt&utm_campaign=devn_signup>`_. |
++--------------+-----------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
 Installation
 ------------
 You can install ``pyjwt`` with ``pip``:
@@ -22,8 +31,6 @@ Example Usage
 
     >>> import jwt
     >>> encoded_jwt = jwt.encode({"some": "payload"}, "secret", algorithm="HS256")
-    >>> print(encoded_jwt)
-    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoicGF5bG9hZCJ9.4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZg
     >>> jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
     {'some': 'payload'}
 

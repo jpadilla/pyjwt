@@ -11,6 +11,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -61,3 +62,7 @@ target/
 .pytest_cache
 .mypy_cache
 pip-wheel-metadata/
+.venv/
+
+
+.idea

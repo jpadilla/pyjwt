@@ -4,20 +4,78 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.9.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.1...HEAD>`__
+------------------------------------------------------------------------
+
+Added
+~~~~~
+
+- Docs: Add example of using leeway with nbf by @djw8605 in `#1034 <https://github.com/jpadilla/pyjwt/pull/1034>`__
+
+`v2.10.1 <https://github.com/jpadilla/pyjwt/compare/2.10.0...2.10.1>`__
 -----------------------------------------------------------------------
 
-Changed
-~~~~~~~
-
-- Use ``Sequence`` for parameter types rather than ``List`` where applicable by @imnotjames in `#970 <https://github.com/jpadilla/pyjwt/pull/970>`__
-- Remove algorithm requirement from JWT API, instead relying on JWS API for enforcement, by @luhn in `#975 <https://github.com/jpadilla/pyjwt/pull/975>`__
 
 Fixed
 ~~~~~
 
+- Prevent partial matching of `iss` claim by @fabianbadoi in `GHSA-75c5-xw7c-p5pm <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-75c5-xw7c-p5pm>`__
+
+
+`v2.10.0 <https://github.com/jpadilla/pyjwt/compare/2.9.0...2.10.0>`__
+-----------------------------------------------------------------------
+
+
+Changed
+~~~~~~~
+
+- Remove algorithm requirement from JWT API, instead relying on JWS API for enforcement, by @luhn in `#975 <https://github.com/jpadilla/pyjwt/pull/975>`__
+- Use ``Sequence`` for parameter types rather than ``List`` where applicable by @imnotjames in `#970 <https://github.com/jpadilla/pyjwt/pull/970>`__
+- Add JWK support to JWT encode by @luhn in `#979 <https://github.com/jpadilla/pyjwt/pull/979>`__
+- Encoding and decoding payloads using the `none` algorithm by @jpadilla in `#c2629f6 <https://github.com/jpadilla/pyjwt/commit/c2629f66c593459e02616048443231ccbe18be16>`
+
+  Before:
+
+  .. code-block:: pycon
+
+   >>> import jwt
+   >>> jwt.encode({"payload": "abc"}, key=None, algorithm=None)
+
+  After:
+
+  .. code-block:: pycon
+
+   >>> import jwt
+   >>> jwt.encode({"payload": "abc"}, key=None, algorithm="none")
+
+- Added validation for 'sub' (subject) and 'jti' (JWT ID) claims in tokens by @Divan009 in `#1005 <https://github.com/jpadilla/pyjwt/pull/1005>`__
+- Refactor project configuration files from ``setup.cfg`` to ``pyproject.toml`` by @cleder in `#995 <https://github.com/jpadilla/pyjwt/pull/995>`__
+- Ruff linter and formatter changes by @gagandeepp in `#1001 <https://github.com/jpadilla/pyjwt/pull/1001>`__
+- Drop support for Python 3.8 (EOL) by @kkirsche in `#1007 <https://github.com/jpadilla/pyjwt/pull/1007>`__
+
+
+Fixed
+~~~~~
+
+- Encode EC keys with a fixed bit length by @etianen in `#990 <https://github.com/jpadilla/pyjwt/pull/990>`__
+- Add an RTD config file to resolve Read the Docs build failures by @kurtmckee in `#977 <https://github.com/jpadilla/pyjwt/pull/977>`__
+- Docs: Update ``iat`` exception docs by @pachewise in `#974 <https://github.com/jpadilla/pyjwt/pull/974>`__
+- Docs: Fix ``decode_complete`` scope and algorithms by @RbnRncn in `#982 <https://github.com/jpadilla/pyjwt/pull/982>`__
+- Fix doctest for ``docs/usage.rst`` by @pachewise in `#986 <https://github.com/jpadilla/pyjwt/pull/986>`__
+- Fix ``test_utils.py`` not to xfail by @pachewise in `#987 <https://github.com/jpadilla/pyjwt/pull/987>`__
+- Docs: Correct `jwt.decode` audience param doc expression by @peter279k in `#994 <https://github.com/jpadilla/pyjwt/pull/994>`__
+
 Added
 ~~~~~
+
+
+- Add support for python 3.13 by @hugovk in `#972 <https://github.com/jpadilla/pyjwt/pull/972>`__
+- Create SECURITY.md by @auvipy and @jpadilla in `#973 <https://github.com/jpadilla/pyjwt/pull/973>`__
+- Docs: Add PS256 encoding and decoding usage by @peter279k in `#992 <https://github.com/jpadilla/pyjwt/pull/992>`__
+- Docs: Add API docs for PyJWK by @luhn in `#980 <https://github.com/jpadilla/pyjwt/pull/980>`__
+- Docs: Add EdDSA algorithm encoding/decoding usage by @peter279k in `#993 <https://github.com/jpadilla/pyjwt/pull/993>`__
+- Include checkers and linters for ``pyproject.toml`` in ``pre-commit`` by @cleder in `#1002 <https://github.com/jpadilla/pyjwt/pull/1002>`__
+- Docs: Add ES256 decoding usage by @Gautam-Hegde in `#1003 <https://github.com/jpadilla/pyjwt/pull/1003>`
 
 `v2.9.0 <https://github.com/jpadilla/pyjwt/compare/2.8.0...2.9.0>`__
 -----------------------------------------------------------------------
