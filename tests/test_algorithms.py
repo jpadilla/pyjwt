@@ -34,7 +34,7 @@ if has_crypto:
 
 class TestAlgorithms:
     def test_check_crypto_key_type_should_fail_when_not_using_crypto(self):
-        """If has_crypto is False, or if _crypto_key_types is None, then this method should throw. """
+        """If has_crypto is False, or if _crypto_key_types is None, then this method should throw."""
 
         algo = NoneAlgorithm()
         with pytest.raises(ValueError):
