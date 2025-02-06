@@ -38,7 +38,7 @@ class TestAlgorithms:
 
         algo = NoneAlgorithm()
         with pytest.raises(ValueError):
-            algo.check_crypto_key_type("key")
+            algo.check_crypto_key_type("key")  # type: ignore[arg-type]
 
     def test_none_algorithm_should_throw_exception_if_key_is_not_none(self):
         algo = NoneAlgorithm()
