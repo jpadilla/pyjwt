@@ -833,8 +833,16 @@ class TestOKPAlgorithms:
         with open(key_path("testkey_ed25519.pub")) as keyfile:
             algo.prepare_key(keyfile.read())
 
-    @pytest.mark.parametrize("private_key_file,public_key_file,sig_attr", [("testkey_ed25519", "testkey_ed25519.pub", "hello_world_sig"), ("testkey_ed25519.pem", "testkey_ed25519.pub.pem", "hello_world_sig_pem")])
-    def test_okp_ed25519_sign_should_generate_correct_signature_value(self, private_key_file, public_key_file, sig_attr):
+    @pytest.mark.parametrize(
+        "private_key_file,public_key_file,sig_attr",
+        [
+            ("testkey_ed25519", "testkey_ed25519.pub", "hello_world_sig"),
+            ("testkey_ed25519.pem", "testkey_ed25519.pub.pem", "hello_world_sig_pem"),
+        ],
+    )
+    def test_okp_ed25519_sign_should_generate_correct_signature_value(
+        self, private_key_file, public_key_file, sig_attr
+    ):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
@@ -851,8 +859,16 @@ class TestOKPAlgorithms:
         result = algo.verify(jwt_message, jwt_pub_key, expected_sig)
         assert result
 
-    @pytest.mark.parametrize("public_key_file,sig_attr", [("testkey_ed25519.pub", "hello_world_sig"), ("testkey_ed25519.pub.pem", "hello_world_sig_pem")])
-    def test_okp_ed25519_verify_should_return_false_if_signature_invalid(self, public_key_file, sig_attr):
+    @pytest.mark.parametrize(
+        "public_key_file,sig_attr",
+        [
+            ("testkey_ed25519.pub", "hello_world_sig"),
+            ("testkey_ed25519.pub.pem", "hello_world_sig_pem"),
+        ],
+    )
+    def test_okp_ed25519_verify_should_return_false_if_signature_invalid(
+        self, public_key_file, sig_attr
+    ):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
@@ -866,8 +882,16 @@ class TestOKPAlgorithms:
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert not result
 
-    @pytest.mark.parametrize("public_key_file,sig_attr", [("testkey_ed25519.pub", "hello_world_sig"), ("testkey_ed25519.pub.pem", "hello_world_sig_pem")])
-    def test_okp_ed25519_verify_should_return_true_if_signature_valid(self, public_key_file, sig_attr):
+    @pytest.mark.parametrize(
+        "public_key_file,sig_attr",
+        [
+            ("testkey_ed25519.pub", "hello_world_sig"),
+            ("testkey_ed25519.pub.pem", "hello_world_sig_pem"),
+        ],
+    )
+    def test_okp_ed25519_verify_should_return_true_if_signature_valid(
+        self, public_key_file, sig_attr
+    ):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
@@ -879,7 +903,9 @@ class TestOKPAlgorithms:
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert result
 
-    @pytest.mark.parametrize("public_key_file", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
+    @pytest.mark.parametrize(
+        "public_key_file", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem")
+    )
     def test_okp_ed25519_prepare_key_should_be_idempotent(self, public_key_file):
         algo = OKPAlgorithm()
 
