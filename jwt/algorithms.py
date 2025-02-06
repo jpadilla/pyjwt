@@ -210,7 +210,7 @@ class Algorithm(ABC):
             InvalidKeyError: if the key doesn't match the expected key classes
         """
         if not has_crypto or self._crypto_key_types is None:
-            return
+            raise ValueError("This method requires the cryptography library, and should only be used by cryptography-based algorithms.")
 
         # TODO check for algo_type? (e.g., SHA256 vs SHA384)
         if not isinstance(key, self._crypto_key_types):

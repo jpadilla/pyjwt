@@ -33,6 +33,13 @@ if has_crypto:
 
 
 class TestAlgorithms:
+    def test_check_crypto_key_type_should_fail_when_not_using_crypto(self):
+        """If has_crypto is False, or if _crypto_key_types is None, then this method should throw. """
+
+        algo = NoneAlgorithm()
+        with pytest.raises(ValueError):
+            algo.check_crypto_key_type("key")
+
     def test_none_algorithm_should_throw_exception_if_key_is_not_none(self):
         algo = NoneAlgorithm()
 
@@ -842,7 +849,8 @@ class TestOKPAlgorithms:
         result = algo.verify(jwt_message, jwt_pub_key, expected_sig)
         assert result
 
-    def test_okp_ed25519_verify_should_return_false_if_signature_invalid(self):
+    @pytest.mark.parametrize("key", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
+    def test_okp_ed25519_verify_should_return_false_if_signature_invalid(self, key):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
@@ -850,32 +858,40 @@ class TestOKPAlgorithms:
 
         jwt_sig += b"123"  # Signature is now invalid
 
-        with open(key_path("testkey_ed25519.pub")) as keyfile:
+        with open(key_path(key)) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert not result
 
-    def test_okp_ed25519_verify_should_return_true_if_signature_valid(self):
+    @pytest.mark.parametrize("key", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
+    def test_okp_ed25519_verify_should_return_true_if_signature_valid(self, key):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
         jwt_sig = base64.b64decode(self.hello_world_sig)
 
-        with open(key_path("testkey_ed25519.pub")) as keyfile:
+        with open(key_path(key)) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert result
 
-    def test_okp_ed25519_prepare_key_should_be_idempotent(self):
+    @pytest.mark.parametrize("key", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
+    def test_okp_ed25519_prepare_key_should_be_idempotent(self, key):
         algo = OKPAlgorithm()
 
-        with open(key_path("testkey_ed25519.pub")) as keyfile:
+        with open(key_path(key)) as keyfile:
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
         assert jwt_pub_key_first == jwt_pub_key_second
+
+    def test_okp_ed25519_prepare_key_should_reject_invalid_key(self):
+        algo = OKPAlgorithm()
+
+        with pytest.raises(InvalidKeyError):
+            algo.prepare_key("not a valid key")
 
     def test_okp_ed25519_jwk_private_key_should_parse_and_verify(self):
         algo = OKPAlgorithm()
