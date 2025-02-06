@@ -818,6 +818,7 @@ class TestAlgorithmsRFC7520:
 @crypto_required
 class TestOKPAlgorithms:
     hello_world_sig = b"Qxa47mk/azzUgmY2StAOguAd4P7YBLpyCfU3JdbaiWnXM4o4WibXwmIHvNYgN3frtE2fcyd8OYEaOiD/KiwkCg=="
+    hello_world_sig_pem = b"9ueQE7PT8uudHIQb2zZZ7tB7k1X3jeTnIfOVvGCINZejrqQbru1EXPeuMlGcQEZrGkLVcfMmr99W/+byxfppAg=="
     hello_world = b"Hello World!"
 
     def test_okp_ed25519_should_reject_non_string_key(self):
@@ -832,56 +833,57 @@ class TestOKPAlgorithms:
         with open(key_path("testkey_ed25519.pub")) as keyfile:
             algo.prepare_key(keyfile.read())
 
-    def test_okp_ed25519_sign_should_generate_correct_signature_value(self):
+    @pytest.mark.parametrize("private_key_file,public_key_file,sig_attr", [("testkey_ed25519", "testkey_ed25519.pub", "hello_world_sig"), ("testkey_ed25519.pem", "testkey_ed25519.pub.pem", "hello_world_sig_pem")])
+    def test_okp_ed25519_sign_should_generate_correct_signature_value(self, private_key_file, public_key_file, sig_attr):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
 
-        expected_sig = base64.b64decode(self.hello_world_sig)
+        expected_sig = base64.b64decode(getattr(self, sig_attr))
 
-        with open(key_path("testkey_ed25519")) as keyfile:
+        with open(key_path(private_key_file)) as keyfile:
             jwt_key = cast(Ed25519PrivateKey, algo.prepare_key(keyfile.read()))
 
-        with open(key_path("testkey_ed25519.pub")) as keyfile:
+        with open(key_path(public_key_file)) as keyfile:
             jwt_pub_key = cast(Ed25519PublicKey, algo.prepare_key(keyfile.read()))
 
         algo.sign(jwt_message, jwt_key)
         result = algo.verify(jwt_message, jwt_pub_key, expected_sig)
         assert result
 
-    @pytest.mark.parametrize("key", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
-    def test_okp_ed25519_verify_should_return_false_if_signature_invalid(self, key):
+    @pytest.mark.parametrize("public_key_file,sig_attr", [("testkey_ed25519.pub", "hello_world_sig"), ("testkey_ed25519.pub.pem", "hello_world_sig_pem")])
+    def test_okp_ed25519_verify_should_return_false_if_signature_invalid(self, public_key_file, sig_attr):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
-        jwt_sig = base64.b64decode(self.hello_world_sig)
+        jwt_sig = base64.b64decode(getattr(self, sig_attr))
 
         jwt_sig += b"123"  # Signature is now invalid
 
-        with open(key_path(key)) as keyfile:
+        with open(key_path(public_key_file)) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert not result
 
-    @pytest.mark.parametrize("key", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
-    def test_okp_ed25519_verify_should_return_true_if_signature_valid(self, key):
+    @pytest.mark.parametrize("public_key_file,sig_attr", [("testkey_ed25519.pub", "hello_world_sig"), ("testkey_ed25519.pub.pem", "hello_world_sig_pem")])
+    def test_okp_ed25519_verify_should_return_true_if_signature_valid(self, public_key_file, sig_attr):
         algo = OKPAlgorithm()
 
         jwt_message = self.hello_world
-        jwt_sig = base64.b64decode(self.hello_world_sig)
+        jwt_sig = base64.b64decode(getattr(self, sig_attr))
 
-        with open(key_path(key)) as keyfile:
+        with open(key_path(public_key_file)) as keyfile:
             jwt_pub_key = algo.prepare_key(keyfile.read())
 
         result = algo.verify(jwt_message, jwt_pub_key, jwt_sig)
         assert result
 
-    @pytest.mark.parametrize("key", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
-    def test_okp_ed25519_prepare_key_should_be_idempotent(self, key):
+    @pytest.mark.parametrize("public_key_file", ("testkey_ed25519.pub", "testkey_ed25519.pub.pem"))
+    def test_okp_ed25519_prepare_key_should_be_idempotent(self, public_key_file):
         algo = OKPAlgorithm()
 
-        with open(key_path(key)) as keyfile:
+        with open(key_path(public_key_file)) as keyfile:
             jwt_pub_key_first = algo.prepare_key(keyfile.read())
             jwt_pub_key_second = algo.prepare_key(jwt_pub_key_first)
 
