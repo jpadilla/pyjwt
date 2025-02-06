@@ -202,11 +202,12 @@ class Algorithm(ABC):
     def check_crypto_key_type(self, key: PublicKeyTypes | PrivateKeyTypes):
         """Check that the key belongs to the right cryptographic family.
 
-        Note that this method only works when cryptography is installed.
+        Note that this method only works when `cryptography` is installed.
 
         Args:
             key (Any): Potentially a cryptography key
         Raises:
+            ValueError: if `cryptography` is not installed, or this method is called by a non-cryptography algorithm
             InvalidKeyError: if the key doesn't match the expected key classes
         """
         if not has_crypto or self._crypto_key_types is None:
