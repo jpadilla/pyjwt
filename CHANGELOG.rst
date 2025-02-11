@@ -7,6 +7,10 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.1...HEAD>`__
 ------------------------------------------------------------------------
 
+Fixed
+~~~~~
+- Validate key against allowed types for Algorithm family in `#964 <https://github.com/jpadilla/pyjwt/pull/964>`__
+
 Added
 ~~~~~
 
