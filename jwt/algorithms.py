@@ -215,7 +215,6 @@ class Algorithm(ABC):
                 "This method requires the cryptography library, and should only be used by cryptography-based algorithms."
             )
 
-        # TODO check for algo_type? (e.g., SHA256 vs SHA384)
         if not isinstance(key, self._crypto_key_types):
             valid_classes = (cls.__name__ for cls in self._crypto_key_types)
             actual_class = key.__class__.__name__
