@@ -373,7 +373,7 @@ Retrieve RSA signing keys from a JWKS endpoint
     >>> signing_key = jwks_client.get_signing_key_from_jwt(token)
     >>> jwt.decode(
     ...     token,
-    ...     signing_key,
+    ...     signing_key.key,
     ...     audience="https://expenses-api",
     ...     options={"verify_exp": False},
     ...     algorithms=["RS256"],
