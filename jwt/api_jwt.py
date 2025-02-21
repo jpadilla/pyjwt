@@ -433,7 +433,9 @@ class PyJWT:
                 if iss not in issuer:
                     raise InvalidIssuerError("Invalid issuer")
             except TypeError:
-                raise InvalidIssuerError("Issuer param must be a str or list of str")
+                raise InvalidIssuerError(
+                    "Issuer param must be a str or list of str"
+                ) from None
 
 
 _jwt_global_obj = PyJWT()
