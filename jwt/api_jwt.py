@@ -412,19 +412,28 @@ class PyJWT:
         if all(aud not in audience_claims for aud in audience):
             raise InvalidAudienceError("Audience doesn't match")
 
-    def _validate_iss(self, payload: dict[str, Any], issuer: Any) -> None:
+    def _validate_iss(
+        self, payload: dict[str, Any], issuer: list[str] | str | None
+    ) -> None:
         if issuer is None:
             return
 
         if "iss" not in payload:
             raise MissingRequiredClaimError("iss")
 
+        iss = payload["iss"]
+        if not isinstance(iss, str):
+            raise InvalidIssuerError("Payload Issuer (iss) must be a string")
+
         if isinstance(issuer, str):
-            if payload["iss"] != issuer:
+            if iss != issuer:
                 raise InvalidIssuerError("Invalid issuer")
         else:
-            if payload["iss"] not in issuer:
-                raise InvalidIssuerError("Invalid issuer")
+            try:
+                if iss not in issuer:
+                    raise InvalidIssuerError("Invalid issuer")
+            except TypeError:
+                raise InvalidIssuerError("Issuer param must be a str or list of str")
 
 
 _jwt_global_obj = PyJWT()
