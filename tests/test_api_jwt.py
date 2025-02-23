@@ -170,6 +170,16 @@ class TestJWT:
                 lambda t=t: jwt.encode(t, "secret", algorithms=["HS256"]),
             )
 
+    def test_encode_with_non_str_iss(self, jwt):
+        """Regression test for Issue #1039."""
+        with pytest.raises(TypeError):
+            jwt.encode(
+                {
+                    "iss": 123,
+                },
+                key="secret",
+            )
+
     def test_encode_with_typ(self, jwt):
         payload = {
             "iss": "https://scim.example.com",
