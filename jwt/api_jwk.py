@@ -134,6 +134,7 @@ class PyJWKSet:
     def __iter__(self) -> Iterable[PyJWK]:
         return iter(self.keys)
 
+
 class PyJWTSetWithTimestamp:
     def __init__(self, jwk_set: PyJWKSet):
         self.jwk_set = jwk_set
