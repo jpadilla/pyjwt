@@ -69,6 +69,10 @@ class PyJWT:
             if isinstance(payload.get(time_claim), datetime):
                 payload[time_claim] = timegm(payload[time_claim].utctimetuple())
 
+        # Issue #1039, iss being set to non-string
+        if "iss" in payload and not isinstance(payload["iss"], str):
+            raise TypeError("Issuer (iss) must be a string.")
+
         json_payload = self._encode_payload(
             payload,
             headers=headers,
