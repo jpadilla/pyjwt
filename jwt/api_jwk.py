@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any, Iterable
+from typing import Any, Iterator
 
 from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
 from .exceptions import (
@@ -131,7 +131,7 @@ class PyJWKSet:
                 return key
         raise KeyError(f"keyset has no key for kid: {kid}")
 
-    def __iter__(self) -> Iterable[PyJWK]:
+    def __iter__(self) -> Iterator[PyJWK]:
         return iter(self.keys)
 
 
