@@ -292,6 +292,20 @@ class TestPyJWKSet:
             _ = jwk_set["this-kid-does-not-exist"]
 
     @crypto_required
+    def test_keyset_iterator(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            pub_key = algo.from_jwk(keyfile.read())
+
+        key_data_str = algo.to_jwk(pub_key)
+        key_data = json.loads(key_data_str)
+
+        jwk_set = PyJWKSet.from_dict({"keys": [key_data]})
+
+        assert jwk_set.keys == [jwk for jwk in jwk_set]
+
+    @crypto_required
     def test_keyset_with_unknown_alg(self):
         # first keyset with unusable key and usable key
         with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
