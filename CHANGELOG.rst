@@ -10,6 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Fixed
 ~~~~~
 - Validate key against allowed types for Algorithm family in `#964 <https://github.com/jpadilla/pyjwt/pull/964>`__
+- Add iterator for JWKSet in `#1041 <https://github.com/jpadilla/pyjwt/pull/1041>`__
+
 
 Added
 ~~~~~
