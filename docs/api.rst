@@ -57,7 +57,9 @@ API Reference
         * ``verify_exp=verify_signature`` check that ``exp`` (expiration) claim value is in the future
         * ``verify_iat=verify_signature`` check that ``iat`` (issued at) claim value is an integer
         * ``verify_nbf=verify_signature`` check that ``nbf`` (not before) claim value is in the past
-        * ``strict_aud=False`` check that the ``aud`` claim is a single value (not a list), and matches ``audience`` exactly
+        * ``verify_sub=verify_signature`` (if in payload) check that ``sub`` (subject) claim is a str and matches `subject`
+        * ``verify_jti=verify_signature`` (if in payload) check that ``jti`` (JWT ID) claim is a str
+        * ``strict_aud=False`` (requires ``verify_aud=True``) check that the ``aud`` claim is a single value (not a list), and matches ``audience`` exactly
 
         .. warning::
 
