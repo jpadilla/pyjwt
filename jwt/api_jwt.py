@@ -22,18 +22,30 @@ from .exceptions import (
 from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
-    from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
+    from typing import TypeAlias
+    from .algorithms import has_crypto
     from .api_jwk import PyJWK
+    from .types import FullOptions, Options, SigOptions
+
+    if has_crypto:
+        from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
+        AllowedPrivateKeyTypes: TypeAlias = AllowedPrivateKeys | PyJWK | str | bytes  # type: ignore
+        AllowedPublicKeyTypes: TypeAlias = AllowedPublicKeys | PyJWK | str | bytes  # type: ignore
+    else:
+        AllowedPrivateKeyTypes: TypeAlias = PyJWK | str | bytes  # type: ignore
+        AllowedPublicKeyTypes: TypeAlias = PyJWK | str | bytes  # type: ignore
+
 
 
 class PyJWT:
-    def __init__(self, options: dict[str, Any] | None = None) -> None:
+    def __init__(self, options: Options | None = None) -> None:
         if options is None:
-            options = {}
-        self.options: dict[str, Any] = {**self._get_default_options(), **options}
+            self.options = self._get_default_options()
+        else:
+            self.options: FullOptions = {**self._get_default_options(), **options}
 
     @staticmethod
-    def _get_default_options() -> dict[str, bool | list[str]]:
+    def _get_default_options() -> FullOptions:
         return {
             "verify_signature": True,
             "verify_exp": True,
@@ -44,12 +56,29 @@ class PyJWT:
             "verify_sub": True,
             "verify_jti": True,
             "require": [],
+            "strict_aud": False,
         }
+
+    def _merge_options(self, options: Options | None = None) -> FullOptions:
+        if options is None:
+            return self.options
+
+        # (defensive) set defaults for verify_x to False if verify_signature is False
+        if not options.get("verify_signature", True):
+            options["verify_exp"] = options.get("verify_exp", False)
+            options["verify_nbf"] = options.get("verify_nbf", False)
+            options["verify_iat"] = options.get("verify_iat", False)
+            options["verify_aud"] = options.get("verify_aud", False)
+            options["verify_iss"] = options.get("verify_iss", False)
+            options["verify_sub"] = options.get("verify_sub", False)
+            options["verify_jti"] = options.get("verify_jti", False)
+        return {**self.options, **options}
+
 
     def encode(
         self,
         payload: dict[str, Any],
-        key: AllowedPrivateKeys | PyJWK | str | bytes,
+        key: AllowedPrivateKeyTypes,
         algorithm: str | None = None,
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
@@ -109,9 +138,9 @@ class PyJWT:
     def decode_complete(
         self,
         jwt: str | bytes,
-        key: AllowedPublicKeys | PyJWK | str | bytes = "",
+        key: AllowedPublicKeyTypes = "",
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: Options | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
         # could be used as passthrough to api_jws, consider removal in pyjwt3
@@ -133,13 +162,17 @@ class PyJWT:
                 RemovedInPyjwt3Warning,
                 stacklevel=2,
             )
-        options = dict(options or {})  # shallow-copy or initialize an empty dict
-        options.setdefault("verify_signature", True)
+
+        if options is None:
+            verify_signature = True
+        else:
+            verify_signature = options.get("verify_signature", True)
+
 
         # If the user has set the legacy `verify` argument, and it doesn't match
         # what the relevant `options` entry for the argument is, inform the user
         # that they're likely making a mistake.
-        if verify is not None and verify != options["verify_signature"]:
+        if verify is not None and verify != verify_signature:
             warnings.warn(
                 "The `verify` argument to `decode` does nothing in PyJWT 2.0 and newer. "
                 "The equivalent is setting `verify_signature` to False in the `options` dictionary. "
@@ -148,26 +181,18 @@ class PyJWT:
                 stacklevel=2,
             )
 
-        if not options["verify_signature"]:
-            options.setdefault("verify_exp", False)
-            options.setdefault("verify_nbf", False)
-            options.setdefault("verify_iat", False)
-            options.setdefault("verify_aud", False)
-            options.setdefault("verify_iss", False)
-            options.setdefault("verify_sub", False)
-            options.setdefault("verify_jti", False)
-
+        sig_options: SigOptions = {"verify_signature": verify_signature}
         decoded = api_jws.decode_complete(
             jwt,
             key=key,
             algorithms=algorithms,
-            options=options,
+            options=sig_options,
             detached_payload=detached_payload,
         )
 
         payload = self._decode_payload(decoded)
 
-        merged_options = {**self.options, **options}
+        merged_options = self._merge_options(options)
         self._validate_claims(
             payload,
             merged_options,
@@ -180,7 +205,7 @@ class PyJWT:
         decoded["payload"] = payload
         return decoded
 
-    def _decode_payload(self, decoded: dict[str, Any]) -> Any:
+    def _decode_payload(self, decoded: dict[str, Any]) -> dict[str, Any]:
         """
         Decode the payload from a JWS dictionary (payload, signature, header).
 
@@ -189,7 +214,7 @@ class PyJWT:
         payloads.
         """
         try:
-            payload = json.loads(decoded["payload"])
+            payload: dict[str, Any] = json.loads(decoded["payload"])
         except ValueError as e:
             raise DecodeError(f"Invalid payload string: {e}") from e
         if not isinstance(payload, dict):
@@ -201,7 +226,7 @@ class PyJWT:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: Options | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
         # could be used as passthrough to api_jws, consider removal in pyjwt3
@@ -240,9 +265,9 @@ class PyJWT:
     def _validate_claims(
         self,
         payload: dict[str, Any],
-        options: dict[str, Any],
-        audience=None,
-        issuer=None,
+        options: FullOptions,
+        audience: Iterable[str] | str | None=None,
+        issuer: Iterable[str] | str | None =None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
     ) -> None:
@@ -252,7 +277,7 @@ class PyJWT:
         if audience is not None and not isinstance(audience, (str, Iterable)):
             raise TypeError("audience must be a string, iterable or None")
 
-        self._validate_required_claims(payload, options)
+        self._validate_required_claims(payload, options["require"])
 
         now = datetime.now(tz=timezone.utc).timestamp()
 
@@ -282,13 +307,13 @@ class PyJWT:
     def _validate_required_claims(
         self,
         payload: dict[str, Any],
-        options: dict[str, Any],
+        claims: Iterable[str],
     ) -> None:
-        for claim in options["require"]:
+        for claim in claims:
             if payload.get(claim) is None:
                 raise MissingRequiredClaimError(claim)
 
-    def _validate_sub(self, payload: dict[str, Any], subject=None) -> None:
+    def _validate_sub(self, payload: dict[str, Any], subject: str | None = None) -> None:
         """
         Checks whether "sub" if in the payload is valid or not.
         This is an Optional claim

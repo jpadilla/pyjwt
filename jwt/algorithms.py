@@ -91,32 +91,31 @@ try:
         Ed448PublicKey,
     )
 
+    if TYPE_CHECKING:
+        from typing import TypeAlias
+
+        from cryptography.hazmat.primitives.asymmetric.types import (
+            PrivateKeyTypes,
+            PublicKeyTypes,
+        )
+
+        # Type aliases for convenience in algorithms method signatures
+        AllowedRSAKeys: TypeAlias = RSAPrivateKey | RSAPublicKey
+        AllowedECKeys: TypeAlias = EllipticCurvePrivateKey | EllipticCurvePublicKey
+        AllowedOKPKeys: TypeAlias = (
+            Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
+        )
+        AllowedKeys: TypeAlias = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
+        AllowedPrivateKeys: TypeAlias = (
+            RSAPrivateKey | EllipticCurvePrivateKey | Ed25519PrivateKey | Ed448PrivateKey
+        )
+        AllowedPublicKeys: TypeAlias = (
+            RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
+        )
+
     has_crypto = True
 except ModuleNotFoundError:
     has_crypto = False
-
-
-if TYPE_CHECKING:
-    from typing import TypeAlias
-
-    from cryptography.hazmat.primitives.asymmetric.types import (
-        PrivateKeyTypes,
-        PublicKeyTypes,
-    )
-
-    # Type aliases for convenience in algorithms method signatures
-    AllowedRSAKeys: TypeAlias = RSAPrivateKey | RSAPublicKey
-    AllowedECKeys: TypeAlias = EllipticCurvePrivateKey | EllipticCurvePublicKey
-    AllowedOKPKeys: TypeAlias = (
-        Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
-    )
-    AllowedKeys: TypeAlias = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
-    AllowedPrivateKeys: TypeAlias = (
-        RSAPrivateKey | EllipticCurvePrivateKey | Ed25519PrivateKey | Ed448PrivateKey
-    )
-    AllowedPublicKeys: TypeAlias = (
-        RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
-    )
 
 
 requires_cryptography = {
@@ -139,7 +138,7 @@ def get_default_algorithms() -> dict[str, Algorithm]:
     """
     Returns the algorithms that are implemented by the library.
     """
-    default_algorithms = {
+    default_algorithms: dict[str, Algorithm] = {
         "none": NoneAlgorithm(),
         "HS256": HMACAlgorithm(HMACAlgorithm.SHA256),
         "HS384": HMACAlgorithm(HMACAlgorithm.SHA384),

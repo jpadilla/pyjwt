@@ -23,6 +23,7 @@ from .utils import base64url_decode, base64url_encode
 from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
+    from .types import SigOptions
     from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
 
 
@@ -32,7 +33,7 @@ class PyJWS:
     def __init__(
         self,
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: SigOptions | None = None,
     ) -> None:
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
@@ -44,12 +45,12 @@ class PyJWS:
             if key not in self._valid_algs:
                 del self._algorithms[key]
 
-        if options is None:
-            options = {}
-        self.options = {**self._get_default_options(), **options}
+        self.options: SigOptions = self._get_default_options()
+        if options is not None:
+            self.options = {**self.options, **options}
 
     @staticmethod
-    def _get_default_options() -> dict[str, bool]:
+    def _get_default_options() -> SigOptions:
         return {"verify_signature": True}
 
     def register_algorithm(self, alg_id: str, alg_obj: Algorithm) -> None:
@@ -112,7 +113,7 @@ class PyJWS:
         is_payload_detached: bool = False,
         sort_headers: bool = True,
     ) -> str:
-        segments = []
+        segments: list[bytes] = []
 
         # declare a new var to narrow the type for type checkers
         if algorithm is None:
@@ -184,9 +185,9 @@ class PyJWS:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: SigOptions | None = None,
         detached_payload: bytes | None = None,
-        **kwargs,
+        **kwargs: dict[str, Any],
     ) -> dict[str, Any]:
         if kwargs:
             warnings.warn(
@@ -197,8 +198,9 @@ class PyJWS:
                 stacklevel=2,
             )
         if options is None:
-            options = {}
-        merged_options = {**self.options, **options}
+            merged_options = self.options
+        else:
+            merged_options: SigOptions = {**self.options, **options}
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms and not isinstance(key, PyJWK):
@@ -230,9 +232,9 @@ class PyJWS:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: SigOptions | None = None,
         detached_payload: bytes | None = None,
-        **kwargs,
+        **kwargs: dict[str, Any],
     ) -> Any:
         if kwargs:
             warnings.warn(
@@ -277,7 +279,7 @@ class PyJWS:
             raise DecodeError("Invalid header padding") from err
 
         try:
-            header = json.loads(header_data)
+            header: dict[str, Any] = json.loads(header_data)
         except ValueError as e:
             raise DecodeError(f"Invalid header string: {e}") from e
 
