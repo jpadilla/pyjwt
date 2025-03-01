@@ -23,8 +23,8 @@ from .utils import base64url_decode, base64url_encode
 from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
-    from .types import SigOptions
     from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
+    from .types import SigOptions
 
 
 class PyJWS:
@@ -197,10 +197,12 @@ class PyJWS:
                 RemovedInPyjwt3Warning,
                 stacklevel=2,
             )
+        merged_options: SigOptions
         if options is None:
             merged_options = self.options
         else:
-            merged_options: SigOptions = {**self.options, **options}
+            merged_options = {**self.options, **options}
+
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms and not isinstance(key, PyJWK):

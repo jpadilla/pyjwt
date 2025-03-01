@@ -8,6 +8,7 @@ HashlibHash = Callable[..., Any]
 class SigOptions(TypedDict):
     verify_signature: bool
 
+
 class Options(TypedDict, total=False):
     verify_signature: bool
     require: list[str]

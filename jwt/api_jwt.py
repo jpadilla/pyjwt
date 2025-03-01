@@ -23,12 +23,14 @@ from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
     from typing import TypeAlias
+
     from .algorithms import has_crypto
     from .api_jwk import PyJWK
     from .types import FullOptions, Options, SigOptions
 
     if has_crypto:
         from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
+
         AllowedPrivateKeyTypes: TypeAlias = AllowedPrivateKeys | PyJWK | str | bytes  # type: ignore
         AllowedPublicKeyTypes: TypeAlias = AllowedPublicKeys | PyJWK | str | bytes  # type: ignore
     else:
@@ -36,13 +38,13 @@ if TYPE_CHECKING:
         AllowedPublicKeyTypes: TypeAlias = PyJWK | str | bytes  # type: ignore
 
 
-
 class PyJWT:
     def __init__(self, options: Options | None = None) -> None:
+        self.options: FullOptions
         if options is None:
             self.options = self._get_default_options()
         else:
-            self.options: FullOptions = {**self._get_default_options(), **options}
+            self.options = {**self._get_default_options(), **options}
 
     @staticmethod
     def _get_default_options() -> FullOptions:
@@ -73,7 +75,6 @@ class PyJWT:
             options["verify_sub"] = options.get("verify_sub", False)
             options["verify_jti"] = options.get("verify_jti", False)
         return {**self.options, **options}
-
 
     def encode(
         self,
@@ -167,7 +168,6 @@ class PyJWT:
             verify_signature = True
         else:
             verify_signature = options.get("verify_signature", True)
-
 
         # If the user has set the legacy `verify` argument, and it doesn't match
         # what the relevant `options` entry for the argument is, inform the user
@@ -266,8 +266,8 @@ class PyJWT:
         self,
         payload: dict[str, Any],
         options: FullOptions,
-        audience: Iterable[str] | str | None=None,
-        issuer: Iterable[str] | str | None =None,
+        audience: Iterable[str] | str | None = None,
+        issuer: Iterable[str] | str | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
     ) -> None:
@@ -313,7 +313,9 @@ class PyJWT:
             if payload.get(claim) is None:
                 raise MissingRequiredClaimError(claim)
 
-    def _validate_sub(self, payload: dict[str, Any], subject: str | None = None) -> None:
+    def _validate_sub(
+        self, payload: dict[str, Any], subject: str | None = None
+    ) -> None:
         """
         Checks whether "sub" if in the payload is valid or not.
         This is an Optional claim

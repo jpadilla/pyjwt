@@ -107,7 +107,10 @@ try:
         )
         AllowedKeys: TypeAlias = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
         AllowedPrivateKeys: TypeAlias = (
-            RSAPrivateKey | EllipticCurvePrivateKey | Ed25519PrivateKey | Ed448PrivateKey
+            RSAPrivateKey
+            | EllipticCurvePrivateKey
+            | Ed25519PrivateKey
+            | Ed448PrivateKey
         )
         AllowedPublicKeys: TypeAlias = (
             RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
