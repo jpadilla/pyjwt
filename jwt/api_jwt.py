@@ -5,7 +5,7 @@ import warnings
 from calendar import timegm
 from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Container
 
 from . import api_jws
 from .exceptions import (
@@ -417,7 +417,7 @@ class PyJWT:
             raise InvalidAudienceError("Audience doesn't match")
 
     def _validate_iss(
-        self, payload: dict[str, Any], issuer: list[str] | str | None
+        self, payload: dict[str, Any], issuer: Container[str] | str | None
     ) -> None:
         if issuer is None:
             return
@@ -438,7 +438,7 @@ class PyJWT:
                     raise InvalidIssuerError("Invalid issuer")
             except TypeError:
                 raise InvalidIssuerError(
-                    "Issuer param must be a str or list of str"
+                    'Issuer param must be "str" or "Container[str]"'
                 ) from None
 
 

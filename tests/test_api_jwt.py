@@ -954,6 +954,20 @@ class TestJWT:
         with pytest.raises(InvalidJTIError):
             jwt.decode(token, secret, algorithms=["HS256"])
 
+    def test_validate_iss_with_container_of_str(self, jwt: PyJWT) -> None:
+        """Check _validate_iss works with Container[str]."""
+        payload = {
+            "iss": "urn:expected",
+        }
+        # pytest.mark.parametrize triggers Untyped Decorator mypy issue,
+        # so trying inline for now
+        for issuer in (
+            ["urn:expected", "urn:other"],
+            ("urn:expected", "urn:other"),
+            {"urn:expected", "urn:other"},
+        ):
+            jwt._validate_iss(payload, issuer=issuer)
+
     def test_validate_iss_with_non_str(self, jwt):
         """Regression test for #1039"""
         payload = {
