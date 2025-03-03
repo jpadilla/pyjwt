@@ -267,7 +267,7 @@ class PyJWT:
         payload: dict[str, Any],
         options: FullOptions,
         audience: Iterable[str] | str | None = None,
-        issuer: Iterable[str] | str | None = None,
+        issuer: Container[str] | str | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
     ) -> None:
