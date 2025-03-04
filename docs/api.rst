@@ -24,54 +24,19 @@ API Reference
 
 .. autofunction:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0) -> dict[str, typing.Any]
 
+.. autoclass:: PyJWK
+    :class-doc-from: init
+    :members:
 
-.. class:: PyJWK
+    .. property:: algorithm_name
 
-  A class that represents a `JSON Web Key <https://www.rfc-editor.org/rfc/rfc7517>`_.
+        :type: str
 
-  .. method:: __init__(self, jwk_data, algorithm=None)
+        The name of the algorithm used by the key.
 
-    :param dict data:  The decoded JWK data.
-    :param algorithm:  The key algorithm.  If not specific, the key's ``alg`` will be used.
-    :type algorithm: str or None
+    .. property:: Algorithm
 
-  .. staticmethod:: from_json(data, algorithm=None)
-
-    :param str data: The JWK data, as a JSON string.
-    :param algorithm:  The key algorithm.  If not specific, the key's ``alg`` will be used.
-    :type algorithm: str or None
-
-    :returntype: jwt.PyJWK
-
-    Create a :class:`jwt.PyJWK` object from a JSON string.
-
-  .. property:: algorithm_name
-
-    :type: str
-
-    The name of the algorithm used by the key.
-
-  .. property:: Algorithm
-
-    The ``Algorithm`` class associated with the key.
-
-  .. property:: key_type
-
-    :type: str or None
-
-    The ``kty`` property from the JWK.
-
-  .. property:: key_id
-
-    :type: str or None
-
-    The ``kid`` property from the JWK.
-
-  .. property:: public_key_use
-
-    :type: str or None
-
-    The ``use`` property from the JWK.
+        The :py:class:`jwt.algorithms.Algorithm` class associated with the key.
 
 .. module:: jwt.api_jwt
 
