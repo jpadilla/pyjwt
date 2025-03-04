@@ -155,6 +155,43 @@ class PyJWT:
         # kwargs
         **kwargs: Any,
     ) -> dict[str, Any]:
+        """Identical to ``jwt.decode`` except for return value which is a dictionary containing the token header (JOSE Header),
+    the token payload (JWT Payload), and token signature (JWT Signature) on the keys "header", "payload",
+    and "signature" respectively.
+
+    :param jwt: the token to be decoded
+    :type jwt: str or bytes
+    :param key: the key suitable for the allowed algorithm
+    :type key: str or bytes or jwt.PyJWK or jwt.algorithms.AllowedPublicKeys
+
+    :param algorithms: allowed algorithms, e.g. ``["ES256"]``
+
+        .. warning::
+
+           Do **not** compute the ``algorithms`` parameter based on
+           the ``alg`` from the token itself, or on any other data
+           that an attacker may be able to influence, as that might
+           expose you to various vulnerabilities (see `RFC 8725 §2.1
+           <https://www.rfc-editor.org/rfc/rfc8725.html#section-2.1>`_). Instead,
+           either hard-code a fixed value for ``algorithms``, or
+           configure it in the same place you configure the
+           ``key``. Make sure not to mix symmetric and asymmetric
+           algorithms that interpret the ``key`` in different ways
+           (e.g. HS\* and RS\*).
+    :type algorithms: typing.Sequence[str] or None
+
+    :param jwt.types.Options options: extended decoding and validation options
+        Refer to :py:class:`jwt.types.Options` for more information.
+
+    :param audience: optional, the value for ``verify_aud`` check
+    :type audience: str or typing.Iterable[str] or None
+    :param issuer: optional, the value for ``verify_iss`` check
+    :type issuer: str or typing.Sequence[str] or None
+    :param leeway: a time margin in seconds for the expiration check
+    :type leeway: float or datetime.timedelta
+    :rtype: dict[str, typing.Any]
+    :returns: Decoded JWT with the JOSE Header on the key ``header``, the JWS
+     Payload on the key ``payload``, and the JWS Signature on the key ``signature``."""
         if kwargs:
             warnings.warn(
                 "passing additional kwargs to decode_complete() is deprecated "
@@ -239,7 +276,45 @@ class PyJWT:
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
-    ) -> Any:
+    ) -> dict[str, Any]:
+        """Verify the ``jwt`` token signature and return the token claims.
+
+    :param jwt: the token to be decoded
+    :type jwt: str or bytes
+    :param key: the key suitable for the allowed algorithm
+    :type key: str or bytes or jwt.PyJWK or jwt.algorithms.AllowedPublicKeys
+
+    :param algorithms: allowed algorithms, e.g. ``["ES256"]``
+        If ``key`` is a :class:`jwt.PyJWK` object, allowed algorithms will default to the key algorithm.
+
+        .. warning::
+
+           Do **not** compute the ``algorithms`` parameter based on
+           the ``alg`` from the token itself, or on any other data
+           that an attacker may be able to influence, as that might
+           expose you to various vulnerabilities (see `RFC 8725 §2.1
+           <https://www.rfc-editor.org/rfc/rfc8725.html#section-2.1>`_). Instead,
+           either hard-code a fixed value for ``algorithms``, or
+           configure it in the same place you configure the
+           ``key``. Make sure not to mix symmetric and asymmetric
+           algorithms that interpret the ``key`` in different ways
+           (e.g. HS\* and RS\*).
+    :type algorithms: typing.Sequence[str] or None
+
+    :param jwt.types.Options options: extended decoding and validation options
+        Refer to :py:class:`jwt.types.Options` for more information.
+
+    :param audience: optional, the value for ``verify_aud`` check
+    :type audience: str or typing.Iterable[str] or None
+    :param subject: optional, the value for ``verify_sub`` check
+    :type subject: str or None
+    :param issuer: optional, the value for ``verify_iss`` check
+    :type issuer: str or typing.Sequence[str] or None
+    :param leeway: a time margin in seconds for the expiration check
+    :type leeway: float or datetime.timedelta
+    :rtype: dict[str, typing.Any]
+    :returns: the JWT claims
+        """
         if kwargs:
             warnings.warn(
                 "passing additional kwargs to decode() is deprecated "

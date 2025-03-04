@@ -22,59 +22,8 @@ API Reference
     :rtype: str
     :returns: a JSON Web Token
 
-.. function:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0)
+.. autofunction:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0) -> dict[str, typing.Any]
 
-    Verify the ``jwt`` token signature and return the token claims.
-
-    :param str jwt: the token to be decoded
-    :param key: the key suitable for the allowed algorithm
-    :type key: str or bytes or jwt.PyJWK
-
-    :param list algorithms: allowed algorithms, e.g. ``["ES256"]``
-        If ``key`` is a :class:`jwt.PyJWK` object, allowed algorithms will default to the key algorithm.
-
-        .. warning::
-
-           Do **not** compute the ``algorithms`` parameter based on
-           the ``alg`` from the token itself, or on any other data
-           that an attacker may be able to influence, as that might
-           expose you to various vulnerabilities (see `RFC 8725 §2.1
-           <https://www.rfc-editor.org/rfc/rfc8725.html#section-2.1>`_). Instead,
-           either hard-code a fixed value for ``algorithms``, or
-           configure it in the same place you configure the
-           ``key``. Make sure not to mix symmetric and asymmetric
-           algorithms that interpret the ``key`` in different ways
-           (e.g. HS\* and RS\*).
-
-    :param dict options: extended decoding and validation options
-
-        * ``verify_signature=True`` verify the JWT cryptographic signature
-        * ``require=[]`` list of claims that must be present.
-          Example: ``require=["exp", "iat", "nbf"]``.
-          **Only verifies that the claims exists**. Does not verify that the claims are valid.
-        * ``verify_aud=verify_signature`` check that ``aud`` (audience) claim matches ``audience``
-        * ``verify_iss=verify_signature`` check that ``iss`` (issuer) claim matches ``issuer``
-        * ``verify_exp=verify_signature`` check that ``exp`` (expiration) claim value is in the future
-        * ``verify_iat=verify_signature`` check that ``iat`` (issued at) claim value is an integer
-        * ``verify_nbf=verify_signature`` check that ``nbf`` (not before) claim value is in the past
-        * ``verify_sub=verify_signature`` (if in payload) check that ``sub`` (subject) claim is a str and matches `subject`
-        * ``verify_jti=verify_signature`` (if in payload) check that ``jti`` (JWT ID) claim is a str
-        * ``strict_aud=False`` (requires ``verify_aud=True``) check that the ``aud`` claim is a single value (not a list), and matches ``audience`` exactly
-
-        .. warning::
-
-            ``exp``, ``iat`` and ``nbf`` will only be verified if present.
-            Please pass respective value to ``require`` if you want to make
-            sure that they are always present (and therefore always verified
-            if ``verify_exp``, ``verify_iat``, and ``verify_nbf`` respectively
-            is set to ``True``).
-
-    :param audience: optional, the value for ``verify_aud`` check
-    :type audience: Union[str, Iterable]
-    :param str issuer: optional, the value for ``verify_iss`` check
-    :param float leeway: a time margin in seconds for the expiration check
-    :rtype: dict
-    :returns: the JWT claims
 
 .. class:: PyJWK
 
@@ -126,59 +75,24 @@ API Reference
 
 .. module:: jwt.api_jwt
 
-.. function:: decode_complete(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0)
+.. autofunction:: decode_complete(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0) -> dict[str, typing.Any]
 
-    Identical to ``jwt.decode`` except for return value which is a dictionary containing the token header (JOSE Header),
-    the token payload (JWT Payload), and token signature (JWT Signature) on the keys "header", "payload",
-    and "signature" respectively.
 
-    :param str jwt: the token to be decoded
-    :param str key: the key suitable for the allowed algorithm
-
-    :param list algorithms: allowed algorithms, e.g. ``["ES256"]``
-
-        .. warning::
-
-           Do **not** compute the ``algorithms`` parameter based on
-           the ``alg`` from the token itself, or on any other data
-           that an attacker may be able to influence, as that might
-           expose you to various vulnerabilities (see `RFC 8725 §2.1
-           <https://www.rfc-editor.org/rfc/rfc8725.html#section-2.1>`_). Instead,
-           either hard-code a fixed value for ``algorithms``, or
-           configure it in the same place you configure the
-           ``key``. Make sure not to mix symmetric and asymmetric
-           algorithms that interpret the ``key`` in different ways
-           (e.g. HS\* and RS\*).
-
-    :param dict options: extended decoding and validation options
-
-        * ``verify_signature=True`` verify the JWT cryptographic signature
-        * ``require=[]`` list of claims that must be present.
-          Example: ``require=["exp", "iat", "nbf"]``.
-          **Only verifies that the claims exists**. Does not verify that the claims are valid.
-        * ``verify_aud=verify_signature`` check that ``aud`` (audience) claim matches ``audience``
-        * ``verify_iss=verify_signature`` check that ``iss`` (issuer) claim matches ``issuer``
-        * ``verify_exp=verify_signature`` check that ``exp`` (expiration) claim value is in the future
-        * ``verify_iat=verify_signature`` check that ``iat`` (issued at) claim value is an integer
-        * ``verify_nbf=verify_signature`` check that ``nbf`` (not before) claim value is in the past
-        * ``strict_aud=False`` check that the ``aud`` claim is a single value (not a list), and matches ``audience`` exactly
-
-        .. warning::
-
-            ``exp``, ``iat`` and ``nbf`` will only be verified if present.
-            Please pass respective value to ``require`` if you want to make
-            sure that they are always present (and therefore always verified
-            if ``verify_exp``, ``verify_iat``, and ``verify_nbf`` respectively
-            is set to ``True``).
-
-    :param Iterable audience: optional, the value for ``verify_aud`` check
-    :param str issuer: optional, the value for ``verify_iss`` check
-    :param float leeway: a time margin in seconds for the expiration check
-    :rtype: dict
-    :returns: Decoded JWT with the JOSE Header on the key ``header``, the JWS
-     Payload on the key ``payload``, and the JWS Signature on the key ``signature``.
 
 .. note:: TODO: Document PyJWS class
+.. module:: jwt.api_jws
+
+.. autoclass:: jwt.api_jws.PyJWS
+    :members:
+
+.. module:: jwt.types
+    :synopsis: Type validation used in the JWT API
+.. autoclass:: jwt.types.SigOptions
+    :members:
+    :undoc-members:
+.. autoclass:: jwt.types.Options
+    :members:
+    :undoc-members:
 
 Exceptions
 ----------
