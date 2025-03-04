@@ -6,14 +6,14 @@ HashlibHash = Callable[..., Any]
 
 
 class SigOptions(TypedDict):
-    """(TypedDict) Options for PyJWS class. Note that this is a smaller set of options than
+    """Options for PyJWS class (TypedDict). Note that this is a smaller set of options than
     for :py:func:`jwt.decode()`. """
     verify_signature: bool
     """verify the JWT cryptographic signature"""
 
 
 class Options(TypedDict, total=False):
-    """(TypedDict) Options for :py:func:`jwt.decode()` and :py:func:`jwt.api_jwt.decode_complete()`.
+    """Options for :py:func:`jwt.decode()` and :py:func:`jwt.api_jwt.decode_complete()` (TypedDict).
 
     .. warning::
 

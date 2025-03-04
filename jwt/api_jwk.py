@@ -81,26 +81,26 @@ class PyJWK:
 
     @staticmethod
     def from_dict(obj: JWKDict, algorithm: str | None = None) -> PyJWK:
-        """Creates a :class:`jwt.PyJWK` object from a JSON-like dictionary.
+        """Creates a :class:`PyJWK` object from a JSON-like dictionary.
 
         :param obj: The JWK data, as a dictionary
         :type obj: dict[str, typing.Any]
         :param algorithm: The key algorithm. If not specified, the key's ``alg`` will be used.
         :type algorithm: str or None
-        :rtype: jwt.PyJWK
+        :rtype: PyJWK
         """
         return PyJWK(obj, algorithm)
 
     @staticmethod
     def from_json(data: str, algorithm: None = None) -> PyJWK:
-        """Create a :class:`jwt.PyJWK` object from a JSON string.
-        Implicitly calls :meth:`jwt.PyJWK.from_dict()`.
+        """Create a :class:`PyJWK` object from a JSON string.
+        Implicitly calls :meth:`PyJWK.from_dict()`.
 
         :param str data: The JWK data, as a JSON string.
         :param algorithm:  The key algorithm.  If not specific, the key's ``alg`` will be used.
         :type algorithm: str or None
 
-        :rtype: jwt.PyJWK
+        :rtype: PyJWK
         """
         obj = json.loads(data)
         return PyJWK.from_dict(obj, algorithm)

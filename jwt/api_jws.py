@@ -56,6 +56,10 @@ class PyJWS:
     def register_algorithm(self, alg_id: str, alg_obj: Algorithm) -> None:
         """
         Registers a new Algorithm for use when creating and verifying tokens.
+
+        :param str alg_id: the ID of the Algorithm
+        :param alg_obj: the Algorithm object
+        :type alg_obj: Algorithm
         """
         if alg_id in self._algorithms:
             raise ValueError("Algorithm already has a handler.")
@@ -69,7 +73,8 @@ class PyJWS:
     def unregister_algorithm(self, alg_id: str) -> None:
         """
         Unregisters an Algorithm for use when creating and verifying tokens
-        Throws KeyError if algorithm is not registered.
+        :param str alg_id: the ID of the Algorithm
+        :raises KeyError: if algorithm is not registered.
         """
         if alg_id not in self._algorithms:
             raise KeyError(
@@ -82,7 +87,9 @@ class PyJWS:
 
     def get_algorithms(self) -> list[str]:
         """
-        Returns a list of supported values for the 'alg' parameter.
+        Returns a list of supported values for the `alg` parameter.
+
+        :rtype: list[str]
         """
         return list(self._valid_algs)
 
@@ -93,6 +100,10 @@ class PyJWS:
         Example usage:
 
         >>> jws_obj.get_algorithm_by_name("RS256")
+
+        :param alg_name: The name of the algorithm to retrieve
+        :type alg_name: str
+        :rtype: Algorithm
         """
         try:
             return self._algorithms[alg_name]
@@ -252,7 +263,7 @@ class PyJWS:
         return decoded["payload"]
 
     def get_unverified_header(self, jwt: str | bytes) -> dict[str, Any]:
-        """Returns back the JWT header parameters as a dict()
+        """Returns back the JWT header parameters as a `dict`
 
         Note: The signature is not verified so the header parameters
         should not be fully trusted until signature verification is complete

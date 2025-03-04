@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import os
 import json
 import warnings
 from calendar import timegm
@@ -21,7 +21,7 @@ from .exceptions import (
 )
 from .warnings import RemovedInPyjwt3Warning
 
-if TYPE_CHECKING:
+if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
     from typing import TypeAlias
 
     from .algorithms import has_crypto
@@ -85,6 +85,30 @@ class PyJWT:
         json_encoder: type[json.JSONEncoder] | None = None,
         sort_headers: bool = True,
     ) -> str:
+        """Encode the ``payload`` as JSON Web Token.
+
+        :param payload: JWT claims, e.g. ``dict(iss=..., aud=..., sub=...)``
+        :type payload: dict[str, typing.Any]
+        :param key: a key suitable for the chosen algorithm:
+
+            * for **asymmetric algorithms**: PEM-formatted private key, a multiline string
+            * for **symmetric algorithms**: plain string, sufficiently long for security
+
+        :type key: str or bytes or PyJWK or :py:class:`jwt.algorithms.AllowedPrivateKeys`
+        :param algorithm: algorithm to sign the token with, e.g. ``"ES256"``.
+            If ``headers`` includes ``alg``, it will be preferred to this parameter.
+            If ``key`` is a :class:`PyJWK` object, by default the key algorithm will be used.
+        :type algorithm: str or None
+        :param headers: additional JWT header fields, e.g. ``dict(kid="my-key-id")``.
+        :type headers: dict[str, typing.Any] or None
+        :param json_encoder: custom JSON encoder for ``payload`` and ``headers``
+        :type json_encoder: json.JSONEncoder or None
+
+        :rtype: str
+        :returns: a JSON Web Token
+
+        :raises TypeError: if ``payload`` is not a ``dict``
+        """
         # Check that we get a dict
         if not isinstance(payload, dict):
             raise TypeError(
@@ -162,7 +186,7 @@ class PyJWT:
     :param jwt: the token to be decoded
     :type jwt: str or bytes
     :param key: the key suitable for the allowed algorithm
-    :type key: str or bytes or jwt.PyJWK or jwt.algorithms.AllowedPublicKeys
+    :type key: str or bytes or PyJWK or :py:class:`jwt.algorithms.AllowedPublicKeys`
 
     :param algorithms: allowed algorithms, e.g. ``["ES256"]``
 
@@ -282,10 +306,10 @@ class PyJWT:
     :param jwt: the token to be decoded
     :type jwt: str or bytes
     :param key: the key suitable for the allowed algorithm
-    :type key: str or bytes or jwt.PyJWK or jwt.algorithms.AllowedPublicKeys
+    :type key: str or bytes or PyJWK or :py:class:`jwt.algorithms.AllowedPublicKeys`
 
     :param algorithms: allowed algorithms, e.g. ``["ES256"]``
-        If ``key`` is a :class:`jwt.PyJWK` object, allowed algorithms will default to the key algorithm.
+        If ``key`` is a :class:`PyJWK` object, allowed algorithms will default to the key algorithm.
 
         .. warning::
 

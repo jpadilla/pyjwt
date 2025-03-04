@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import os
 import hashlib
 import hmac
 import json
@@ -91,7 +91,7 @@ try:
         Ed448PublicKey,
     )
 
-    if TYPE_CHECKING:
+    if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
         from typing import TypeAlias
 
         from cryptography.hazmat.primitives.asymmetric.types import (
@@ -106,12 +106,14 @@ try:
             Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
         )
         AllowedKeys: TypeAlias = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
+        #: Type alias for allowed ``cryptography`` private keys
         AllowedPrivateKeys: TypeAlias = (
             RSAPrivateKey
             | EllipticCurvePrivateKey
             | Ed25519PrivateKey
             | Ed448PrivateKey
         )
+        #: Type alias for allowed ``cryptography`` public keys
         AllowedPublicKeys: TypeAlias = (
             RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
         )
@@ -204,13 +206,12 @@ class Algorithm(ABC):
     def check_crypto_key_type(self, key: PublicKeyTypes | PrivateKeyTypes):
         """Check that the key belongs to the right cryptographic family.
 
-        Note that this method only works when `cryptography` is installed.
+        Note that this method only works when ``cryptography`` is installed.
 
-        Args:
-            key (Any): Potentially a cryptography key
-        Raises:
-            ValueError: if `cryptography` is not installed, or this method is called by a non-cryptography algorithm
-            InvalidKeyError: if the key doesn't match the expected key classes
+        :param key: Potentially a cryptography key
+        :type key: PublicKeyTypes | PrivateKeyTypes
+        :raises ValueError: if ``cryptography`` is not installed, or this method is called by a non-cryptography algorithm
+        :raises InvalidKeyError: if the key doesn't match the expected key classes
         """
         if not has_crypto or self._crypto_key_types is None:
             raise ValueError(
