@@ -98,7 +98,7 @@ class PyJWS:
         For a given string name, return the matching Algorithm object.
 
         Example usage:
-
+        >>> jws_obj = PyJWS()
         >>> jws_obj.get_algorithm_by_name("RS256")
 
         :param alg_name: The name of the algorithm to retrieve
