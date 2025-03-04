@@ -1,8 +1,9 @@
 from __future__ import annotations
-import os
+
 import hashlib
 import hmac
 import json
+import os
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
 
@@ -106,14 +107,14 @@ try:
             Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
         )
         AllowedKeys: TypeAlias = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
-        #: Type alias for allowed ``cryptography`` private keys
+        #: Type alias for allowed ``cryptography`` private keys (requires ``cryptography`` to be installed)
         AllowedPrivateKeys: TypeAlias = (
             RSAPrivateKey
             | EllipticCurvePrivateKey
             | Ed25519PrivateKey
             | Ed448PrivateKey
         )
-        #: Type alias for allowed ``cryptography`` public keys
+        #: Type alias for allowed ``cryptography`` public keys (requires ``cryptography`` to be installed)
         AllowedPublicKeys: TypeAlias = (
             RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
         )
@@ -209,7 +210,7 @@ class Algorithm(ABC):
         Note that this method only works when ``cryptography`` is installed.
 
         :param key: Potentially a cryptography key
-        :type key: PublicKeyTypes | PrivateKeyTypes
+        :type key: :py:data:`PublicKeyTypes <cryptography.hazmat.primitives.asymmetric.types.PublicKeyTypes>` | :py:data:`PrivateKeyTypes <cryptography.hazmat.primitives.asymmetric.types.PrivateKeyTypes>`
         :raises ValueError: if ``cryptography`` is not installed, or this method is called by a non-cryptography algorithm
         :raises InvalidKeyError: if the key doesn't match the expected key classes
         """

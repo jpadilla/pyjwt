@@ -87,7 +87,7 @@ intersphinx_mapping = {
 }
 
 # Hack for allowing aliases within TYPE_CHECKING to be documented
-os.environ['SPHINX_BUILD'] = '1'
+os.environ["SPHINX_BUILD"] = "1"
 
 # -- Options for HTML output ----------------------------------------------
 

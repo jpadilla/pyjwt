@@ -7,7 +7,8 @@ HashlibHash = Callable[..., Any]
 
 class SigOptions(TypedDict):
     """Options for PyJWS class (TypedDict). Note that this is a smaller set of options than
-    for :py:func:`jwt.decode()`. """
+    for :py:func:`jwt.decode()`."""
+
     verify_signature: bool
     """verify the JWT cryptographic signature"""
 
@@ -23,6 +24,7 @@ class Options(TypedDict, total=False):
         if you want to make sure that they are always present (and therefore always verified
         if ``verify_{claim} = True`` for that claim).
     """
+
     verify_signature: bool
     """Default: ``True``. Verify the JWT cryptographic signature."""
     require: list[str]
