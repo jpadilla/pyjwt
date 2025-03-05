@@ -36,6 +36,14 @@ def payload():
 
 
 class TestJWT:
+    def test_jwt_with_options(self):
+        jwt = PyJWT(options={"verify_signature": False})
+        assert jwt.options["verify_signature"] is False
+        # assert that unrelated option is unchanged from default
+        assert jwt.options["strict_aud"] is False
+        # assert that verify_signature is respected unless verify_exp is overridden
+        assert jwt.options["verify_exp"] is False
+
     def test_decodes_valid_jwt(self, jwt):
         example_payload = {"hello": "world"}
         example_secret = "secret"
