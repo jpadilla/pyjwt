@@ -174,7 +174,7 @@ class PyJWT:
         # passthrough arguments to _validate_claims
         # consider putting in options
         audience: str | Iterable[str] | None = None,
-        issuer: str | Sequence[str] | None = None,
+        issuer: str | Container[str] | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
         # kwargs
@@ -202,7 +202,7 @@ class PyJWT:
                configure it in the same place you configure the
                ``key``. Make sure not to mix symmetric and asymmetric
                algorithms that interpret the ``key`` in different ways
-               (e.g. HS\* and RS\*).
+               (e.g. HS\\* and RS\\*).
         :type algorithms: typing.Sequence[str] or None
 
         :param jwt.types.Options options: extended decoding and validation options
@@ -211,7 +211,7 @@ class PyJWT:
         :param audience: optional, the value for ``verify_aud`` check
         :type audience: str or typing.Iterable[str] or None
         :param issuer: optional, the value for ``verify_iss`` check
-        :type issuer: str or typing.Sequence[str] or None
+        :type issuer: str or typing.Container[str] or None
         :param leeway: a time margin in seconds for the expiration check
         :type leeway: float or datetime.timedelta
         :rtype: dict[str, typing.Any]
@@ -298,7 +298,7 @@ class PyJWT:
         # consider putting in options
         audience: str | Iterable[str] | None = None,
         subject: str | None = None,
-        issuer: str | Sequence[str] | None = None,
+        issuer: str | Container[str] | None = None,
         leeway: float | timedelta = 0,
         # kwargs
         **kwargs: Any,
@@ -335,7 +335,7 @@ class PyJWT:
         :param subject: optional, the value for ``verify_sub`` check
         :type subject: str or None
         :param issuer: optional, the value for ``verify_iss`` check
-        :type issuer: str or typing.Sequence[str] or None
+        :type issuer: str or typing.Container[str] or None
         :param leeway: a time margin in seconds for the expiration check
         :type leeway: float or datetime.timedelta
         :rtype: dict[str, typing.Any]
