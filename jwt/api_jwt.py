@@ -5,7 +5,7 @@ import warnings
 from calendar import timegm
 from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Container
 
 from . import api_jws
 from .exceptions import (
@@ -68,6 +68,10 @@ class PyJWT:
             # Convert datetime to a intDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
                 payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+
+        # Issue #1039, iss being set to non-string
+        if "iss" in payload and not isinstance(payload["iss"], str):
+            raise TypeError("Issuer (iss) must be a string.")
 
         json_payload = self._encode_payload(
             payload,
@@ -412,19 +416,30 @@ class PyJWT:
         if all(aud not in audience_claims for aud in audience):
             raise InvalidAudienceError("Audience doesn't match")
 
-    def _validate_iss(self, payload: dict[str, Any], issuer: Any) -> None:
+    def _validate_iss(
+        self, payload: dict[str, Any], issuer: Container[str] | str | None
+    ) -> None:
         if issuer is None:
             return
 
         if "iss" not in payload:
             raise MissingRequiredClaimError("iss")
 
+        iss = payload["iss"]
+        if not isinstance(iss, str):
+            raise InvalidIssuerError("Payload Issuer (iss) must be a string")
+
         if isinstance(issuer, str):
-            if payload["iss"] != issuer:
+            if iss != issuer:
                 raise InvalidIssuerError("Invalid issuer")
         else:
-            if payload["iss"] not in issuer:
-                raise InvalidIssuerError("Invalid issuer")
+            try:
+                if iss not in issuer:
+                    raise InvalidIssuerError("Invalid issuer")
+            except TypeError:
+                raise InvalidIssuerError(
+                    'Issuer param must be "str" or "Container[str]"'
+                ) from None
 
 
 _jwt_global_obj = PyJWT()
