@@ -17,6 +17,16 @@ from .types import JWKDict
 
 class PyJWK:
     def __init__(self, jwk_data: JWKDict, algorithm: str | None = None) -> None:
+        """A class that represents a `JSON Web Key <https://www.rfc-editor.org/rfc/rfc7517>`_.
+
+        :param jwk_data: The decoded JWK data.
+        :type jwk_data: dict[str, typing.Any]
+        :param algorithm: The key algorithm. If not specified, the key's ``alg`` will be used.
+        :type algorithm: str or None
+        :raises InvalidKeyError: If the key type (``kty``) is not found or unsupported, or if the curve (``crv``) is not found or unsupported.
+        :raises MissingCryptographyError: If the algorithm requires ``cryptography`` to be installed and it is not available.
+        :raises PyJWKError: If unable to find an algorithm for the key.
+        """
         self._algorithms = get_default_algorithms()
         self._jwk_data = jwk_data
 
@@ -71,23 +81,52 @@ class PyJWK:
 
     @staticmethod
     def from_dict(obj: JWKDict, algorithm: str | None = None) -> PyJWK:
+        """Creates a :class:`PyJWK` object from a JSON-like dictionary.
+
+        :param obj: The JWK data, as a dictionary
+        :type obj: dict[str, typing.Any]
+        :param algorithm: The key algorithm. If not specified, the key's ``alg`` will be used.
+        :type algorithm: str or None
+        :rtype: PyJWK
+        """
         return PyJWK(obj, algorithm)
 
     @staticmethod
     def from_json(data: str, algorithm: None = None) -> PyJWK:
+        """Create a :class:`PyJWK` object from a JSON string.
+        Implicitly calls :meth:`PyJWK.from_dict()`.
+
+        :param str data: The JWK data, as a JSON string.
+        :param algorithm:  The key algorithm.  If not specific, the key's ``alg`` will be used.
+        :type algorithm: str or None
+
+        :rtype: PyJWK
+        """
         obj = json.loads(data)
         return PyJWK.from_dict(obj, algorithm)
 
     @property
     def key_type(self) -> str | None:
+        """The `kty` property from the JWK.
+
+        :rtype: str or None
+        """
         return self._jwk_data.get("kty", None)
 
     @property
     def key_id(self) -> str | None:
+        """The `kid` property from the JWK.
+
+        :rtype: str or None
+        """
         return self._jwk_data.get("kid", None)
 
     @property
     def public_key_use(self) -> str | None:
+        """The `use` property from the JWK.
+
+        :rtype: str or None
+        """
         return self._jwk_data.get("use", None)
 
 

@@ -12,11 +12,13 @@ Fixed
 - Validate key against allowed types for Algorithm family in `#964 <https://github.com/jpadilla/pyjwt/pull/964>`__
 - Add iterator for JWKSet in `#1041 <https://github.com/jpadilla/pyjwt/pull/1041>`__
 - Validate `iss` claim is a string during encoding and decoding by @pachewise in `#1040 <https://github.com/jpadilla/pyjwt/pull/1040>`__
+- Improve typing/logic for `options` in decode, decode_complete by @pachewise in `#1045 <https://github.com/jpadilla/pyjwt/pull/1045>`__
 
 Added
 ~~~~~
 
 - Docs: Add example of using leeway with nbf by @djw8605 in `#1034 <https://github.com/jpadilla/pyjwt/pull/1034>`__
+- Docs: Refactored docs with ``autodoc``; added ``PyJWS`` and ``jwt.algorithms`` docs by @pachewise in `#1045 <https://github.com/jpadilla/pyjwt/pull/1045>`__
 
 `v2.10.1 <https://github.com/jpadilla/pyjwt/compare/2.10.0...2.10.1>`__
 -----------------------------------------------------------------------

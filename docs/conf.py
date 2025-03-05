@@ -83,7 +83,11 @@ todo_include_todos = False
 # Intersphinx extension.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
+    "cryptography": ("https://cryptography.io/en/latest/", None),
 }
+
+# Hack for allowing aliases within TYPE_CHECKING to be documented
+os.environ["SPHINX_BUILD"] = "1"
 
 # -- Options for HTML output ----------------------------------------------
 

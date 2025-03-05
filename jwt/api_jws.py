@@ -24,6 +24,7 @@ from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
     from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
+    from .types import SigOptions
 
 
 class PyJWS:
@@ -32,7 +33,7 @@ class PyJWS:
     def __init__(
         self,
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: SigOptions | None = None,
     ) -> None:
         self._algorithms = get_default_algorithms()
         self._valid_algs = (
@@ -44,17 +45,21 @@ class PyJWS:
             if key not in self._valid_algs:
                 del self._algorithms[key]
 
-        if options is None:
-            options = {}
-        self.options = {**self._get_default_options(), **options}
+        self.options: SigOptions = self._get_default_options()
+        if options is not None:
+            self.options = {**self.options, **options}
 
     @staticmethod
-    def _get_default_options() -> dict[str, bool]:
+    def _get_default_options() -> SigOptions:
         return {"verify_signature": True}
 
     def register_algorithm(self, alg_id: str, alg_obj: Algorithm) -> None:
         """
         Registers a new Algorithm for use when creating and verifying tokens.
+
+        :param str alg_id: the ID of the Algorithm
+        :param alg_obj: the Algorithm object
+        :type alg_obj: Algorithm
         """
         if alg_id in self._algorithms:
             raise ValueError("Algorithm already has a handler.")
@@ -68,7 +73,8 @@ class PyJWS:
     def unregister_algorithm(self, alg_id: str) -> None:
         """
         Unregisters an Algorithm for use when creating and verifying tokens
-        Throws KeyError if algorithm is not registered.
+        :param str alg_id: the ID of the Algorithm
+        :raises KeyError: if algorithm is not registered.
         """
         if alg_id not in self._algorithms:
             raise KeyError(
@@ -81,7 +87,9 @@ class PyJWS:
 
     def get_algorithms(self) -> list[str]:
         """
-        Returns a list of supported values for the 'alg' parameter.
+        Returns a list of supported values for the `alg` parameter.
+
+        :rtype: list[str]
         """
         return list(self._valid_algs)
 
@@ -90,8 +98,12 @@ class PyJWS:
         For a given string name, return the matching Algorithm object.
 
         Example usage:
-
+        >>> jws_obj = PyJWS()
         >>> jws_obj.get_algorithm_by_name("RS256")
+
+        :param alg_name: The name of the algorithm to retrieve
+        :type alg_name: str
+        :rtype: Algorithm
         """
         try:
             return self._algorithms[alg_name]
@@ -112,7 +124,7 @@ class PyJWS:
         is_payload_detached: bool = False,
         sort_headers: bool = True,
     ) -> str:
-        segments = []
+        segments: list[bytes] = []
 
         # declare a new var to narrow the type for type checkers
         if algorithm is None:
@@ -184,9 +196,9 @@ class PyJWS:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: SigOptions | None = None,
         detached_payload: bytes | None = None,
-        **kwargs,
+        **kwargs: dict[str, Any],
     ) -> dict[str, Any]:
         if kwargs:
             warnings.warn(
@@ -196,9 +208,12 @@ class PyJWS:
                 RemovedInPyjwt3Warning,
                 stacklevel=2,
             )
+        merged_options: SigOptions
         if options is None:
-            options = {}
-        merged_options = {**self.options, **options}
+            merged_options = self.options
+        else:
+            merged_options = {**self.options, **options}
+
         verify_signature = merged_options["verify_signature"]
 
         if verify_signature and not algorithms and not isinstance(key, PyJWK):
@@ -230,9 +245,9 @@ class PyJWS:
         jwt: str | bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: Sequence[str] | None = None,
-        options: dict[str, Any] | None = None,
+        options: SigOptions | None = None,
         detached_payload: bytes | None = None,
-        **kwargs,
+        **kwargs: dict[str, Any],
     ) -> Any:
         if kwargs:
             warnings.warn(
@@ -248,7 +263,7 @@ class PyJWS:
         return decoded["payload"]
 
     def get_unverified_header(self, jwt: str | bytes) -> dict[str, Any]:
-        """Returns back the JWT header parameters as a dict()
+        """Returns back the JWT header parameters as a `dict`
 
         Note: The signature is not verified so the header parameters
         should not be fully trusted until signature verification is complete
@@ -277,7 +292,7 @@ class PyJWS:
             raise DecodeError("Invalid header padding") from err
 
         try:
-            header = json.loads(header_data)
+            header: dict[str, Any] = json.loads(header_data)
         except ValueError as e:
             raise DecodeError(f"Invalid header string: {e}") from e
 
