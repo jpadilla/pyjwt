@@ -24,7 +24,7 @@ class PyJWK:
         :param algorithm: The key algorithm. If not specified, the key's ``alg`` will be used.
         :type algorithm: str or None
         :raises InvalidKeyError: If the key type (``kty``) is not found or unsupported, or if the curve (``crv``) is not found or unsupported.
-        :raises MissingCryptographyError: If the algorithm requires `cryptography` to be installed and it is not available.
+        :raises MissingCryptographyError: If the algorithm requires ``cryptography`` to be installed and it is not available.
         :raises PyJWKError: If unable to find an algorithm for the key.
         """
         self._algorithms = get_default_algorithms()

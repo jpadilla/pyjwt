@@ -84,7 +84,7 @@ class PyJWKError(PyJWTError):
 
 
 class MissingCryptographyError(PyJWKError):
-    """Raised if the algorithm requires `cryptography` to be installed and it is not available."""
+    """Raised if the algorithm requires ``cryptography`` to be installed and it is not available."""
 
     pass
 
