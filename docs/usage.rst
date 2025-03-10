@@ -102,6 +102,18 @@ Specifying Additional Headers
     'eyJhbGciOiJIUzI1NiIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1IiwidHlwIjoiSldUIn0.eyJzb21lIjoicGF5bG9hZCJ9.0n16c-shKKnw6gervyk1Dge35tvzbzQ_KCV3H3bgoJ0'
 
 
+By default the ``typ`` is attaching to the headers. In case when you don't need to pass this header to the token, you have to explicitly null it.
+
+.. code-block:: pycon
+
+    >>> jwt.encode(
+    ...     {"some": "payload"},
+    ...     "secret",
+    ...     algorithm="HS256",
+    ...     headers={"typ": None},
+    ... )
+
+
 Reading the Claimset without Validation
 ---------------------------------------
 
