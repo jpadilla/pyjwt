@@ -145,7 +145,6 @@ class PyJWT:
     def _encode_payload(
         self,
         payload: dict[str, Any],
-        headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
     ) -> bytes:
         """
