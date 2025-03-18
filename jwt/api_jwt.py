@@ -129,7 +129,6 @@ class PyJWT:
 
         json_payload = self._encode_payload(
             payload,
-            headers=headers,
             json_encoder=json_encoder,
         )
 
@@ -145,7 +144,6 @@ class PyJWT:
     def _encode_payload(
         self,
         payload: dict[str, Any],
-        headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
     ) -> bytes:
         """
