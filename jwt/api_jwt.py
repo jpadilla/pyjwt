@@ -80,7 +80,7 @@ class PyJWT:
         self,
         payload: dict[str, Any],
         key: AllowedPrivateKeyTypes,
-        algorithm: str | None = None,
+        algorithm: str | None = "HS256",
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
         sort_headers: bool = True,
