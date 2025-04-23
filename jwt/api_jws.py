@@ -118,7 +118,7 @@ class PyJWS:
         self,
         payload: bytes,
         key: AllowedPrivateKeys | PyJWK | str | bytes,
-        algorithm: str | None = None,
+        algorithm: str | None = "HS256",
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
         is_payload_detached: bool = False,
@@ -131,7 +131,7 @@ class PyJWS:
             if isinstance(key, PyJWK):
                 algorithm_ = key.algorithm_name
             else:
-                algorithm_ = "HS256"
+                algorithm_ = "none"
         else:
             algorithm_ = algorithm
 
