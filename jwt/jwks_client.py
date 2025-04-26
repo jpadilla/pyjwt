@@ -101,7 +101,7 @@ class PyJWKClient:
         else:
             return jwk_set
         finally:
-            if self.jwk_set_cache is not None:
+            if self.jwk_set_cache is not None and jwk_set is not None:
                 self.jwk_set_cache.put(jwk_set)
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
