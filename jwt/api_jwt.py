@@ -436,7 +436,7 @@ class PyJWT:
 
     def _validate_jti(self, payload: dict[str, Any]) -> None:
         """
-        Checks whether "jti" if in the payload is valid ot not
+        Checks whether "jti" if in the payload is valid or not
         This is an Optional claim
 
         :param payload(dict): The payload which needs to be validated
