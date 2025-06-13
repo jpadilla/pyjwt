@@ -13,6 +13,7 @@ Fixed
 - Add iterator for JWKSet in `#1041 <https://github.com/jpadilla/pyjwt/pull/1041>`__
 - Validate `iss` claim is a string during encoding and decoding by @pachewise in `#1040 <https://github.com/jpadilla/pyjwt/pull/1040>`__
 - Improve typing/logic for `options` in decode, decode_complete by @pachewise in `#1045 <https://github.com/jpadilla/pyjwt/pull/1045>`__
+- Declare float supported type for lifespan and timeout by @nikitagashkov in `#1068 <https://github.com/jpadilla/pyjwt/pull/1068>`__
 
 Added
 ~~~~~

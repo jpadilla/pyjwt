@@ -20,9 +20,9 @@ class PyJWKClient:
         cache_keys: bool = False,
         max_cached_keys: int = 16,
         cache_jwk_set: bool = True,
-        lifespan: int = 300,
+        lifespan: float = 300,
         headers: Optional[Dict[str, Any]] = None,
-        timeout: int = 30,
+        timeout: float = 30,
         ssl_context: Optional[SSLContext] = None,
     ):
         if headers is None:
