@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
+import time
 import urllib.request
-from functools import lru_cache
 from ssl import SSLContext
 from typing import Any, Dict, List, Optional
 from urllib.error import URLError
@@ -44,12 +44,15 @@ class PyJWKClient:
         else:
             self.jwk_set_cache = None
 
+        # Replace lru_cache with TTL-aware individual key cache
+        # Use the same TTL as JWKSetCache for consistency
         if cache_keys:
-            # Cache signing keys
-            # Ignore mypy (https://github.com/python/mypy/issues/2427)
-            self.get_signing_key = lru_cache(maxsize=max_cached_keys)(
-                self.get_signing_key
-            )  # type: ignore
+            self._key_cache_enabled = True
+            self._key_cache: Dict[str, tuple[PyJWK, float]] = {}  # kid -> (key, timestamp)
+            self._max_cached_keys = max_cached_keys
+            self._key_cache_ttl = lifespan  # Use same TTL as JWKSetCache
+        else:
+            self._key_cache_enabled = False
 
     def fetch_data(self) -> Any:
         jwk_set: Any = None
@@ -95,12 +98,44 @@ class PyJWKClient:
 
         return signing_keys
 
+    def _get_cached_key(self, kid: str) -> Optional[PyJWK]:
+        """Get a cached key if it exists and hasn't expired."""
+        if not self._key_cache_enabled or kid not in self._key_cache:
+            return None
+
+        key, timestamp = self._key_cache[kid]
+
+        # Check and remove if expired (use same logic as JWKSetCache)
+        if time.monotonic() - timestamp > self._key_cache_ttl:
+            del self._key_cache[kid]
+            return None
+
+        return key
+
+    def _cache_key(self, kid: str, key: PyJWK) -> None:
+        """Cache a key with current timestamp."""
+        if not self._key_cache_enabled:
+            return
+
+        # Evict oldest if at capacity
+        if len(self._key_cache) >= self._max_cached_keys and kid not in self._key_cache:
+            # Simple eviction: remove oldest timestamp
+            oldest_kid = min(self._key_cache.keys(),
+                           key=lambda k: self._key_cache[k][1])
+            del self._key_cache[oldest_kid]
+
+        self._key_cache[kid] = (key, time.monotonic())
+
     def get_signing_key(self, kid: str) -> PyJWK:
+        # Check TTL-aware cache first
+        cached_key = self._get_cached_key(kid)
+        if cached_key is not None:
+            return cached_key
+
         signing_keys = self.get_signing_keys()
         signing_key = self.match_kid(signing_keys, kid)
 
         if not signing_key:
-            # If no matching signing key from the jwk set, refresh the jwk set and try again.
             signing_keys = self.get_signing_keys(refresh=True)
             signing_key = self.match_kid(signing_keys, kid)
 
@@ -109,6 +144,8 @@ class PyJWKClient:
                     f'Unable to find a signing key that matches: "{kid}"'
                 )
 
+        # Cache the key with TTL (not lru)
+        self._cache_key(kid, signing_key)
         return signing_key
 
     def get_signing_key_from_jwt(self, token: str | bytes) -> PyJWK:

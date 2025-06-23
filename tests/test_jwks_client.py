@@ -355,3 +355,56 @@ class TestPyJWKClient:
             jwks_client.get_jwk_set()
 
         assert "Failed to get an expected error"
+
+    def test_security_fix_revoked_keys_expire(self):
+        """
+        Test that demonstrates the security fix working.
+
+        This test should:
+        - FAIL with old lru_cache implementation (serves revoked keys forever)
+        - PASS with new TTL implementation (revoked keys expire)
+        """
+        import time
+        from unittest.mock import patch
+
+        client = PyJWKClient("https://example.com", cache_keys=True, lifespan=0.1)
+
+        # Use the real RSA key from existing tests
+        real_rsa_key = {
+            "kid": "revoked-key-123",
+            "kty": "RSA",
+            "use": "sig",
+            "n": "0wtlJRY9-ru61LmOgieeI7_rD1oIna9QpBMAOWw8wTuoIhFQFwcIi7MFB7IEfelCPj08vkfLsuFtR8cG07EE4uvJ78bAqRjMsCvprWp4e2p7hqPnWcpRpDEyHjzirEJle1LPpjLLVaSWgkbrVaOD0lkWkP1T1TkrOset_Obh8BwtO-Ww-UfrEwxTyz1646AGkbT2nL8PX0trXrmira8GnrCkFUgTUS61GoTdb9bCJ19PLX9Gnxw7J0BtR0GubopXq8KlI0ThVql6ZtVGN2dvmrCPAVAZleM5TVB61m0VSXvGWaF6_GeOhbFoyWcyUmFvzWhBm8Q38vWgsSI7oHTkEw",
+            "e": "AQAB"
+        }
+
+        different_key = {
+            "kid": "different-key-456",
+            "kty": "RSA",
+            "use": "sig",
+            "n": "39SJ39VgrQ0qMNK74CaueUBlyYsUyuA7yWlHYZ-jAj6tlFKugEVUTBUVbhGF44uOr99iL_cwmr-srqQDEi-jFHdkS6WFkYyZ03oyyx5dtBMtzrXPieFipSGfQ5EGUGloaKDjL-Ry9tiLnysH2VVWZ5WDDN-DGHxuCOWWjiBNcTmGfnj5_NvRHNUh2iTLuiJpHbGcPzWc5-lc4r-_ehw9EFfp2XsxE9xvtbMZ4SouJCiv9xnrnhe2bdpWuu34hXZCrQwE8DjRY3UR8LjyMxHHPLzX2LWNMHjfN3nAZMteS-Ok11VYDFI-4qCCVGo_WesBCAeqCjPLRyZoV27x1YGsUQ",
+            "e": "AQAB"
+        }
+
+        jwks_with_key = {"keys": [real_rsa_key]}
+        jwks_key_revoked = {"keys": [different_key]}  # Simulate original key is gone
+
+        with patch.object(client, 'fetch_data') as mock_fetch:
+            # Step 1: Get key (it gets cached)
+            mock_fetch.return_value = jwks_with_key
+            key1 = client.get_signing_key("revoked-key-123")
+            assert key1.key_id == "revoked-key-123"
+
+            # Step 2: Wait for cache to expire
+            time.sleep(0.15)  # Longer than lifespan
+
+            # Step 3: Key is now "revoked" (removed from JWKS)
+            mock_fetch.return_value = jwks_key_revoked
+
+            # Step 4: THE SECURITY TEST
+            # Expected behavior: Should raise exception when key is revoked
+            # Old vulnerable code: Returns cached key, test fails
+            # New secure code: Raises exception as expected, test passes
+            with pytest.raises(PyJWKClientError, match="Unable to find a signing key"):
+                client.get_signing_key("revoked-key-123")
+
