@@ -48,7 +48,9 @@ class PyJWKClient:
         # Use the same TTL as JWKSetCache for consistency
         if cache_keys:
             self._key_cache_enabled = True
-            self._key_cache: Dict[str, tuple[PyJWK, float]] = {}  # kid -> (key, timestamp)
+            self._key_cache: Dict[
+                str, tuple[PyJWK, float]
+            ] = {}  # kid -> (key, timestamp)
             self._max_cached_keys = max_cached_keys
             self._key_cache_ttl = lifespan  # Use same TTL as JWKSetCache
         else:
@@ -120,8 +122,9 @@ class PyJWKClient:
         # Evict oldest if at capacity
         if len(self._key_cache) >= self._max_cached_keys and kid not in self._key_cache:
             # Simple eviction: remove oldest timestamp
-            oldest_kid = min(self._key_cache.keys(),
-                           key=lambda k: self._key_cache[k][1])
+            oldest_kid = min(
+                self._key_cache.keys(), key=lambda k: self._key_cache[k][1]
+            )
             del self._key_cache[oldest_kid]
 
         self._key_cache[kid] = (key, time.monotonic())
