@@ -407,3 +407,29 @@ class TestPyJWKClient:
             # New secure code: Raises exception as expected, test passes
             with pytest.raises(PyJWKClientError, match="Unable to find a signing key"):
                 client.get_signing_key("revoked-key-123")
+
+    def test_key_cache_eviction_when_at_capacity(self):
+        """Test that key cache evicts oldest entries when at capacity."""
+        from unittest.mock import MagicMock
+
+        client = PyJWKClient("https://example.com", cache_keys=True, max_cached_keys=2)
+
+        key1 = MagicMock()
+        key1.key_id = "key1"
+        key2 = MagicMock()
+        key2.key_id = "key2"
+        key3 = MagicMock()
+        key3.key_id = "key3"
+
+        # Fill cache to capacity
+        client._cache_key("key1", key1)
+        client._cache_key("key2", key2)
+        assert len(client._key_cache) == 2
+
+        # Add third key - should evict oldest (key1)
+        client._cache_key("key3", key3)
+        assert len(client._key_cache) == 2
+
+        assert "key1" not in client._key_cache
+        assert "key2" in client._key_cache
+        assert "key3" in client._key_cache
