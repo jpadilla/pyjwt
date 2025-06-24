@@ -389,8 +389,12 @@ class TestPyJWKClient:
         jwks_with_key = {"keys": [real_rsa_key]}
         jwks_key_revoked = {"keys": [different_key]}  # Simulate original key is gone
 
-        with patch("time.monotonic", side_effect=lambda: mock_time.return_value) as mock_time, \
-             patch.object(client, "fetch_data") as mock_fetch:
+        with (
+            patch(
+                "time.monotonic", side_effect=lambda: mock_time.return_value
+            ) as mock_time,
+            patch.object(client, "fetch_data") as mock_fetch,
+        ):
             # Initialize mocked time
             mock_time.return_value = time.monotonic()
 
