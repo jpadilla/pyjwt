@@ -389,14 +389,18 @@ class TestPyJWKClient:
         jwks_with_key = {"keys": [real_rsa_key]}
         jwks_key_revoked = {"keys": [different_key]}  # Simulate original key is gone
 
-        with patch.object(client, "fetch_data") as mock_fetch:
+        with patch("time.monotonic", side_effect=lambda: mock_time.return_value) as mock_time, \
+             patch.object(client, "fetch_data") as mock_fetch:
+            # Initialize mocked time
+            mock_time.return_value = time.monotonic()
+
             # Step 1: Get key (it gets cached)
             mock_fetch.return_value = jwks_with_key
             key1 = client.get_signing_key("revoked-key-123")
             assert key1.key_id == "revoked-key-123"
 
-            # Step 2: Wait for cache to expire
-            time.sleep(0.15)  # Longer than lifespan
+            # Step 2: Simulate cache expiration by advancing mocked time
+            mock_time.return_value += 0.15  # Advance time by 0.15 seconds
 
             # Step 3: Key is now "revoked" (removed from JWKS)
             mock_fetch.return_value = jwks_key_revoked
