@@ -97,13 +97,13 @@ class PyJWKClient:
 
     def get_signing_key(self, kid: Optional[str]) -> PyJWK:
         signing_keys = self.get_signing_keys()
-        if kid is None:
+        if kid is not None:
+            signing_key = self.match_kid(signing_keys, kid)
+        else:
             if len(signing_keys) == 1:
                 signing_key = signing_keys[0]
             else:
                 signing_key = None
-        else:
-            signing_key = self.match_kid(signing_keys, kid)
 
         if not signing_key:
             # If no matching signing key from the jwk set, refresh the jwk set and try again.
