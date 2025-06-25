@@ -97,7 +97,7 @@ class PyJWKClient:
 
     def get_signing_key(self, kid: Optional[str]) -> PyJWK:
         signing_keys = self.get_signing_keys()
-        if kid == None:
+        if kid is None:
             if len(signing_keys) == 1:
                 signing_key = signing_keys[0]
             else:
