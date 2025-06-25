@@ -87,7 +87,7 @@ class PyJWKClient:
         signing_keys = [
             jwk_set_key
             for jwk_set_key in jwk_set.keys
-            if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id
+            if jwk_set_key.public_key_use in ["sig", None]
         ]
 
         if not signing_keys:
@@ -95,9 +95,15 @@ class PyJWKClient:
 
         return signing_keys
 
-    def get_signing_key(self, kid: str) -> PyJWK:
+    def get_signing_key(self, kid: Optional[str]) -> PyJWK:
         signing_keys = self.get_signing_keys()
-        signing_key = self.match_kid(signing_keys, kid)
+        if kid == None:
+            if len(signing_keys) == 1:
+                signing_key = signing_keys[0]
+            else:
+                signing_key = None
+        else:
+            signing_key = self.match_kid(signing_keys, kid)
 
         if not signing_key:
             # If no matching signing key from the jwk set, refresh the jwk set and try again.
@@ -114,7 +120,7 @@ class PyJWKClient:
     def get_signing_key_from_jwt(self, token: str | bytes) -> PyJWK:
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
-        return self.get_signing_key(header.get("kid"))
+        return self.get_signing_key(header.get("kid", None))
 
     @staticmethod
     def match_kid(signing_keys: List[PyJWK], kid: str) -> Optional[PyJWK]:
