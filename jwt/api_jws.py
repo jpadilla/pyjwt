@@ -148,6 +148,10 @@ class PyJWS:
         # Header
         header: dict[str, Any] = {"typ": self.header_typ, "alg": algorithm_}
 
+        # Automatically add kid if key is PyJWK and has key_id
+        if isinstance(key, PyJWK) and key.key_id and "kid" not in header:
+            header["kid"] = key.key_id
+
         if headers:
             self._validate_headers(headers)
             header.update(headers)
