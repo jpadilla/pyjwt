@@ -657,20 +657,33 @@ class TestJWS:
     @crypto_required
     def test_encode_decode_ecdsa_related_algorithms(self, jws, payload, algo):
         # PEM-formatted EC key
-        with open(key_path("testkey_ec.priv"), "rb") as ec_priv_file:
+        key_file = {
+            "ES256": "testkey_ec_secp256r1.priv",
+            "ES256K": "testkey_ec_secp256k1.priv",
+            "ES384": "testkey_ec_secp384r1.priv",
+            "ES512": "testkey_ec_secp521r1.priv",
+        }[algo]
+        pub_file = {
+            "ES256": "testkey_ec_secp256r1.pub",
+            "ES256K": "testkey_ec_secp256k1.pub",
+            "ES384": "testkey_ec_secp384r1.pub",
+            "ES512": "testkey_ec_secp521r1.pub",
+        }[algo]
+
+        with open(key_path(key_file), "rb") as ec_priv_file:
             priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None)
             jws_message = jws.encode(payload, priv_eckey, algorithm=algo)
 
-        with open(key_path("testkey_ec.pub"), "rb") as ec_pub_file:
+        with open(key_path(pub_file), "rb") as ec_pub_file:
             pub_eckey = load_pem_public_key(ec_pub_file.read())
             jws.decode(jws_message, pub_eckey, algorithms=[algo])
 
         # string-formatted key
-        with open(key_path("testkey_ec.priv")) as ec_priv_file:
+        with open(key_path(key_file)) as ec_priv_file:
             priv_eckey = ec_priv_file.read()  # type: ignore[assignment]
             jws_message = jws.encode(payload, priv_eckey, algorithm=algo)
 
-        with open(key_path("testkey_ec.pub")) as ec_pub_file:
+        with open(key_path(pub_file)) as ec_pub_file:
             pub_eckey = ec_pub_file.read()  # type: ignore[assignment]
             jws.decode(jws_message, pub_eckey, algorithms=[algo])
 

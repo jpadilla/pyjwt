@@ -157,12 +157,12 @@ def get_default_algorithms() -> dict[str, Algorithm]:
                 "RS256": RSAAlgorithm(RSAAlgorithm.SHA256),
                 "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
                 "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
-                "ES256": ECAlgorithm(ECAlgorithm.SHA256),
-                "ES256K": ECAlgorithm(ECAlgorithm.SHA256),
-                "ES384": ECAlgorithm(ECAlgorithm.SHA384),
-                "ES521": ECAlgorithm(ECAlgorithm.SHA512),
+                "ES256": ECAlgorithm(ECAlgorithm.SHA256, SECP256R1),
+                "ES256K": ECAlgorithm(ECAlgorithm.SHA256, SECP256K1),
+                "ES384": ECAlgorithm(ECAlgorithm.SHA384, SECP384R1),
+                "ES521": ECAlgorithm(ECAlgorithm.SHA512, SECP521R1),
                 "ES512": ECAlgorithm(
-                    ECAlgorithm.SHA512
+                    ECAlgorithm.SHA512, SECP521R1
                 ),  # Backward compat for #219 fix
                 "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
                 "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
@@ -567,11 +567,17 @@ if has_crypto:
 
         _crypto_key_types = ALLOWED_EC_KEY_TYPES
 
-        def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
+        def __init__(
+            self,
+            hash_alg: type[hashes.HashAlgorithm],
+            expected_curve: type[EllipticCurve] | None = None,
+        ) -> None:
             self.hash_alg = hash_alg
+            self.expected_curve = expected_curve
 
         def prepare_key(self, key: AllowedECKeys | str | bytes) -> AllowedECKeys:
             if isinstance(key, self._crypto_key_types):
+                self._validate_curve(key)
                 return key
 
             if not isinstance(key, (bytes, str)):
@@ -590,10 +596,22 @@ if has_crypto:
 
                 # Explicit check the key to prevent confusing errors from cryptography
                 self.check_crypto_key_type(public_key)
+                if self.expected_curve and not isinstance(
+                    public_key.curve, self.expected_curve
+                ):
+                    raise InvalidKeyError(
+                        f"Key curve {public_key.curve} does not match expected curve {self.expected_curve}"
+                    )
                 return cast(EllipticCurvePublicKey, public_key)
             except ValueError:
                 private_key = load_pem_private_key(key_bytes, password=None)
                 self.check_crypto_key_type(private_key)
+                if self.expected_curve and not isinstance(
+                    private_key.curve, self.expected_curve
+                ):
+                    raise InvalidKeyError(
+                        f"Key curve {private_key.curve} does not match expected curve {self.expected_curve}"
+                    )
                 return cast(EllipticCurvePrivateKey, private_key)
 
         def sign(self, msg: bytes, key: EllipticCurvePrivateKey) -> bytes:
