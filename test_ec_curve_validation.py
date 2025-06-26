@@ -19,7 +19,7 @@ def test_ec_curve_validation():
         es256.prepare_key(secp256k1_key)
 
     # Test that ES256K requires SECP256K1 curve
-    es256k = ECAlgorithm(ECAlgorithm.SHA256)
+    es256k = ECAlgorithm(ECAlgorithm.SHA256, expected_curve=ec.SECP256K1())
 
     # SECP256K1 should work with ES256K
     es256k.prepare_key(secp256k1_key)
