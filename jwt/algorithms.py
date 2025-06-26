@@ -577,12 +577,7 @@ if has_crypto:
 
         def prepare_key(self, key: AllowedECKeys | str | bytes) -> AllowedECKeys:
             if isinstance(key, self._crypto_key_types):
-                if self.expected_curve and not isinstance(
-                    key.curve, self.expected_curve
-                ):
-                    raise InvalidKeyError(
-                        f"Key curve {key.curve} does not match expected curve {self.expected_curve}"
-                    )
+                self._validate_curve(key)
                 return key
 
             if not isinstance(key, (bytes, str)):
