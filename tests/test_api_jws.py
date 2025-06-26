@@ -669,7 +669,7 @@ class TestJWS:
             "ES384": "testkey_ec_secp384r1.pub",
             "ES512": "testkey_ec_secp521r1.pub",
         }[algo]
-        
+
         with open(key_path(key_file), "rb") as ec_priv_file:
             priv_eckey = load_pem_private_key(ec_priv_file.read(), password=None)
             jws_message = jws.encode(payload, priv_eckey, algorithm=algo)
