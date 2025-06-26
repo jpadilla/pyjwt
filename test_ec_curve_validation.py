@@ -7,7 +7,7 @@ from jwt.exceptions import InvalidKeyError
 
 def test_ec_curve_validation():
     # Test that ES256 requires SECP256R1 curve
-    es256 = ECAlgorithm(ECAlgorithm.SHA256)
+    es256 = ECAlgorithm(ECAlgorithm.SHA256, ec.SECP256R1)
     secp256r1_key = ec.generate_private_key(ec.SECP256R1())
     secp256k1_key = ec.generate_private_key(ec.SECP256K1())
 
