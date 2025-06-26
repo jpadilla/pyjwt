@@ -899,13 +899,10 @@ class TestJWS:
                 foo="bar",
             )
         assert len(record) == 1
+
     def test_encode_with_jwk_includes_kid_header(self, jws, payload):
         """Test that encoding with a PyJWK key automatically includes the kid header"""
-        jwk = PyJWK({
-            "kty": "oct",
-            "k": "secret",
-            "kid": "test-key-id"
-        })
+        jwk = PyJWK({"kty": "oct", "k": "secret", "kid": "test-key-id"})
         token = jws.encode(payload, jwk, algorithm="HS256")
         header = json.loads(base64url_decode(token.split(".")[0]))
         assert "kid" in header
@@ -913,12 +910,10 @@ class TestJWS:
 
     def test_encode_with_jwk_preserves_existing_kid_header(self, jws, payload):
         """Test that existing kid header is preserved when using PyJWK"""
-        jwk = PyJWK({
-            "kty": "oct",
-            "k": "secret",
-            "kid": "test-key-id"
-        })
-        token = jws.encode(payload, jwk, algorithm="HS256", headers={"kid": "custom-id"})
+        jwk = PyJWK({"kty": "oct", "k": "secret", "kid": "test-key-id"})
+        token = jws.encode(
+            payload, jwk, algorithm="HS256", headers={"kid": "custom-id"}
+        )
         header = json.loads(base64url_decode(token.split(".")[0]))
         assert "kid" in header
         assert header["kid"] == "custom-id"
