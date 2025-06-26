@@ -114,7 +114,7 @@ class PyJWKClient:
     def get_signing_key_from_jwt(self, token: str | bytes) -> PyJWK:
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
-        return self.get_signing_key(header.get("kid", None))
+        return self.get_signing_key(header.get("kid"))
 
     @staticmethod
     def match_kid(signing_keys: List[PyJWK], kid: Optional[str]) -> Optional[PyJWK]:
