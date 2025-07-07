@@ -9,6 +9,7 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
 Fixed
 ~~~~~
+- Fix indefinite key caching in PyJWKClient by replacing lru_cache with TTL-aware cache in `#1070 <https://github.com/jpadilla/pyjwt/pull/1070>`__
 - Validate key against allowed types for Algorithm family in `#964 <https://github.com/jpadilla/pyjwt/pull/964>`__
 - Add iterator for JWKSet in `#1041 <https://github.com/jpadilla/pyjwt/pull/1041>`__
 - Validate `iss` claim is a string during encoding and decoding by @pachewise in `#1040 <https://github.com/jpadilla/pyjwt/pull/1040>`__
