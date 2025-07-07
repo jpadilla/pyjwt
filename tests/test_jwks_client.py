@@ -364,8 +364,7 @@ class TestPyJWKClient:
         - FAIL with old lru_cache implementation (serves revoked keys forever)
         - PASS with new TTL implementation (revoked keys expire)
         """
-        import time
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
 
         client = PyJWKClient("https://example.com", cache_keys=True, lifespan=0.1)
 
