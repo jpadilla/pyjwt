@@ -470,24 +470,24 @@ if has_crypto:
                 if key_bytes.startswith(b"ssh-rsa"):
                     public_key: PublicKeyTypes = load_ssh_public_key(key_bytes)
                     self.check_crypto_key_type(public_key)
-                    rsa_key = cast(RSAPublicKey, public_key)
-                    self._validate_rsa_key_size(rsa_key)
-                    return rsa_key
+                    rsa_public_key = cast(RSAPublicKey, public_key)
+                    self._validate_rsa_key_size(rsa_public_key)
+                    return rsa_public_key
                 else:
                     private_key: PrivateKeyTypes = load_pem_private_key(
                         key_bytes, password=None
                     )
                     self.check_crypto_key_type(private_key)
-                    rsa_key = cast(RSAPrivateKey, private_key)
-                    self._validate_rsa_key_size(rsa_key)
-                    return rsa_key
+                    rsa_private_key = cast(RSAPrivateKey, private_key)
+                    self._validate_rsa_key_size(rsa_private_key)
+                    return rsa_private_key
             except ValueError:
                 try:
                     public_key = load_pem_public_key(key_bytes)
                     self.check_crypto_key_type(public_key)
-                    rsa_key = cast(RSAPublicKey, public_key)
-                    self._validate_rsa_key_size(rsa_key)
-                    return rsa_key
+                    rsa_public_key = cast(RSAPublicKey, public_key)
+                    self._validate_rsa_key_size(rsa_public_key)
+                    return rsa_public_key
                 except (ValueError, UnsupportedAlgorithm):
                     raise InvalidKeyError(
                         "Could not parse the provided public key."
@@ -871,7 +871,7 @@ if has_crypto:
         def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
             if not isinstance(key, (str, bytes)):
                 self.check_crypto_key_type(key)
-                return cast("AllowedOKPKeys", key)
+                return key
 
             key_str = key.decode("utf-8") if isinstance(key, bytes) else key
             key_bytes = key.encode("utf-8") if isinstance(key, str) else key
