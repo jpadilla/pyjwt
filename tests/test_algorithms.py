@@ -70,7 +70,7 @@ class TestAlgorithms:
     def test_hmac_should_accept_unicode_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
-        algo.prepare_key("awesome")
+        algo.prepare_key("awesome" * 5)  # 35 characters > 32 bytes minimum
 
     @pytest.mark.parametrize(
         "key",
@@ -101,12 +101,12 @@ class TestAlgorithms:
     @pytest.mark.parametrize("as_dict", (False, True))
     def test_hmac_to_jwk_returns_correct_values(self, as_dict):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
-        key: Any = algo.to_jwk("secret", as_dict=as_dict)
+        key: Any = algo.to_jwk("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", as_dict=as_dict)
 
         if not as_dict:
             key = json.loads(key)
 
-        assert key == {"kty": "oct", "k": "c2VjcmV0"}
+        assert key == {"kty": "oct", "k": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE"}
 
     def test_hmac_from_jwk_should_raise_exception_if_not_hmac_key(self):
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
@@ -121,6 +121,60 @@ class TestAlgorithms:
         with open(key_path("jwk_empty.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
+
+    # CVE-2025-45768: Test minimum key length enforcement
+    @pytest.mark.parametrize(
+        "hash_alg,min_length,weak_key",
+        [
+            (HMACAlgorithm.SHA256, 32, b"short"),  # 5 bytes, too short for HS256
+            (HMACAlgorithm.SHA256, 32, b"a" * 31),  # 31 bytes, just under minimum
+            (HMACAlgorithm.SHA384, 48, b"b" * 47),  # 47 bytes, just under minimum  
+            (HMACAlgorithm.SHA512, 64, b"c" * 63),  # 63 bytes, just under minimum
+        ],
+    )
+    def test_hmac_should_reject_weak_keys(self, hash_alg, min_length, weak_key):
+        """Test that HMAC keys below minimum length are rejected (CVE-2025-45768)"""
+        algo = HMACAlgorithm(hash_alg)
+        
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(weak_key)
+        
+        error_msg = str(excinfo.value)
+        assert f"at least {min_length * 8} bits" in error_msg
+        assert f"Key provided is {len(weak_key) * 8} bits" in error_msg
+
+    @pytest.mark.parametrize(
+        "hash_alg,adequate_key",
+        [
+            (HMACAlgorithm.SHA256, b"a" * 32),  # 32 bytes for HS256
+            (HMACAlgorithm.SHA384, b"b" * 48),  # 48 bytes for HS384
+            (HMACAlgorithm.SHA512, b"c" * 64),  # 64 bytes for HS512
+        ],
+    )
+    def test_hmac_should_accept_adequate_keys(self, hash_alg, adequate_key):
+        """Test that HMAC keys at or above minimum length are accepted"""
+        algo = HMACAlgorithm(hash_alg)
+        
+        # Should not raise an exception
+        prepared_key = algo.prepare_key(adequate_key)
+        assert prepared_key == adequate_key
+
+    def test_hmac_from_jwk_should_reject_weak_keys(self):
+        """Test that weak HMAC keys are rejected when loaded from JWK (CVE-2025-45768)"""
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        
+        # Create a JWK with a weak key (5 bytes)
+        weak_jwk = {
+            "kty": "oct",
+            "k": "c2hvcnQ"  # base64url("short") - only 5 bytes
+        }
+        
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.from_jwk(weak_jwk)
+        
+        error_msg = str(excinfo.value)
+        assert "at least 256 bits" in error_msg
+        assert "40 bits" in error_msg  # 5 bytes * 8 = 40 bits
 
     @crypto_required
     def test_rsa_should_parse_pem_public_key(self):
@@ -172,6 +226,80 @@ class TestAlgorithms:
 
         result = algo.verify(message, pub_key, sig)
         assert not result
+
+    # CVE-2025-45768: Test RSA minimum key size enforcement
+    @crypto_required
+    def test_rsa_should_reject_weak_keys(self):
+        """Test that RSA keys below 2048 bits are rejected (CVE-2025-45768)"""
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        
+        # Generate a weak 1024-bit RSA key
+        weak_private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=1024
+        )
+        weak_public_key = weak_private_key.public_key()
+        
+        # Test with private key
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(weak_private_key)
+        
+        error_msg = str(excinfo.value)
+        assert "at least 2048 bits" in error_msg
+        assert "1024 bits" in error_msg
+        
+        # Test with public key
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(weak_public_key)
+        
+        error_msg = str(excinfo.value)
+        assert "at least 2048 bits" in error_msg
+        assert "1024 bits" in error_msg
+
+    @crypto_required
+    def test_rsa_should_accept_adequate_keys(self):
+        """Test that RSA keys at or above 2048 bits are accepted"""
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        
+        # Generate a strong 2048-bit RSA key
+        strong_private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+        strong_public_key = strong_private_key.public_key()
+        
+        # Should not raise exceptions
+        prepared_private = algo.prepare_key(strong_private_key)
+        prepared_public = algo.prepare_key(strong_public_key)
+        
+        assert prepared_private == strong_private_key
+        assert prepared_public == strong_public_key
+
+    @crypto_required
+    def test_rsa_from_jwk_should_reject_weak_keys(self):
+        """Test that weak RSA keys are rejected when loaded from JWK (CVE-2025-45768)"""
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        
+        # Generate a weak 1024-bit RSA key and convert to JWK
+        weak_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=1024
+        )
+        
+        # Convert to JWK format (this will work since to_jwk doesn't validate)
+        weak_jwk = RSAAlgorithm.to_jwk(weak_key, as_dict=True)
+        
+        # Now try to load it back - should fail
+        with pytest.raises(InvalidKeyError) as excinfo:
+            RSAAlgorithm.from_jwk(weak_jwk)
+        
+        error_msg = str(excinfo.value)
+        assert "at least 2048 bits" in error_msg
+        assert "1024 bits" in error_msg
 
     @crypto_required
     def test_ec_jwk_public_and_private_keys_should_parse_and_verify(self):
