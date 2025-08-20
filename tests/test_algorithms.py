@@ -1307,6 +1307,7 @@ class TestSecurityValidation:
         """Test minimum key length for unknown hash algorithm."""
         # Create an HMAC algorithm with a different hash function
         import hashlib
+
         algo = HMACAlgorithm(hashlib.sha1)  # Use SHA1 as "unknown" algorithm
         assert algo._get_min_key_length() == 32  # Should default to 32 bytes
 
@@ -1318,7 +1319,10 @@ class TestSecurityValidation:
         with pytest.raises(InvalidKeyError) as excinfo:
             algo.prepare_key(short_key)
 
-        assert "HMAC key must be at least 256 bits (32 bytes) for HS256 algorithm" in str(excinfo.value)
+        assert (
+            "HMAC key must be at least 256 bits (32 bytes) for HS256 algorithm"
+            in str(excinfo.value)
+        )
         assert "Key provided is 40 bits (5 bytes)" in str(excinfo.value)
 
     def test_hmac_prepare_key_rejects_short_key_hs384(self):
@@ -1329,7 +1333,10 @@ class TestSecurityValidation:
         with pytest.raises(InvalidKeyError) as excinfo:
             algo.prepare_key(short_key)
 
-        assert "HMAC key must be at least 384 bits (48 bytes) for HS384 algorithm" in str(excinfo.value)
+        assert (
+            "HMAC key must be at least 384 bits (48 bytes) for HS384 algorithm"
+            in str(excinfo.value)
+        )
         assert "Key provided is 256 bits (32 bytes)" in str(excinfo.value)
 
     def test_hmac_prepare_key_rejects_short_key_hs512(self):
@@ -1340,19 +1347,26 @@ class TestSecurityValidation:
         with pytest.raises(InvalidKeyError) as excinfo:
             algo.prepare_key(short_key)
 
-        assert "HMAC key must be at least 512 bits (64 bytes) for HS512 algorithm" in str(excinfo.value)
+        assert (
+            "HMAC key must be at least 512 bits (64 bytes) for HS512 algorithm"
+            in str(excinfo.value)
+        )
         assert "Key provided is 384 bits (48 bytes)" in str(excinfo.value)
 
     def test_hmac_prepare_key_rejects_short_key_unknown_algorithm(self):
         """Test unknown hash algorithm rejects keys shorter than 32 bytes."""
         import hashlib
+
         algo = HMACAlgorithm(hashlib.sha1)  # Unknown algorithm
         short_key = b"short"  # Only 5 bytes
 
         with pytest.raises(InvalidKeyError) as excinfo:
             algo.prepare_key(short_key)
 
-        assert "HMAC key must be at least 256 bits (32 bytes) for HMAC algorithm" in str(excinfo.value)
+        assert (
+            "HMAC key must be at least 256 bits (32 bytes) for HMAC algorithm"
+            in str(excinfo.value)
+        )
 
     def test_hmac_from_jwk_rejects_short_key(self):
         """Test HMAC from_jwk rejects short keys."""
