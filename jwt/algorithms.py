@@ -321,7 +321,7 @@ class HMACAlgorithm(Algorithm):
         if self.hash_alg == hashlib.sha256:
             return 32  # 256 bits for HS256
         elif self.hash_alg == hashlib.sha384:
-            return 48  # 384 bits for HS384  
+            return 48  # 384 bits for HS384
         elif self.hash_alg == hashlib.sha512:
             return 64  # 512 bits for HS512
         else:
@@ -348,7 +348,7 @@ class HMACAlgorithm(Algorithm):
                 alg_name = "HS384"
             elif self.hash_alg == hashlib.sha512:
                 alg_name = "HS512"
-            
+
             raise InvalidKeyError(
                 f"HMAC key must be at least {min_key_length * 8} bits "
                 f"({min_key_length} bytes) for {alg_name} algorithm. "
@@ -397,7 +397,7 @@ class HMACAlgorithm(Algorithm):
             raise InvalidKeyError("Not an HMAC key")
 
         key_bytes = base64url_decode(obj["k"])
-        
+
         # Validate key length - use a conservative minimum of 32 bytes (256 bits)
         min_key_length = 32  # 256 bits minimum
         if len(key_bytes) < min_key_length:
@@ -406,7 +406,7 @@ class HMACAlgorithm(Algorithm):
                 f"({min_key_length} bytes). Key provided is {len(key_bytes) * 8} "
                 f"bits ({len(key_bytes)} bytes)."
             )
-        
+
         return key_bytes
 
     def sign(self, msg: bytes, key: bytes) -> bytes:
@@ -437,7 +437,7 @@ if has_crypto:
             """Validate RSA key size meets minimum security requirements."""
             key_size = key.key_size
             min_key_size = 2048  # Minimum 2048 bits per RFC 7518 and NIST SP800-117
-            
+
             if key_size < min_key_size:
                 raise InvalidKeyError(
                     f"RSA key must be at least {min_key_size} bits. "
@@ -449,7 +449,7 @@ if has_crypto:
             """Static version of RSA key size validation for use in static methods."""
             key_size = key.key_size
             min_key_size = 2048  # Minimum 2048 bits per RFC 7518 and NIST SP800-117
-            
+
             if key_size < min_key_size:
                 raise InvalidKeyError(
                     f"RSA key must be at least {min_key_size} bits. "

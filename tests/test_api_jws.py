@@ -80,7 +80,11 @@ class TestJWS:
     def test_non_object_options_dont_persist(self, jws, payload):
         token = jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-        jws.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", options={"verify_signature": False})
+        jws.decode(
+            token,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            options={"verify_signature": False},
+        )
 
         assert jws.options["verify_signature"]
 
@@ -163,7 +167,7 @@ class TestJWS:
         secret = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         msg = jws.encode(payload, secret)
         decoded = jws.decode_complete(msg, secret, algorithms=["HS256"])
-        
+
         # Verify header and payload are correct
         assert decoded["header"] == {"alg": "HS256", "typ": "JWT"}
         assert decoded["payload"] == payload
@@ -216,7 +220,7 @@ class TestJWS:
         )
         msg = jws.encode(payload, key=jwk)
         decoded = jws.decode_complete(msg, key=jwk, algorithms=["HS256"])
-        
+
         # Verify header and payload are correct
         assert decoded["header"] == {"alg": "HS256", "typ": "JWT"}
         assert decoded["payload"] == payload
@@ -232,14 +236,16 @@ class TestJWS:
         )
 
         with pytest.raises(InvalidAlgorithmError) as context:
-            jws.decode(example_jws, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["hs256"])
+            jws.decode(
+                example_jws, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["hs256"]
+            )
 
         exception = context.value
         assert str(exception) == "Algorithm not supported"
 
     def test_bad_secret(self, jws, payload):
         right_secret = "foo" + "a" * 29  # 32 bytes total for HS256
-        bad_secret = "bar" + "b" * 29   # 32 bytes total for HS256 but different
+        bad_secret = "bar" + "b" * 29  # 32 bytes total for HS256 but different
         jws_message = jws.encode(payload, right_secret)
 
         with pytest.raises(DecodeError) as excinfo:
@@ -277,7 +283,7 @@ class TestJWS:
             "header": {"alg": "HS256", "typ": "JWT"},
             "payload": payload,
             "signature": (
-                b"\xe6\x8f~\x8ay\x18\"\xdb\xb2\xff\x0f\xaa\x12\xbe\xe2\xceM\xa3z"
+                b'\xe6\x8f~\x8ay\x18"\xdb\xb2\xff\x0f\xaa\x12\xbe\xe2\xceM\xa3z'
                 b"I\xfe\xd5o(j\xca\x0f4,\xb8\xa7\x8b"
             ),
         }
@@ -458,14 +464,17 @@ class TestJWS:
             jws.decode(jws_message, algorithms=["HS256"])
 
         # Accept either error message
-        assert ("Signature verification" in str(exc.value) or 
-                "HMAC key must be at least" in str(exc.value))
+        assert "Signature verification" in str(
+            exc.value
+        ) or "HMAC key must be at least" in str(exc.value)
 
     def test_verify_signature_with_no_algo_header_throws_exception(self, jws, payload):
         example_jws = b"e30.eyJhIjo1fQ.KEh186CjVw_Q8FadjJcaVnE7hO5Z9nHBbU8TgbhHcBY"
 
         with pytest.raises(InvalidAlgorithmError):
-            jws.decode(example_jws, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"])
+            jws.decode(
+                example_jws, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]
+            )
 
     def test_invalid_crypto_alg(self, jws, payload):
         with pytest.raises(NotImplementedError):
@@ -697,7 +706,11 @@ class TestJWS:
             ".eyJzb21lIjoicGF5bG9hZCJ9"
             ".4twFt5NiznN84AWoo1d7KO1T_yoc0Z6XOpOVswacPZA"
         )
-        jws.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", options={"verify_signature": False})
+        jws.decode(
+            token,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            options={"verify_signature": False},
+        )
 
     def test_decode_options_must_be_dict(self, jws, payload):
         token = jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
@@ -721,7 +734,10 @@ class TestJWS:
             jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers=data)
 
         token = jws.encode(
-            payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers=data, json_encoder=CustomJSONEncoder
+            payload,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            headers=data,
+            json_encoder=CustomJSONEncoder,
         )
 
         header, *_ = token.split(".")
@@ -768,7 +784,9 @@ class TestJWS:
         }
         """
         token = jws.encode(
-            payload.encode("utf-8"), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"typ": "secevent+jwt"}
+            payload.encode("utf-8"),
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            headers={"typ": "secevent+jwt"},
         )
 
         header = token[0 : token.index(".")].encode()
@@ -779,7 +797,9 @@ class TestJWS:
         assert header_obj["typ"] == "secevent+jwt"
 
     def test_encode_with_typ_empty_string(self, jws, payload):
-        token = jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"typ": ""})
+        token = jws.encode(
+            payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"typ": ""}
+        )
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
@@ -788,7 +808,9 @@ class TestJWS:
         assert "typ" not in header_obj
 
     def test_encode_with_typ_none(self, jws, payload):
-        token = jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"typ": None})
+        token = jws.encode(
+            payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"typ": None}
+        )
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
@@ -798,7 +820,9 @@ class TestJWS:
 
     def test_encode_with_typ_without_keywords(self, jws, payload):
         headers = {"foo": "bar"}
-        token = jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "HS256", headers, None)
+        token = jws.encode(
+            payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "HS256", headers, None
+        )
 
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
@@ -809,12 +833,16 @@ class TestJWS:
 
     def test_encode_fails_on_invalid_kid_types(self, jws, payload):
         with pytest.raises(InvalidTokenError) as exc:
-            jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"kid": 123})
+            jws.encode(
+                payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"kid": 123}
+            )
 
         assert "Key ID header parameter must be a string" == str(exc.value)
 
         with pytest.raises(InvalidTokenError) as exc:
-            jws.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"kid": None})
+            jws.encode(
+                payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", headers={"kid": None}
+            )
 
         assert "Key ID header parameter must be a string" == str(exc.value)
 

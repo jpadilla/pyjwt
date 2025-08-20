@@ -71,7 +71,7 @@ class TestJWT:
             "payload": example_payload,
             "signature": (
                 b'"0\xf6U\x128\\\xde\xed\xa4Y(\xd2\xecs\xb9\xd5:\x160\x7f\xd0'
-                b'\x1d\xeb\xd6\xe9\x99\xcc\x15\xf7\\\x7f'
+                b"\x1d\xeb\xd6\xe9\x99\xcc\x15\xf7\\\x7f"
             ),
         }
 
@@ -174,7 +174,9 @@ class TestJWT:
         for t in types:
             pytest.raises(
                 TypeError,
-                lambda t=t: jwt.encode(t, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]),
+                lambda t=t: jwt.encode(
+                    t, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]
+                ),
             )
 
     def test_encode_with_non_str_iss(self, jwt):
@@ -204,7 +206,10 @@ class TestJWT:
             },
         }
         token = jwt.encode(
-            payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithm="HS256", headers={"typ": "secevent+jwt"}
+            payload,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            algorithm="HS256",
+            headers={"typ": "secevent+jwt"},
         )
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
@@ -222,7 +227,9 @@ class TestJWT:
         )
 
         with pytest.raises(DecodeError) as exc:
-            jwt.decode(example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"])
+            jwt.decode(
+                example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]
+            )
 
         assert "exp" in str(exc.value)
 
@@ -235,7 +242,9 @@ class TestJWT:
         )
 
         with pytest.raises(InvalidIssuedAtError):
-            jwt.decode(example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"])
+            jwt.decode(
+                example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]
+            )
 
     def test_decode_raises_exception_if_iat_is_greater_than_now(self, jwt, payload):
         payload["iat"] = utc_timestamp() + 10
@@ -261,7 +270,9 @@ class TestJWT:
         )
 
         with pytest.raises(DecodeError):
-            jwt.decode(example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"])
+            jwt.decode(
+                example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]
+            )
 
     def test_decode_raises_exception_if_aud_is_none(self, jwt):
         # >>> jwt.encode({'aud': None}, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
@@ -270,7 +281,9 @@ class TestJWT:
             "eyJhdWQiOm51bGx9."
             "lDjRLYgSGTJ8K-QzfQpHtqj8zBJJl8BkyIn2CYeAymU"
         )
-        decoded = jwt.decode(example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"])
+        decoded = jwt.decode(
+            example_jwt, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]
+        )
         assert decoded["aud"] is None
 
     def test_encode_datetime(self, jwt):
@@ -410,7 +423,12 @@ class TestJWT:
     def test_check_audience_when_valid(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-        jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", audience="urn:me", algorithms=["HS256"])
+        jwt.decode(
+            token,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            audience="urn:me",
+            algorithms=["HS256"],
+        )
 
     def test_check_audience_list_when_valid(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
@@ -442,7 +460,12 @@ class TestJWT:
     def test_check_audience_in_array_when_valid(self, jwt):
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-        jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", audience="urn:me", algorithms=["HS256"])
+        jwt.decode(
+            token,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            audience="urn:me",
+            algorithms=["HS256"],
+        )
 
     def test_raise_exception_invalid_audience(self, jwt):
         payload = {"some": "payload", "aud": "urn:someone-else"}
@@ -450,13 +473,23 @@ class TestJWT:
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", audience="urn-me", algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                audience="urn-me",
+                algorithms=["HS256"],
+            )
 
     def test_raise_exception_audience_as_bytes(self, jwt):
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", audience=b"urn:me", algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                audience=b"urn:me",
+                algorithms=["HS256"],
+            )
 
     def test_raise_exception_invalid_audience_in_array(self, jwt):
         payload = {
@@ -467,7 +500,12 @@ class TestJWT:
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", audience="urn:me", algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                audience="urn:me",
+                algorithms=["HS256"],
+            )
 
     def test_raise_exception_token_without_issuer(self, jwt):
         issuer = "urn:wrong"
@@ -477,7 +515,12 @@ class TestJWT:
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", issuer=issuer, algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                issuer=issuer,
+                algorithms=["HS256"],
+            )
 
         assert exc.value.claim == "iss"
 
@@ -489,14 +532,24 @@ class TestJWT:
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", issuer=issuer, algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                issuer=issuer,
+                algorithms=["HS256"],
+            )
 
     def test_raise_exception_token_without_audience(self, jwt):
         payload = {"some": "payload"}
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", audience="urn:me", algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                audience="urn:me",
+                algorithms=["HS256"],
+            )
 
         assert exc.value.claim == "aud"
 
@@ -505,7 +558,12 @@ class TestJWT:
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", audience="urn:me", algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                audience="urn:me",
+                algorithms=["HS256"],
+            )
 
         assert exc.value.claim == "aud"
 
@@ -513,13 +571,23 @@ class TestJWT:
         issuer = "urn:foo"
         payload = {"some": "payload", "iss": "urn:foo"}
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-        jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", issuer=issuer, algorithms=["HS256"])
+        jwt.decode(
+            token,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            issuer=issuer,
+            algorithms=["HS256"],
+        )
 
     def test_check_issuer_list_when_valid(self, jwt):
         issuer = ["urn:foo", "urn:bar"]
         payload = {"some": "payload", "iss": "urn:foo"}
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-        jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", issuer=issuer, algorithms=["HS256"])
+        jwt.decode(
+            token,
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            issuer=issuer,
+            algorithms=["HS256"],
+        )
 
     def test_raise_exception_invalid_issuer(self, jwt):
         issuer = "urn:wrong"
@@ -529,7 +597,12 @@ class TestJWT:
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", issuer=issuer, algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                issuer=issuer,
+                algorithms=["HS256"],
+            )
 
     def test_raise_exception_invalid_issuer_list(self, jwt):
         issuer = ["urn:wrong", "urn:bar", "urn:baz"]
@@ -539,7 +612,12 @@ class TestJWT:
         token = jwt.encode(payload, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
         with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", issuer=issuer, algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                issuer=issuer,
+                algorithms=["HS256"],
+            )
 
     def test_skip_check_audience(self, jwt):
         payload = {"some": "payload", "aud": "urn:me"}
@@ -666,8 +744,12 @@ class TestJWT:
         with pytest.raises(TypeError):
             jwt.encode(data, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"])
 
-        token = jwt.encode(data, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", json_encoder=CustomJSONEncoder)
-        payload = jwt.decode(token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"])
+        token = jwt.encode(
+            data, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", json_encoder=CustomJSONEncoder
+        )
+        payload = jwt.decode(
+            token, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", algorithms=["HS256"]
+        )
 
         assert payload == {"some_decimal": "it worked"}
 
