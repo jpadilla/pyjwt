@@ -871,7 +871,7 @@ if has_crypto:
         def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
             if not isinstance(key, (str, bytes)):
                 self.check_crypto_key_type(key)
-                return key
+                return cast("AllowedOKPKeys", key)  # type: ignore[redundant-cast]  # Explicit for clarity
 
             key_str = key.decode("utf-8") if isinstance(key, bytes) else key
             key_bytes = key.encode("utf-8") if isinstance(key, str) else key
