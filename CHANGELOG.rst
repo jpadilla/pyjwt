@@ -9,7 +9,12 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
 Fixed
 ~~~~~
-- **Security**: Implement minimum key length validation for HMAC and RSA algorithms to address CVE-2025-45768. HMAC algorithms now require keys of at least 32 bytes (HS256), 48 bytes (HS384), and 64 bytes (HS512). RSA algorithms now require keys of at least 2048 bits as per RFC 7518 and NIST SP800-117 recommendations in `#1085 <https://github.com/jpadilla/pyjwt/pull/1085>`__
+- **Security**: Implement minimum key length validation for HMAC and RSA algorithms to address CVE-2025-45768 by @adeshjolhe in `#1085 <https://github.com/jpadilla/pyjwt/pull/1085>`__
+  
+  - HMAC algorithms now require keys of at least 32 bytes (HS256), 48 bytes (HS384), and 64 bytes (HS512)
+  - RSA algorithms now require keys of at least 2048 bits as per RFC 7518 and NIST SP800-117 recommendations
+  - Added comprehensive validation in both prepare_key() and from_jwk() methods
+  - Updated documentation examples to use secure key lengths
 - Validate key against allowed types for Algorithm family in `#964 <https://github.com/jpadilla/pyjwt/pull/964>`__
 - Add iterator for JWKSet in `#1041 <https://github.com/jpadilla/pyjwt/pull/1041>`__
 - Validate `iss` claim is a string during encoding and decoding by @pachewise in `#1040 <https://github.com/jpadilla/pyjwt/pull/1040>`__
