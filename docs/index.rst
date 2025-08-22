@@ -30,8 +30,8 @@ Example Usage
 .. doctest::
 
     >>> import jwt
-    >>> encoded_jwt = jwt.encode({"some": "payload"}, "secret", algorithm="HS256")
-    >>> jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
+    >>> encoded_jwt = jwt.encode({"some": "payload"}, "your-256-bit-secret-key-here-32chars", algorithm="HS256")
+    >>> jwt.decode(encoded_jwt, "your-256-bit-secret-key-here-32chars", algorithms=["HS256"])
     {'some': 'payload'}
 
 See :doc:`Usage Examples <usage>` for more examples.
