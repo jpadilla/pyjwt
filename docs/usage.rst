@@ -180,7 +180,9 @@ datetime, which will be converted into an int. For example:
 
     >>> from datetime import datetime, timezone
     >>> token = jwt.encode({"exp": 1371720939}, "your-256-bit-secret-key-here-32chars")
-    >>> token = jwt.encode({"exp": datetime.now(tz=timezone.utc)}, "your-256-bit-secret-key-here-32chars")
+    >>> token = jwt.encode(
+    ...     {"exp": datetime.now(tz=timezone.utc)}, "your-256-bit-secret-key-here-32chars"
+    ... )
 
 Expiration time is automatically verified in `jwt.decode()` and raises
 `jwt.ExpiredSignatureError` if the expiration time is in the past:
@@ -217,7 +219,9 @@ you can set a leeway of 10 seconds in order to have some margin:
     >>> time.sleep(2)
     >>> # JWT payload is now expired
     >>> # But with some leeway, it will still validate
-    >>> decoded = jwt.decode(token, "your-256-bit-secret-key-here-32chars", leeway=5, algorithms=["HS256"])
+    >>> decoded = jwt.decode(
+    ...     token, "your-256-bit-secret-key-here-32chars", leeway=5, algorithms=["HS256"]
+    ... )
 
 Instead of specifying the leeway as a number of seconds, a `datetime.timedelta`
 instance can be used. The last line in the example above is equivalent to:
@@ -225,7 +229,10 @@ instance can be used. The last line in the example above is equivalent to:
 .. code-block:: pycon
 
     >>> decoded = jwt.decode(
-    ...     token, "your-256-bit-secret-key-here-32chars", leeway=datetime.timedelta(seconds=10), algorithms=["HS256"]
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     leeway=datetime.timedelta(seconds=10),
+    ...     algorithms=["HS256"],
     ... )
 
 Not Before Time Claim (nbf)
@@ -244,7 +251,10 @@ The `nbf` claim works similarly to the `exp` claim above.
 .. code-block:: pycon
 
     >>> token = jwt.encode({"nbf": 1371720939}, "your-256-bit-secret-key-here-32chars")
-    >>> token = jwt.encode({"nbf": datetime.datetime.now(tz=timezone.utc)}, "your-256-bit-secret-key-here-32chars")
+    >>> token = jwt.encode(
+    ...     {"nbf": datetime.datetime.now(tz=timezone.utc)},
+    ...     "your-256-bit-secret-key-here-32chars",
+    ... )
 
 The `nbf` claim also supports the leeway feature similar to the `exp` claim. This
 allows you to validate a “not before” time that is slightly in the future. Using
@@ -261,7 +271,9 @@ synchronization between the token issuer and the validator is imprecise.
     >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
     >>> # JWT payload is not valid yet
     >>> # But with some leeway, it will still validate
-    >>> decoded = jwt.decode(token, "your-256-bit-secret-key-here-32chars", leeway=5, algorithms=["HS256"])
+    >>> decoded = jwt.decode(
+    ...     token, "your-256-bit-secret-key-here-32chars", leeway=5, algorithms=["HS256"]
+    ... )
 
 
 Issuer Claim (iss)
@@ -277,7 +289,12 @@ Issuer Claim (iss)
     >>> payload = {"some": "payload", "iss": "urn:foo"}
     >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
     >>> try:
-    ...     jwt.decode(token, "your-256-bit-secret-key-here-32chars", issuer="urn:invalid", algorithms=["HS256"])
+    ...     jwt.decode(
+    ...         token,
+    ...         "your-256-bit-secret-key-here-32chars",
+    ...         issuer="urn:invalid",
+    ...         algorithms=["HS256"],
+    ...     )
     ... except jwt.InvalidIssuerError:
     ...     print("invalid issuer")
     ...
@@ -302,8 +319,18 @@ sensitive strings, each containing a StringOrURI value.
 
     >>> payload = {"some": "payload", "aud": ["urn:foo", "urn:bar"]}
     >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
-    >>> decoded = jwt.decode(token, "your-256-bit-secret-key-here-32chars", audience="urn:foo", algorithms=["HS256"])
-    >>> decoded = jwt.decode(token, "your-256-bit-secret-key-here-32chars", audience="urn:bar", algorithms=["HS256"])
+    >>> decoded = jwt.decode(
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience="urn:foo",
+    ...     algorithms=["HS256"],
+    ... )
+    >>> decoded = jwt.decode(
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience="urn:bar",
+    ...     algorithms=["HS256"],
+    ... )
 
 In the special case when the JWT has one audience, the "aud" value MAY be
 a single case-sensitive string containing a StringOrURI value.
@@ -312,7 +339,12 @@ a single case-sensitive string containing a StringOrURI value.
 
     >>> payload = {"some": "payload", "aud": "urn:foo"}
     >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
-    >>> decoded = jwt.decode(token, "your-256-bit-secret-key-here-32chars", audience="urn:foo", algorithms=["HS256"])
+    >>> decoded = jwt.decode(
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience="urn:foo",
+    ...     algorithms=["HS256"],
+    ... )
 
 If multiple audiences are accepted, the ``audience`` parameter for
 ``jwt.decode`` can also be an iterable
@@ -322,10 +354,18 @@ If multiple audiences are accepted, the ``audience`` parameter for
     >>> payload = {"some": "payload", "aud": "urn:foo"}
     >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
     >>> decoded = jwt.decode(
-    ...     token, "your-256-bit-secret-key-here-32chars", audience=["urn:foo", "urn:bar"], algorithms=["HS256"]
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience=["urn:foo", "urn:bar"],
+    ...     algorithms=["HS256"],
     ... )
     >>> try:
-    ...     jwt.decode(token, "your-256-bit-secret-key-here-32chars", audience=["urn:invalid"], algorithms=["HS256"])
+    ...     jwt.decode(
+    ...         token,
+    ...         "your-256-bit-secret-key-here-32chars",
+    ...         audience=["urn:invalid"],
+    ...         algorithms=["HS256"],
+    ...     )
     ... except jwt.InvalidAudienceError:
     ...     print("invalid audience")
     ...
@@ -348,7 +388,10 @@ Issued At Claim (iat)
 .. code-block:: pycon
 
     >>> token = jwt.encode({"iat": 1371720939}, "your-256-bit-secret-key-here-32chars")
-    >>> token = jwt.encode({"iat": datetime.datetime.now(tz=timezone.utc)}, "your-256-bit-secret-key-here-32chars")
+    >>> token = jwt.encode(
+    ...     {"iat": datetime.datetime.now(tz=timezone.utc)},
+    ...     "your-256-bit-secret-key-here-32chars",
+    ... )
 
 Requiring Presence of Claims
 ----------------------------
@@ -357,7 +400,9 @@ If you wish to require one or more claims to be present in the claimset, you can
 
 .. code-block:: pycon
 
-    >>> token = jwt.encode({"sub": "1234567890", "iat": 1371720939}, "your-256-bit-secret-key-here-32chars")
+    >>> token = jwt.encode(
+    ...     {"sub": "1234567890", "iat": 1371720939}, "your-256-bit-secret-key-here-32chars"
+    ... )
     >>> try:
     ...     jwt.decode(
     ...         token,
