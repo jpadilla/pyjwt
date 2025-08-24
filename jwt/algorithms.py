@@ -133,28 +133,28 @@ _deprecation_warning_issued = False  # Track if deprecation warning was shown
 def set_min_key_length_enforcement(enforce: bool) -> None:
     """
     Configure minimum key length validation behavior.
-    
+
     Args:
-        enforce (bool): 
+        enforce (bool):
             - True (default): Raises InvalidKeyError for keys below minimum length
             - False: Emits a security warning but allows the operation to continue
-    
+
     Note:
-        The ability to disable enforcement is deprecated and will be removed 
-        in PyJWT 3.0. After that version, minimum key length validation will 
+        The ability to disable enforcement is deprecated and will be removed
+        in PyJWT 3.0. After that version, minimum key length validation will
         always be enforced.
-        
+
     Example:
         # Temporary warning mode (deprecated - use only for migration)
         jwt.algorithms.set_min_key_length_enforcement(False)
-        
+
         # Recommended: Use strong keys and keep enforcement enabled (default)
         jwt.algorithms.set_min_key_length_enforcement(True)
     """
     global _enforce_min_key_length, _deprecation_warning_issued
-    
+
     _enforce_min_key_length = enforce
-    
+
     # Issue deprecation warning when disabling enforcement
     if not enforce and not _deprecation_warning_issued:
         warnings.warn(
@@ -162,7 +162,7 @@ def set_min_key_length_enforcement(enforce: bool) -> None:
             "removed in PyJWT 3.0. Please migrate to using cryptographically "
             "secure key lengths. See https://pyjwt.readthedocs.io/en/latest/usage.html#security",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         _deprecation_warning_issued = True
 
@@ -170,7 +170,7 @@ def set_min_key_length_enforcement(enforce: bool) -> None:
 def get_min_key_length_enforcement() -> bool:
     """
     Get the current minimum key length validation behavior.
-    
+
     Returns:
         bool: True if enforcement is enabled, False if only warnings are issued
     """
@@ -407,13 +407,13 @@ class HMACAlgorithm(Algorithm):
                 alg_name = "HS384"
             elif self.hash_alg == hashlib.sha512:
                 alg_name = "HS512"
-            
+
             message = (
                 f"HMAC key must be at least {min_key_length * 8} bits "
                 f"({min_key_length} bytes) for {alg_name} algorithm. "
                 f"Key provided is {len(key_bytes) * 8} bits ({len(key_bytes)} bytes)."
             )
-            
+
             if get_min_key_length_enforcement():
                 raise InvalidKeyError(message)
             else:
@@ -421,7 +421,7 @@ class HMACAlgorithm(Algorithm):
                     f"Security Warning: {message} "
                     "This will be enforced in a future version.",
                     UserWarning,
-                    stacklevel=2
+                    stacklevel=2,
                 )
 
         return key_bytes
@@ -479,7 +479,7 @@ class HMACAlgorithm(Algorithm):
                 raise InvalidKeyError(message)
             else:
                 warnings.warn(message, UserWarning, stacklevel=3)
-        
+
         return key_bytes
 
     def sign(self, msg: bytes, key: bytes) -> bytes:

@@ -1,3 +1,7 @@
+from .algorithms import (
+    get_min_key_length_enforcement,
+    set_min_key_length_enforcement,
+)
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jws import (
     PyJWS,
@@ -7,10 +11,6 @@ from .api_jws import (
     unregister_algorithm,
 )
 from .api_jwt import PyJWT, decode, decode_complete, encode
-from .algorithms import (
-    get_min_key_length_enforcement,
-    set_min_key_length_enforcement,
-)
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
