@@ -504,3 +504,91 @@ is not built into pyjwt.
     digest = alg_obj.compute_hash_digest(access_token)
     at_hash = base64.urlsafe_b64encode(digest[: (len(digest) // 2)]).rstrip("=")
     assert at_hash == payload["at_hash"]
+
+
+Security Considerations
+=======================
+
+Key Length Validation
+---------------------
+
+Starting with PyJWT 2.11.0, the library enforces minimum key lengths for cryptographic security:
+
+- **HMAC algorithms**: HS256 (32 bytes), HS384 (48 bytes), HS512 (64 bytes)
+- **RSA algorithms**: 2048 bits minimum
+
+This validation helps prevent weak key attacks and ensures compliance with security standards (RFC 7518, NIST SP800-117, RFC 2437).
+
+.. code-block:: python
+
+    import jwt
+    
+    # These will work (secure keys)
+    strong_hmac_key = b'your-32-byte-secret-key-here!'  # 32 bytes for HS256
+    token = jwt.encode({"user": "john"}, strong_hmac_key, algorithm="HS256")
+    
+    # This will raise InvalidKeyError (weak key)
+    weak_key = b'short'  # Only 5 bytes
+    token = jwt.encode({"user": "john"}, weak_key, algorithm="HS256")  # Raises InvalidKeyError
+
+Configuring Key Length Validation
+---------------------------------
+
+For migration purposes, you can temporarily disable strict enforcement:
+
+.. code-block:: python
+
+    import jwt
+    import warnings
+    
+    # Check current setting
+    enforcement = jwt.get_min_key_length_enforcement()
+    print(f"Enforcement enabled: {enforcement}")  # True by default
+    
+    # Temporary warning mode (deprecated - for migration only)
+    jwt.set_min_key_length_enforcement(False)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("always")  # Show security warnings
+        token = jwt.encode({"user": "john"}, weak_key, algorithm="HS256")  # Issues warning
+    
+    # Re-enable enforcement (recommended)
+    jwt.set_min_key_length_enforcement(True)
+
+.. warning::
+    Disabling key length enforcement is deprecated and will be removed in PyJWT 3.0. 
+    Please migrate to using cryptographically secure key lengths.
+
+Generating Secure Keys
+---------------------
+
+For HMAC algorithms, use the ``secrets`` module to generate cryptographically secure keys:
+
+.. code-block:: python
+
+    import secrets
+    
+    # Generate secure HMAC keys
+    hs256_key = secrets.token_bytes(32)  # 32 bytes = 256 bits
+    hs384_key = secrets.token_bytes(48)  # 48 bytes = 384 bits  
+    hs512_key = secrets.token_bytes(64)  # 64 bytes = 512 bits
+
+For RSA algorithms, use the ``cryptography`` library to generate keys with appropriate bit lengths:
+
+.. code-block:: python
+
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.hazmat.primitives import serialization
+    
+    # Generate secure RSA key (2048 bits minimum)
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048  # or 3072, 4096 for higher security
+    )
+    
+    # Serialize for use with PyJWT
+    pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )

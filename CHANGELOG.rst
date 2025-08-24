@@ -7,6 +7,31 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.1...HEAD>`__
 ------------------------------------------------------------------------
 
+Security
+~~~~~~~~
+- **[CVE-2025-45768]** Added minimum key length validation for HMAC and RSA algorithms to prevent weak encryption by @amanjolhe in `#1085 <https://github.com/jpadilla/pyjwt/pull/1085>`__
+- HMAC algorithms now enforce minimum key lengths: HS256 (32 bytes), HS384 (48 bytes), HS512 (64 bytes)
+- RSA algorithms now enforce minimum key length of 2048 bits
+- Added configurable enforcement via ``set_min_key_length_enforcement()`` and ``get_min_key_length_enforcement()``
+- Validation applies to all key input methods: direct bytes, PEM format, and JWK format
+- Complies with security standards: RFC 7518, NIST SP800-117, and RFC 2437
+
+Added
+~~~~~
+- ``set_min_key_length_enforcement(enforce: bool)`` - Configure key length validation behavior by @amanjolhe in `#1085 <https://github.com/jpadilla/pyjwt/pull/1085>`__
+- ``get_min_key_length_enforcement() -> bool`` - Get current validation behavior by @amanjolhe in `#1085 <https://github.com/jpadilla/pyjwt/pull/1085>`__
+- Security warnings for weak keys when enforcement is disabled (deprecated mode)
+
+Changed
+~~~~~~~
+- Default behavior now enforces minimum key lengths (can be disabled temporarily)
+- Weak keys will raise ``InvalidKeyError`` by default instead of being silently accepted
+
+Deprecated
+~~~~~~~~~~
+- Disabling key length enforcement is deprecated and will be removed in PyJWT 3.0
+- Direct access to ``ENFORCE_MIN_KEY_LENGTH`` variable is deprecated
+
 Fixed
 ~~~~~
 - **Security**: Implement minimum key length validation for HMAC and RSA algorithms to address CVE-2025-45768 by @adeshjolhe in `#1085 <https://github.com/jpadilla/pyjwt/pull/1085>`__

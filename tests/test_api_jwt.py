@@ -1072,3 +1072,103 @@ class TestJWT:
         }
         with pytest.raises(InvalidIssuerError):
             jwt._validate_iss(payload, issuer=123)
+
+
+class TestKeyLengthValidationAPI:
+    """Test the new key length validation configuration API."""
+    
+    def test_default_enforcement_enabled(self):
+        """Test that enforcement is enabled by default."""
+        import jwt
+        assert jwt.get_min_key_length_enforcement() is True
+    
+    def test_set_enforcement_to_false_shows_deprecation_warning(self):
+        """Test that disabling enforcement shows deprecation warning."""
+        import jwt
+        import warnings
+        
+        # Reset to True first
+        jwt.set_min_key_length_enforcement(True)
+        
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            jwt.set_min_key_length_enforcement(False)
+            
+            assert len(w) >= 1
+            assert issubclass(w[0].category, DeprecationWarning)
+            assert "deprecated" in str(w[0].message).lower()
+            assert "PyJWT 3.0" in str(w[0].message)
+        
+        # Verify setting changed
+        assert jwt.get_min_key_length_enforcement() is False
+        
+        # Reset to default
+        jwt.set_min_key_length_enforcement(True)
+    
+    def test_enforcement_mode_affects_behavior(self):
+        """Test that enforcement mode actually affects key validation behavior."""
+        import jwt
+        import warnings
+        
+        weak_key = b'weak'  # 4 bytes, below 32-byte minimum
+        payload = {"test": "data"}
+        
+        # Test strict mode (default)
+        jwt.set_min_key_length_enforcement(True)
+        with pytest.raises(jwt.InvalidKeyError, match="HMAC key must be at least"):
+            jwt.encode(payload, weak_key, algorithm="HS256")
+        
+        # Test warning mode
+        jwt.set_min_key_length_enforcement(False)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            token = jwt.encode(payload, weak_key, algorithm="HS256")
+            decoded = jwt.decode(token, weak_key, algorithms=["HS256"])
+            
+            # Should have security warning
+            security_warnings = [warning for warning in w 
+                               if "Security Warning" in str(warning.message)]
+            assert len(security_warnings) >= 1
+            assert "HMAC key must be at least" in str(security_warnings[0].message)
+        
+        # Reset to default
+        jwt.set_min_key_length_enforcement(True)
+    
+    def test_strong_keys_work_in_both_modes(self):
+        """Test that strong keys work in both enforcement modes."""
+        import jwt
+        import warnings
+        
+        strong_key = b'a' * 32  # 32 bytes, meets minimum
+        payload = {"test": "data"}
+        
+        # Test in strict mode
+        jwt.set_min_key_length_enforcement(True)
+        token = jwt.encode(payload, strong_key, algorithm="HS256")
+        decoded = jwt.decode(token, strong_key, algorithms=["HS256"])
+        assert decoded == payload
+        
+        # Test in warning mode (should not generate warnings for strong keys)
+        jwt.set_min_key_length_enforcement(False)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            token = jwt.encode(payload, strong_key, algorithm="HS256")
+            decoded = jwt.decode(token, strong_key, algorithms=["HS256"])
+            
+            # Should not have security warnings for strong keys
+            security_warnings = [warning for warning in w 
+                               if "Security Warning" in str(warning.message)]
+            assert len(security_warnings) == 0
+        
+        # Reset to default
+        jwt.set_min_key_length_enforcement(True)
+    
+    def test_api_functions_are_exported(self):
+        """Test that the new API functions are properly exported."""
+        import jwt
+        
+        # Test that functions exist and are callable
+        assert hasattr(jwt, 'set_min_key_length_enforcement')
+        assert hasattr(jwt, 'get_min_key_length_enforcement')
+        assert callable(jwt.set_min_key_length_enforcement)
+        assert callable(jwt.get_min_key_length_enforcement)

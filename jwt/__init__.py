@@ -7,6 +7,10 @@ from .api_jws import (
     unregister_algorithm,
 )
 from .api_jwt import PyJWT, decode, decode_complete, encode
+from .algorithms import (
+    get_min_key_length_enforcement,
+    set_min_key_length_enforcement,
+)
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
@@ -55,6 +59,8 @@ __all__ = [
     "register_algorithm",
     "unregister_algorithm",
     "get_algorithm_by_name",
+    "get_min_key_length_enforcement",
+    "set_min_key_length_enforcement",
     # Exceptions
     "DecodeError",
     "ExpiredSignatureError",

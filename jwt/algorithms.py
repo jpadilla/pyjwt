@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
 
@@ -122,6 +123,64 @@ try:
     has_crypto = True
 except ModuleNotFoundError:
     has_crypto = False
+
+
+# Minimum key length validation configuration
+_enforce_min_key_length = True  # Private variable
+_deprecation_warning_issued = False  # Track if deprecation warning was shown
+
+
+def set_min_key_length_enforcement(enforce: bool) -> None:
+    """
+    Configure minimum key length validation behavior.
+    
+    Args:
+        enforce (bool): 
+            - True (default): Raises InvalidKeyError for keys below minimum length
+            - False: Emits a security warning but allows the operation to continue
+    
+    Note:
+        The ability to disable enforcement is deprecated and will be removed 
+        in PyJWT 3.0. After that version, minimum key length validation will 
+        always be enforced.
+        
+    Example:
+        # Temporary warning mode (deprecated - use only for migration)
+        jwt.algorithms.set_min_key_length_enforcement(False)
+        
+        # Recommended: Use strong keys and keep enforcement enabled (default)
+        jwt.algorithms.set_min_key_length_enforcement(True)
+    """
+    global _enforce_min_key_length, _deprecation_warning_issued
+    
+    _enforce_min_key_length = enforce
+    
+    # Issue deprecation warning when disabling enforcement
+    if not enforce and not _deprecation_warning_issued:
+        warnings.warn(
+            "Disabling minimum key length enforcement is deprecated and will be "
+            "removed in PyJWT 3.0. Please migrate to using cryptographically "
+            "secure key lengths. See https://pyjwt.readthedocs.io/en/latest/usage.html#security",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        _deprecation_warning_issued = True
+
+
+def get_min_key_length_enforcement() -> bool:
+    """
+    Get the current minimum key length validation behavior.
+    
+    Returns:
+        bool: True if enforcement is enabled, False if only warnings are issued
+    """
+    return _enforce_min_key_length
+
+
+# Backward compatibility - will be removed in PyJWT 3.0
+# Note: Direct access to this variable is deprecated
+# Use set_min_key_length_enforcement() and get_min_key_length_enforcement() instead
+ENFORCE_MIN_KEY_LENGTH = _enforce_min_key_length
 
 
 requires_cryptography = {
@@ -348,12 +407,22 @@ class HMACAlgorithm(Algorithm):
                 alg_name = "HS384"
             elif self.hash_alg == hashlib.sha512:
                 alg_name = "HS512"
-
-            raise InvalidKeyError(
+            
+            message = (
                 f"HMAC key must be at least {min_key_length * 8} bits "
                 f"({min_key_length} bytes) for {alg_name} algorithm. "
                 f"Key provided is {len(key_bytes) * 8} bits ({len(key_bytes)} bytes)."
             )
+            
+            if get_min_key_length_enforcement():
+                raise InvalidKeyError(message)
+            else:
+                warnings.warn(
+                    f"Security Warning: {message} "
+                    "This will be enforced in a future version.",
+                    UserWarning,
+                    stacklevel=2
+                )
 
         return key_bytes
 
@@ -401,12 +470,16 @@ class HMACAlgorithm(Algorithm):
         # Validate key length - use a conservative minimum of 32 bytes (256 bits)
         min_key_length = 32  # 256 bits minimum
         if len(key_bytes) < min_key_length:
-            raise InvalidKeyError(
+            message = (
                 f"HMAC key must be at least {min_key_length * 8} bits "
                 f"({min_key_length} bytes). Key provided is {len(key_bytes) * 8} "
                 f"bits ({len(key_bytes)} bytes)."
             )
-
+            if get_min_key_length_enforcement():
+                raise InvalidKeyError(message)
+            else:
+                warnings.warn(message, UserWarning, stacklevel=3)
+        
         return key_bytes
 
     def sign(self, msg: bytes, key: bytes) -> bytes:
@@ -439,10 +512,14 @@ if has_crypto:
             min_key_size = 2048  # Minimum 2048 bits per RFC 7518 and NIST SP800-117
 
             if key_size < min_key_size:
-                raise InvalidKeyError(
+                message = (
                     f"RSA key must be at least {min_key_size} bits. "
                     f"Key provided is {key_size} bits."
                 )
+                if get_min_key_length_enforcement():
+                    raise InvalidKeyError(message)
+                else:
+                    warnings.warn(message, UserWarning, stacklevel=3)
 
         @staticmethod
         def _validate_rsa_key_size_static(key: AllowedRSAKeys) -> None:
@@ -451,10 +528,14 @@ if has_crypto:
             min_key_size = 2048  # Minimum 2048 bits per RFC 7518 and NIST SP800-117
 
             if key_size < min_key_size:
-                raise InvalidKeyError(
+                message = (
                     f"RSA key must be at least {min_key_size} bits. "
                     f"Key provided is {key_size} bits."
                 )
+                if get_min_key_length_enforcement():
+                    raise InvalidKeyError(message)
+                else:
+                    warnings.warn(message, UserWarning, stacklevel=3)
 
         def prepare_key(self, key: AllowedRSAKeys | str | bytes) -> AllowedRSAKeys:
             if isinstance(key, self._crypto_key_types):
