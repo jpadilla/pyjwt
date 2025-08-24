@@ -1127,7 +1127,7 @@ class TestKeyLengthValidationAPI:
             warnings.simplefilter("always")
             token = jwt.encode(payload, weak_key, algorithm="HS256")
             jwt.decode(token, weak_key, algorithms=["HS256"])
-            
+
             # Should have security warning
             security_warnings = [
                 warning for warning in w if "Security Warning" in str(warning.message)
