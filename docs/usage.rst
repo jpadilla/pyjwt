@@ -161,6 +161,8 @@ how they should be used. PyJWT supports these registered claim names:
  - "iss" (Issuer) Claim
  - "aud" (Audience) Claim
  - "iat" (Issued At) Claim
+ - "jti" (JWT ID) Claim
+ - "sub" (Subject) Claim
 
 Expiration Time Claim (exp)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -349,6 +351,50 @@ Issued At Claim (iat)
 
     >>> token = jwt.encode({"iat": 1371720939}, "secret")
     >>> token = jwt.encode({"iat": datetime.datetime.now(tz=timezone.utc)}, "secret")
+
+Subject Claim (sub)
+~~~~~~~~~~~~~~~~~~~
+
+    The "sub" (subject) claim identifies the principal that is the subject
+    of the JWT.  The claims in a JWT are normally statements about the
+    subject.  The subject value MUST either be scoped to be locally
+    unique in the context of the issuer or be globally unique.  The
+    processing of this claim is generally application specific.  The "sub"
+    value is a case-sensitive string containing a StringOrURI value.  Use
+    of this claim is OPTIONAL.
+
+.. code-block:: pycon
+
+    >>> payload = {"some": "payload", "sub": "1234567890"}
+    >>> token = jwt.encode(payload, "secret")
+    >>> decoded = jwt.decode(token, "secret", algorithms=["HS256"])
+    >>> decoded["sub"]
+    '1234567890'
+
+Most likely the subject claim will be a user id, or some other identifier to uniquely identify the subject of the token.
+
+JWT ID Claim (jti)
+~~~~~~~~~~~~~~~~~~
+
+    The "jti" (JWT ID) claim provides a unique identifier for the JWT.
+    The identifier value MUST be assigned in a manner that ensures that
+    there is a negligible probability that the same value will be
+    accidentally assigned to a different data object; if the application
+    uses multiple issuers, collisions MUST be prevented among values
+    produced by different issuers as well.  The "jti" claim can be used
+    to prevent the JWT from being replayed.  The "jti" value is a case-
+    sensitive string.  Use of this claim is OPTIONAL.
+
+.. code-block:: pycon
+
+    >>> import uuid
+    >>> payload = {"some": "payload", "jti": str(uuid.uuid4())}
+    >>> token = jwt.encode(payload, "secret")
+    >>> decoded = jwt.decode(token, "secret", algorithms=["HS256"])
+    >>> decoded["jti"]  # doctest: +SKIP
+    '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+The JWT ID claim is most useful when you store used JWT IDs in a database or cache to prevent replay attacks.
 
 Requiring Presence of Claims
 ----------------------------
