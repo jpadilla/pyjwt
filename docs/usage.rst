@@ -355,13 +355,9 @@ Issued At Claim (iat)
 Subject Claim (sub)
 ~~~~~~~~~~~~~~~~~~~
 
-    The "sub" (subject) claim identifies the principal that is the subject
-    of the JWT.  The claims in a JWT are normally statements about the
-    subject.  The subject value MUST either be scoped to be locally
-    unique in the context of the issuer or be globally unique.  The
-    processing of this claim is generally application specific.  The "sub"
-    value is a case-sensitive string containing a StringOrURI value.  Use
-    of this claim is OPTIONAL.
+    The "sub" (subject) claim identifies the principal that is the subject of the JWT.
+    The subject value MUST either be scoped to be locally unique in the context of the issuer or be globally unique.
+    Use of this claim is OPTIONAL.
 
 .. code-block:: pycon
 
@@ -371,19 +367,22 @@ Subject Claim (sub)
     >>> decoded["sub"]
     '1234567890'
 
-Most likely the subject claim will be a user id, or some other identifier to uniquely identify the subject of the token.
+Think of the `sub`` claim as the **"who"** of the JWT.
+It identifies the subject of the token—the user or entity that the token is about.
+The claims inside a JWT are essentially statements about this subject.
+
+For example, if you have a JWT for a logged-in user, the `sub` claim would typically be their unique user ID, like `1234567890`.
+This value needs to be unique within your application's context so you can reliably identify who the token belongs to.
+While the `sub` claim is optional, it's a fundamental part of most JWT-based authentication systems.
 
 JWT ID Claim (jti)
 ~~~~~~~~~~~~~~~~~~
 
     The "jti" (JWT ID) claim provides a unique identifier for the JWT.
-    The identifier value MUST be assigned in a manner that ensures that
-    there is a negligible probability that the same value will be
-    accidentally assigned to a different data object; if the application
-    uses multiple issuers, collisions MUST be prevented among values
-    produced by different issuers as well.  The "jti" claim can be used
-    to prevent the JWT from being replayed.  The "jti" value is a case-
-    sensitive string.  Use of this claim is OPTIONAL.
+    The identifier value MUST be assigned in a manner that ensures that there is a negligible probability that the same value will be accidentally assigned to a different data object.
+    If the application uses multiple issuers, collisions MUST be prevented among values produced by different issuers as well.
+    The "jti" value is a case-sensitive string.
+    Use of this claim is OPTIONAL.
 
 .. code-block:: pycon
 
@@ -394,7 +393,16 @@ JWT ID Claim (jti)
     >>> decoded["jti"]  # doctest: +SKIP
     '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 
-The JWT ID claim is most useful when you store used JWT IDs in a database or cache to prevent replay attacks.
+The `jti` claim is giving your JWT a unique identifier.
+Think of it like a serial number for the token.
+This ID must be assigned in a way that makes it virtually impossible for two different tokens to have the same `jti` value.
+A common practice is to use a Universally Unique Identifier (UUID).
+
+The `jti` claim is used to **prevent replay attacks**.
+A replay attack happens when a bad actor intercepts a valid token and uses it to make a request again.
+By storing the `jti` of every token you've already processed in a database or cache, you can check if a token has been used before.
+If a token with a previously-seen `jti` shows up, you can reject the request, stopping the attack.
+
 
 Requiring Presence of Claims
 ----------------------------
