@@ -367,8 +367,8 @@ Subject Claim (sub)
     >>> decoded["sub"]
     '1234567890'
 
-Think of the `sub`` claim as the **"who"** of the JWT.
-It identifies the subject of the token—the user or entity that the token is about.
+Think of the `sub` claim as the **"who"** of the JWT.
+It identifies the subject of the token — the user or entity that the token is about.
 The claims inside a JWT are essentially statements about this subject.
 
 For example, if you have a JWT for a logged-in user, the `sub` claim would typically be their unique user ID, like `1234567890`.
