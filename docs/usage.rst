@@ -161,8 +161,8 @@ how they should be used. PyJWT supports these registered claim names:
  - "iss" (Issuer) Claim
  - "aud" (Audience) Claim
  - "iat" (Issued At) Claim
- - "jti" (JWT ID) Claim
  - "sub" (Subject) Claim
+ - "jti" (JWT ID) Claim
 
 Expiration Time Claim (exp)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
