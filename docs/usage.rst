@@ -111,8 +111,8 @@ By default the ``typ`` is attaching to the headers. In case when you don't need 
     ...     "secret",
     ...     algorithm="HS256",
     ...     headers={"typ": None},
-    ... )
-
+    ... )  # doctest: +ELLIPSIS
+    'eyJhbGciOiJIUzI1NiJ9.eyJzb21lIjoicGF5bG9hZCJ9...'
 
 Reading the Claimset without Validation
 ---------------------------------------
