@@ -111,8 +111,8 @@ By default the ``typ`` is attaching to the headers. In case when you don't need 
     ...     "secret",
     ...     algorithm="HS256",
     ...     headers={"typ": None},
-    ... )
-
+    ... )  # doctest: +ELLIPSIS
+    'eyJhbGciOiJIUzI1NiJ9.eyJzb21lIjoicGF5bG9hZCJ9...'
 
 Reading the Claimset without Validation
 ---------------------------------------
@@ -161,6 +161,8 @@ how they should be used. PyJWT supports these registered claim names:
  - "iss" (Issuer) Claim
  - "aud" (Audience) Claim
  - "iat" (Issued At) Claim
+ - "sub" (Subject) Claim
+ - "jti" (JWT ID) Claim
 
 Expiration Time Claim (exp)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -349,6 +351,58 @@ Issued At Claim (iat)
 
     >>> token = jwt.encode({"iat": 1371720939}, "secret")
     >>> token = jwt.encode({"iat": datetime.datetime.now(tz=timezone.utc)}, "secret")
+
+Subject Claim (sub)
+~~~~~~~~~~~~~~~~~~~
+
+    The "sub" (subject) claim identifies the principal that is the subject of the JWT.
+    The subject value MUST either be scoped to be locally unique in the context of the issuer or be globally unique.
+    Use of this claim is OPTIONAL.
+
+.. code-block:: pycon
+
+    >>> payload = {"some": "payload", "sub": "1234567890"}
+    >>> token = jwt.encode(payload, "secret")
+    >>> decoded = jwt.decode(token, "secret", algorithms=["HS256"])
+    >>> decoded["sub"]
+    '1234567890'
+
+Think of the `sub` claim as the **"who"** of the JWT.
+It identifies the subject of the token — the user or entity that the token is about.
+The claims inside a JWT are essentially statements about this subject.
+
+For example, if you have a JWT for a logged-in user, the `sub` claim would typically be their unique user ID, like `1234567890`.
+This value needs to be unique within your application's context so you can reliably identify who the token belongs to.
+While the `sub` claim is optional, it's a fundamental part of most JWT-based authentication systems.
+
+JWT ID Claim (jti)
+~~~~~~~~~~~~~~~~~~
+
+    The "jti" (JWT ID) claim provides a unique identifier for the JWT.
+    The identifier value MUST be assigned in a manner that ensures that there is a negligible probability that the same value will be accidentally assigned to a different data object.
+    If the application uses multiple issuers, collisions MUST be prevented among values produced by different issuers as well.
+    The "jti" value is a case-sensitive string.
+    Use of this claim is OPTIONAL.
+
+.. code-block:: pycon
+
+    >>> import uuid
+    >>> payload = {"some": "payload", "jti": str(uuid.uuid4())}
+    >>> token = jwt.encode(payload, "secret")
+    >>> decoded = jwt.decode(token, "secret", algorithms=["HS256"])
+    >>> decoded["jti"]  # doctest: +SKIP
+    '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+The `jti` claim is giving your JWT a unique identifier.
+Think of it like a serial number for the token.
+This ID must be assigned in a way that makes it virtually impossible for two different tokens to have the same `jti` value.
+A common practice is to use a Universally Unique Identifier (UUID).
+
+The `jti` claim is used to **prevent replay attacks**.
+A replay attack happens when a bad actor intercepts a valid token and uses it to make a request again.
+By storing the `jti` of every token you've already processed in a database or cache, you can check if a token has been used before.
+If a token with a previously-seen `jti` shows up, you can reject the request, stopping the attack.
+
 
 Requiring Presence of Claims
 ----------------------------
