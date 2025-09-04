@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v4"
-      - uses: "actions/setup-python@v5"
+      - uses: "actions/setup-python@v6"
 
         with:
           python-version: "${{ matrix.python-version }}"
@@ -41,7 +41,7 @@ jobs:
 
       # We always use a modern Python version for combining coverage to prevent
       # parsing errors in older versions for modern code.
-      - uses: "actions/setup-python@v5"
+      - uses: "actions/setup-python@v6"
         with:
           python-version: "3.9"
 
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v4"
-      - uses: "actions/setup-python@v5"
+      - uses: "actions/setup-python@v6"
 
         with:
           python-version: "3.9"
@@ -94,7 +94,7 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v4"
-      - uses: "actions/setup-python@v5"
+      - uses: "actions/setup-python@v6"
 
         with:
           python-version: "3.9"
