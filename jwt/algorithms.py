@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
 
@@ -122,6 +123,64 @@ try:
     has_crypto = True
 except ModuleNotFoundError:
     has_crypto = False
+
+
+# Minimum key length validation configuration
+_enforce_min_key_length = True  # Private variable
+_deprecation_warning_issued = False  # Track if deprecation warning was shown
+
+
+def set_min_key_length_enforcement(enforce: bool) -> None:
+    """
+    Configure minimum key length validation behavior.
+
+    Args:
+        enforce (bool):
+            - True (default): Raises InvalidKeyError for keys below minimum length
+            - False: Emits a security warning but allows the operation to continue
+
+    Note:
+        The ability to disable enforcement is deprecated and will be removed
+        in PyJWT 3.0. After that version, minimum key length validation will
+        always be enforced.
+
+    Example:
+        # Temporary warning mode (deprecated - use only for migration)
+        jwt.algorithms.set_min_key_length_enforcement(False)
+
+        # Recommended: Use strong keys and keep enforcement enabled (default)
+        jwt.algorithms.set_min_key_length_enforcement(True)
+    """
+    global _enforce_min_key_length, _deprecation_warning_issued
+
+    _enforce_min_key_length = enforce
+
+    # Issue deprecation warning when disabling enforcement
+    if not enforce and not _deprecation_warning_issued:
+        warnings.warn(
+            "Disabling minimum key length enforcement is deprecated and will be "
+            "removed in PyJWT 3.0. Please migrate to using cryptographically "
+            "secure key lengths. See https://pyjwt.readthedocs.io/en/latest/usage.html#security",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        _deprecation_warning_issued = True
+
+
+def get_min_key_length_enforcement() -> bool:
+    """
+    Get the current minimum key length validation behavior.
+
+    Returns:
+        bool: True if enforcement is enabled, False if only warnings are issued
+    """
+    return _enforce_min_key_length
+
+
+# Backward compatibility - will be removed in PyJWT 3.0
+# Note: Direct access to this variable is deprecated
+# Use set_min_key_length_enforcement() and get_min_key_length_enforcement() instead
+ENFORCE_MIN_KEY_LENGTH = _enforce_min_key_length
 
 
 requires_cryptography = {
@@ -316,6 +375,18 @@ class HMACAlgorithm(Algorithm):
     def __init__(self, hash_alg: HashlibHash) -> None:
         self.hash_alg = hash_alg
 
+    def _get_min_key_length(self) -> int:
+        """Get minimum key length in bytes based on hash algorithm."""
+        if self.hash_alg == hashlib.sha256:
+            return 32  # 256 bits for HS256
+        elif self.hash_alg == hashlib.sha384:
+            return 48  # 384 bits for HS384
+        elif self.hash_alg == hashlib.sha512:
+            return 64  # 512 bits for HS512
+        else:
+            # For any other hash algorithm, require at least 32 bytes (256 bits)
+            return 32
+
     def prepare_key(self, key: str | bytes) -> bytes:
         key_bytes = force_bytes(key)
 
@@ -324,6 +395,34 @@ class HMACAlgorithm(Algorithm):
                 "The specified key is an asymmetric key or x509 certificate and"
                 " should not be used as an HMAC secret."
             )
+
+        # Enforce minimum key lengths per RFC 7518 and NIST guidelines
+        min_key_length = self._get_min_key_length()
+        if len(key_bytes) < min_key_length:
+            # Get algorithm name for error message
+            alg_name = "HMAC"
+            if self.hash_alg == hashlib.sha256:
+                alg_name = "HS256"
+            elif self.hash_alg == hashlib.sha384:
+                alg_name = "HS384"
+            elif self.hash_alg == hashlib.sha512:
+                alg_name = "HS512"
+
+            message = (
+                f"HMAC key must be at least {min_key_length * 8} bits "
+                f"({min_key_length} bytes) for {alg_name} algorithm. "
+                f"Key provided is {len(key_bytes) * 8} bits ({len(key_bytes)} bytes)."
+            )
+
+            if get_min_key_length_enforcement():
+                raise InvalidKeyError(message)
+            else:
+                warnings.warn(
+                    f"Security Warning: {message} "
+                    "This will be enforced in a future version.",
+                    UserWarning,
+                    stacklevel=2,
+                )
 
         return key_bytes
 
@@ -366,7 +465,22 @@ class HMACAlgorithm(Algorithm):
         if obj.get("kty") != "oct":
             raise InvalidKeyError("Not an HMAC key")
 
-        return base64url_decode(obj["k"])
+        key_bytes = base64url_decode(obj["k"])
+
+        # Validate key length - use a conservative minimum of 32 bytes (256 bits)
+        min_key_length = 32  # 256 bits minimum
+        if len(key_bytes) < min_key_length:
+            message = (
+                f"HMAC key must be at least {min_key_length * 8} bits "
+                f"({min_key_length} bytes). Key provided is {len(key_bytes) * 8} "
+                f"bits ({len(key_bytes)} bytes)."
+            )
+            if get_min_key_length_enforcement():
+                raise InvalidKeyError(message)
+            else:
+                warnings.warn(message, UserWarning, stacklevel=3)
+
+        return key_bytes
 
     def sign(self, msg: bytes, key: bytes) -> bytes:
         return hmac.new(key, msg, self.hash_alg).digest()
@@ -392,8 +506,40 @@ if has_crypto:
         def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
 
+        def _validate_rsa_key_size(self, key: AllowedRSAKeys) -> None:
+            """Validate RSA key size meets minimum security requirements."""
+            key_size = key.key_size
+            min_key_size = 2048  # Minimum 2048 bits per RFC 7518 and NIST SP800-117
+
+            if key_size < min_key_size:
+                message = (
+                    f"RSA key must be at least {min_key_size} bits. "
+                    f"Key provided is {key_size} bits."
+                )
+                if get_min_key_length_enforcement():
+                    raise InvalidKeyError(message)
+                else:
+                    warnings.warn(message, UserWarning, stacklevel=3)
+
+        @staticmethod
+        def _validate_rsa_key_size_static(key: AllowedRSAKeys) -> None:
+            """Static version of RSA key size validation for use in static methods."""
+            key_size = key.key_size
+            min_key_size = 2048  # Minimum 2048 bits per RFC 7518 and NIST SP800-117
+
+            if key_size < min_key_size:
+                message = (
+                    f"RSA key must be at least {min_key_size} bits. "
+                    f"Key provided is {key_size} bits."
+                )
+                if get_min_key_length_enforcement():
+                    raise InvalidKeyError(message)
+                else:
+                    warnings.warn(message, UserWarning, stacklevel=3)
+
         def prepare_key(self, key: AllowedRSAKeys | str | bytes) -> AllowedRSAKeys:
             if isinstance(key, self._crypto_key_types):
+                self._validate_rsa_key_size(key)
                 return key
 
             if not isinstance(key, (bytes, str)):
@@ -405,18 +551,24 @@ if has_crypto:
                 if key_bytes.startswith(b"ssh-rsa"):
                     public_key: PublicKeyTypes = load_ssh_public_key(key_bytes)
                     self.check_crypto_key_type(public_key)
-                    return cast(RSAPublicKey, public_key)
+                    rsa_public_key = cast(RSAPublicKey, public_key)
+                    self._validate_rsa_key_size(rsa_public_key)
+                    return rsa_public_key
                 else:
                     private_key: PrivateKeyTypes = load_pem_private_key(
                         key_bytes, password=None
                     )
                     self.check_crypto_key_type(private_key)
-                    return cast(RSAPrivateKey, private_key)
+                    rsa_private_key = cast(RSAPrivateKey, private_key)
+                    self._validate_rsa_key_size(rsa_private_key)
+                    return rsa_private_key
             except ValueError:
                 try:
                     public_key = load_pem_public_key(key_bytes)
                     self.check_crypto_key_type(public_key)
-                    return cast(RSAPublicKey, public_key)
+                    rsa_public_key = cast(RSAPublicKey, public_key)
+                    self._validate_rsa_key_size(rsa_public_key)
+                    return rsa_public_key
                 except (ValueError, UnsupportedAlgorithm):
                     raise InvalidKeyError(
                         "Could not parse the provided public key."
@@ -519,6 +671,9 @@ if has_crypto:
                         iqmp=from_base64url_uint(obj["qi"]),
                         public_numbers=public_numbers,
                     )
+                    private_key = numbers.private_key()
+                    RSAAlgorithm._validate_rsa_key_size_static(private_key)
+                    return private_key
                 else:
                     d = from_base64url_uint(obj["d"])
                     p, q = rsa_recover_prime_factors(
@@ -535,13 +690,17 @@ if has_crypto:
                         public_numbers=public_numbers,
                     )
 
-                return numbers.private_key()
+                private_key = numbers.private_key()
+                RSAAlgorithm._validate_rsa_key_size_static(private_key)
+                return private_key
             elif "n" in obj and "e" in obj:
                 # Public key
-                return RSAPublicNumbers(
+                public_key = RSAPublicNumbers(
                     from_base64url_uint(obj["e"]),
                     from_base64url_uint(obj["n"]),
                 ).public_key()
+                RSAAlgorithm._validate_rsa_key_size_static(public_key)
+                return public_key
             else:
                 raise InvalidKeyError("Not a public or private key")
 
