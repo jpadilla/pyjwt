@@ -876,15 +876,16 @@ class TestJWT:
                 token, secret, algorithms=["HS256"], options={"require": ["sub"]}
             )
 
-    def test_decode_invalid_int_sub_claim(self, jwt):
+    def test_encode_with_invalid_int_sub_claim(self, jwt):
         payload = {
             "sub": 1224344,
         }
         secret = "your-256-bit-secret"
-        token = jwt.encode(payload, secret, algorithm="HS256")
 
-        with pytest.raises(InvalidSubjectError):
-            jwt.decode(token, secret, algorithms=["HS256"])
+        with pytest.raises(TypeError) as exc_info:
+            jwt.encode(payload, secret, algorithm="HS256")
+
+        assert "Subject (sub) must be a string" in str(exc_info.value)
 
     def test_decode_with_valid_sub_claim(self, jwt):
         payload = {
