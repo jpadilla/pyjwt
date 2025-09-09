@@ -7,7 +7,7 @@ Encoding & Decoding Tokens with HS256
 .. code-block:: pycon
 
     >>> import jwt
-    >>> key = "secret"
+    >>> key = "your-256-bit-secret-key-here-32chars"
     >>> encoded = jwt.encode({"some": "payload"}, key, algorithm="HS256")
     >>> jwt.decode(encoded, key, algorithms="HS256")
     {'some': 'payload'}
@@ -95,7 +95,7 @@ Specifying Additional Headers
 
     >>> jwt.encode(
     ...     {"some": "payload"},
-    ...     "secret",
+    ...     "your-256-bit-secret-key-here-32chars",
     ...     algorithm="HS256",
     ...     headers={"kid": "230498151c214b788dd97f22b85410a5"},
     ... )
@@ -108,7 +108,7 @@ By default the ``typ`` is attaching to the headers. In case when you don't need 
 
     >>> jwt.encode(
     ...     {"some": "payload"},
-    ...     "secret",
+    ...     "your-256-bit-secret-key-here-32chars",
     ...     algorithm="HS256",
     ...     headers={"typ": None},
     ... )  # doctest: +ELLIPSIS
@@ -143,7 +143,7 @@ key in the header.
 
     >>> encoded = jwt.encode(
     ...     {"some": "payload"},
-    ...     "secret",
+    ...     "your-256-bit-secret-key-here-32chars",
     ...     algorithm="HS256",
     ...     headers={"kid": "230498151c214b788dd97f22b85410a5"},
     ... )
@@ -181,8 +181,10 @@ datetime, which will be converted into an int. For example:
 .. code-block:: pycon
 
     >>> from datetime import datetime, timezone
-    >>> token = jwt.encode({"exp": 1371720939}, "secret")
-    >>> token = jwt.encode({"exp": datetime.now(tz=timezone.utc)}, "secret")
+    >>> token = jwt.encode({"exp": 1371720939}, "your-256-bit-secret-key-here-32chars")
+    >>> token = jwt.encode(
+    ...     {"exp": datetime.now(tz=timezone.utc)}, "your-256-bit-secret-key-here-32chars"
+    ... )
 
 Expiration time is automatically verified in `jwt.decode()` and raises
 `jwt.ExpiredSignatureError` if the expiration time is in the past:
@@ -190,7 +192,7 @@ Expiration time is automatically verified in `jwt.decode()` and raises
 .. code-block:: pycon
 
     >>> try:
-    ...     jwt.decode(token, "secret", algorithms=["HS256"])
+    ...     jwt.decode(token, "your-256-bit-secret-key-here-32chars", algorithms=["HS256"])
     ... except jwt.ExpiredSignatureError:
     ...     print("expired")
     ...
@@ -215,11 +217,13 @@ you can set a leeway of 10 seconds in order to have some margin:
     >>> payload = {
     ...     "exp": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=1)
     ... }
-    >>> token = jwt.encode(payload, "secret")
+    >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
     >>> time.sleep(2)
     >>> # JWT payload is now expired
     >>> # But with some leeway, it will still validate
-    >>> decoded = jwt.decode(token, "secret", leeway=5, algorithms=["HS256"])
+    >>> decoded = jwt.decode(
+    ...     token, "your-256-bit-secret-key-here-32chars", leeway=5, algorithms=["HS256"]
+    ... )
 
 Instead of specifying the leeway as a number of seconds, a `datetime.timedelta`
 instance can be used. The last line in the example above is equivalent to:
@@ -227,7 +231,10 @@ instance can be used. The last line in the example above is equivalent to:
 .. code-block:: pycon
 
     >>> decoded = jwt.decode(
-    ...     token, "secret", leeway=datetime.timedelta(seconds=10), algorithms=["HS256"]
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     leeway=datetime.timedelta(seconds=10),
+    ...     algorithms=["HS256"],
     ... )
 
 Not Before Time Claim (nbf)
@@ -245,8 +252,11 @@ The `nbf` claim works similarly to the `exp` claim above.
 
 .. code-block:: pycon
 
-    >>> token = jwt.encode({"nbf": 1371720939}, "secret")
-    >>> token = jwt.encode({"nbf": datetime.datetime.now(tz=timezone.utc)}, "secret")
+    >>> token = jwt.encode({"nbf": 1371720939}, "your-256-bit-secret-key-here-32chars")
+    >>> token = jwt.encode(
+    ...     {"nbf": datetime.datetime.now(tz=timezone.utc)},
+    ...     "your-256-bit-secret-key-here-32chars",
+    ... )
 
 The `nbf` claim also supports the leeway feature similar to the `exp` claim. This
 allows you to validate a “not before” time that is slightly in the future. Using
@@ -260,10 +270,12 @@ synchronization between the token issuer and the validator is imprecise.
     >>> payload = {
     ...     "nbf": datetime.datetime.now(tz=timezone.utc) - datetime.timedelta(seconds=3)
     ... }
-    >>> token = jwt.encode(payload, "secret")
+    >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
     >>> # JWT payload is not valid yet
     >>> # But with some leeway, it will still validate
-    >>> decoded = jwt.decode(token, "secret", leeway=5, algorithms=["HS256"])
+    >>> decoded = jwt.decode(
+    ...     token, "your-256-bit-secret-key-here-32chars", leeway=5, algorithms=["HS256"]
+    ... )
 
 
 Issuer Claim (iss)
@@ -277,9 +289,14 @@ Issuer Claim (iss)
 .. code-block:: pycon
 
     >>> payload = {"some": "payload", "iss": "urn:foo"}
-    >>> token = jwt.encode(payload, "secret")
+    >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
     >>> try:
-    ...     jwt.decode(token, "secret", issuer="urn:invalid", algorithms=["HS256"])
+    ...     jwt.decode(
+    ...         token,
+    ...         "your-256-bit-secret-key-here-32chars",
+    ...         issuer="urn:invalid",
+    ...         algorithms=["HS256"],
+    ...     )
     ... except jwt.InvalidIssuerError:
     ...     print("invalid issuer")
     ...
@@ -303,9 +320,19 @@ sensitive strings, each containing a StringOrURI value.
 .. code-block:: pycon
 
     >>> payload = {"some": "payload", "aud": ["urn:foo", "urn:bar"]}
-    >>> token = jwt.encode(payload, "secret")
-    >>> decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
-    >>> decoded = jwt.decode(token, "secret", audience="urn:bar", algorithms=["HS256"])
+    >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
+    >>> decoded = jwt.decode(
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience="urn:foo",
+    ...     algorithms=["HS256"],
+    ... )
+    >>> decoded = jwt.decode(
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience="urn:bar",
+    ...     algorithms=["HS256"],
+    ... )
 
 In the special case when the JWT has one audience, the "aud" value MAY be
 a single case-sensitive string containing a StringOrURI value.
@@ -313,8 +340,13 @@ a single case-sensitive string containing a StringOrURI value.
 .. code-block:: pycon
 
     >>> payload = {"some": "payload", "aud": "urn:foo"}
-    >>> token = jwt.encode(payload, "secret")
-    >>> decoded = jwt.decode(token, "secret", audience="urn:foo", algorithms=["HS256"])
+    >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
+    >>> decoded = jwt.decode(
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience="urn:foo",
+    ...     algorithms=["HS256"],
+    ... )
 
 If multiple audiences are accepted, the ``audience`` parameter for
 ``jwt.decode`` can also be an iterable
@@ -322,12 +354,20 @@ If multiple audiences are accepted, the ``audience`` parameter for
 .. code-block:: pycon
 
     >>> payload = {"some": "payload", "aud": "urn:foo"}
-    >>> token = jwt.encode(payload, "secret")
+    >>> token = jwt.encode(payload, "your-256-bit-secret-key-here-32chars")
     >>> decoded = jwt.decode(
-    ...     token, "secret", audience=["urn:foo", "urn:bar"], algorithms=["HS256"]
+    ...     token,
+    ...     "your-256-bit-secret-key-here-32chars",
+    ...     audience=["urn:foo", "urn:bar"],
+    ...     algorithms=["HS256"],
     ... )
     >>> try:
-    ...     jwt.decode(token, "secret", audience=["urn:invalid"], algorithms=["HS256"])
+    ...     jwt.decode(
+    ...         token,
+    ...         "your-256-bit-secret-key-here-32chars",
+    ...         audience=["urn:invalid"],
+    ...         algorithms=["HS256"],
+    ...     )
     ... except jwt.InvalidAudienceError:
     ...     print("invalid audience")
     ...
@@ -349,8 +389,11 @@ Issued At Claim (iat)
 
 .. code-block:: pycon
 
-    >>> token = jwt.encode({"iat": 1371720939}, "secret")
-    >>> token = jwt.encode({"iat": datetime.datetime.now(tz=timezone.utc)}, "secret")
+    >>> token = jwt.encode({"iat": 1371720939}, "your-256-bit-secret-key-here-32chars")
+    >>> token = jwt.encode(
+    ...     {"iat": datetime.datetime.now(tz=timezone.utc)},
+    ...     "your-256-bit-secret-key-here-32chars",
+    ... )
 
 Subject Claim (sub)
 ~~~~~~~~~~~~~~~~~~~
@@ -411,11 +454,13 @@ If you wish to require one or more claims to be present in the claimset, you can
 
 .. code-block:: pycon
 
-    >>> token = jwt.encode({"sub": "1234567890", "iat": 1371720939}, "secret")
+    >>> token = jwt.encode(
+    ...     {"sub": "1234567890", "iat": 1371720939}, "your-256-bit-secret-key-here-32chars"
+    ... )
     >>> try:
     ...     jwt.decode(
     ...         token,
-    ...         "secret",
+    ...         "your-256-bit-secret-key-here-32chars",
     ...         options={"require": ["exp", "iss", "sub"]},
     ...         algorithms=["HS256"],
     ...     )
@@ -513,3 +558,92 @@ is not built into pyjwt.
     digest = alg_obj.compute_hash_digest(access_token)
     at_hash = base64.urlsafe_b64encode(digest[: (len(digest) // 2)]).rstrip("=")
     assert at_hash == payload["at_hash"]
+
+
+Security Considerations
+=======================
+
+Key Length Validation
+---------------------
+
+Starting with PyJWT 2.11.0, the library enforces minimum key lengths for cryptographic security:
+
+- **HMAC algorithms**: HS256 (32 bytes), HS384 (48 bytes), HS512 (64 bytes)
+- **RSA algorithms**: 2048 bits minimum
+
+This validation helps prevent weak key attacks and ensures compliance with security standards (RFC 7518, NIST SP800-117, RFC 2437).
+
+.. code-block:: python
+
+    import jwt
+
+    # These will work (secure keys)
+    strong_hmac_key = b"your-32-byte-secret-key-here!"  # 32 bytes for HS256
+    token = jwt.encode({"user": "john"}, strong_hmac_key, algorithm="HS256")
+
+    # This will raise InvalidKeyError (weak key)
+    weak_key = b"short"  # Only 5 bytes
+    token = jwt.encode(
+        {"user": "john"}, weak_key, algorithm="HS256"
+    )  # Raises InvalidKeyError
+
+Configuring Key Length Validation
+---------------------------------
+
+For migration purposes, you can temporarily disable strict enforcement:
+
+.. code-block:: python
+
+    import jwt
+    import warnings
+
+    # Check current setting
+    enforcement = jwt.get_min_key_length_enforcement()
+    print(f"Enforcement enabled: {enforcement}")  # True by default
+
+    # Temporary warning mode (deprecated - for migration only)
+    jwt.set_min_key_length_enforcement(False)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("always")  # Show security warnings
+        token = jwt.encode({"user": "john"}, weak_key, algorithm="HS256")  # Issues warning
+
+    # Re-enable enforcement (recommended)
+    jwt.set_min_key_length_enforcement(True)
+
+.. warning::
+    Disabling key length enforcement is deprecated and will be removed in PyJWT 3.0.
+    Please migrate to using cryptographically secure key lengths.
+
+Generating Secure Keys
+---------------------
+
+For HMAC algorithms, use the ``secrets`` module to generate cryptographically secure keys:
+
+.. code-block:: python
+
+    import secrets
+
+    # Generate secure HMAC keys
+    hs256_key = secrets.token_bytes(32)  # 32 bytes = 256 bits
+    hs384_key = secrets.token_bytes(48)  # 48 bytes = 384 bits
+    hs512_key = secrets.token_bytes(64)  # 64 bytes = 512 bits
+
+For RSA algorithms, use the ``cryptography`` library to generate keys with appropriate bit lengths:
+
+.. code-block:: python
+
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.hazmat.primitives import serialization
+
+    # Generate secure RSA key (2048 bits minimum)
+    private_key = rsa.generate_private_key(
+        public_exponent=65537, key_size=2048  # or 3072, 4096 for higher security
+    )
+
+    # Serialize for use with PyJWT
+    pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
