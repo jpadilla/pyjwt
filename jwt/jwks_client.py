@@ -121,7 +121,7 @@ class PyJWKClient:
         signing_key = None
 
         for key in signing_keys:
-            if key.key_id == kid:
+            if str(key.key_id) == kid:
                 signing_key = key
                 break
 
