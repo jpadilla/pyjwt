@@ -761,7 +761,9 @@ class TestJWT:
         # Should have both the unsupported kwarg warning and weak key warning
         assert len(record) == 2
         # Find the unsupported kwarg warning
-        unsupported_warnings = [w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)]
+        unsupported_warnings = [
+            w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)
+        ]
         assert len(unsupported_warnings) == 1
         assert "foo" in str(unsupported_warnings[0].message)
 
@@ -775,7 +777,9 @@ class TestJWT:
         # Should have both the unsupported kwarg warning and weak key warning
         assert len(record) == 2
         # Find the unsupported kwarg warning
-        unsupported_warnings = [w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)]
+        unsupported_warnings = [
+            w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)
+        ]
         assert len(unsupported_warnings) == 1
         assert "foo" in str(unsupported_warnings[0].message)
 

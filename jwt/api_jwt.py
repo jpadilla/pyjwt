@@ -40,7 +40,9 @@ if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
 
 
 class PyJWT:
-    def __init__(self, options: Options | None = None, *, strict_key_validation: bool = False) -> None:
+    def __init__(
+        self, options: Options | None = None, *, strict_key_validation: bool = False
+    ) -> None:
         self.options: FullOptions
         self.options = self._get_default_options()
         if options is not None:

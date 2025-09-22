@@ -142,7 +142,9 @@ requires_cryptography = {
 }
 
 
-def get_default_algorithms(*, strict_key_validation: bool = False) -> dict[str, Algorithm]:
+def get_default_algorithms(
+    *, strict_key_validation: bool = False
+) -> dict[str, Algorithm]:
     """
     Returns the algorithms that are implemented by the library.
 
@@ -152,9 +154,15 @@ def get_default_algorithms(*, strict_key_validation: bool = False) -> dict[str, 
     """
     default_algorithms: dict[str, Algorithm] = {
         "none": NoneAlgorithm(),
-        "HS256": HMACAlgorithm(HMACAlgorithm.SHA256, strict_key_validation=strict_key_validation),
-        "HS384": HMACAlgorithm(HMACAlgorithm.SHA384, strict_key_validation=strict_key_validation),
-        "HS512": HMACAlgorithm(HMACAlgorithm.SHA512, strict_key_validation=strict_key_validation),
+        "HS256": HMACAlgorithm(
+            HMACAlgorithm.SHA256, strict_key_validation=strict_key_validation
+        ),
+        "HS384": HMACAlgorithm(
+            HMACAlgorithm.SHA384, strict_key_validation=strict_key_validation
+        ),
+        "HS512": HMACAlgorithm(
+            HMACAlgorithm.SHA512, strict_key_validation=strict_key_validation
+        ),
     }
 
     if has_crypto:
@@ -326,7 +334,9 @@ class HMACAlgorithm(Algorithm):
         hashlib.sha512: 64,  # 512 bits
     }
 
-    def __init__(self, hash_alg: HashlibHash, *, strict_key_validation: bool = False) -> None:
+    def __init__(
+        self, hash_alg: HashlibHash, *, strict_key_validation: bool = False
+    ) -> None:
         self.hash_alg = hash_alg
         self.strict_key_validation = strict_key_validation
         # Pre-compute minimum length for this instance for better performance
@@ -358,7 +368,11 @@ class HMACAlgorithm(Algorithm):
         )
 
         # Check environment variable for legacy compatibility
-        allow_weak_keys = os.getenv("JWT_ALLOW_WEAK_KEYS", "").lower() in ("1", "true", "yes")
+        allow_weak_keys = os.getenv("JWT_ALLOW_WEAK_KEYS", "").lower() in (
+            "1",
+            "true",
+            "yes",
+        )
         if allow_weak_keys:
             return  # Skip validation entirely for legacy systems
 
@@ -366,9 +380,10 @@ class HMACAlgorithm(Algorithm):
             raise InvalidKeyError(message)
         else:
             warnings.warn(
-                message + " Use strict_key_validation=True to enforce this requirement.",
+                message
+                + " Use strict_key_validation=True to enforce this requirement.",
                 WeakKeyWarning,
-                stacklevel=4  # Adjusted to point to user code more accurately
+                stacklevel=4,  # Adjusted to point to user code more accurately
             )
 
     @overload

@@ -9,7 +9,7 @@ import warnings
 
 import pytest
 
-from jwt import PyJWT, PyJWS
+from jwt import PyJWS, PyJWT
 from jwt.algorithms import HMACAlgorithm
 from jwt.exceptions import InvalidKeyError
 from jwt.warnings import WeakKeyWarning
@@ -222,9 +222,9 @@ class TestHMACKeyValidation:
         # Verify error message contains key information
         assert "32 bytes" in error_msg  # Expected minimum
         assert "256 bits" in error_msg  # Bits equivalent
-        assert "5 bytes" in error_msg   # Actual length
+        assert "5 bytes" in error_msg  # Actual length
         assert "NIST SP 800-107" in error_msg  # Standard reference
-        assert "SHA-256" in error_msg   # Algorithm name
+        assert "SHA-256" in error_msg  # Algorithm name
         assert "security" in error_msg  # Security implication
 
     def test_module_level_functions_still_work(self):

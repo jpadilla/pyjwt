@@ -8,4 +8,5 @@ class WeakKeyWarning(UserWarning):
     This warning indicates that the key length is below the recommended minimum
     according to NIST SP 800-107.
     """
+
     pass

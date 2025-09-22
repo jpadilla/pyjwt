@@ -37,7 +37,9 @@ class PyJWS:
         *,
         strict_key_validation: bool = False,
     ) -> None:
-        self._algorithms = get_default_algorithms(strict_key_validation=strict_key_validation)
+        self._algorithms = get_default_algorithms(
+            strict_key_validation=strict_key_validation
+        )
         self._valid_algs = (
             set(algorithms) if algorithms is not None else set(self._algorithms)
         )

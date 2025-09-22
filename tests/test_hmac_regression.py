@@ -5,16 +5,14 @@ This module contains essential regression tests to ensure the HMAC key validatio
 implementation doesn't break existing functionality while maintaining security.
 """
 
-import os
-import warnings
-import secrets
 import base64
-from unittest.mock import patch
+import secrets
+import warnings
 
 import pytest
 
 import jwt
-from jwt import PyJWT, PyJWS
+from jwt import PyJWT
 from jwt.algorithms import HMACAlgorithm
 from jwt.exceptions import InvalidKeyError
 from jwt.warnings import WeakKeyWarning
