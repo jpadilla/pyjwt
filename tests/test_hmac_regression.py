@@ -5,9 +5,9 @@ This module contains essential regression tests to ensure the HMAC key validatio
 implementation doesn't break existing functionality while maintaining security.
 """
 
-import warnings
-import secrets
 import base64
+import secrets
+import warnings
 
 import pytest
 
