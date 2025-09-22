@@ -1,5 +1,6 @@
 import base64
 import json
+import warnings
 from typing import Any, cast
 
 import pytest
@@ -7,6 +8,7 @@ import pytest
 from jwt.algorithms import HMACAlgorithm, NoneAlgorithm, has_crypto
 from jwt.exceptions import InvalidKeyError
 from jwt.utils import base64url_decode
+from jwt.warnings import WeakKeyWarning
 
 from .keys import load_ec_pub_key_p_521, load_hmac_key, load_rsa_pub_key
 from .utils import crypto_required, key_path
@@ -121,6 +123,39 @@ class TestAlgorithms:
         with open(key_path("jwk_empty.json")) as keyfile:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
+
+    def test_hmac_key_length_validation_cve_2025_45768_fix(self):
+        """Test CVE-2025-45768 fix: HMAC key length validation."""
+        short_key = "weak"  # 4 bytes, less than 32 required for HS256
+
+        # Test default mode (should warn)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+            algo.prepare_key(short_key)
+
+            assert len(w) == 1
+            assert issubclass(w[0].category, WeakKeyWarning)
+            assert "32 bytes" in str(w[0].message)
+
+        # Test strict mode (should error)
+        algo_strict = HMACAlgorithm(HMACAlgorithm.SHA256, strict_key_validation=True)
+        with pytest.raises(InvalidKeyError) as exc_info:
+            algo_strict.prepare_key(short_key)
+
+        assert "32 bytes" in str(exc_info.value)
+        assert "NIST SP 800-107" in str(exc_info.value)
+
+        # Test valid key (should work without warnings)
+        valid_key = "a" * 32  # 32 bytes
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            algo.prepare_key(valid_key)
+            algo_strict.prepare_key(valid_key)
+
+            assert len(w) == 0
 
     @crypto_required
     def test_rsa_should_parse_pem_public_key(self):

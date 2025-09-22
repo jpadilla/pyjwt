@@ -4,7 +4,7 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.1...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.2...HEAD>`__
 ------------------------------------------------------------------------
 
 Fixed
@@ -21,6 +21,34 @@ Added
 - Docs: Add example of using leeway with nbf by @djw8605 in `#1034 <https://github.com/jpadilla/pyjwt/pull/1034>`__
 - Docs: Refactored docs with ``autodoc``; added ``PyJWS`` and ``jwt.algorithms`` docs by @pachewise in `#1045 <https://github.com/jpadilla/pyjwt/pull/1045>`__
 - Docs: Documentation improvements for "sub" and "jti" claims by @cleder in `#1088 <https://github.com/jpadilla/pyjwt/pull/1088>`
+
+`v2.10.2 <https://github.com/jpadilla/pyjwt/compare/2.10.1...2.10.2>`__
+-----------------------------------------------------------------------
+
+**SECURITY FIX**: CVE-2025-45768
+
+Fixed
+~~~~~
+
+- **SECURITY**: Fix CVE-2025-45768 weak encryption vulnerability by enforcing minimum HMAC key lengths according to NIST SP 800-107 recommendations:
+
+  - HS256 (HMAC-SHA256): minimum 256 bits (32 bytes)
+  - HS384 (HMAC-SHA384): minimum 384 bits (48 bytes)
+  - HS512 (HMAC-SHA512): minimum 512 bits (64 bytes)
+
+- Add ``strict_key_validation`` parameter to ``PyJWT`` and ``PyJWS`` classes
+- When ``strict_key_validation=False`` (default), weak keys generate ``WeakKeyWarning`` for backward compatibility
+- When ``strict_key_validation=True``, weak keys raise ``InvalidKeyError``
+- Add ``WeakKeyWarning`` class for cryptographically weak key notifications
+
+Changed
+~~~~~~~
+
+- ``HMACAlgorithm`` constructor now accepts ``strict_key_validation`` parameter
+- ``get_default_algorithms()`` function now accepts ``strict_key_validation`` parameter
+- All HMAC algorithms now validate key length according to NIST recommendations
+
+**Recommendation**: Update your HMAC keys to meet minimum length requirements and consider enabling ``strict_key_validation=True`` for enhanced security.
 
 `v2.10.1 <https://github.com/jpadilla/pyjwt/compare/2.10.0...2.10.1>`__
 -----------------------------------------------------------------------

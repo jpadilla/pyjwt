@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
 
@@ -20,6 +21,7 @@ from .utils import (
     raw_to_der_signature,
     to_base64url_uint,
 )
+from .warnings import WeakKeyWarning
 
 try:
     from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
@@ -140,15 +142,19 @@ requires_cryptography = {
 }
 
 
-def get_default_algorithms() -> dict[str, Algorithm]:
+def get_default_algorithms(*, strict_key_validation: bool = False) -> dict[str, Algorithm]:
     """
     Returns the algorithms that are implemented by the library.
+
+    :param strict_key_validation: Enable strict key validation for HMAC algorithms.
+        When True, HMAC keys below the NIST recommended minimum length will raise
+        an InvalidKeyError. When False (default), a warning will be issued instead.
     """
     default_algorithms: dict[str, Algorithm] = {
         "none": NoneAlgorithm(),
-        "HS256": HMACAlgorithm(HMACAlgorithm.SHA256),
-        "HS384": HMACAlgorithm(HMACAlgorithm.SHA384),
-        "HS512": HMACAlgorithm(HMACAlgorithm.SHA512),
+        "HS256": HMACAlgorithm(HMACAlgorithm.SHA256, strict_key_validation=strict_key_validation),
+        "HS384": HMACAlgorithm(HMACAlgorithm.SHA384, strict_key_validation=strict_key_validation),
+        "HS512": HMACAlgorithm(HMACAlgorithm.SHA512, strict_key_validation=strict_key_validation),
     }
 
     if has_crypto:
@@ -313,8 +319,18 @@ class HMACAlgorithm(Algorithm):
     SHA384: ClassVar[HashlibHash] = hashlib.sha384
     SHA512: ClassVar[HashlibHash] = hashlib.sha512
 
-    def __init__(self, hash_alg: HashlibHash) -> None:
+    # Minimum key lengths according to NIST SP 800-107
+    _MIN_KEY_LENGTHS: ClassVar[dict[HashlibHash, int]] = {
+        hashlib.sha256: 32,  # 256 bits
+        hashlib.sha384: 48,  # 384 bits
+        hashlib.sha512: 64,  # 512 bits
+    }
+
+    def __init__(self, hash_alg: HashlibHash, *, strict_key_validation: bool = False) -> None:
         self.hash_alg = hash_alg
+        self.strict_key_validation = strict_key_validation
+        # Pre-compute minimum length for this instance for better performance
+        self._min_key_length = self._MIN_KEY_LENGTHS.get(hash_alg, 0)
 
     def prepare_key(self, key: str | bytes) -> bytes:
         key_bytes = force_bytes(key)
@@ -325,7 +341,35 @@ class HMACAlgorithm(Algorithm):
                 " should not be used as an HMAC secret."
             )
 
+        # Fast path: skip validation if minimum length is 0 (shouldn't happen) or key is long enough
+        if self._min_key_length > 0 and len(key_bytes) < self._min_key_length:
+            self._handle_weak_key(key_bytes)
+
         return key_bytes
+
+    def _handle_weak_key(self, key_bytes: bytes) -> None:
+        """Handle weak key validation and warnings/errors."""
+        hash_name = self.hash_alg.__name__.upper().replace("SHA", "SHA-")
+        message = (
+            f"The HMAC key for {hash_name} should be at least {self._min_key_length} bytes "
+            f"({self._min_key_length * 8} bits) long according to NIST SP 800-107. "
+            f"The provided key is only {len(key_bytes)} bytes long. "
+            "This could compromise the security of your tokens."
+        )
+
+        # Check environment variable for legacy compatibility
+        allow_weak_keys = os.getenv("JWT_ALLOW_WEAK_KEYS", "").lower() in ("1", "true", "yes")
+        if allow_weak_keys:
+            return  # Skip validation entirely for legacy systems
+
+        if self.strict_key_validation:
+            raise InvalidKeyError(message)
+        else:
+            warnings.warn(
+                message + " Use strict_key_validation=True to enforce this requirement.",
+                WeakKeyWarning,
+                stacklevel=4  # Adjusted to point to user code more accurately
+            )
 
     @overload
     @staticmethod

@@ -1,5 +1,6 @@
 import json
 import time
+import warnings
 from calendar import timegm
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
@@ -754,19 +755,29 @@ class TestJWT:
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        with pytest.warns(RemovedInPyjwt3Warning) as record:
+        with warnings.catch_warnings(record=True) as record:
+            warnings.simplefilter("always")
             jwt.decode(jwt_message, secret, algorithms=["HS256"], foo="bar")
-        assert len(record) == 1
-        assert "foo" in str(record[0].message)
+        # Should have both the unsupported kwarg warning and weak key warning
+        assert len(record) == 2
+        # Find the unsupported kwarg warning
+        unsupported_warnings = [w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)]
+        assert len(unsupported_warnings) == 1
+        assert "foo" in str(unsupported_warnings[0].message)
 
     def test_decode_complete_warns_on_unsupported_kwarg(self, jwt, payload):
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
 
-        with pytest.warns(RemovedInPyjwt3Warning) as record:
+        with warnings.catch_warnings(record=True) as record:
+            warnings.simplefilter("always")
             jwt.decode_complete(jwt_message, secret, algorithms=["HS256"], foo="bar")
-        assert len(record) == 1
-        assert "foo" in str(record[0].message)
+        # Should have both the unsupported kwarg warning and weak key warning
+        assert len(record) == 2
+        # Find the unsupported kwarg warning
+        unsupported_warnings = [w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)]
+        assert len(unsupported_warnings) == 1
+        assert "foo" in str(unsupported_warnings[0].message)
 
     def test_decode_strict_aud_forbids_list_audience(self, jwt, payload):
         secret = "secret"

@@ -1,4 +1,5 @@
 import json
+import warnings
 from decimal import Decimal
 
 import pytest
@@ -873,7 +874,8 @@ class TestJWS:
             payload, secret, algorithm="HS256", is_payload_detached=True
         )
 
-        with pytest.warns(RemovedInPyjwt3Warning) as record:
+        with warnings.catch_warnings(record=True) as record:
+            warnings.simplefilter("always")
             jws.decode(
                 jws_message,
                 secret,
@@ -881,8 +883,12 @@ class TestJWS:
                 detached_payload=payload,
                 foo="bar",
             )
-        assert len(record) == 1
-        assert "foo" in str(record[0].message)
+        # Should have both the unsupported kwarg warning and weak key warning
+        assert len(record) == 2
+        # Find the unsupported kwarg warning
+        unsupported_warnings = [w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)]
+        assert len(unsupported_warnings) == 1
+        assert "foo" in str(unsupported_warnings[0].message)
 
     def test_decode_complete_warns_on_unuspported_kwarg(self, jws, payload):
         secret = "secret"
@@ -890,7 +896,8 @@ class TestJWS:
             payload, secret, algorithm="HS256", is_payload_detached=True
         )
 
-        with pytest.warns(RemovedInPyjwt3Warning) as record:
+        with warnings.catch_warnings(record=True) as record:
+            warnings.simplefilter("always")
             jws.decode_complete(
                 jws_message,
                 secret,
@@ -898,5 +905,9 @@ class TestJWS:
                 detached_payload=payload,
                 foo="bar",
             )
-        assert len(record) == 1
-        assert "foo" in str(record[0].message)
+        # Should have both the unsupported kwarg warning and weak key warning
+        assert len(record) == 2
+        # Find the unsupported kwarg warning
+        unsupported_warnings = [w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)]
+        assert len(unsupported_warnings) == 1
+        assert "foo" in str(unsupported_warnings[0].message)
