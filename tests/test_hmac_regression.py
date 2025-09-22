@@ -5,9 +5,9 @@ This module contains essential regression tests to ensure the HMAC key validatio
 implementation doesn't break existing functionality while maintaining security.
 """
 
-import base64
-import secrets
 import warnings
+import secrets
+import base64
 
 import pytest
 
@@ -133,7 +133,7 @@ BAYTAlVTMQ4wDAYDVQQIDAVUZXhhczEPMA0GA1UEBwwGQXVzdGluMQ4wDAYDVQQK
         alg = NoneAlgorithm()
 
         # Should still work the same way
-        assert alg.prepare_key(None) is None
+        assert alg.prepare_key(None) is None  # type: ignore[func-returns-value]
 
         with pytest.raises(InvalidKeyError):
             alg.prepare_key("some-key")
