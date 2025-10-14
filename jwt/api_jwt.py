@@ -211,7 +211,7 @@ class PyJWT:
         :type audience: str or typing.Iterable[str] or None
         :param issuer: optional, the value for ``verify_iss`` check
         :type issuer: str or typing.Container[str] or None
-        :param leeway: a time margin in seconds for the expiration check
+        :param leeway: a time margin in seconds for time-based claims (exp, nbf, iat) to account for clock skew
         :type leeway: float or datetime.timedelta
         :rtype: dict[str, typing.Any]
         :returns: Decoded JWT with the JOSE Header on the key ``header``, the JWS
@@ -335,7 +335,7 @@ class PyJWT:
         :type subject: str or None
         :param issuer: optional, the value for ``verify_iss`` check
         :type issuer: str or typing.Container[str] or None
-        :param leeway: a time margin in seconds for the expiration check
+        :param leeway: a time margin in seconds for time-based claims (exp, nbf, iat) to account for clock skew
         :type leeway: float or datetime.timedelta
         :rtype: dict[str, typing.Any]
         :returns: the JWT claims

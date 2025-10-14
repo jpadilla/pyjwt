@@ -352,6 +352,23 @@ Issued At Claim (iat)
     >>> token = jwt.encode({"iat": 1371720939}, "secret")
     >>> token = jwt.encode({"iat": datetime.datetime.now(tz=timezone.utc)}, "secret")
 
+The `iat` claim also supports the leeway feature similar to the `exp` and `nbf` claims.
+This allows you to validate an "issued at" time that is slightly in the future. Using
+leeway with the iat claim can be particularly helpful in scenarios where clock
+synchronization between the token issuer and the validator is imprecise.
+
+.. code-block:: pycon
+
+    >>> import time, datetime
+    >>> from datetime import timezone
+    >>> payload = {
+    ...     "iat": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=3)
+    ... }
+    >>> token = jwt.encode(payload, "secret")
+    >>> # JWT was issued in the future (due to clock skew)
+    >>> # But with some leeway, it will still validate
+    >>> decoded = jwt.decode(token, "secret", leeway=5, algorithms=["HS256"])
+
 Subject Claim (sub)
 ~~~~~~~~~~~~~~~~~~~
 
