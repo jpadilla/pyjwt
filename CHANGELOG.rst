@@ -9,6 +9,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
 Fixed
 ~~~~~
+
+- Fix build system warnings by @kurtmckee in `#1105 <https://github.com/jpadilla/pyjwt/pull/1105>`
 - Validate key against allowed types for Algorithm family in `#964 <https://github.com/jpadilla/pyjwt/pull/964>`__
 - Add iterator for JWKSet in `#1041 <https://github.com/jpadilla/pyjwt/pull/1041>`__
 - Validate `iss` claim is a string during encoding and decoding by @pachewise in `#1040 <https://github.com/jpadilla/pyjwt/pull/1040>`__
