@@ -323,7 +323,7 @@ class PyJWT:
                configure it in the same place you configure the
                ``key``. Make sure not to mix symmetric and asymmetric
                algorithms that interpret the ``key`` in different ways
-               (e.g. HS\* and RS\*).
+               (e.g. HS\\* and RS\\*).
         :type algorithms: typing.Sequence[str] or None
 
         :param jwt.types.Options options: extended decoding and validation options

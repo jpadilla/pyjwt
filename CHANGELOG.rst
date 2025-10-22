@@ -16,6 +16,7 @@ Fixed
 - Validate `iss` claim is a string during encoding and decoding by @pachewise in `#1040 <https://github.com/jpadilla/pyjwt/pull/1040>`__
 - Improve typing/logic for `options` in decode, decode_complete by @pachewise in `#1045 <https://github.com/jpadilla/pyjwt/pull/1045>`__
 - Declare float supported type for lifespan and timeout by @nikitagashkov in `#1068 <https://github.com/jpadilla/pyjwt/pull/1068>`__
+- Fix ``SyntaxWarning``\s/``DeprecationWarning``\s caused by invalid escape sequences by @kurtmckee in `#1103 <https://github.com/jpadilla/pyjwt/pull/1103>`__
 
 Added
 ~~~~~
