@@ -23,6 +23,7 @@ Added
 
 - Support Python 3.14, and test against PyPy 3.10 and 3.11 by @kurtmckee in `#1104 <https://github.com/jpadilla/pyjwt/pull/1104>`__
 - Docs: Standardize CHANGELOG links to PRs by @kurtmckee in `#1110 <https://github.com/jpadilla/pyjwt/pull/1110>`__
+- Docs: Fix Read the Docs builds by @kurtmckee in `#1111 <https://github.com/jpadilla/pyjwt/pull/1111>`__
 - Docs: Add example of using leeway with nbf by @djw8605 in `#1034 <https://github.com/jpadilla/pyjwt/pull/1034>`__
 - Docs: Refactored docs with ``autodoc``; added ``PyJWS`` and ``jwt.algorithms`` docs by @pachewise in `#1045 <https://github.com/jpadilla/pyjwt/pull/1045>`__
 - Docs: Documentation improvements for "sub" and "jti" claims by @cleder in `#1088 <https://github.com/jpadilla/pyjwt/pull/1088>`__
