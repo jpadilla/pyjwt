@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
 from .exceptions import (

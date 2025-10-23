@@ -4,9 +4,9 @@ import json
 import os
 import warnings
 from calendar import timegm
-from collections.abc import Iterable, Sequence
+from collections.abc import Container, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any, Container
+from typing import TYPE_CHECKING, Any
 
 from . import api_jws
 from .exceptions import (
