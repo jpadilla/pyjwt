@@ -96,20 +96,10 @@ combine_as_imports = true
 profile = "black"
 
 [tool.mypy]
-allow_incomplete_defs = true
-allow_untyped_defs = true
-disable_error_code = [
-    "method-assign",
-    "unused-ignore",
-]
+packages = "jwt"
 ignore_missing_imports = true
-no_implicit_optional = true
-overrides = [
-    { disallow_untyped_calls = false, module = "tests.*" },
-]
-python_version = 3.11
 strict = true
-warn_return_any = false
+warn_return_any = true
 warn_unused_ignores = true
 
 [tool.setuptools]
