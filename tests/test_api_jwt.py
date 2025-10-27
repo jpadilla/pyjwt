@@ -264,7 +264,7 @@ class TestJWT:
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
-    def test_decode_raises_exception_if_aud_is_none(self, jwt):
+    def test_decode_allows_aud_to_be_none(self, jwt):
         # >>> jwt.encode({'aud': None}, 'secret')
         example_jwt = (
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9."
