@@ -13,6 +13,7 @@ python:
       path: "."
       extra_requirements:
         - "docs"
+        - "crypto"
 
 sphinx:
   configuration: "docs/conf.py"
