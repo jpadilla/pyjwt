@@ -44,10 +44,10 @@ crypto = [
     "cryptography>=3.4.0",
 ]
 dev = [
-    "coverage[toml]==5.0.4",
+    "coverage[toml]==7.10.7",
     "cryptography>=3.4.0",
     "pre-commit",
-    "pytest>=6.0.0,<7.0.0",
+    "pytest>=8.4.2,<9.0.0",
     "sphinx",
     "sphinx-rtd-theme",
     "zope.interface",
@@ -71,22 +71,23 @@ Homepage = "https://github.com/jpadilla/pyjwt"
 
 [tool.coverage.paths]
 source = [
-    ".tox/*/site-packages",
     "jwt",
+    "*/site-packages",
 ]
 
 [tool.coverage.report]
-exclude_lines = [
+skip_covered = true
+exclude_also = [
     "if TYPE_CHECKING",
-    "pragma: no cover",
 ]
-show_missing = true
 
 [tool.coverage.run]
 branch = true
 parallel = true
+relative_files = true
 source = [
     "jwt",
+    "tests",
 ]
 
 [tool.isort]
