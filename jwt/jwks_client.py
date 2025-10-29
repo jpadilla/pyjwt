@@ -46,10 +46,9 @@ class PyJWKClient:
 
         if cache_keys:
             # Cache signing keys
+            get_signing_key = lru_cache(maxsize=max_cached_keys)(self.get_signing_key)
             # Ignore mypy (https://github.com/python/mypy/issues/2427)
-            self.get_signing_key = lru_cache(maxsize=max_cached_keys)(
-                self.get_signing_key
-            )  # type: ignore
+            self.get_signing_key = get_signing_key  # type: ignore[method-assign]
 
     def fetch_data(self) -> Any:
         jwk_set: Any = None
