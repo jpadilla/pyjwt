@@ -176,6 +176,7 @@ class PyJWT:
         issuer: str | Container[str] | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
+        now: float | datetime | None = None,
         # kwargs
         **kwargs: Any,
     ) -> dict[str, Any]:
@@ -213,6 +214,8 @@ class PyJWT:
         :type issuer: str or typing.Container[str] or None
         :param leeway: a time margin in seconds for the expiration check
         :type leeway: float or datetime.timedelta
+        :param now: optional, a Unix time or datetime that is considered to be now
+        :type now: float or datetime or None
         :rtype: dict[str, typing.Any]
         :returns: Decoded JWT with the JOSE Header on the key ``header``, the JWS
          Payload on the key ``payload``, and the JWS Signature on the key ``signature``.
@@ -262,6 +265,7 @@ class PyJWT:
             issuer=issuer,
             leeway=leeway,
             subject=subject,
+            now=now,
         )
 
         decoded["payload"] = payload
@@ -299,6 +303,7 @@ class PyJWT:
         subject: str | None = None,
         issuer: str | Container[str] | None = None,
         leeway: float | timedelta = 0,
+        now: float | datetime | None = None,
         # kwargs
         **kwargs: Any,
     ) -> dict[str, Any]:
@@ -337,6 +342,8 @@ class PyJWT:
         :type issuer: str or typing.Container[str] or None
         :param leeway: a time margin in seconds for the expiration check
         :type leeway: float or datetime.timedelta
+        :param now: optional, a Unix time or datetime that is considered to be now
+        :type now: float or datetime or None
         :rtype: dict[str, typing.Any]
         :returns: the JWT claims
         """
@@ -359,6 +366,7 @@ class PyJWT:
             subject=subject,
             issuer=issuer,
             leeway=leeway,
+            now=now,
         )
         return decoded["payload"]
 
@@ -370,6 +378,7 @@ class PyJWT:
         issuer: Container[str] | str | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
+        now: float | datetime | None = None,
     ) -> None:
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
@@ -379,7 +388,12 @@ class PyJWT:
 
         self._validate_required_claims(payload, options["require"])
 
-        now = datetime.now(tz=timezone.utc).timestamp()
+        if now is None:
+            now = datetime.now(tz=timezone.utc).timestamp()
+        elif isinstance(now, datetime):
+            now = now.timestamp()
+        elif not isinstance(now, (int, float)):
+            raise TypeError("now must be a float, datetime or None")
 
         if "iat" in payload and options["verify_iat"]:
             self._validate_iat(payload, now, leeway)
