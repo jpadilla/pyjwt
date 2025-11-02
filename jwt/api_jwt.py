@@ -393,7 +393,7 @@ class PyJWT:
         elif isinstance(now, datetime):
             now = now.timestamp()
         elif not isinstance(now, (int, float)):
-            raise TypeError("now must be a float, datetime or None")
+            raise TypeError("now must be a number (int or float)")
 
         if "iat" in payload and options["verify_iat"]:
             self._validate_iat(payload, now, leeway)
