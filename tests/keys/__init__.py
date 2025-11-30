@@ -27,24 +27,9 @@ def load_hmac_key():
     return base64url_decode(keyobj["k"])
 
 
-def load_rsa_key():
-    with open(os.path.join(BASE_PATH, "jwk_rsa_key.json")) as infile:
-        return RSAAlgorithm.from_jwk(infile.read())
-
-
 def load_rsa_pub_key():
     with open(os.path.join(BASE_PATH, "jwk_rsa_pub.json")) as infile:
         return RSAAlgorithm.from_jwk(infile.read())
-
-
-def load_ec_key():
-    with open(os.path.join(BASE_PATH, "jwk_ec_key.json")) as infile:
-        keyobj = json.load(infile)
-
-    return ec.EllipticCurvePrivateNumbers(
-        private_value=decode_value(keyobj["d"]),
-        public_numbers=load_ec_pub_key_p_521().public_numbers(),
-    )
 
 
 def load_ec_pub_key_p_521():

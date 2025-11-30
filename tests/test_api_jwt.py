@@ -658,9 +658,8 @@ class TestJWT:
     def test_custom_json_encoder(self, jwt):
         class CustomJSONEncoder(json.JSONEncoder):
             def default(self, o):
-                if isinstance(o, Decimal):
-                    return "it worked"
-                return super().default(o)
+                assert isinstance(o, Decimal)
+                return "it worked"
 
         data = {"some_decimal": Decimal("2.2")}
 

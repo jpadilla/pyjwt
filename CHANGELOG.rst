@@ -23,6 +23,7 @@ Added
 
 - Support Python 3.14, and test against PyPy 3.10 and 3.11 by @kurtmckee in `#1104 <https://github.com/jpadilla/pyjwt/pull/1104>`__
 - Development: Migrate to ``build`` to test package building in CI by @kurtmckee in `#1108 <https://github.com/jpadilla/pyjwt/pull/1108>`__
+- Development: Improve coverage config and eliminate unused test suite code by @kurtmckee in `#1115 <https://github.com/jpadilla/pyjwt/pull/1115>`__
 - Docs: Standardize CHANGELOG links to PRs by @kurtmckee in `#1110 <https://github.com/jpadilla/pyjwt/pull/1110>`__
 - Docs: Fix Read the Docs builds by @kurtmckee in `#1111 <https://github.com/jpadilla/pyjwt/pull/1111>`__
 - Docs: Add example of using leeway with nbf by @djw8605 in `#1034 <https://github.com/jpadilla/pyjwt/pull/1034>`__

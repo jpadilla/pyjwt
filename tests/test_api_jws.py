@@ -709,9 +709,8 @@ class TestJWS:
     def test_custom_json_encoder(self, jws, payload):
         class CustomJSONEncoder(json.JSONEncoder):
             def default(self, o):
-                if isinstance(o, Decimal):
-                    return "it worked"
-                return super().default(o)
+                assert isinstance(o, Decimal)
+                return "it worked"
 
         data = {"some_decimal": Decimal("2.2")}
 
@@ -732,14 +731,9 @@ class TestJWS:
         headers = {"testheader": True}
         token = jws.encode(payload, "secret", headers=headers)
 
-        if not isinstance(token, str):
-            token = token.decode()
-
         header = token[0 : token.index(".")].encode()
         header = base64url_decode(header)
-
-        if not isinstance(header, str):
-            header = header.decode()
+        header = header.decode()
 
         header_obj = json.loads(header)
 
