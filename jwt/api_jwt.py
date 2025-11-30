@@ -6,7 +6,7 @@ import warnings
 from calendar import timegm
 from collections.abc import Container, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union, cast
 
 from . import api_jws
 from .exceptions import (
@@ -23,7 +23,13 @@ from .exceptions import (
 from .warnings import RemovedInPyjwt3Warning
 
 if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
-    from typing import TypeAlias
+    import sys
+
+    if sys.version_info >= (3, 10):
+        from typing import TypeAlias
+    else:
+        # Python 3.9 and lower
+        from typing_extensions import TypeAlias
 
     from .algorithms import has_crypto
     from .api_jwk import PyJWK
@@ -32,11 +38,11 @@ if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
     if has_crypto:
         from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
 
-        AllowedPrivateKeyTypes: TypeAlias = AllowedPrivateKeys | PyJWK | str | bytes  # type: ignore
-        AllowedPublicKeyTypes: TypeAlias = AllowedPublicKeys | PyJWK | str | bytes  # type: ignore
+        AllowedPrivateKeyTypes: TypeAlias = Union[AllowedPrivateKeys, PyJWK, str, bytes]
+        AllowedPublicKeyTypes: TypeAlias = Union[AllowedPublicKeys, PyJWK, str, bytes]
     else:
-        AllowedPrivateKeyTypes: TypeAlias = PyJWK | str | bytes  # type: ignore
-        AllowedPublicKeyTypes: TypeAlias = PyJWK | str | bytes  # type: ignore
+        AllowedPrivateKeyTypes: TypeAlias = Union[PyJWK, str, bytes]  # type: ignore
+        AllowedPublicKeyTypes: TypeAlias = Union[PyJWK, str, bytes]  # type: ignore
 
 
 class PyJWT:
@@ -360,7 +366,7 @@ class PyJWT:
             issuer=issuer,
             leeway=leeway,
         )
-        return decoded["payload"]
+        return cast(dict[str, Any], decoded["payload"])
 
     def _validate_claims(
         self,

@@ -5,7 +5,16 @@ import hmac
 import json
 import os
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    NoReturn,
+    Union,
+    cast,
+    overload,
+)
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
@@ -93,7 +102,13 @@ try:
     )
 
     if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
-        from typing import TypeAlias
+        import sys
+
+        if sys.version_info >= (3, 10):
+            from typing import TypeAlias
+        else:
+            # Python 3.9 and lower
+            from typing_extensions import TypeAlias
 
         from cryptography.hazmat.primitives.asymmetric.types import (
             PrivateKeyTypes,
@@ -101,23 +116,22 @@ try:
         )
 
         # Type aliases for convenience in algorithms method signatures
-        AllowedRSAKeys: TypeAlias = RSAPrivateKey | RSAPublicKey
-        AllowedECKeys: TypeAlias = EllipticCurvePrivateKey | EllipticCurvePublicKey
-        AllowedOKPKeys: TypeAlias = (
-            Ed25519PrivateKey | Ed25519PublicKey | Ed448PrivateKey | Ed448PublicKey
-        )
-        AllowedKeys: TypeAlias = AllowedRSAKeys | AllowedECKeys | AllowedOKPKeys
+        AllowedRSAKeys: TypeAlias = Union[RSAPrivateKey, RSAPublicKey]
+        AllowedECKeys: TypeAlias = Union[
+            EllipticCurvePrivateKey, EllipticCurvePublicKey
+        ]
+        AllowedOKPKeys: TypeAlias = Union[
+            Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey
+        ]
+        AllowedKeys: TypeAlias = Union[AllowedRSAKeys, AllowedECKeys, AllowedOKPKeys]
         #: Type alias for allowed ``cryptography`` private keys (requires ``cryptography`` to be installed)
-        AllowedPrivateKeys: TypeAlias = (
-            RSAPrivateKey
-            | EllipticCurvePrivateKey
-            | Ed25519PrivateKey
-            | Ed448PrivateKey
-        )
+        AllowedPrivateKeys: TypeAlias = Union[
+            RSAPrivateKey, EllipticCurvePrivateKey, Ed25519PrivateKey, Ed448PrivateKey
+        ]
         #: Type alias for allowed ``cryptography`` public keys (requires ``cryptography`` to be installed)
-        AllowedPublicKeys: TypeAlias = (
-            RSAPublicKey | EllipticCurvePublicKey | Ed25519PublicKey | Ed448PublicKey
-        )
+        AllowedPublicKeys: TypeAlias = Union[
+            RSAPublicKey, EllipticCurvePublicKey, Ed25519PublicKey, Ed448PublicKey
+        ]
 
     has_crypto = True
 except ModuleNotFoundError:
@@ -204,7 +218,7 @@ class Algorithm(ABC):
         else:
             return bytes(hash_alg(bytestr).digest())
 
-    def check_crypto_key_type(self, key: PublicKeyTypes | PrivateKeyTypes):
+    def check_crypto_key_type(self, key: PublicKeyTypes | PrivateKeyTypes) -> None:
         """Check that the key belongs to the right cryptographic family.
 
         Note that this method only works when ``cryptography`` is installed.
@@ -251,16 +265,18 @@ class Algorithm(ABC):
     @overload
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj, as_dict: Literal[True]) -> JWKDict: ...
+    def to_jwk(key_obj: Any, as_dict: Literal[True]) -> JWKDict: ...  # pragma: no cover
 
     @overload
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj, as_dict: Literal[False] = False) -> str: ...
+    def to_jwk(
+        key_obj: Any, as_dict: Literal[False] = False
+    ) -> str: ...  # pragma: no cover
 
     @staticmethod
     @abstractmethod
-    def to_jwk(key_obj, as_dict: bool = False) -> JWKDict | str:
+    def to_jwk(key_obj: Any, as_dict: bool = False) -> JWKDict | str:
         """
         Serializes a given key into a JWK
         """
@@ -538,7 +554,8 @@ if has_crypto:
                 raise InvalidKeyError("Not a public or private key")
 
         def sign(self, msg: bytes, key: RSAPrivateKey) -> bytes:
-            return key.sign(msg, padding.PKCS1v15(), self.hash_alg())
+            signature: bytes = key.sign(msg, padding.PKCS1v15(), self.hash_alg())
+            return signature
 
         def verify(self, msg: bytes, key: RSAPublicKey, sig: bytes) -> bool:
             try:
@@ -742,7 +759,7 @@ if has_crypto:
         """
 
         def sign(self, msg: bytes, key: RSAPrivateKey) -> bytes:
-            return key.sign(
+            signature: bytes = key.sign(
                 msg,
                 padding.PSS(
                     mgf=padding.MGF1(self.hash_alg()),
@@ -750,6 +767,7 @@ if has_crypto:
                 ),
                 self.hash_alg(),
             )
+            return signature
 
         def verify(self, msg: bytes, key: RSAPublicKey, sig: bytes) -> bool:
             try:
@@ -811,7 +829,8 @@ if has_crypto:
             :return bytes signature: The signature, as bytes
             """
             msg_bytes = msg.encode("utf-8") if isinstance(msg, str) else msg
-            return key.sign(msg_bytes)
+            signature: bytes = key.sign(msg_bytes)
+            return signature
 
         def verify(
             self, msg: str | bytes, key: AllowedOKPKeys, sig: str | bytes
