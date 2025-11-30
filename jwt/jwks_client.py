@@ -4,7 +4,7 @@ import json
 import urllib.request
 from functools import lru_cache
 from ssl import SSLContext
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.error import URLError
 
 from .api_jwk import PyJWK, PyJWKSet
@@ -21,14 +21,14 @@ class PyJWKClient:
         max_cached_keys: int = 16,
         cache_jwk_set: bool = True,
         lifespan: float = 300,
-        headers: Optional[Dict[str, Any]] = None,
+        headers: dict[str, Any] | None = None,
         timeout: float = 30,
-        ssl_context: Optional[SSLContext] = None,
+        ssl_context: SSLContext | None = None,
     ):
         if headers is None:
             headers = {}
         self.uri = uri
-        self.jwk_set_cache: Optional[JWKSetCache] = None
+        self.jwk_set_cache: JWKSetCache | None = None
         self.headers = headers
         self.timeout = timeout
         self.ssl_context = ssl_context
@@ -82,7 +82,7 @@ class PyJWKClient:
 
         return PyJWKSet.from_dict(data)
 
-    def get_signing_keys(self, refresh: bool = False) -> List[PyJWK]:
+    def get_signing_keys(self, refresh: bool = False) -> list[PyJWK]:
         jwk_set = self.get_jwk_set(refresh)
         signing_keys = [
             jwk_set_key
@@ -117,7 +117,7 @@ class PyJWKClient:
         return self.get_signing_key(header.get("kid"))
 
     @staticmethod
-    def match_kid(signing_keys: List[PyJWK], kid: str) -> Optional[PyJWK]:
+    def match_kid(signing_keys: list[PyJWK], kid: str) -> PyJWK | None:
         signing_key = None
 
         for key in signing_keys:

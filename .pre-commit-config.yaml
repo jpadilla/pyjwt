@@ -1,4 +1,11 @@
 repos:
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+        name: Enforce Python 3.9+ idioms
+        args: ["--py39-plus"]
+
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 25.9.0
     hooks:
