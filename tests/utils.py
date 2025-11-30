@@ -15,16 +15,13 @@ def key_path(key_name):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "keys", key_name)
 
 
-def no_crypto_required(class_or_func):
-    decorator = pytest.mark.skipif(
-        has_crypto,
-        reason="Requires cryptography library not installed",
-    )
-    return decorator(class_or_func)
+no_crypto_required = pytest.mark.skipif(
+    has_crypto,
+    reason="Requires cryptography library not installed",
+)
 
 
-def crypto_required(class_or_func):
-    decorator = pytest.mark.skipif(
-        not has_crypto, reason="Requires cryptography library installed"
-    )
-    return decorator(class_or_func)
+crypto_required = pytest.mark.skipif(
+    not has_crypto,
+    reason="Requires cryptography library installed",
+)
