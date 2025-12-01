@@ -15,6 +15,30 @@ PyJWT
 
 A Python implementation of `RFC 7519 <https://tools.ietf.org/html/rfc7519>`_. Original implementation was written by `@progrium <https://github.com/progrium>`_.
 
+Security Notice
+---------------
+
+**CVE-2025-45768 Fixed in v2.10.2**: PyJWT now enforces minimum HMAC key lengths according to NIST SP 800-107:
+
+- **HS256**: 32 bytes minimum (256 bits)
+- **HS384**: 48 bytes minimum (384 bits)
+- **HS512**: 64 bytes minimum (512 bits)
+
+For enhanced security, enable strict validation:
+
+.. code-block:: python
+
+    import jwt
+
+    # Strict mode (recommended for new applications)
+    jwt_encoder = jwt.PyJWT(strict_key_validation=True)
+
+    # Weak keys will raise InvalidKeyError
+    try:
+        jwt_encoder.encode({"data": "test"}, "weak", algorithm="HS256")
+    except jwt.InvalidKeyError:
+        print("Key too short - use at least 32 bytes for HS256")
+
 Sponsor
 -------
 
