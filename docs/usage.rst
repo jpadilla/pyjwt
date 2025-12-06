@@ -206,7 +206,7 @@ PyJWT also supports the leeway part of the expiration time definition, which
 means you can validate a expiration time which is in the past but not very far.
 For example, if you have a JWT payload with a expiration time set to 30 seconds
 after creation but you know that sometimes you will process it after 30 seconds,
-you can set a leeway of 10 seconds in order to have some margin:
+you can set a leeway of 5 seconds in order to have some margin:
 
 .. code-block:: pycon
 
@@ -227,7 +227,7 @@ instance can be used. The last line in the example above is equivalent to:
 .. code-block:: pycon
 
     >>> decoded = jwt.decode(
-    ...     token, "secret", leeway=datetime.timedelta(seconds=10), algorithms=["HS256"]
+    ...     token, "secret", leeway=datetime.timedelta(seconds=5), algorithms=["HS256"]
     ... )
 
 Not Before Time Claim (nbf)
