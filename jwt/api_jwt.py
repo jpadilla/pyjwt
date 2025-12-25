@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import warnings
-from calendar import timegm
 from collections.abc import Container, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Union, cast
