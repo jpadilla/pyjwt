@@ -125,9 +125,9 @@ class PyJWT:
         # Payload
         payload = payload.copy()
         for time_claim in ["exp", "iat", "nbf"]:
-            # Convert datetime to a intDate value in known time-format claims
+            # Convert datetime to a float value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
-                payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+                payload[time_claim] = payload[time_claim].timestamp()
 
         # Issue #1039, iss being set to non-string
         if "iss" in payload and not isinstance(payload["iss"], str):
