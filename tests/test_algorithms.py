@@ -1162,3 +1162,228 @@ class TestOKPAlgorithms:
 
         # Check that the exception message is correct
         assert "Could not parse the provided public key." in str(excinfo.value)
+
+
+@crypto_required
+class TestECCurveValidation:
+    """Tests for ECDSA curve validation per RFC 7518 Section 3.4."""
+
+    def test_ec_curve_validation_rejects_wrong_curve_for_es256(self):
+        """ES256 should reject keys that are not P-256."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA256, SECP256R1)
+
+        # P-384 key should be rejected
+        with open(key_path("jwk_ec_key_P-384.json")) as keyfile:
+            p384_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(p384_key)
+        assert "secp384r1" in str(excinfo.value)
+        assert "secp256r1" in str(excinfo.value)
+
+    def test_ec_curve_validation_rejects_wrong_curve_for_es384(self):
+        """ES384 should reject keys that are not P-384."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP384R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA384, SECP384R1)
+
+        # P-256 key should be rejected
+        with open(key_path("jwk_ec_key_P-256.json")) as keyfile:
+            p256_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(p256_key)
+        assert "secp256r1" in str(excinfo.value)
+        assert "secp384r1" in str(excinfo.value)
+
+    def test_ec_curve_validation_rejects_wrong_curve_for_es512(self):
+        """ES512 should reject keys that are not P-521."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP521R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA512, SECP521R1)
+
+        # P-256 key should be rejected
+        with open(key_path("jwk_ec_key_P-256.json")) as keyfile:
+            p256_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(p256_key)
+        assert "secp256r1" in str(excinfo.value)
+        assert "secp521r1" in str(excinfo.value)
+
+    def test_ec_curve_validation_rejects_wrong_curve_for_es256k(self):
+        """ES256K should reject keys that are not secp256k1."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP256K1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA256, SECP256K1)
+
+        # P-256 key should be rejected
+        with open(key_path("jwk_ec_key_P-256.json")) as keyfile:
+            p256_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(p256_key)
+        assert "secp256r1" in str(excinfo.value)
+        assert "secp256k1" in str(excinfo.value)
+
+    def test_ec_curve_validation_accepts_correct_curve_for_es256(self):
+        """ES256 should accept P-256 keys."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA256, SECP256R1)
+
+        with open(key_path("jwk_ec_key_P-256.json")) as keyfile:
+            key = algo.from_jwk(keyfile.read())
+            prepared = algo.prepare_key(key)
+            assert prepared is key
+
+    def test_ec_curve_validation_accepts_correct_curve_for_es384(self):
+        """ES384 should accept P-384 keys."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP384R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA384, SECP384R1)
+
+        with open(key_path("jwk_ec_key_P-384.json")) as keyfile:
+            key = algo.from_jwk(keyfile.read())
+            prepared = algo.prepare_key(key)
+            assert prepared is key
+
+    def test_ec_curve_validation_accepts_correct_curve_for_es512(self):
+        """ES512 should accept P-521 keys."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP521R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA512, SECP521R1)
+
+        with open(key_path("jwk_ec_key_P-521.json")) as keyfile:
+            key = algo.from_jwk(keyfile.read())
+            prepared = algo.prepare_key(key)
+            assert prepared is key
+
+    def test_ec_curve_validation_accepts_correct_curve_for_es256k(self):
+        """ES256K should accept secp256k1 keys."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP256K1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA256, SECP256K1)
+
+        with open(key_path("jwk_ec_key_secp256k1.json")) as keyfile:
+            key = algo.from_jwk(keyfile.read())
+            prepared = algo.prepare_key(key)
+            assert prepared is key
+
+    def test_ec_curve_validation_rejects_p192_for_es256(self):
+        """ES256 should reject P-192 keys (weaker than P-256)."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA256, SECP256R1)
+
+        with open(key_path("testkey_ec_secp192r1.priv")) as keyfile:
+            with pytest.raises(InvalidKeyError) as excinfo:
+                algo.prepare_key(keyfile.read())
+            assert "secp192r1" in str(excinfo.value)
+            assert "secp256r1" in str(excinfo.value)
+
+    def test_ec_algorithm_without_expected_curve_accepts_any_curve(self):
+        """ECAlgorithm without expected_curve should accept any curve (backwards compat)."""
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        # Should accept P-256
+        with open(key_path("jwk_ec_key_P-256.json")) as keyfile:
+            p256_key = algo.from_jwk(keyfile.read())
+            algo.prepare_key(p256_key)
+
+        # Should accept P-384
+        with open(key_path("jwk_ec_key_P-384.json")) as keyfile:
+            p384_key = algo.from_jwk(keyfile.read())
+            algo.prepare_key(p384_key)
+
+        # Should accept P-521
+        with open(key_path("jwk_ec_key_P-521.json")) as keyfile:
+            p521_key = algo.from_jwk(keyfile.read())
+            algo.prepare_key(p521_key)
+
+        # Should accept secp256k1
+        with open(key_path("jwk_ec_key_secp256k1.json")) as keyfile:
+            secp256k1_key = algo.from_jwk(keyfile.read())
+            algo.prepare_key(secp256k1_key)
+
+    def test_default_algorithms_have_correct_expected_curve(self):
+        """Default algorithms returned by get_default_algorithms should have expected_curve set."""
+        from cryptography.hazmat.primitives.asymmetric.ec import (
+            SECP256K1,
+            SECP256R1,
+            SECP384R1,
+            SECP521R1,
+        )
+
+        from jwt.algorithms import get_default_algorithms
+
+        algorithms = get_default_algorithms()
+
+        es256 = algorithms["ES256"]
+        assert isinstance(es256, ECAlgorithm)
+        assert es256.expected_curve == SECP256R1
+
+        es256k = algorithms["ES256K"]
+        assert isinstance(es256k, ECAlgorithm)
+        assert es256k.expected_curve == SECP256K1
+
+        es384 = algorithms["ES384"]
+        assert isinstance(es384, ECAlgorithm)
+        assert es384.expected_curve == SECP384R1
+
+        es521 = algorithms["ES521"]
+        assert isinstance(es521, ECAlgorithm)
+        assert es521.expected_curve == SECP521R1
+
+        es512 = algorithms["ES512"]
+        assert isinstance(es512, ECAlgorithm)
+        assert es512.expected_curve == SECP521R1
+
+    def test_ec_curve_validation_with_pem_key(self):
+        """Curve validation should work with PEM-formatted keys."""
+        from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1
+
+        algo = ECAlgorithm(ECAlgorithm.SHA256, SECP256R1)
+
+        # P-256 PEM key should be accepted
+        with open(key_path("testkey_ec.priv")) as keyfile:
+            algo.prepare_key(keyfile.read())
+
+        # P-192 PEM key should be rejected
+        with open(key_path("testkey_ec_secp192r1.priv")) as keyfile:
+            with pytest.raises(InvalidKeyError):
+                algo.prepare_key(keyfile.read())
+
+    def test_jwt_encode_decode_rejects_wrong_curve(self):
+        """Integration test: jwt.encode/decode should reject wrong curve keys."""
+        import jwt
+
+        # Use P-384 key with ES256 algorithm (expects P-256)
+        with open(key_path("jwk_ec_key_P-384.json")) as keyfile:
+            p384_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        # Encoding should fail
+        with pytest.raises(InvalidKeyError):
+            jwt.encode({"hello": "world"}, p384_key, algorithm="ES256")
+
+        # Create a valid token with P-256 key
+        with open(key_path("jwk_ec_key_P-256.json")) as keyfile:
+            p256_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        token = jwt.encode({"hello": "world"}, p256_key, algorithm="ES256")
+
+        # Decoding with wrong curve key should fail
+        with open(key_path("jwk_ec_pub_P-384.json")) as keyfile:
+            p384_pub_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        with pytest.raises(InvalidKeyError):
+            jwt.decode(token, p384_pub_key, algorithms=["ES256"])
+
+        # Decoding with correct curve key should succeed
+        with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
+            p256_pub_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        decoded = jwt.decode(token, p256_pub_key, algorithms=["ES256"])
+        assert decoded == {"hello": "world"}
