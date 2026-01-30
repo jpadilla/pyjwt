@@ -8,7 +8,7 @@ from collections.abc import Container, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Union, cast
 
-from . import api_jws
+from .api_jws import PyJWS, _jws_global_obj
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
@@ -52,6 +52,8 @@ class PyJWT:
         if options is not None:
             self.options = self._merge_options(options)
 
+        self._jws = PyJWS(options=self._get_sig_options())
+
     @staticmethod
     def _get_default_options() -> FullOptions:
         return {
@@ -65,6 +67,15 @@ class PyJWT:
             "verify_jti": True,
             "require": [],
             "strict_aud": False,
+            "enforce_minimum_key_length": False,
+        }
+
+    def _get_sig_options(self) -> SigOptions:
+        return {
+            "verify_signature": self.options["verify_signature"],
+            "enforce_minimum_key_length": self.options.get(
+                "enforce_minimum_key_length", False
+            ),
         }
 
     def _merge_options(self, options: Options | None = None) -> FullOptions:
@@ -139,7 +150,7 @@ class PyJWT:
             json_encoder=json_encoder,
         )
 
-        return api_jws.encode(
+        return self._jws.encode(
             json_payload,
             key,
             algorithm,
@@ -249,8 +260,12 @@ class PyJWT:
                 stacklevel=2,
             )
 
-        sig_options: SigOptions = {"verify_signature": verify_signature}
-        decoded = api_jws.decode_complete(
+        merged_options = self._merge_options(options)
+
+        sig_options: SigOptions = {
+            "verify_signature": verify_signature,
+        }
+        decoded = self._jws.decode_complete(
             jwt,
             key=key,
             algorithms=algorithms,
@@ -260,7 +275,6 @@ class PyJWT:
 
         payload = self._decode_payload(decoded)
 
-        merged_options = self._merge_options(options)
         self._validate_claims(
             payload,
             merged_options,
@@ -576,6 +590,7 @@ class PyJWT:
 
 
 _jwt_global_obj = PyJWT()
+_jwt_global_obj._jws = _jws_global_obj
 encode = _jwt_global_obj.encode
 decode_complete = _jwt_global_obj.decode_complete
 decode = _jwt_global_obj.decode

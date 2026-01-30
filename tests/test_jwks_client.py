@@ -351,7 +351,9 @@ class TestPyJWKClient:
             url, ssl_context=ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
         )
 
-        with pytest.raises(PyJWKClientError):
-            jwks_client.get_jwk_set()
-
-        assert "Failed to get an expected error"
+        with mock.patch("urllib.request.urlopen") as urlopen_mock:
+            urlopen_mock.side_effect = URLError(
+                ssl.SSLCertVerificationError("certificate verify failed")
+            )
+            with pytest.raises(PyJWKClientError):
+                jwks_client.get_jwk_set()

@@ -50,6 +50,13 @@ Types
     :members:
     :undoc-members:
 
+Warnings
+----------
+
+.. automodule:: jwt.warnings
+    :members:
+    :show-inheritance:
+
 Exceptions
 ----------
 

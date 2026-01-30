@@ -16,11 +16,12 @@ from .api_jwk import PyJWK
 from .exceptions import (
     DecodeError,
     InvalidAlgorithmError,
+    InvalidKeyError,
     InvalidSignatureError,
     InvalidTokenError,
 )
 from .utils import base64url_decode, base64url_encode
-from .warnings import RemovedInPyjwt3Warning
+from .warnings import InsecureKeyLengthWarning, RemovedInPyjwt3Warning
 
 if TYPE_CHECKING:
     from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
@@ -51,7 +52,7 @@ class PyJWS:
 
     @staticmethod
     def _get_default_options() -> SigOptions:
-        return {"verify_signature": True}
+        return {"verify_signature": True, "enforce_minimum_key_length": False}
 
     def register_algorithm(self, alg_id: str, alg_obj: Algorithm) -> None:
         """
@@ -180,6 +181,14 @@ class PyJWS:
         if isinstance(key, PyJWK):
             key = key.key
         key = alg_obj.prepare_key(key)
+
+        key_length_msg = alg_obj.check_key_length(key)
+        if key_length_msg:
+            if self.options.get("enforce_minimum_key_length", False):
+                raise InvalidKeyError(key_length_msg)
+            else:
+                warnings.warn(key_length_msg, InsecureKeyLengthWarning, stacklevel=2)
+
         signature = alg_obj.sign(signing_input, key)
 
         segments.append(base64url_encode(signature))
@@ -338,6 +347,13 @@ class PyJWS:
             except NotImplementedError as e:
                 raise InvalidAlgorithmError("Algorithm not supported") from e
             prepared_key = alg_obj.prepare_key(key)
+
+        key_length_msg = alg_obj.check_key_length(prepared_key)
+        if key_length_msg:
+            if self.options.get("enforce_minimum_key_length", False):
+                raise InvalidKeyError(key_length_msg)
+            else:
+                warnings.warn(key_length_msg, InsecureKeyLengthWarning, stacklevel=4)
 
         if not alg_obj.verify(signing_input, prepared_key, signature):
             raise InvalidSignatureError("Signature verification failed")

@@ -26,6 +26,7 @@ from .exceptions import (
     PyJWTError,
 )
 from .jwks_client import PyJWKClient
+from .warnings import InsecureKeyLengthWarning
 
 __version__ = "2.10.1"
 
@@ -55,6 +56,8 @@ __all__ = [
     "register_algorithm",
     "unregister_algorithm",
     "get_algorithm_by_name",
+    # Warnings
+    "InsecureKeyLengthWarning",
     # Exceptions
     "DecodeError",
     "ExpiredSignatureError",

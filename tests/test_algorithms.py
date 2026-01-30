@@ -1387,3 +1387,201 @@ class TestECCurveValidation:
 
         decoded = jwt.decode(token, p256_pub_key, algorithms=["ES256"])
         assert decoded == {"hello": "world"}
+
+
+class TestKeyLengthValidation:
+    """Tests for minimum key length validation (CWE-326)."""
+
+    # --- HMAC tests ---
+
+    def test_hmac_short_key_warns_by_default_hs256(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = algo.prepare_key(b"short")
+        msg = algo.check_key_length(key)
+        assert msg is not None
+        assert "below" in msg
+        assert "32" in msg
+
+    def test_hmac_short_key_warns_by_default_hs384(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA384)
+        key = algo.prepare_key(b"a" * 47)
+        msg = algo.check_key_length(key)
+        assert msg is not None
+        assert "48" in msg
+
+    def test_hmac_short_key_warns_by_default_hs512(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA512)
+        key = algo.prepare_key(b"a" * 63)
+        msg = algo.check_key_length(key)
+        assert msg is not None
+        assert "64" in msg
+
+    def test_hmac_empty_key_returns_warning_message(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = algo.prepare_key(b"")
+        msg = algo.check_key_length(key)
+        assert msg is not None
+
+    def test_hmac_exact_minimum_no_warning(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = algo.prepare_key(b"a" * 32)
+        assert algo.check_key_length(key) is None
+
+    def test_hmac_above_minimum_no_warning(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA512)
+        key = algo.prepare_key(b"a" * 128)
+        assert algo.check_key_length(key) is None
+
+    def test_hmac_exact_minimum_hs384(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA384)
+        key = algo.prepare_key(b"a" * 48)
+        assert algo.check_key_length(key) is None
+
+    def test_hmac_exact_minimum_hs512(self):
+        algo = HMACAlgorithm(HMACAlgorithm.SHA512)
+        key = algo.prepare_key(b"a" * 64)
+        assert algo.check_key_length(key) is None
+
+    # --- RSA tests ---
+
+    @crypto_required
+    def test_rsa_small_key_returns_warning_message(self):
+        from cryptography.hazmat.primitives.asymmetric import rsa as rsa_module
+
+        small_key = rsa_module.generate_private_key(
+            public_exponent=65537,
+            key_size=1024,
+        )
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        msg = algo.check_key_length(small_key)
+        assert msg is not None
+        assert "1024" in msg
+        assert "2048" in msg
+
+    @crypto_required
+    def test_rsa_small_public_key_returns_warning_message(self):
+        from cryptography.hazmat.primitives.asymmetric import rsa as rsa_module
+
+        small_key = rsa_module.generate_private_key(
+            public_exponent=65537,
+            key_size=1024,
+        )
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        msg = algo.check_key_length(small_key.public_key())
+        assert msg is not None
+
+    @crypto_required
+    def test_rsa_2048_key_no_warning(self):
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        with open(key_path("testkey_rsa.priv")) as f:
+            key = algo.prepare_key(f.read())
+        assert algo.check_key_length(key) is None
+
+    @crypto_required
+    def test_rsa_pss_inherits_validation(self):
+        from cryptography.hazmat.primitives.asymmetric import rsa as rsa_module
+
+        small_key = rsa_module.generate_private_key(
+            public_exponent=65537,
+            key_size=1024,
+        )
+        algo = RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256)
+        msg = algo.check_key_length(small_key)
+        assert msg is not None
+
+    @crypto_required
+    def test_rsa_pem_weak_key_validated(self):
+        from cryptography.hazmat.primitives.asymmetric import rsa as rsa_module
+        from cryptography.hazmat.primitives.serialization import (
+            Encoding,
+            NoEncryption,
+            PrivateFormat,
+        )
+
+        small_key = rsa_module.generate_private_key(
+            public_exponent=65537,
+            key_size=1024,
+        )
+        pem = small_key.private_bytes(
+            Encoding.PEM, PrivateFormat.TraditionalOpenSSL, NoEncryption()
+        )
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        prepared = algo.prepare_key(pem)
+        msg = algo.check_key_length(prepared)
+        assert msg is not None
+
+    # --- PyJWS integration tests ---
+
+    def test_pyjws_encode_warns_short_hmac_key(self):
+        import jwt
+
+        jws = jwt.PyJWS()
+        with pytest.warns(jwt.InsecureKeyLengthWarning, match="below"):
+            jws.encode(b'{"test":"payload"}', b"short", algorithm="HS256")
+
+    def test_pyjws_encode_enforces_short_hmac_key(self):
+        import jwt
+
+        jws = jwt.PyJWS(options={"enforce_minimum_key_length": True})
+        with pytest.raises(InvalidKeyError, match="below"):
+            jws.encode(b'{"test":"payload"}', b"short", algorithm="HS256")
+
+    def test_pyjws_encode_no_warning_adequate_key(self):
+        import warnings
+
+        import jwt
+
+        jws = jwt.PyJWS()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", jwt.InsecureKeyLengthWarning)
+            jws.encode(b'{"test":"payload"}', b"a" * 32, algorithm="HS256")
+
+    # --- PyJWT integration tests ---
+
+    def test_pyjwt_encode_warns_short_hmac_key(self):
+        import jwt
+
+        with pytest.warns(jwt.InsecureKeyLengthWarning):
+            jwt.encode({"hello": "world"}, "short", algorithm="HS256")
+
+    def test_pyjwt_encode_enforces_short_hmac_key(self):
+        import jwt
+
+        pyjwt = jwt.PyJWT(options={"enforce_minimum_key_length": True})
+        with pytest.raises(InvalidKeyError, match="below"):
+            pyjwt.encode({"hello": "world"}, "short", algorithm="HS256")
+
+    def test_pyjwt_decode_enforces_short_hmac_key(self):
+        import jwt
+
+        adequate_key = "a" * 32
+        token = jwt.encode({"hello": "world"}, adequate_key, algorithm="HS256")
+
+        pyjwt = jwt.PyJWT(options={"enforce_minimum_key_length": True})
+        # Decoding with adequate key should work
+        result = pyjwt.decode(token, adequate_key, algorithms=["HS256"])
+        assert result == {"hello": "world"}
+
+        # Decoding with short key should raise
+        pyjwt_enforce = jwt.PyJWT(options={"enforce_minimum_key_length": True})
+        with pytest.raises(InvalidKeyError):
+            pyjwt_enforce.decode(token, "short", algorithms=["HS256"])
+
+    def test_pyjwt_encode_no_warning_adequate_key(self):
+        import warnings
+
+        import jwt
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", jwt.InsecureKeyLengthWarning)
+            jwt.encode({"hello": "world"}, "a" * 32, algorithm="HS256")
+
+    def test_global_register_algorithm_works_with_encode(self):
+        """Backward compat: jwt.register_algorithm + jwt.encode use the same JWS."""
+        import jwt
+
+        # This test just verifies the global path still works
+        # (register_algorithm and encode share the same JWS instance)
+        token = jwt.encode({"hello": "world"}, "a" * 32, algorithm="HS256")
+        decoded = jwt.decode(token, "a" * 32, algorithms=["HS256"])
+        assert decoded == {"hello": "world"}

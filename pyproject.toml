@@ -114,6 +114,11 @@ attr = "jwt.__version__"
     "py.typed",
 ]
 
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::jwt.warnings.InsecureKeyLengthWarning",
+]
+
 [tool.setuptools.packages.find]
 exclude = [
     "tests",

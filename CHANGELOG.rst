@@ -7,9 +7,21 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.1...HEAD>`__
 ------------------------------------------------------------------------
 
+Added
+~~~~~
+
+- Add minimum key length validation for HMAC and RSA keys (CWE-326).
+  Warns by default via ``InsecureKeyLengthWarning`` when keys are below
+  minimum recommended lengths per RFC 7518 Section 3.2 (HMAC) and
+  NIST SP 800-131A (RSA). Pass ``enforce_minimum_key_length=True`` in
+  options to ``PyJWT`` or ``PyJWS`` to raise ``InvalidKeyError`` instead.
+- Refactor ``PyJWT`` to own an internal ``PyJWS`` instance instead of
+  calling global ``api_jws`` functions.
+
 Fixed
 ~~~~~
 
+- Enforce ECDSA curve validation per RFC 7518 Section 3.4.
 - Fix build system warnings by @kurtmckee in `#1105 <https://github.com/jpadilla/pyjwt/pull/1105>`__
 - Validate key against allowed types for Algorithm family in `#964 <https://github.com/jpadilla/pyjwt/pull/964>`__
 - Add iterator for JWKSet in `#1041 <https://github.com/jpadilla/pyjwt/pull/1041>`__

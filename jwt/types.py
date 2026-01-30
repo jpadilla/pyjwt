@@ -11,6 +11,8 @@ class SigOptions(TypedDict):
 
     verify_signature: bool
     """verify the JWT cryptographic signature"""
+    enforce_minimum_key_length: bool
+    """Default: ``False``. Raise :py:class:`jwt.exceptions.InvalidKeyError` instead of warning when keys are below minimum recommended length."""
 
 
 class Options(TypedDict, total=False):
@@ -47,6 +49,8 @@ class Options(TypedDict, total=False):
     """Default: ``verify_signature``. Check that ``nbf`` (not before) claim value is in the past (if present in payload). """
     verify_sub: bool
     """Default: ``verify_signature``. Check that ``sub`` (subject) claim is a string and matches ``subject`` (if present in payload). """
+    enforce_minimum_key_length: bool
+    """Default: ``False``. Raise :py:class:`jwt.exceptions.InvalidKeyError` instead of warning when keys are below minimum recommended length."""
 
 
 # The only difference between Options and FullOptions is that FullOptions
@@ -62,3 +66,4 @@ class FullOptions(TypedDict):
     verify_jti: bool
     verify_nbf: bool
     verify_sub: bool
+    enforce_minimum_key_length: bool

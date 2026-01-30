@@ -404,6 +404,56 @@ By storing the `jti` of every token you've already processed in a database or ca
 If a token with a previously-seen `jti` shows up, you can reject the request, stopping the attack.
 
 
+.. _key-length-validation:
+
+Key Length Validation
+---------------------
+
+PyJWT validates that cryptographic keys meet minimum recommended lengths.
+By default, a warning (``InsecureKeyLengthWarning``) is emitted when a key
+is too short. You can configure PyJWT to raise an ``InvalidKeyError`` instead.
+
+The minimum key lengths are:
+
+* **HMAC** (HS256, HS384, HS512): Key must be at least as long as the hash
+  output (32, 48, or 64 bytes respectively), per `RFC 7518 Section 3.2
+  <https://www.rfc-editor.org/rfc/rfc7518#section-3.2>`_.
+* **RSA** (RS256, RS384, RS512, PS256, PS384, PS512): Key must be at least
+  2048 bits, per `NIST SP 800-131A
+  <https://csrc.nist.gov/publications/detail/sp/800-131a/rev-2/final>`_.
+
+By default, short keys produce a warning:
+
+.. code-block:: pycon
+
+    >>> import jwt
+    >>> jwt.encode({"some": "payload"}, "short", algorithm="HS256")  # doctest: +SKIP
+    # InsecureKeyLengthWarning: The HMAC key is 5 bytes long, which is below
+    # the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+
+To enforce minimum key lengths (raise ``InvalidKeyError`` on short keys),
+pass ``enforce_minimum_key_length=True`` in the options when creating a
+``PyJWT`` or ``PyJWS`` instance:
+
+.. code-block:: pycon
+
+    >>> from jwt import PyJWT
+    >>> jwt = PyJWT(options={"enforce_minimum_key_length": True})
+    >>> jwt.encode({"some": "payload"}, "short", algorithm="HS256")
+    Traceback (most recent call last):
+      ...
+    jwt.exceptions.InvalidKeyError: The HMAC key is 5 bytes long, ...
+
+To suppress the warning without enforcing, use Python's standard
+``warnings`` module:
+
+.. code-block:: python
+
+    import warnings
+    import jwt
+
+    warnings.filterwarnings("ignore", category=jwt.InsecureKeyLengthWarning)
+
 Requiring Presence of Claims
 ----------------------------
 

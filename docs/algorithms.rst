@@ -19,6 +19,38 @@ This library currently supports:
 * PS512 - RSASSA-PSS signature using SHA-512 and MGF1 padding with SHA-512
 * EdDSA - Both Ed25519 signature using SHA-512 and Ed448 signature using SHA-3 are supported. Ed25519 and Ed448 provide 128-bit and 224-bit security respectively.
 
+Minimum Key Length Requirements
+-------------------------------
+
+PyJWT enforces minimum key lengths per industry standards. Keys below these
+minimums will trigger an ``InsecureKeyLengthWarning`` by default, or raise
+``InvalidKeyError`` if ``enforce_minimum_key_length`` is enabled.
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Algorithm
+     - Minimum Key Length
+     - Standard
+   * - HS256
+     - 32 bytes (256 bits)
+     - RFC 7518 Section 3.2
+   * - HS384
+     - 48 bytes (384 bits)
+     - RFC 7518 Section 3.2
+   * - HS512
+     - 64 bytes (512 bits)
+     - RFC 7518 Section 3.2
+   * - RS256/384/512
+     - 2048 bits
+     - NIST SP 800-131A
+   * - PS256/384/512
+     - 2048 bits
+     - NIST SP 800-131A
+
+See :ref:`key-length-validation` for configuration details.
+
 Asymmetric (Public-key) Algorithms
 ----------------------------------
 Usage of RSA (RS\*) and EC (EC\*) algorithms require a basic understanding

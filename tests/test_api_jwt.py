@@ -755,8 +755,11 @@ class TestJWT:
 
         with pytest.warns(RemovedInPyjwt3Warning) as record:
             jwt.decode(jwt_message, secret, algorithms=["HS256"], foo="bar")
-        assert len(record) == 1
-        assert "foo" in str(record[0].message)
+        deprecation_warnings = [
+            w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)
+        ]
+        assert len(deprecation_warnings) == 1
+        assert "foo" in str(deprecation_warnings[0].message)
 
     def test_decode_complete_warns_on_unsupported_kwarg(self, jwt, payload):
         secret = "secret"
@@ -764,8 +767,11 @@ class TestJWT:
 
         with pytest.warns(RemovedInPyjwt3Warning) as record:
             jwt.decode_complete(jwt_message, secret, algorithms=["HS256"], foo="bar")
-        assert len(record) == 1
-        assert "foo" in str(record[0].message)
+        deprecation_warnings = [
+            w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)
+        ]
+        assert len(deprecation_warnings) == 1
+        assert "foo" in str(deprecation_warnings[0].message)
 
     def test_decode_strict_aud_forbids_list_audience(self, jwt, payload):
         secret = "secret"

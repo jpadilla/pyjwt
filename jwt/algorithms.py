@@ -288,6 +288,13 @@ class Algorithm(ABC):
         Deserializes a given key from JWK back into a key object
         """
 
+    def check_key_length(self, key: Any) -> str | None:
+        """
+        Return a warning message if the key is below the minimum
+        recommended length for this algorithm, or None if adequate.
+        """
+        return None
+
 
 class NoneAlgorithm(Algorithm):
     """
@@ -380,6 +387,17 @@ class HMACAlgorithm(Algorithm):
 
         return base64url_decode(obj["k"])
 
+    def check_key_length(self, key: bytes) -> str | None:
+        min_length = self.hash_alg().digest_size
+        if len(key) < min_length:
+            return (
+                f"The HMAC key is {len(key)} bytes long, which is below "
+                f"the minimum recommended length of {min_length} bytes for "
+                f"{self.hash_alg().name.upper()}. "
+                f"See RFC 7518 Section 3.2."
+            )
+        return None
+
     def sign(self, msg: bytes, key: bytes) -> bytes:
         return hmac.new(key, msg, self.hash_alg).digest()
 
@@ -400,9 +418,19 @@ if has_crypto:
         SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
 
         _crypto_key_types = ALLOWED_RSA_KEY_TYPES
+        _MIN_KEY_SIZE: ClassVar[int] = 2048
 
         def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
             self.hash_alg = hash_alg
+
+        def check_key_length(self, key: AllowedRSAKeys) -> str | None:
+            if key.key_size < self._MIN_KEY_SIZE:
+                return (
+                    f"The RSA key is {key.key_size} bits long, which is below "
+                    f"the minimum recommended size of {self._MIN_KEY_SIZE} bits. "
+                    f"See NIST SP 800-131A."
+                )
+            return None
 
         def prepare_key(self, key: AllowedRSAKeys | str | bytes) -> AllowedRSAKeys:
             if isinstance(key, self._crypto_key_types):
