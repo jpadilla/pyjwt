@@ -5,7 +5,7 @@ JWKDict = dict[str, Any]
 HashlibHash = Callable[..., Any]
 
 
-class SigOptions(TypedDict):
+class SigOptions(TypedDict, total=False):
     """Options for PyJWS class (TypedDict). Note that this is a smaller set of options than
     for :py:func:`jwt.decode()`."""
 

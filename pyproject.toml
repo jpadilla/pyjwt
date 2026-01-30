@@ -115,7 +115,10 @@ attr = "jwt.__version__"
 ]
 
 [tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
 filterwarnings = [
+    "error",
     "ignore::jwt.warnings.InsecureKeyLengthWarning",
 ]
 
