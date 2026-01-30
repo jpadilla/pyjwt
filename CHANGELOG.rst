@@ -4,19 +4,17 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.10.1...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.11.0...HEAD>`__
 ------------------------------------------------------------------------
+
+Fixed
+~~~~~
 
 Added
 ~~~~~
 
-- Add minimum key length validation for HMAC and RSA keys (CWE-326).
-  Warns by default via ``InsecureKeyLengthWarning`` when keys are below
-  minimum recommended lengths per RFC 7518 Section 3.2 (HMAC) and
-  NIST SP 800-131A (RSA). Pass ``enforce_minimum_key_length=True`` in
-  options to ``PyJWT`` or ``PyJWS`` to raise ``InvalidKeyError`` instead.
-- Refactor ``PyJWT`` to own an internal ``PyJWS`` instance instead of
-  calling global ``api_jws`` functions.
+`v2.11.0 <https://github.com/jpadilla/pyjwt/compare/2.10.1...2.11.0>`__
+-----------------------------------------------------------------------
 
 Fixed
 ~~~~~
@@ -46,6 +44,13 @@ Added
 - Docs: Refactored docs with ``autodoc``; added ``PyJWS`` and ``jwt.algorithms`` docs by @pachewise in `#1045 <https://github.com/jpadilla/pyjwt/pull/1045>`__
 - Docs: Documentation improvements for "sub" and "jti" claims by @cleder in `#1088 <https://github.com/jpadilla/pyjwt/pull/1088>`__
 - Development: Add pyupgrade as a pre-commit hook by @kurtmckee in `#1109 <https://github.com/jpadilla/pyjwt/pull/1109>`__
+- Add minimum key length validation for HMAC and RSA keys (CWE-326).
+  Warns by default via ``InsecureKeyLengthWarning`` when keys are below
+  minimum recommended lengths per RFC 7518 Section 3.2 (HMAC) and
+  NIST SP 800-131A (RSA). Pass ``enforce_minimum_key_length=True`` in
+  options to ``PyJWT`` or ``PyJWS`` to raise ``InvalidKeyError`` instead.
+- Refactor ``PyJWT`` to own an internal ``PyJWS`` instance instead of
+  calling global ``api_jws`` functions.
 
 `v2.10.1 <https://github.com/jpadilla/pyjwt/compare/2.10.0...2.10.1>`__
 -----------------------------------------------------------------------
