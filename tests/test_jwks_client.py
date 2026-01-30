@@ -342,9 +342,7 @@ class TestPyJWKClient:
         ssl_ctx = ssl.create_default_context()
         jwks_client = PyJWKClient(url, ssl_context=ssl_ctx)
 
-        with mocked_success_response(
-            RESPONSE_DATA_WITH_MATCHING_KID
-        ) as mock_request:
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as mock_request:
             jwk_set = jwks_client.get_jwk_set()
             request_call = mock_request.call_args
             assert request_call[1].get("context") is ssl_ctx

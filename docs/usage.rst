@@ -440,6 +440,7 @@ pass ``enforce_minimum_key_length=True`` in the options when creating a
     ...     strict_jwt.encode({"some": "payload"}, "short", algorithm="HS256")
     ... except jwt.InvalidKeyError:
     ...     print("key too short")
+    ...
     key too short
 
 To suppress the warning without enforcing, use Python's standard
