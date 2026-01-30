@@ -54,6 +54,10 @@ class PyJWKClient:
         jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
+        except ValueError as e:
+            raise PyJWKClientError(f'Invalid URL "{self.uri}", err: "{e}"') from e
+
+        try:
             with urllib.request.urlopen(
                 r, timeout=self.timeout, context=self.ssl_context
             ) as response:

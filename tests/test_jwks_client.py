@@ -357,3 +357,13 @@ class TestPyJWKClient:
             )
             with pytest.raises(PyJWKClientError):
                 jwks_client.get_jwk_set()
+
+    def test_fetch_data_invalide_uri(self):
+        url = "obviously_wrong_url"
+
+        jwks_client = PyJWKClient(url)
+
+        with pytest.raises(PyJWKClientError) as exc:
+            jwks_client.fetch_data()
+
+        assert f'Invalid URL "{url}"' in str(exc.value)
