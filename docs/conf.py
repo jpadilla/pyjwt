@@ -80,6 +80,13 @@ pygments_style = "sphinx"
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# Suppress nitpick warnings for type aliases that Sphinx cannot resolve.
+nitpick_ignore = [
+    ("py:class", "JWKDict"),
+    ("py:class", "PublicKeyTypes"),
+    ("py:class", "PrivateKeyTypes"),
+]
+
 # Intersphinx extension.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),

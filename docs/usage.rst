@@ -422,14 +422,12 @@ The minimum key lengths are:
   2048 bits, per `NIST SP 800-131A
   <https://csrc.nist.gov/publications/detail/sp/800-131a/rev-2/final>`_.
 
-By default, short keys produce a warning:
+By default, short keys produce an ``InsecureKeyLengthWarning``:
 
 .. code-block:: pycon
 
     >>> import jwt
-    >>> jwt.encode({"some": "payload"}, "short", algorithm="HS256")  # doctest: +SKIP
-    # InsecureKeyLengthWarning: The HMAC key is 5 bytes long, which is below
-    # the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    >>> encoded = jwt.encode({"some": "payload"}, "short", algorithm="HS256")
 
 To enforce minimum key lengths (raise ``InvalidKeyError`` on short keys),
 pass ``enforce_minimum_key_length=True`` in the options when creating a
@@ -437,12 +435,12 @@ pass ``enforce_minimum_key_length=True`` in the options when creating a
 
 .. code-block:: pycon
 
-    >>> from jwt import PyJWT
-    >>> jwt = PyJWT(options={"enforce_minimum_key_length": True})
-    >>> jwt.encode({"some": "payload"}, "short", algorithm="HS256")
-    Traceback (most recent call last):
-      ...
-    jwt.exceptions.InvalidKeyError: The HMAC key is 5 bytes long, ...
+    >>> strict_jwt = jwt.PyJWT(options={"enforce_minimum_key_length": True})
+    >>> try:
+    ...     strict_jwt.encode({"some": "payload"}, "short", algorithm="HS256")
+    ... except jwt.InvalidKeyError:
+    ...     print("key too short")
+    key too short
 
 To suppress the warning without enforcing, use Python's standard
 ``warnings`` module:
