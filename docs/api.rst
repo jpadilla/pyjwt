@@ -7,6 +7,10 @@ API Reference
 
 .. autofunction:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0) -> dict[str, typing.Any]
 
+.. autoclass:: PyJWT
+    :class-doc-from: init
+    :members:
+
 .. autoclass:: PyJWK
     :class-doc-from: init
     :members:
@@ -21,9 +25,9 @@ API Reference
 
         The :py:class:`Algorithm` class associated with the key.
 
-.. module:: jwt.api_jwt
-
-.. autofunction:: decode_complete(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0) -> dict[str, typing.Any]
+.. autoclass:: PyJWKClient
+    :class-doc-from: init
+    :members:
 
 .. note:: TODO: Finish documenting PyJWS class
 .. module:: jwt.api_jws

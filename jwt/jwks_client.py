@@ -25,6 +25,48 @@ class PyJWKClient:
         timeout: float = 30,
         ssl_context: SSLContext | None = None,
     ):
+        """A client for retrieving signing keys from a JWKS endpoint.
+
+        ``PyJWKClient`` uses a two-tier caching system to avoid unnecessary
+        network requests:
+
+        **Tier 1 — JWK Set cache** (enabled by default):
+        Caches the entire JSON Web Key Set response from the endpoint.
+        Controlled by:
+
+        - ``cache_jwk_set``: Set to ``True`` (the default) to enable this
+          cache. When enabled, the JWK Set is fetched from the network only
+          when the cache is empty or expired.
+        - ``lifespan``: Time in seconds before the cached JWK Set expires.
+          Defaults to ``300`` (5 minutes). Must be greater than 0.
+
+        **Tier 2 — Signing key cache** (disabled by default):
+        Caches individual signing keys (looked up by ``kid``) using an LRU
+        cache with **no time-based expiration**. Keys are evicted only when
+        the cache reaches its maximum size. Controlled by:
+
+        - ``cache_keys``: Set to ``True`` to enable this cache.
+          Defaults to ``False``.
+        - ``max_cached_keys``: Maximum number of signing keys to keep in
+          the LRU cache. Defaults to ``16``.
+
+        :param uri: The URL of the JWKS endpoint.
+        :type uri: str
+        :param cache_keys: Enable the per-key LRU cache (Tier 2).
+        :type cache_keys: bool
+        :param max_cached_keys: Max entries in the signing key LRU cache.
+        :type max_cached_keys: int
+        :param cache_jwk_set: Enable the JWK Set response cache (Tier 1).
+        :type cache_jwk_set: bool
+        :param lifespan: TTL in seconds for the JWK Set cache.
+        :type lifespan: float
+        :param headers: Optional HTTP headers to include in requests.
+        :type headers: dict or None
+        :param timeout: HTTP request timeout in seconds.
+        :type timeout: float
+        :param ssl_context: Optional SSL context for the request.
+        :type ssl_context: ssl.SSLContext or None
+        """
         if headers is None:
             headers = {}
         self.uri = uri
