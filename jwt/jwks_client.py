@@ -93,6 +93,15 @@ class PyJWKClient:
             self.get_signing_key = get_signing_key  # type: ignore[method-assign]
 
     def fetch_data(self) -> Any:
+        """Fetch the JWK Set from the JWKS endpoint.
+
+        Makes an HTTP request to the configured ``uri`` and returns the
+        parsed JSON response. If the JWK Set cache is enabled, the
+        response is stored in the cache.
+
+        :returns: The parsed JWK Set as a dictionary.
+        :raises PyJWKClientConnectionError: If the HTTP request fails.
+        """
         jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
@@ -111,6 +120,16 @@ class PyJWKClient:
                 self.jwk_set_cache.put(jwk_set)
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
+        """Return the JWK Set, using the cache when available.
+
+        :param refresh: Force a fresh fetch from the endpoint, bypassing
+            the cache.
+        :type refresh: bool
+        :returns: The JWK Set.
+        :rtype: PyJWKSet
+        :raises PyJWKClientError: If the endpoint does not return a JSON
+            object.
+        """
         data = None
         if self.jwk_set_cache is not None and not refresh:
             data = self.jwk_set_cache.get()
@@ -124,6 +143,18 @@ class PyJWKClient:
         return PyJWKSet.from_dict(data)
 
     def get_signing_keys(self, refresh: bool = False) -> list[PyJWK]:
+        """Return all signing keys from the JWK Set.
+
+        Filters the JWK Set to keys whose ``use`` is ``"sig"`` (or
+        unspecified) and that have a ``kid``.
+
+        :param refresh: Force a fresh fetch from the endpoint, bypassing
+            the cache.
+        :type refresh: bool
+        :returns: A list of signing keys.
+        :rtype: list[PyJWK]
+        :raises PyJWKClientError: If no signing keys are found.
+        """
         jwk_set = self.get_jwk_set(refresh)
         signing_keys = [
             jwk_set_key
@@ -137,6 +168,18 @@ class PyJWKClient:
         return signing_keys
 
     def get_signing_key(self, kid: str) -> PyJWK:
+        """Return the signing key matching the given ``kid``.
+
+        If no match is found in the current JWK Set, the set is
+        refreshed from the endpoint and the lookup is retried once.
+
+        :param kid: The key ID to look up.
+        :type kid: str
+        :returns: The matching signing key.
+        :rtype: PyJWK
+        :raises PyJWKClientError: If no matching key is found after
+            refreshing.
+        """
         signing_keys = self.get_signing_keys()
         signing_key = self.match_kid(signing_keys, kid)
 
@@ -153,12 +196,31 @@ class PyJWKClient:
         return signing_key
 
     def get_signing_key_from_jwt(self, token: str | bytes) -> PyJWK:
+        """Return the signing key for a JWT by reading its ``kid`` header.
+
+        Extracts the ``kid`` from the token's unverified header and
+        delegates to :meth:`get_signing_key`.
+
+        :param token: The encoded JWT.
+        :type token: str or bytes
+        :returns: The matching signing key.
+        :rtype: PyJWK
+        """
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
         return self.get_signing_key(header.get("kid"))
 
     @staticmethod
     def match_kid(signing_keys: list[PyJWK], kid: str) -> PyJWK | None:
+        """Find a key in *signing_keys* that matches *kid*.
+
+        :param signing_keys: The list of keys to search.
+        :type signing_keys: list[PyJWK]
+        :param kid: The key ID to match.
+        :type kid: str
+        :returns: The matching key, or ``None`` if not found.
+        :rtype: PyJWK or None
+        """
         signing_key = None
 
         for key in signing_keys:
