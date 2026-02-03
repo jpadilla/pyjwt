@@ -277,6 +277,7 @@ class TestJWT:
     def test_encode_datetime(self, jwt):
         secret = "secret"
         current_datetime = datetime.now(tz=timezone.utc)
+        expected_timestamp = current_datetime.timestamp()
         payload = {
             "exp": current_datetime,
             "iat": current_datetime,
@@ -287,15 +288,62 @@ class TestJWT:
             jwt_message, secret, leeway=1, algorithms=["HS256"]
         )
 
-        assert decoded_payload["exp"] == timegm(current_datetime.utctimetuple())
-        assert decoded_payload["iat"] == timegm(current_datetime.utctimetuple())
-        assert decoded_payload["nbf"] == timegm(current_datetime.utctimetuple())
+        assert decoded_payload["exp"] == expected_timestamp
+        assert decoded_payload["iat"] == expected_timestamp
+        assert decoded_payload["nbf"] == expected_timestamp
         # payload is not mutated.
         assert payload == {
             "exp": current_datetime,
             "iat": current_datetime,
             "nbf": current_datetime,
         }
+
+    def test_encode_datetime_microsecond_precision(self, jwt):
+        """Test that microsecond precision is preserved in time claims.
+
+        Per RFC 7519, NumericDate values are JSON numbers representing
+        seconds since epoch, and non-integer values can be represented.
+        """
+        secret = "secret"
+        dt_with_microseconds = datetime(2025, 1, 1, 0, 0, 0, 123456, timezone.utc)
+        expected_timestamp = dt_with_microseconds.timestamp()
+        assert expected_timestamp != int(expected_timestamp)  # has fractional part
+
+        payload = {
+            "exp": dt_with_microseconds,
+            "iat": dt_with_microseconds,
+            "nbf": dt_with_microseconds,
+        }
+        jwt_message = jwt.encode(payload, secret)
+        decoded_payload = jwt.decode(
+            jwt_message,
+            secret,
+            algorithms=["HS256"],
+            options={"verify_exp": False},
+        )
+
+        assert decoded_payload["exp"] == expected_timestamp
+        assert decoded_payload["iat"] == expected_timestamp
+        assert decoded_payload["nbf"] == expected_timestamp
+
+    def test_decode_with_float_time_claims(self, jwt):
+        """Test that float-valued time claims (from external issuers) are accepted."""
+        import time
+
+        now = time.time()
+        secret = "secret"
+        # Manually construct payload with float timestamps
+        payload = {
+            "exp": now + 100.123456,
+            "iat": now - 10.654321,
+            "nbf": now - 10.654321,
+        }
+        jwt_message = jwt.encode(payload, secret)
+        decoded_payload = jwt.decode(jwt_message, secret, algorithms=["HS256"])
+
+        assert decoded_payload["exp"] == payload["exp"]
+        assert decoded_payload["iat"] == payload["iat"]
+        assert decoded_payload["nbf"] == payload["nbf"]
 
     # 'Control' Elliptic Curve JWT created by another library.
     # Used to test for regressions that could affect both

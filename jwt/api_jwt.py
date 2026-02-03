@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import warnings
-from calendar import timegm
 from collections.abc import Container, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Union, cast
@@ -136,9 +135,13 @@ class PyJWT:
         # Payload
         payload = payload.copy()
         for time_claim in ["exp", "iat", "nbf"]:
-            # Convert datetime to a intDate value in known time-format claims
+            # Convert datetime to a NumericDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
-                payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+                dt = payload[time_claim]
+                if dt.tzinfo is None:
+                    # Assume naive datetimes are UTC (matches previous behavior)
+                    dt = dt.replace(tzinfo=timezone.utc)
+                payload[time_claim] = dt.timestamp()
 
         # Issue #1039, iss being set to non-string
         if "iss" in payload and not isinstance(payload["iss"], str):
@@ -475,10 +478,10 @@ class PyJWT:
         leeway: float,
     ) -> None:
         try:
-            iat = int(payload["iat"])
-        except ValueError:
+            iat = float(payload["iat"])
+        except (ValueError, TypeError):
             raise InvalidIssuedAtError(
-                "Issued At claim (iat) must be an integer."
+                "Issued At claim (iat) must be a number."
             ) from None
         if iat > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
@@ -490,9 +493,9 @@ class PyJWT:
         leeway: float,
     ) -> None:
         try:
-            nbf = int(payload["nbf"])
-        except ValueError:
-            raise DecodeError("Not Before claim (nbf) must be an integer.") from None
+            nbf = float(payload["nbf"])
+        except (ValueError, TypeError):
+            raise DecodeError("Not Before claim (nbf) must be a number.") from None
 
         if nbf > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (nbf)")
@@ -504,10 +507,10 @@ class PyJWT:
         leeway: float,
     ) -> None:
         try:
-            exp = int(payload["exp"])
-        except ValueError:
+            exp = float(payload["exp"])
+        except (ValueError, TypeError):
             raise DecodeError(
-                "Expiration Time claim (exp) must be an integer."
+                "Expiration Time claim (exp) must be a number."
             ) from None
 
         if exp <= (now - leeway):
