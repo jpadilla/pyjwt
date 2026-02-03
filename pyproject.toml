@@ -71,15 +71,15 @@ Homepage = "https://github.com/jpadilla/pyjwt"
 
 [tool.coverage.paths]
 source = [
-    "jwt",
     "*/site-packages",
+    "jwt",
 ]
 
 [tool.coverage.report]
-skip_covered = true
 exclude_also = [
     "if TYPE_CHECKING",
 ]
+skip_covered = true
 
 [tool.coverage.run]
 branch = true
@@ -90,17 +90,22 @@ source = [
     "tests",
 ]
 
-[tool.isort]
-atomic = true
-combine_as_imports = true
-profile = "black"
-
 [tool.mypy]
-packages = "jwt"
 ignore_missing_imports = true
+packages = "jwt"
 strict = true
 warn_return_any = true
 warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+filterwarnings = [
+    "error",
+    "ignore::jwt.warnings.InsecureKeyLengthWarning",
+]
+testpaths = [
+    "tests",
+]
 
 [tool.setuptools]
 include-package-data = true
@@ -112,14 +117,6 @@ attr = "jwt.__version__"
 [tool.setuptools.package-data]
 "*" = [
     "py.typed",
-]
-
-[tool.pytest.ini_options]
-addopts = "-ra"
-testpaths = ["tests"]
-filterwarnings = [
-    "error",
-    "ignore::jwt.warnings.InsecureKeyLengthWarning",
 ]
 
 [tool.setuptools.packages.find]
