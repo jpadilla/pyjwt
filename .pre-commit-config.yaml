@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         name: Enforce Python 3.9+ idioms
@@ -20,13 +20,13 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.50"
+    rev: "0.51"
     hooks:
       - id: check-manifest
         args: [--no-build-isolation]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: "v0.24.1"
+    rev: "v0.25"
     hooks:
       - id: validate-pyproject
 
@@ -36,19 +36,19 @@ repos:
       - id: pyprojectsort
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: "0.34.0"
+    rev: "0.36.1"
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
 
   - repo: https://github.com/regebro/pyroma
-    rev: "5.0"
+    rev: "5.0.1"
     hooks:
       - id: pyroma
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.13.3
+    rev: v0.14.14
     hooks:
       # Run the linter.
       - id: ruff
