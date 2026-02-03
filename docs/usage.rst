@@ -476,6 +476,15 @@ If you wish to require one or more claims to be present in the claimset, you can
 Retrieve RSA signing keys from a JWKS endpoint
 ----------------------------------------------
 
+``PyJWKClient`` fetches and manages JSON Web Key Sets (JWKS) from a remote
+endpoint. Identity providers such as Auth0, Okta, and any OpenID Connect server
+publish a JWKS endpoint containing the public keys used to sign JWTs. Instead
+of hard-coding public keys, you can point ``PyJWKClient`` at that URL and let
+it resolve the correct key for each token automatically.
+
+Pass the JWKS URL to create a client, then call
+``get_signing_key_from_jwt()`` with a token to look up the matching key by its
+``kid`` header claim:
 
 .. code-block:: pycon
 
@@ -494,6 +503,14 @@ Retrieve RSA signing keys from a JWKS endpoint
     ...     algorithms=["RS256"],
     ... )
     {'iss': 'https://dev-87evx9ru.auth0.com/', 'sub': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC@clients', 'aud': 'https://expenses-api', 'iat': 1572006954, 'exp': 1572006964, 'azp': 'aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC', 'gty': 'client-credentials'}
+
+If the ``kid`` is not found in the current key set, ``PyJWKClient``
+automatically refreshes the JWKS from the endpoint and retries before raising
+an error.
+
+``PyJWKClient`` also includes built-in caching to avoid unnecessary network
+requests. See :class:`~jwt.PyJWKClient` in the API reference for details on
+the caching parameters.
 
 OIDC Login Flow
 ---------------

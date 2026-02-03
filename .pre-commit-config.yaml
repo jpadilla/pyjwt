@@ -6,22 +6,11 @@ repos:
         name: Enforce Python 3.9+ idioms
         args: ["--py39-plus"]
 
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.1.0
-    hooks:
-      - id: black
-        args: ["--target-version=py39"]
-
   - repo: https://github.com/asottile/blacken-docs
     rev: 1.20.0
     hooks:
       - id: blacken-docs
         args: ["--target-version=py39"]
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 7.0.0
-    hooks:
-      - id: isort
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -41,11 +30,10 @@ repos:
     hooks:
       - id: validate-pyproject
 
-  # conflict with the backend dependencies: tomli-w==1.1.0 is incompatible with tomli-w==1.0.0.
-  # - repo: https://github.com/kieran-ryan/pyprojectsort
-  #   rev: "v0.3.0"
-  #   hooks:
-  #     - id: pyprojectsort
+  - repo: https://github.com/kieran-ryan/pyprojectsort
+    rev: "v0.4.0"
+    hooks:
+      - id: pyprojectsort
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: "0.36.1"
