@@ -358,7 +358,7 @@ class TestPyJWKClient:
             with pytest.raises(PyJWKClientError):
                 jwks_client.get_jwk_set()
 
-    def test_fetch_data_invalide_uri(self):
+    def test_fetch_data_invalid_url(self):
         url = "obviously_wrong_url"
 
         jwks_client = PyJWKClient(url)
