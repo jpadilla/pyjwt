@@ -86,7 +86,6 @@ def mocked_timeout():
         yield urlopen_mock
 
 
-
 @contextlib.contextmanager
 def mocked_http_error_response():
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
