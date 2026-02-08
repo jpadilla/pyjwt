@@ -10,6 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Fixed
 ~~~~~
 
+- Annotate PyJWKSet.keys for pyright by @tamird in `#1134 <https://github.com/jpadilla/pyjwt/pull/1134>`__
+
 Added
 ~~~~~
 
