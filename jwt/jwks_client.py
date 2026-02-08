@@ -5,7 +5,7 @@ import urllib.request
 from functools import lru_cache
 from ssl import SSLContext
 from typing import Any
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
@@ -110,6 +110,8 @@ class PyJWKClient:
             ) as response:
                 jwk_set = json.load(response)
         except (URLError, TimeoutError) as e:
+            if isinstance(e, HTTPError):
+                e.close()
             raise PyJWKClientConnectionError(
                 f'Fail to fetch data from the url, err: "{e}"'
             ) from e
