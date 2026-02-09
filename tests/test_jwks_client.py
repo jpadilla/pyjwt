@@ -1,4 +1,5 @@
 import contextlib
+import io
 import json
 import ssl
 import time
@@ -94,7 +95,7 @@ def mocked_http_error_response():
             code=401,
             msg="Unauthorized",
             hdrs=None,
-            fp=None,
+            fp=io.BytesIO(b""),
         )
         urlopen_mock.side_effect = http_error
         yield urlopen_mock, http_error
