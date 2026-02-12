@@ -16,7 +16,7 @@ class SigOptions(TypedDict, total=False):
 
 
 class Options(TypedDict, total=False):
-    """Options for :py:func:`jwt.decode()` and :py:func:`jwt.api_jwt.decode_complete()` (TypedDict).
+    """Options for :py:func:`jwt.decode()` and :py:func:`jwt.decode_complete()` (TypedDict).
 
     .. warning::
 
