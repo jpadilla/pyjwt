@@ -91,11 +91,17 @@ source = [
 ]
 
 [tool.mypy]
-ignore_missing_imports = true
 packages = "jwt"
 strict = true
 warn_return_any = true
 warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+    "cryptography",
+    "cryptography.*",
+]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

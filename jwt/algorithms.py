@@ -107,6 +107,17 @@ try:
 
     has_crypto = True
 except ModuleNotFoundError:
+    if sys.version_info >= (3, 11):
+        from typing import Never
+    else:
+        from typing_extensions import Never
+
+    AllowedRSAKeys = Never  # type: ignore[misc]
+    AllowedECKeys = Never  # type: ignore[misc]
+    AllowedOKPKeys = Never  # type: ignore[misc]
+    AllowedKeys = Never  # type: ignore[misc]
+    AllowedPrivateKeys = Never  # type: ignore[misc]
+    AllowedPublicKeys = Never  # type: ignore[misc]
     has_crypto = False
 
 
