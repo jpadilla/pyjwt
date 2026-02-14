@@ -133,7 +133,7 @@ class PyJWK:
 
 class PyJWKSet:
     def __init__(self, keys: list[JWKDict]) -> None:
-        self.keys = []
+        self.keys: list[PyJWK] = []
 
         if not keys:
             raise PyJWKSetError("The JWK Set did not contain any keys")
