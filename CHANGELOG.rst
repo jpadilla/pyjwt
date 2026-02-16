@@ -11,6 +11,7 @@ Fixed
 ~~~~~
 
 - Annotate PyJWKSet.keys for pyright by @tamird in `#1134 <https://github.com/jpadilla/pyjwt/pull/1134>`__
+- Close ``HTTPError`` response to prevent ``ResourceWarning`` on Python 3.14 by @veeceey in `#1133 <https://github.com/jpadilla/pyjwt/pull/1133>`__
 
 Added
 ~~~~~

@@ -1,9 +1,10 @@
 import contextlib
+import io
 import json
 import ssl
 import time
 from unittest import mock
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 import pytest
 
@@ -84,6 +85,20 @@ def mocked_timeout():
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         urlopen_mock.side_effect = TimeoutError("timed out")
         yield urlopen_mock
+
+
+@contextlib.contextmanager
+def mocked_http_error_response():
+    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+        http_error = HTTPError(
+            url="https://example.com",
+            code=401,
+            msg="Unauthorized",
+            hdrs=None,
+            fp=io.BytesIO(b""),
+        )
+        urlopen_mock.side_effect = http_error
+        yield urlopen_mock, http_error
 
 
 @crypto_required
@@ -361,3 +376,13 @@ class TestPyJWKClient:
             )
             with pytest.raises(PyJWKClientError):
                 jwks_client.get_jwk_set()
+
+    def test_http_error_is_closed_on_connection_failure(self):
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url)
+
+        with mocked_http_error_response() as (_, http_error):
+            with pytest.raises(PyJWKClientConnectionError):
+                jwks_client.get_jwk_set()
+
+            assert http_error.closed
