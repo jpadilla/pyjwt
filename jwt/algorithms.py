@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import sys
 from abc import ABC, abstractmethod
 from typing import (
     TYPE_CHECKING,
@@ -13,6 +14,7 @@ from typing import (
     NoReturn,
     Union,
     cast,
+    get_args,
     overload,
 )
 
@@ -75,66 +77,47 @@ try:
         load_ssh_public_key,
     )
 
-    # pyjwt-964: we use these both for type checking below, as well as for validating the key passed in.
-    # in Py >= 3.10, we can replace this with the Union types below
-    ALLOWED_RSA_KEY_TYPES = (RSAPrivateKey, RSAPublicKey)
-    ALLOWED_EC_KEY_TYPES = (EllipticCurvePrivateKey, EllipticCurvePublicKey)
-    ALLOWED_OKP_KEY_TYPES = (
-        Ed25519PrivateKey,
-        Ed25519PublicKey,
-        Ed448PrivateKey,
-        Ed448PublicKey,
-    )
-    ALLOWED_KEY_TYPES = (
-        ALLOWED_RSA_KEY_TYPES + ALLOWED_EC_KEY_TYPES + ALLOWED_OKP_KEY_TYPES
-    )
-    ALLOWED_PRIVATE_KEY_TYPES = (
-        RSAPrivateKey,
-        EllipticCurvePrivateKey,
-        Ed25519PrivateKey,
-        Ed448PrivateKey,
-    )
-    ALLOWED_PUBLIC_KEY_TYPES = (
-        RSAPublicKey,
-        EllipticCurvePublicKey,
-        Ed25519PublicKey,
-        Ed448PublicKey,
-    )
+    if sys.version_info >= (3, 10):
+        from typing import TypeAlias
+    else:
+        # Python 3.9 and lower
+        from typing_extensions import TypeAlias
+
+    # Type aliases for convenience in algorithms method signatures
+    AllowedRSAKeys: TypeAlias = Union[RSAPrivateKey, RSAPublicKey]
+    AllowedECKeys: TypeAlias = Union[EllipticCurvePrivateKey, EllipticCurvePublicKey]
+    AllowedOKPKeys: TypeAlias = Union[
+        Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey
+    ]
+    AllowedKeys: TypeAlias = Union[AllowedRSAKeys, AllowedECKeys, AllowedOKPKeys]
+    #: Type alias for allowed ``cryptography`` private keys (requires ``cryptography`` to be installed)
+    AllowedPrivateKeys: TypeAlias = Union[
+        RSAPrivateKey, EllipticCurvePrivateKey, Ed25519PrivateKey, Ed448PrivateKey
+    ]
+    #: Type alias for allowed ``cryptography`` public keys (requires ``cryptography`` to be installed)
+    AllowedPublicKeys: TypeAlias = Union[
+        RSAPublicKey, EllipticCurvePublicKey, Ed25519PublicKey, Ed448PublicKey
+    ]
 
     if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
-        import sys
-
-        if sys.version_info >= (3, 10):
-            from typing import TypeAlias
-        else:
-            # Python 3.9 and lower
-            from typing_extensions import TypeAlias
-
         from cryptography.hazmat.primitives.asymmetric.types import (
             PrivateKeyTypes,
             PublicKeyTypes,
         )
 
-        # Type aliases for convenience in algorithms method signatures
-        AllowedRSAKeys: TypeAlias = Union[RSAPrivateKey, RSAPublicKey]
-        AllowedECKeys: TypeAlias = Union[
-            EllipticCurvePrivateKey, EllipticCurvePublicKey
-        ]
-        AllowedOKPKeys: TypeAlias = Union[
-            Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey
-        ]
-        AllowedKeys: TypeAlias = Union[AllowedRSAKeys, AllowedECKeys, AllowedOKPKeys]
-        #: Type alias for allowed ``cryptography`` private keys (requires ``cryptography`` to be installed)
-        AllowedPrivateKeys: TypeAlias = Union[
-            RSAPrivateKey, EllipticCurvePrivateKey, Ed25519PrivateKey, Ed448PrivateKey
-        ]
-        #: Type alias for allowed ``cryptography`` public keys (requires ``cryptography`` to be installed)
-        AllowedPublicKeys: TypeAlias = Union[
-            RSAPublicKey, EllipticCurvePublicKey, Ed25519PublicKey, Ed448PublicKey
-        ]
-
     has_crypto = True
 except ModuleNotFoundError:
+    if sys.version_info >= (3, 11):
+        from typing import Never
+    else:
+        from typing_extensions import Never
+
+    AllowedRSAKeys = Never  # type: ignore[misc]
+    AllowedECKeys = Never  # type: ignore[misc]
+    AllowedOKPKeys = Never  # type: ignore[misc]
+    AllowedKeys = Never  # type: ignore[misc]
+    AllowedPrivateKeys = Never  # type: ignore[misc]
+    AllowedPublicKeys = Never  # type: ignore[misc]
     has_crypto = False
 
 
@@ -417,7 +400,10 @@ if has_crypto:
         SHA384: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA384
         SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        _crypto_key_types = ALLOWED_RSA_KEY_TYPES
+        _crypto_key_types = cast(
+            tuple[type[AllowedKeys], ...],
+            get_args(Union[RSAPrivateKey, RSAPublicKey]),
+        )
         _MIN_KEY_SIZE: ClassVar[int] = 2048
 
         def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
@@ -434,7 +420,7 @@ if has_crypto:
 
         def prepare_key(self, key: AllowedRSAKeys | str | bytes) -> AllowedRSAKeys:
             if isinstance(key, self._crypto_key_types):
-                return key
+                return cast(AllowedRSAKeys, key)
 
             if not isinstance(key, (bytes, str)):
                 raise TypeError("Expecting a PEM-formatted key.")
@@ -602,7 +588,10 @@ if has_crypto:
         SHA384: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA384
         SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
 
-        _crypto_key_types = ALLOWED_EC_KEY_TYPES
+        _crypto_key_types = cast(
+            tuple[type[AllowedKeys], ...],
+            get_args(Union[EllipticCurvePrivateKey, EllipticCurvePublicKey]),
+        )
 
         def __init__(
             self,
@@ -625,8 +614,9 @@ if has_crypto:
 
         def prepare_key(self, key: AllowedECKeys | str | bytes) -> AllowedECKeys:
             if isinstance(key, self._crypto_key_types):
-                self._validate_curve(key)
-                return key
+                ec_key = cast(AllowedECKeys, key)
+                self._validate_curve(ec_key)
+                return ec_key
 
             if not isinstance(key, (bytes, str)):
                 raise TypeError("Expecting a PEM-formatted key.")
@@ -840,7 +830,17 @@ if has_crypto:
         This class requires ``cryptography>=2.6`` to be installed.
         """
 
-        _crypto_key_types = ALLOWED_OKP_KEY_TYPES
+        _crypto_key_types = cast(
+            tuple[type[AllowedKeys], ...],
+            get_args(
+                Union[
+                    Ed25519PrivateKey,
+                    Ed25519PublicKey,
+                    Ed448PrivateKey,
+                    Ed448PublicKey,
+                ]
+            ),
+        )
 
         def __init__(self, **kwargs: Any) -> None:
             pass

@@ -31,18 +31,12 @@ if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
         # Python 3.9 and lower
         from typing_extensions import TypeAlias
 
-    from .algorithms import has_crypto
+    from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
     from .api_jwk import PyJWK
     from .types import FullOptions, Options, SigOptions
 
-    if has_crypto:
-        from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
-
-        AllowedPrivateKeyTypes: TypeAlias = Union[AllowedPrivateKeys, PyJWK, str, bytes]
-        AllowedPublicKeyTypes: TypeAlias = Union[AllowedPublicKeys, PyJWK, str, bytes]
-    else:
-        AllowedPrivateKeyTypes: TypeAlias = Union[PyJWK, str, bytes]  # type: ignore
-        AllowedPublicKeyTypes: TypeAlias = Union[PyJWK, str, bytes]  # type: ignore
+    AllowedPrivateKeyTypes: TypeAlias = Union[AllowedPrivateKeys, PyJWK, str, bytes]
+    AllowedPublicKeyTypes: TypeAlias = Union[AllowedPublicKeys, PyJWK, str, bytes]
 
 
 class PyJWT:
