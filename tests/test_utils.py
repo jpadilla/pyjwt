@@ -43,7 +43,7 @@ def test_from_base64url_uint(inputval: bytes, expected: int) -> None:
 
 def test_force_bytes_raises_error_on_invalid_object() -> None:
     with pytest.raises(TypeError):
-        force_bytes({})  # type: ignore[arg-type]
+        force_bytes({})
 
 
 @pytest.mark.parametrize(

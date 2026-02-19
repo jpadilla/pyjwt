@@ -38,7 +38,7 @@ class TestAlgorithms:
 
         algo = NoneAlgorithm()
         with pytest.raises(ValueError):
-            algo.check_crypto_key_type("key")  # type: ignore[arg-type]
+            algo.check_crypto_key_type("key")
 
     def test_none_algorithm_should_throw_exception_if_key_is_not_none(self) -> None:
         algo = NoneAlgorithm()
@@ -62,7 +62,7 @@ class TestAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(TypeError) as context:
-            algo.prepare_key(object())  # type: ignore[arg-type]
+            algo.prepare_key(object())
 
         exception = context.value
         assert str(exception) == "Expected a string value"
@@ -148,7 +148,7 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
-            algo.prepare_key(None)  # type: ignore[arg-type]
+            algo.prepare_key(None)
 
     @crypto_required
     def test_rsa_verify_should_return_false_if_signature_invalid(self) -> None:
@@ -332,7 +332,9 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload]
+            # crypto-mypy reports call-overload; no-crypto-mypy reports
+            # unused-ignore because mypy resolves the argument type to Any.
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload,unused-ignore]
 
     @crypto_required
     @pytest.mark.parametrize("as_dict", (False, True))
@@ -578,7 +580,9 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload]
+            # crypto-mypy reports call-overload; no-crypto-mypy reports
+            # unused-ignore because mypy resolves the argument type to Any.
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload,unused-ignore]
 
     @crypto_required
     def test_rsa_from_jwk_raises_exception_on_invalid_key(self) -> None:
@@ -593,7 +597,7 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
-            algo.prepare_key(None)  # type: ignore[arg-type]
+            algo.prepare_key(None)
 
     @crypto_required
     def test_ec_should_accept_pem_private_key_bytes(self) -> None:
@@ -833,7 +837,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with pytest.raises(InvalidKeyError):
-            algo.prepare_key(None)  # type: ignore[arg-type]
+            algo.prepare_key(None)
 
         with open(key_path("testkey_ed25519")) as keyfile:
             algo.prepare_key(keyfile.read())
@@ -973,7 +977,7 @@ class TestOKPAlgorithms:
 
         # Invalid instance type
         with pytest.raises(InvalidKeyError):
-            algo.from_jwk(123)  # type: ignore[arg-type]
+            algo.from_jwk(123)
 
         # Invalid JSON
         with pytest.raises(InvalidKeyError):
@@ -1045,7 +1049,9 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with pytest.raises(InvalidKeyError):
-            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload]
+            # crypto-mypy reports call-overload; no-crypto-mypy reports
+            # unused-ignore because mypy resolves the argument type to Any.
+            algo.to_jwk({"not": "a valid key"})  # type: ignore[call-overload,unused-ignore]
 
     def test_okp_ed448_jwk_private_key_should_parse_and_verify(self) -> None:
         algo = OKPAlgorithm()
@@ -1089,7 +1095,7 @@ class TestOKPAlgorithms:
 
         # Invalid instance type
         with pytest.raises(InvalidKeyError):
-            algo.from_jwk(123)  # type: ignore[arg-type]
+            algo.from_jwk(123)
 
         # Invalid JSON
         with pytest.raises(InvalidKeyError):

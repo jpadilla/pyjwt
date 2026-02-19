@@ -644,12 +644,12 @@ class TestJWS:
 
         # string-formatted key
         with open(key_path("testkey_rsa.priv")) as rsa_priv_file:
-            priv_rsakey = rsa_priv_file.read()  # type: ignore[assignment]
-            jws_message = jws.encode(payload, priv_rsakey, algorithm=algo)
+            priv_rsakey_str = rsa_priv_file.read()
+            jws_message = jws.encode(payload, priv_rsakey_str, algorithm=algo)
 
         with open(key_path("testkey_rsa.pub")) as rsa_pub_file:
-            pub_rsakey = rsa_pub_file.read()  # type: ignore[assignment]
-            jws.decode(jws_message, pub_rsakey, algorithms=[algo])
+            pub_rsakey_str = rsa_pub_file.read()
+            jws.decode(jws_message, pub_rsakey_str, algorithms=[algo])
 
     def test_rsa_related_algorithms(self, jws: PyJWS) -> None:
         jws = PyJWS()
