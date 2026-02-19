@@ -3,7 +3,7 @@ import io
 import json
 import ssl
 import time
-from typing import Iterator
+from collections.abc import Iterator
 from unittest import mock
 from urllib.error import HTTPError, URLError
 from email.message import Message
