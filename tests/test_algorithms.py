@@ -38,7 +38,7 @@ class TestAlgorithms:
 
         algo = NoneAlgorithm()
         with pytest.raises(ValueError):
-            algo.check_crypto_key_type("key")
+            algo.check_crypto_key_type("key")  # type: ignore[arg-type,unused-ignore]
 
     def test_none_algorithm_should_throw_exception_if_key_is_not_none(self) -> None:
         algo = NoneAlgorithm()
@@ -62,7 +62,7 @@ class TestAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         with pytest.raises(TypeError) as context:
-            algo.prepare_key(object())
+            algo.prepare_key(object())  # type: ignore[arg-type]
 
         exception = context.value
         assert str(exception) == "Expected a string value"
@@ -148,7 +148,7 @@ class TestAlgorithms:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
-            algo.prepare_key(None)
+            algo.prepare_key(None)  # type: ignore[arg-type,unused-ignore]
 
     @crypto_required
     def test_rsa_verify_should_return_false_if_signature_invalid(self) -> None:
@@ -597,7 +597,7 @@ class TestAlgorithms:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
         with pytest.raises(TypeError):
-            algo.prepare_key(None)
+            algo.prepare_key(None)  # type: ignore[arg-type,unused-ignore]
 
     @crypto_required
     def test_ec_should_accept_pem_private_key_bytes(self) -> None:
@@ -837,7 +837,7 @@ class TestOKPAlgorithms:
         algo = OKPAlgorithm()
 
         with pytest.raises(InvalidKeyError):
-            algo.prepare_key(None)
+            algo.prepare_key(None)  # type: ignore[arg-type,unused-ignore]
 
         with open(key_path("testkey_ed25519")) as keyfile:
             algo.prepare_key(keyfile.read())
@@ -977,7 +977,7 @@ class TestOKPAlgorithms:
 
         # Invalid instance type
         with pytest.raises(InvalidKeyError):
-            algo.from_jwk(123)
+            algo.from_jwk(123)  # type: ignore[arg-type]
 
         # Invalid JSON
         with pytest.raises(InvalidKeyError):
@@ -1095,7 +1095,7 @@ class TestOKPAlgorithms:
 
         # Invalid instance type
         with pytest.raises(InvalidKeyError):
-            algo.from_jwk(123)
+            algo.from_jwk(123)  # type: ignore[arg-type]
 
         # Invalid JSON
         with pytest.raises(InvalidKeyError):
@@ -1392,6 +1392,8 @@ class TestECCurveValidation:
         with open(key_path("jwk_ec_key_P-384.json")) as keyfile:
             p384_key = ECAlgorithm.from_jwk(keyfile.read())
 
+        assert isinstance(p384_key, EllipticCurvePrivateKey)
+
         # Encoding should fail
         with pytest.raises(InvalidKeyError):
             jwt.encode({"hello": "world"}, p384_key, algorithm="ES256")
@@ -1400,11 +1402,15 @@ class TestECCurveValidation:
         with open(key_path("jwk_ec_key_P-256.json")) as keyfile:
             p256_key = ECAlgorithm.from_jwk(keyfile.read())
 
+        assert isinstance(p256_key, EllipticCurvePrivateKey)
+
         token = jwt.encode({"hello": "world"}, p256_key, algorithm="ES256")
 
         # Decoding with wrong curve key should fail
         with open(key_path("jwk_ec_pub_P-384.json")) as keyfile:
             p384_pub_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        assert isinstance(p384_pub_key, EllipticCurvePublicKey)
 
         with pytest.raises(InvalidKeyError):
             jwt.decode(token, p384_pub_key, algorithms=["ES256"])
@@ -1412,6 +1418,8 @@ class TestECCurveValidation:
         # Decoding with correct curve key should succeed
         with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
             p256_pub_key = ECAlgorithm.from_jwk(keyfile.read())
+
+        assert isinstance(p256_pub_key, EllipticCurvePublicKey)
 
         decoded = jwt.decode(token, p256_pub_key, algorithms=["ES256"])
         assert decoded == {"hello": "world"}

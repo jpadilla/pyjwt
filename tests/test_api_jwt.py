@@ -6,6 +6,7 @@ from decimal import Decimal
 
 import pytest
 
+from jwt.types import Options
 from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
     DecodeError,
@@ -128,7 +129,12 @@ class TestJWT:
         )
 
         with pytest.raises(TypeError) as context:
-            jwt.decode(example_jwt, secret, audience=1, algorithms=["HS256"])
+            jwt.decode(
+                example_jwt,
+                secret,
+                audience=1,  # type: ignore[arg-type]
+                algorithms=["HS256"],
+            )
 
         exception = context.value
         assert str(exception) == "audience must be a string, iterable or None"
@@ -477,7 +483,12 @@ class TestJWT:
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
         token = jwt.encode(payload, "secret")
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "secret", audience=b"urn:me", algorithms=["HS256"])
+            jwt.decode(
+                token,
+                "secret",
+                audience=b"urn:me",  # type: ignore[arg-type]
+                algorithms=["HS256"],
+            )
 
     def test_raise_exception_invalid_audience_in_array(self, jwt: PyJWT) -> None:
         payload = {
@@ -782,11 +793,16 @@ class TestJWT:
     def test_decode_no_options_mutation(
         self, jwt: PyJWT, payload: dict[str, object]
     ) -> None:
-        options = {"verify_signature": True}
+        options: Options = {"verify_signature": True}
         orig_options = options.copy()
         secret = "secret"
         jwt_message = jwt.encode(payload, secret)
-        jwt.decode(jwt_message, secret, options=options, algorithms=["HS256"])
+        jwt.decode(
+            jwt_message,
+            secret,
+            options=options,
+            algorithms=["HS256"],
+        )
         assert options == orig_options
 
     def test_decode_warns_on_unsupported_kwarg(
@@ -1045,4 +1061,7 @@ class TestJWT:
             "iss": "123",
         }
         with pytest.raises(InvalidIssuerError):
-            jwt._validate_iss(payload, issuer=123)
+            jwt._validate_iss(
+                payload,
+                issuer=123,  # type: ignore[arg-type]
+            )

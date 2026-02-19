@@ -6,6 +6,7 @@ import time
 from typing import Iterator
 from unittest import mock
 from urllib.error import HTTPError, URLError
+from email.message import Message
 
 import pytest
 
@@ -95,7 +96,7 @@ def mocked_http_error_response() -> Iterator[tuple[mock.Mock, HTTPError]]:
             url="https://example.com",
             code=401,
             msg="Unauthorized",
-            hdrs=None,
+            hdrs=Message(),
             fp=io.BytesIO(b""),
         )
         urlopen_mock.side_effect = http_error

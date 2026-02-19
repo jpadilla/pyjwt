@@ -326,7 +326,7 @@ class TestPyJWKSet:
     @crypto_required
     def test_invalid_keys_list(self) -> None:
         with pytest.raises(PyJWKSetError) as err:
-            PyJWKSet(keys="string")
+            PyJWKSet(keys="string")  # type: ignore[arg-type]
         assert str(err.value) == "Invalid JWK Set value"
 
     @crypto_required

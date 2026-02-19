@@ -106,14 +106,6 @@ module = [
     "cryptography.*",
 ]
 
-[[tool.mypy.overrides]]
-disable_error_code = [
-    "arg-type",
-]
-module = [
-    "tests.*",
-]
-
 [tool.pytest.ini_options]
 addopts = "-ra"
 filterwarnings = [
