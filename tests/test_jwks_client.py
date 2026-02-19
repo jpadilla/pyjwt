@@ -3,6 +3,7 @@ import io
 import json
 import ssl
 import time
+from typing import Iterator
 from unittest import mock
 from urllib.error import HTTPError, URLError
 
@@ -47,7 +48,7 @@ RESPONSE_DATA_NO_MATCHING_KID = {
 
 
 @contextlib.contextmanager
-def mocked_success_response(data):
+def mocked_success_response(data: object) -> Iterator[mock.Mock]:
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         response = mock.Mock()
         response.__enter__ = mock.Mock(return_value=response)
@@ -58,7 +59,7 @@ def mocked_success_response(data):
 
 
 @contextlib.contextmanager
-def mocked_failed_response():
+def mocked_failed_response() -> Iterator[mock.Mock]:
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         urlopen_mock.side_effect = URLError("Fail to process the request.")
         yield urlopen_mock
@@ -66,8 +67,8 @@ def mocked_failed_response():
 
 @contextlib.contextmanager
 def mocked_first_call_wrong_kid_second_call_correct_kid(
-    response_data_one, response_data_two
-):
+    response_data_one: object, response_data_two: object
+) -> Iterator[mock.Mock]:
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         response = mock.Mock()
         response.__enter__ = mock.Mock(return_value=response)
@@ -81,14 +82,14 @@ def mocked_first_call_wrong_kid_second_call_correct_kid(
 
 
 @contextlib.contextmanager
-def mocked_timeout():
+def mocked_timeout() -> Iterator[mock.Mock]:
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         urlopen_mock.side_effect = TimeoutError("timed out")
         yield urlopen_mock
 
 
 @contextlib.contextmanager
-def mocked_http_error_response():
+def mocked_http_error_response() -> Iterator[tuple[mock.Mock, HTTPError]]:
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         http_error = HTTPError(
             url="https://example.com",
@@ -103,7 +104,7 @@ def mocked_http_error_response():
 
 @crypto_required
 class TestPyJWKClient:
-    def test_fetch_data_forwards_headers_to_correct_url(self):
+    def test_fetch_data_forwards_headers_to_correct_url(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as mock_request:
@@ -116,7 +117,7 @@ class TestPyJWKClient:
 
         assert len(jwk_set.keys) == 1
 
-    def test_get_jwk_set(self):
+    def test_get_jwk_set(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
@@ -125,7 +126,7 @@ class TestPyJWKClient:
 
         assert len(jwk_set.keys) == 1
 
-    def test_get_signing_keys(self):
+    def test_get_signing_keys(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
@@ -135,7 +136,7 @@ class TestPyJWKClient:
         assert len(signing_keys) == 1
         assert isinstance(signing_keys[0], PyJWK)
 
-    def test_get_signing_keys_if_no_use_provided(self):
+    def test_get_signing_keys_if_no_use_provided(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         mocked_key = RESPONSE_DATA_WITH_MATCHING_KID["keys"][0].copy()
@@ -149,7 +150,7 @@ class TestPyJWKClient:
         assert len(signing_keys) == 1
         assert isinstance(signing_keys[0], PyJWK)
 
-    def test_get_signing_keys_raises_if_none_found(self):
+    def test_get_signing_keys_raises_if_none_found(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         mocked_key = RESPONSE_DATA_WITH_MATCHING_KID["keys"][0].copy()
@@ -163,7 +164,7 @@ class TestPyJWKClient:
 
         assert "The JWKS endpoint did not contain any signing keys" in str(exc.value)
 
-    def test_get_signing_key(self):
+    def test_get_signing_key(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
@@ -176,7 +177,7 @@ class TestPyJWKClient:
         assert signing_key.key_id == kid
         assert signing_key.public_key_use == "sig"
 
-    def test_get_signing_key_caches_result(self):
+    def test_get_signing_key_caches_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
@@ -192,7 +193,7 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 0
 
-    def test_get_signing_key_does_not_cache_opt_out(self):
+    def test_get_signing_key_does_not_cache_opt_out(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
@@ -208,7 +209,7 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 1
 
-    def test_get_signing_key_from_jwt(self):
+    def test_get_signing_key_from_jwt(self) -> None:
         token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
@@ -234,7 +235,7 @@ class TestPyJWKClient:
             "gty": "client-credentials",
         }
 
-    def test_get_jwk_set_caches_result(self):
+    def test_get_jwk_set_caches_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url)
@@ -250,7 +251,7 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 0
 
-    def test_get_jwt_set_cache_expired_result(self):
+    def test_get_jwt_set_cache_expired_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url, lifespan=1)
@@ -266,7 +267,7 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 1
 
-    def test_get_jwt_set_cache_disabled(self):
+    def test_get_jwt_set_cache_disabled(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url, cache_jwk_set=False)
@@ -286,7 +287,7 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 1
 
-    def test_get_jwt_set_failed_request_should_clear_cache(self):
+    def test_get_jwt_set_failed_request_should_clear_cache(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url)
@@ -299,7 +300,7 @@ class TestPyJWKClient:
 
             assert jwks_client.jwk_set_cache is None
 
-    def test_failed_request_should_raise_connection_error(self):
+    def test_failed_request_should_raise_connection_error(self) -> None:
         token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
@@ -308,7 +309,7 @@ class TestPyJWKClient:
             with mocked_failed_response():
                 jwks_client.get_signing_key_from_jwt(token)
 
-    def test_get_jwt_set_refresh_cache(self):
+    def test_get_jwt_set_refresh_cache(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         jwks_client = PyJWKClient(url)
 
@@ -323,7 +324,7 @@ class TestPyJWKClient:
 
         assert call_data.call_count == 2
 
-    def test_get_jwt_set_no_matching_kid_after_second_attempt(self):
+    def test_get_jwt_set_no_matching_kid_after_second_attempt(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         jwks_client = PyJWKClient(url)
 
@@ -335,14 +336,14 @@ class TestPyJWKClient:
             ):
                 jwks_client.get_signing_key(kid)
 
-    def test_get_jwt_set_invalid_lifespan(self):
+    def test_get_jwt_set_invalid_lifespan(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with pytest.raises(PyJWKClientError):
             jwks_client = PyJWKClient(url, lifespan=-1)
             assert jwks_client is None
 
-    def test_get_jwt_set_timeout(self):
+    def test_get_jwt_set_timeout(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         jwks_client = PyJWKClient(url, timeout=5)
 
@@ -352,7 +353,7 @@ class TestPyJWKClient:
 
         assert 'Fail to fetch data from the url, err: "timed out"' in str(exc.value)
 
-    def test_get_jwt_set_sslcontext_default(self):
+    def test_get_jwt_set_sslcontext_default(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         ssl_ctx = ssl.create_default_context()
         jwks_client = PyJWKClient(url, ssl_context=ssl_ctx)
@@ -364,7 +365,7 @@ class TestPyJWKClient:
 
         assert jwk_set is not None
 
-    def test_get_jwt_set_sslcontext_no_ca(self):
+    def test_get_jwt_set_sslcontext_no_ca(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         jwks_client = PyJWKClient(
             url, ssl_context=ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
@@ -377,7 +378,7 @@ class TestPyJWKClient:
             with pytest.raises(PyJWKClientError):
                 jwks_client.get_jwk_set()
 
-    def test_http_error_is_closed_on_connection_failure(self):
+    def test_http_error_is_closed_on_connection_failure(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         jwks_client = PyJWKClient(url)
 

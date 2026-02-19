@@ -108,8 +108,6 @@ module = [
 
 [[tool.mypy.overrides]]
 disable_error_code = [
-    "no-untyped-def",
-    "no-untyped-call",
     "unused-ignore",
     "arg-type",
 ]

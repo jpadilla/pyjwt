@@ -19,7 +19,7 @@ if has_crypto:
 
 class TestPyJWK:
     @crypto_required
-    def test_should_load_key_from_jwk_data_dict(self):
+    def test_should_load_key_from_jwk_data_dict(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
@@ -40,7 +40,7 @@ class TestPyJWK:
         assert jwk.public_key_use == "sig"
 
     @crypto_required
-    def test_should_load_key_from_jwk_data_json_string(self):
+    def test_should_load_key_from_jwk_data_json_string(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
@@ -61,7 +61,7 @@ class TestPyJWK:
         assert jwk.public_key_use == "sig"
 
     @crypto_required
-    def test_should_load_key_without_alg_from_dict(self):
+    def test_should_load_key_without_alg_from_dict(self) -> None:
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -73,7 +73,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "RS256"
 
     @crypto_required
-    def test_should_load_key_from_dict_with_algorithm(self):
+    def test_should_load_key_from_dict_with_algorithm(self) -> None:
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -85,7 +85,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "RS256"
 
     @crypto_required
-    def test_should_load_key_ec_p256_from_dict(self):
+    def test_should_load_key_ec_p256_from_dict(self) -> None:
         with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -97,7 +97,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "ES256"
 
     @crypto_required
-    def test_should_load_key_ec_p384_from_dict(self):
+    def test_should_load_key_ec_p384_from_dict(self) -> None:
         with open(key_path("jwk_ec_pub_P-384.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -109,7 +109,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "ES384"
 
     @crypto_required
-    def test_should_load_key_ec_p521_from_dict(self):
+    def test_should_load_key_ec_p521_from_dict(self) -> None:
         with open(key_path("jwk_ec_pub_P-521.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -121,7 +121,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "ES512"
 
     @crypto_required
-    def test_should_load_key_ec_secp256k1_from_dict(self):
+    def test_should_load_key_ec_secp256k1_from_dict(self) -> None:
         with open(key_path("jwk_ec_pub_secp256k1.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -133,7 +133,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "ES256K"
 
     @crypto_required
-    def test_should_load_key_hmac_from_dict(self):
+    def test_should_load_key_hmac_from_dict(self) -> None:
         with open(key_path("jwk_hmac.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -145,7 +145,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "HS256"
 
     @crypto_required
-    def test_should_load_key_hmac_without_alg_from_dict(self):
+    def test_should_load_key_hmac_without_alg_from_dict(self) -> None:
         with open(key_path("jwk_hmac.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -158,7 +158,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "HS256"
 
     @crypto_required
-    def test_should_load_key_okp_without_alg_from_dict(self):
+    def test_should_load_key_okp_without_alg_from_dict(self) -> None:
         with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
             key_data = json.loads(keyfile.read())
 
@@ -169,7 +169,7 @@ class TestPyJWK:
         assert jwk.algorithm_name == "EdDSA"
 
     @crypto_required
-    def test_from_dict_should_throw_exception_if_arg_is_invalid(self):
+    def test_from_dict_should_throw_exception_if_arg_is_invalid(self) -> None:
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             valid_rsa_pub = json.loads(keyfile.read())
         with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
@@ -212,20 +212,20 @@ class TestPyJWK:
             PyJWK.from_dict(v)
 
     @no_crypto_required
-    def test_missing_crypto_library_good_error_message(self):
+    def test_missing_crypto_library_good_error_message(self) -> None:
         with pytest.raises(PyJWKError) as exc:
             PyJWK({"kty": "dummy"}, algorithm="RS256")
             assert "cryptography" in str(exc.value)
 
     @no_crypto_required
-    def test_missing_crypto_library_raises_missing_cryptography_error(self):
+    def test_missing_crypto_library_raises_missing_cryptography_error(self) -> None:
         with pytest.raises(MissingCryptographyError):
             PyJWK({"kty": "dummy"}, algorithm="RS256")
 
 
 class TestPyJWKSet:
     @crypto_required
-    def test_should_load_keys_from_jwk_data_dict(self):
+    def test_should_load_keys_from_jwk_data_dict(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
@@ -247,7 +247,7 @@ class TestPyJWKSet:
         assert jwk.public_key_use == "sig"
 
     @crypto_required
-    def test_should_load_keys_from_jwk_data_json_string(self):
+    def test_should_load_keys_from_jwk_data_json_string(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
@@ -269,7 +269,7 @@ class TestPyJWKSet:
         assert jwk.public_key_use == "sig"
 
     @crypto_required
-    def test_keyset_should_index_by_kid(self):
+    def test_keyset_should_index_by_kid(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
@@ -292,7 +292,7 @@ class TestPyJWKSet:
             _ = jwk_set["this-kid-does-not-exist"]
 
     @crypto_required
-    def test_keyset_iterator(self):
+    def test_keyset_iterator(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
@@ -306,7 +306,7 @@ class TestPyJWKSet:
         assert jwk_set.keys == [jwk for jwk in jwk_set]
 
     @crypto_required
-    def test_keyset_with_unknown_alg(self):
+    def test_keyset_with_unknown_alg(self) -> None:
         # first keyset with unusable key and usable key
         with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
             jwks_text = keyfile.read()
@@ -324,18 +324,18 @@ class TestPyJWKSet:
                 _ = PyJWKSet.from_json(jwks_text)
 
     @crypto_required
-    def test_invalid_keys_list(self):
+    def test_invalid_keys_list(self) -> None:
         with pytest.raises(PyJWKSetError) as err:
             PyJWKSet(keys="string")  # type: ignore
         assert str(err.value) == "Invalid JWK Set value"
 
     @crypto_required
-    def test_empty_keys_list(self):
+    def test_empty_keys_list(self) -> None:
         with pytest.raises(PyJWKSetError) as err:
             PyJWKSet(keys=[])
         assert str(err.value) == "The JWK Set did not contain any keys"
 
     @no_crypto_required
-    def test_missing_crypto_library_raises_when_required(self):
+    def test_missing_crypto_library_raises_when_required(self) -> None:
         with pytest.raises(MissingCryptographyError):
             PyJWKSet(keys=[{"kty": "RSA"}])
