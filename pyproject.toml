@@ -91,7 +91,10 @@ source = [
 ]
 
 [tool.mypy]
-packages = "jwt"
+files = [
+    "jwt",
+    "tests",
+]
 strict = true
 warn_return_any = true
 warn_unused_ignores = true
@@ -101,6 +104,17 @@ ignore_missing_imports = true
 module = [
     "cryptography",
     "cryptography.*",
+]
+
+[[tool.mypy.overrides]]
+disable_error_code = [
+    "no-untyped-def",
+    "no-untyped-call",
+    "unused-ignore",
+    "arg-type",
+]
+module = [
+    "tests.*",
 ]
 
 [tool.pytest.ini_options]
