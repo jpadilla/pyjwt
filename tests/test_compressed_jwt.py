@@ -5,14 +5,16 @@ from jwt import PyJWT
 
 
 class CompressedPyJWT(PyJWT):
-    def _decode_payload(self, decoded):
-        return json.loads(
+    def _decode_payload(self, decoded: dict[str, bytes]) -> dict[str, object]:
+        payload = json.loads(
             # wbits=-15 has zlib not worry about headers of crc's
             zlib.decompress(decoded["payload"], wbits=-15).decode("utf-8")
         )
+        assert isinstance(payload, dict)
+        return payload
 
 
-def test_decodes_complete_valid_jwt_with_compressed_payload():
+def test_decodes_complete_valid_jwt_with_compressed_payload() -> None:
     # Test case from https://github.com/jpadilla/pyjwt/pull/753/files
     example_payload = {"hello": "world"}
     example_secret = "secret"

@@ -91,7 +91,10 @@ source = [
 ]
 
 [tool.mypy]
-packages = "jwt"
+files = [
+    "jwt",
+    "tests",
+]
 strict = true
 warn_return_any = true
 warn_unused_ignores = true

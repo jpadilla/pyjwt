@@ -3,7 +3,7 @@ import jwt
 from .utils import utc_timestamp
 
 
-def test_encode_decode():
+def test_encode_decode() -> None:
     """
     This test exists primarily to ensure that calls to jwt.encode and
     jwt.decode don't explode. Most functionality is tested by the PyJWT class

@@ -2,6 +2,8 @@ from contextlib import nullcontext
 
 import pytest
 
+from contextlib import AbstractContextManager
+
 from jwt.utils import force_bytes, from_base64url_uint, is_ssh_key, to_base64url_uint
 
 
@@ -16,7 +18,9 @@ from jwt.utils import force_bytes, from_base64url_uint, is_ssh_key, to_base64url
         (-1, pytest.raises(ValueError)),
     ],
 )
-def test_to_base64url_uint(inputval, expected):
+def test_to_base64url_uint(
+    inputval: int, expected: AbstractContextManager[bytes]
+) -> None:
     with expected as e:
         actual = to_base64url_uint(inputval)
         assert actual == e
@@ -32,12 +36,12 @@ def test_to_base64url_uint(inputval, expected):
         (b"B1vNFQ", 123456789),
     ],
 )
-def test_from_base64url_uint(inputval, expected):
+def test_from_base64url_uint(inputval: bytes, expected: int) -> None:
     actual = from_base64url_uint(inputval)
     assert actual == expected
 
 
-def test_force_bytes_raises_error_on_invalid_object():
+def test_force_bytes_raises_error_on_invalid_object() -> None:
     with pytest.raises(TypeError):
         force_bytes({})  # type: ignore[arg-type]
 
@@ -53,6 +57,6 @@ def test_force_bytes_raises_error_on_invalid_object():
         b"ecdsa-sha2-nistp521",
     ),
 )
-def test_is_ssh_key(key_format):
+def test_is_ssh_key(key_format: bytes) -> None:
     assert is_ssh_key(key_format + b" any") is True
     assert is_ssh_key(b"not a ssh key") is False

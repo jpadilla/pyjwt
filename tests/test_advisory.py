@@ -25,7 +25,7 @@ ssh_key_bytes = b"""ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlz
 
 class TestAdvisory:
     @crypto_required
-    def test_ghsa_ffqj_6fqr_9h24(self):
+    def test_ghsa_ffqj_6fqr_9h24(self) -> None:
         # Generate ed25519 private key
         # private_key = ed25519.Ed25519PrivateKey.generate()
 

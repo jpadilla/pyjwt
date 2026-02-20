@@ -7,11 +7,11 @@ import pytest
 from jwt.algorithms import has_crypto
 
 
-def utc_timestamp():
+def utc_timestamp() -> int:
     return timegm(datetime.now(tz=timezone.utc).utctimetuple())
 
 
-def key_path(key_name):
+def key_path(key_name: str) -> str:
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "keys", key_name)
 
 
