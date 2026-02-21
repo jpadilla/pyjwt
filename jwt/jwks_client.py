@@ -169,9 +169,7 @@ class PyJWKClient:
 
         return signing_keys
 
-    def get_signing_key(
-        self, kid: str, algorithm: str | None = None
-    ) -> PyJWK:
+    def get_signing_key(self, kid: str, algorithm: str | None = None) -> PyJWK:
         """Return the signing key matching the given ``kid``.
 
         If no match is found in the current JWK Set, the set is
