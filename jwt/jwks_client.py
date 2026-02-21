@@ -169,7 +169,7 @@ class PyJWKClient:
 
         return signing_keys
 
-    def get_signing_key(self, kid: str) -> PyJWK:
+    def get_signing_key(self, kid: str, algorithm: str | None = None) -> PyJWK:
         """Return the signing key matching the given ``kid``.
 
         If no match is found in the current JWK Set, the set is
@@ -177,18 +177,21 @@ class PyJWKClient:
 
         :param kid: The key ID to look up.
         :type kid: str
+        :param algorithm: Optional algorithm name to filter by. When
+            provided, the key must also match this algorithm.
+        :type algorithm: str or None
         :returns: The matching signing key.
         :rtype: PyJWK
         :raises PyJWKClientError: If no matching key is found after
             refreshing.
         """
         signing_keys = self.get_signing_keys()
-        signing_key = self.match_kid(signing_keys, kid)
+        signing_key = self.match_kid(signing_keys, kid, algorithm)
 
         if not signing_key:
             # If no matching signing key from the jwk set, refresh the jwk set and try again.
             signing_keys = self.get_signing_keys(refresh=True)
-            signing_key = self.match_kid(signing_keys, kid)
+            signing_key = self.match_kid(signing_keys, kid, algorithm)
 
             if not signing_key:
                 raise PyJWKClientError(
@@ -210,24 +213,34 @@ class PyJWKClient:
         """
         unverified = decode_token(token, options={"verify_signature": False})
         header = unverified["header"]
-        return self.get_signing_key(header.get("kid"))
+        return self.get_signing_key(header.get("kid"), header.get("alg"))
 
     @staticmethod
-    def match_kid(signing_keys: list[PyJWK], kid: str) -> PyJWK | None:
+    def match_kid(
+        signing_keys: list[PyJWK], kid: str, algorithm: str | None = None
+    ) -> PyJWK | None:
         """Find a key in *signing_keys* that matches *kid*.
+
+        When *algorithm* is provided, the key must also use that algorithm.
+        If no key matches both *kid* and *algorithm*, a key matching only
+        *kid* is returned as a fallback for backward compatibility.
 
         :param signing_keys: The list of keys to search.
         :type signing_keys: list[PyJWK]
         :param kid: The key ID to match.
         :type kid: str
+        :param algorithm: Optional algorithm name to filter by.
+        :type algorithm: str or None
         :returns: The matching key, or ``None`` if not found.
         :rtype: PyJWK or None
         """
-        signing_key = None
+        kid_match = None
 
         for key in signing_keys:
             if key.key_id == kid:
-                signing_key = key
-                break
+                if algorithm and key.algorithm_name == algorithm:
+                    return key
+                if kid_match is None:
+                    kid_match = key
 
-        return signing_key
+        return kid_match
