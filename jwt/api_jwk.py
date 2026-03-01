@@ -28,7 +28,6 @@ class PyJWK:
         :raises MissingCryptographyError: If the algorithm requires ``cryptography`` to be installed and it is not available.
         :raises PyJWKError: If unable to find an algorithm for the key.
         """
-        self._algorithms = get_default_algorithms()
         self._jwk_data = jwk_data
 
         kty = self._jwk_data.get("kty", None)
@@ -73,10 +72,12 @@ class PyJWK:
 
         self.algorithm_name = algorithm
 
-        if algorithm in self._algorithms:
-            self.Algorithm = self._algorithms[algorithm]
-        else:
-            raise PyJWKError(f"Unable to find an algorithm for key: {self._jwk_data}")
+        try:
+            self.Algorithm = get_default_algorithms()[algorithm]
+        except KeyError:
+            raise PyJWKError(
+                f"Unable to find an algorithm for key: {self._jwk_data}",
+            ) from None
 
         self.key = self.Algorithm.from_jwk(self._jwk_data)
 
