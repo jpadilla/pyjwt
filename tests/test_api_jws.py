@@ -261,6 +261,27 @@ class TestJWS:
             ),
         }
 
+    def test_encode_with_jwk_uses_key_algorithm(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        """Test that encoding with a PyJWK key uses the key's algorithm
+        when no algorithm is explicitly specified. Regression test for #1147."""
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS384",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
+        # Should use HS384 from the key, not default to HS256
+        msg = jws.encode(payload, key=jwk)
+        header = jws.get_unverified_header(msg)
+        assert header["alg"] == "HS384"
+
+        # Should also be decodable with the same key
+        decoded = jws.decode(msg, key=jwk)
+        assert decoded == payload
+
     def test_decode_algorithm_param_should_be_case_sensitive(self, jws: PyJWS) -> None:
         example_jws = (
             "eyJhbGciOiJoczI1NiIsInR5cCI6IkpXVCJ9"  # alg = hs256

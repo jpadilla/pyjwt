@@ -7,6 +7,7 @@ from decimal import Decimal
 import pytest
 
 from jwt.types import Options
+from jwt.api_jwk import PyJWK
 from jwt.api_jwt import PyJWT
 from jwt.exceptions import (
     DecodeError,
@@ -44,6 +45,24 @@ class TestJWT:
         assert jwt.options["strict_aud"] is False
         # assert that verify_signature is respected unless verify_exp is overridden
         assert jwt.options["verify_exp"] is False
+
+    def test_encode_with_jwk_uses_key_algorithm(self, jwt: PyJWT) -> None:
+        """Test that encoding with a PyJWK key uses the key's algorithm
+        when no algorithm is explicitly specified. Regression test for #1147."""
+        jwk = PyJWK(
+            {
+                "kty": "oct",
+                "alg": "HS384",
+                "k": "c2VjcmV0",  # "secret"
+            }
+        )
+        payload = {"hello": "world"}
+        # Should use HS384 from the key, not default to HS256
+        token = jwt.encode(payload, jwk)
+        header = jwt.decode_complete(
+            token, jwk, algorithms=["HS384"]
+        )["header"]
+        assert header["alg"] == "HS384"
 
     def test_decodes_valid_jwt(self, jwt: PyJWT) -> None:
         example_payload = {"hello": "world"}

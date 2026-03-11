@@ -27,6 +27,8 @@ if TYPE_CHECKING:
     from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
     from .types import SigOptions
 
+_ALGORITHM_UNSET = object()
+
 
 class PyJWS:
     header_typ = "JWT"
@@ -119,7 +121,7 @@ class PyJWS:
         self,
         payload: bytes,
         key: AllowedPrivateKeys | PyJWK | str | bytes,
-        algorithm: str | None = "HS256",
+        algorithm: str | None = _ALGORITHM_UNSET,  # type: ignore[assignment]
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
         is_payload_detached: bool = False,
@@ -128,7 +130,12 @@ class PyJWS:
         segments: list[bytes] = []
 
         # declare a new var to narrow the type for type checkers
-        if algorithm is None:
+        if algorithm is _ALGORITHM_UNSET:
+            if isinstance(key, PyJWK):
+                algorithm_ = key.algorithm_name
+            else:
+                algorithm_ = "HS256"
+        elif algorithm is None:
             if isinstance(key, PyJWK):
                 algorithm_ = key.algorithm_name
             else:
