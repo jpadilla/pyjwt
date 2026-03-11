@@ -59,9 +59,7 @@ class TestJWT:
         payload = {"hello": "world"}
         # Should use HS384 from the key, not default to HS256
         token = jwt.encode(payload, jwk)
-        header = jwt.decode_complete(
-            token, jwk, algorithms=["HS384"]
-        )["header"]
+        header = jwt.decode_complete(token, jwk, algorithms=["HS384"])["header"]
         assert header["alg"] == "HS384"
 
     def test_decodes_valid_jwt(self, jwt: PyJWT) -> None:
