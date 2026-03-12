@@ -9,7 +9,7 @@ from urllib.error import HTTPError, URLError
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
-from .exceptions import PyJWKClientConnectionError, PyJWKClientError
+from .exceptions import PyJWKClientConnectionError, PyJWKClientError, PyJWTError
 from .jwk_set_cache import JWKSetCache
 
 
@@ -119,10 +119,15 @@ class PyJWKClient:
             return jwk_set
         finally:
             if self.jwk_set_cache is not None:
-                if isinstance(jwk_set, dict):
-                    self.jwk_set_cache.put(PyJWKSet.from_dict(jwk_set))
-                else:
-                    self.jwk_set_cache.put(jwk_set)
+                try:
+                    if isinstance(jwk_set, dict):
+                        self.jwk_set_cache.put(PyJWKSet.from_dict(jwk_set))
+                    elif isinstance(jwk_set, PyJWKSet):
+                        self.jwk_set_cache.put(jwk_set)
+                except PyJWTError:
+                    # Conversion failed — skip caching but don't mask
+                    # the primary return/exception from fetch_data().
+                    pass
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
         """Return the JWK Set, using the cache when available.
