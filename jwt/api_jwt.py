@@ -8,7 +8,7 @@ from collections.abc import Container, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Union, cast
 
-from .api_jws import PyJWS, _jws_global_obj
+from .api_jws import PyJWS, _ALGORITHM_UNSET, _jws_global_obj
 from .exceptions import (
     DecodeError,
     ExpiredSignatureError,
@@ -91,7 +91,7 @@ class PyJWT:
         self,
         payload: dict[str, Any],
         key: AllowedPrivateKeyTypes,
-        algorithm: str | None = "HS256",
+        algorithm: str | None = _ALGORITHM_UNSET,  # type: ignore[assignment]
         headers: dict[str, Any] | None = None,
         json_encoder: type[json.JSONEncoder] | None = None,
         sort_headers: bool = True,
