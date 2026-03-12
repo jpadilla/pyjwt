@@ -28,7 +28,7 @@ from .exceptions import (
 from .jwks_client import PyJWKClient
 from .warnings import InsecureKeyLengthWarning
 
-__version__ = "2.11.0"
+__version__ = "2.12.0"
 
 __title__ = "PyJWT"
 __description__ = "JSON Web Token implementation in Python"

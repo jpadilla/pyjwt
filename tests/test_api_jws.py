@@ -995,3 +995,103 @@ class TestJWS:
         ]
         assert len(deprecation_warnings) == 1
         assert "foo" in str(deprecation_warnings[0].message)
+
+    def test_decode_rejects_unknown_crit_extension(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "secret"
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"crit": ["x-custom-policy"], "x-custom-policy": "require-mfa"},
+        )
+
+        with pytest.raises(InvalidTokenError, match="Unsupported critical extension"):
+            jws.decode(token, secret, algorithms=["HS256"])
+
+    def test_decode_rejects_empty_crit(self, jws: PyJWS, payload: bytes) -> None:
+        secret = "secret"
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"crit": []},
+        )
+
+        with pytest.raises(InvalidTokenError, match="must be a non-empty list"):
+            jws.decode(token, secret, algorithms=["HS256"])
+
+    def test_decode_rejects_non_list_crit(self, jws: PyJWS, payload: bytes) -> None:
+        secret = "secret"
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"crit": "b64"},
+        )
+
+        with pytest.raises(InvalidTokenError, match="must be a non-empty list"):
+            jws.decode(token, secret, algorithms=["HS256"])
+
+    def test_decode_rejects_crit_with_non_string_values(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "secret"
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"crit": [123]},
+        )
+
+        with pytest.raises(InvalidTokenError, match="values must be strings"):
+            jws.decode(token, secret, algorithms=["HS256"])
+
+    def test_decode_rejects_crit_extension_missing_from_header(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "secret"
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"crit": ["b64"]},
+        )
+
+        with pytest.raises(InvalidTokenError, match="missing from headers"):
+            jws.decode(token, secret, algorithms=["HS256"])
+
+    def test_decode_accepts_supported_crit_extension(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "secret"
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"crit": ["b64"], "b64": False},
+            is_payload_detached=True,
+        )
+
+        decoded = jws.decode(
+            token,
+            secret,
+            algorithms=["HS256"],
+            detached_payload=payload,
+        )
+        assert decoded == payload
+
+    def test_get_unverified_header_rejects_unknown_crit(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "secret"
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"crit": ["x-unknown"], "x-unknown": "value"},
+        )
+
+        with pytest.raises(InvalidTokenError, match="Unsupported critical extension"):
+            jws.get_unverified_header(token)

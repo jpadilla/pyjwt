@@ -7,12 +7,16 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.11.0...HEAD>`__
 ------------------------------------------------------------------------
 
+`v2.12.0 <https://github.com/jpadilla/pyjwt/compare/2.11.0...2.12.0>`__
+-----------------------------------------------------------------------
+
 Fixed
 ~~~~~
 
 - Annotate PyJWKSet.keys for pyright by @tamird in `#1134 <https://github.com/jpadilla/pyjwt/pull/1134>`__
 - Close ``HTTPError`` response to prevent ``ResourceWarning`` on Python 3.14 by @veeceey in `#1133 <https://github.com/jpadilla/pyjwt/pull/1133>`__
 - Do not keep ``algorithms`` dict in PyJWK instances by @akx in `#1143 <https://github.com/jpadilla/pyjwt/pull/1143>`__
+- Validate the crit (Critical) Header Parameter defined in RFC 7515 §4.1.11. by @dmbs335 in `GHSA-752w-5fwx-jx9f <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f>`__
 
 Added
 ~~~~~

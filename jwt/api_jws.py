@@ -150,7 +150,7 @@ class PyJWS:
         header: dict[str, Any] = {"typ": self.header_typ, "alg": algorithm_}
 
         if headers:
-            self._validate_headers(headers)
+            self._validate_headers(headers, encoding=True)
             header.update(headers)
 
         if not header["typ"]:
@@ -231,6 +231,8 @@ class PyJWS:
             )
 
         payload, signing_input, header, signature = self._load(jwt)
+
+        self._validate_headers(header)
 
         if header.get("b64", True) is False:
             if detached_payload is None:
@@ -358,13 +360,34 @@ class PyJWS:
         if not alg_obj.verify(signing_input, prepared_key, signature):
             raise InvalidSignatureError("Signature verification failed")
 
-    def _validate_headers(self, headers: dict[str, Any]) -> None:
+    # Extensions that PyJWT actually understands and supports
+    _supported_crit: set[str] = {"b64"}
+
+    def _validate_headers(
+        self, headers: dict[str, Any], *, encoding: bool = False
+    ) -> None:
         if "kid" in headers:
             self._validate_kid(headers["kid"])
+        if not encoding and "crit" in headers:
+            self._validate_crit(headers)
 
     def _validate_kid(self, kid: Any) -> None:
         if not isinstance(kid, str):
             raise InvalidTokenError("Key ID header parameter must be a string")
+
+    def _validate_crit(self, headers: dict[str, Any]) -> None:
+        crit = headers["crit"]
+        if not isinstance(crit, list) or len(crit) == 0:
+            raise InvalidTokenError("Invalid 'crit' header: must be a non-empty list")
+        for ext in crit:
+            if not isinstance(ext, str):
+                raise InvalidTokenError("Invalid 'crit' header: values must be strings")
+            if ext not in self._supported_crit:
+                raise InvalidTokenError(f"Unsupported critical extension: {ext}")
+            if ext not in headers:
+                raise InvalidTokenError(
+                    f"Critical extension '{ext}' is missing from headers"
+                )
 
 
 _jws_global_obj = PyJWS()
