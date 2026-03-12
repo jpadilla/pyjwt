@@ -252,6 +252,50 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 0
 
+    def test_get_jwk_set_cache_returns_consistent_type(self) -> None:
+        """Regression test for https://github.com/jpadilla/pyjwt/issues/914.
+
+        ``get_jwk_set()`` must return a ``PyJWKSet`` on both the first
+        (network) call and subsequent (cached) calls.  Before the fix
+        the cache stored a raw ``dict`` which violated the type contract
+        of ``JWKSetCache`` and could cause ``get_jwk_set()`` to raise
+        ``PyJWKClientError`` when the cache returned a ``PyJWKSet``.
+        """
+        from jwt.api_jwk import PyJWKSet
+
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url)
+
+        # First call — fetches from network
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            first_result = jwks_client.get_jwk_set()
+
+        assert isinstance(first_result, PyJWKSet)
+        assert len(first_result.keys) == 1
+
+        # Second call — served from cache, no network request
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as repeated_call:
+            second_result = jwks_client.get_jwk_set()
+
+        assert repeated_call.call_count == 0
+        assert isinstance(second_result, PyJWKSet)
+        assert len(second_result.keys) == 1
+        assert first_result.keys[0].key_id == second_result.keys[0].key_id
+
+    def test_get_jwk_set_cache_stores_pyjwkset(self) -> None:
+        """The JWK Set cache must store a ``PyJWKSet``, not a raw dict."""
+        from jwt.api_jwk import PyJWKSet
+
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url)
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            jwks_client.fetch_data()
+
+        assert jwks_client.jwk_set_cache is not None
+        cached = jwks_client.jwk_set_cache.get()
+        assert isinstance(cached, PyJWKSet)
+
     def test_get_jwt_set_cache_expired_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 

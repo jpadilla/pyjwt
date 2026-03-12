@@ -97,7 +97,7 @@ class PyJWKClient:
 
         Makes an HTTP request to the configured ``uri`` and returns the
         parsed JSON response. If the JWK Set cache is enabled, the
-        response is stored in the cache.
+        parsed ``PyJWKSet`` is stored in the cache.
 
         :returns: The parsed JWK Set as a dictionary.
         :raises PyJWKClientConnectionError: If the HTTP request fails.
@@ -119,7 +119,10 @@ class PyJWKClient:
             return jwk_set
         finally:
             if self.jwk_set_cache is not None:
-                self.jwk_set_cache.put(jwk_set)
+                if isinstance(jwk_set, dict):
+                    self.jwk_set_cache.put(PyJWKSet.from_dict(jwk_set))
+                else:
+                    self.jwk_set_cache.put(jwk_set)
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
         """Return the JWK Set, using the cache when available.
@@ -138,6 +141,9 @@ class PyJWKClient:
 
         if data is None:
             data = self.fetch_data()
+
+        if isinstance(data, PyJWKSet):
+            return data
 
         if not isinstance(data, dict):
             raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
