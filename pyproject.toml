@@ -37,6 +37,9 @@ keywords = [
 ]
 license = "MIT"
 name = "PyJWT"
+dependencies = [
+    "typing_extensions >= 4.0; python_version < '3.11'",
+]
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
