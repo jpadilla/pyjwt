@@ -4,8 +4,16 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.11.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.12.1...HEAD>`__
 ------------------------------------------------------------------------
+
+`v2.12.1 <https://github.com/jpadilla/pyjwt/compare/2.12.0...2.12.1>`__
+------------------------------------------------------------------------
+
+Fixed
+~~~~~
+
+- Add missing ``typing_extensions`` dependency for Python < 3.11 in `#1150 <https://github.com/jpadilla/pyjwt/issues/1150>`__
 
 `v2.12.0 <https://github.com/jpadilla/pyjwt/compare/2.11.0...2.12.0>`__
 -----------------------------------------------------------------------
