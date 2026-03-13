@@ -23,9 +23,6 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Utilities",
 ]
-dependencies = [
-    "typing_extensions >= 4.0; python_version < '3.11'",
-]
 description = "JSON Web Token implementation in Python"
 dynamic = [
     "version",
