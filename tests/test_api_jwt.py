@@ -381,6 +381,44 @@ class TestJWT:
         with pytest.raises(ExpiredSignatureError):
             jwt.decode(jwt_message, secret, algorithms=["HS256"])
 
+    def test_decode_with_expiration_and_manual_now(
+        self, jwt: PyJWT, payload: dict[str, object]
+    ) -> None:
+        exp = utc_timestamp() - 1000
+        payload["exp"] = exp
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        decoded = jwt.decode(jwt_message, secret, algorithms=["HS256"], now=exp - 0.1)
+        assert decoded == payload
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(jwt_message, secret, algorithms=["HS256"], now=exp + 0.1)
+
+    def test_decode_with_datetime_expiration_and_manual_now(
+        self, jwt: PyJWT, payload: dict[str, object]
+    ) -> None:
+        exp = datetime.now(tz=timezone.utc) - timedelta(days=10)
+        payload["exp"] = int(exp.timestamp())
+        secret = "secret"
+        jwt_message = jwt.encode(payload, secret)
+
+        decoded = jwt.decode(
+            jwt_message,
+            secret,
+            algorithms=["HS256"],
+            now=exp - timedelta(seconds=1),
+        )
+        assert decoded == payload
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(
+                jwt_message,
+                secret,
+                algorithms=["HS256"],
+                now=exp + timedelta(seconds=1),
+            )
+
     def test_decode_with_notbefore(
         self, jwt: PyJWT, payload: dict[str, object]
     ) -> None:
