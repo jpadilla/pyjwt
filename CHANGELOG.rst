@@ -7,6 +7,11 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.12.1...HEAD>`__
 ------------------------------------------------------------------------
 
+Changed
+~~~~~~~
+
+- Migrate the ``dev``, ``docs``, and ``tests`` package extras to dependency groups by @kurtmckee in `#1152 <https://github.com/jpadilla/pyjwt/pull/1152>`__
+
 `v2.12.1 <https://github.com/jpadilla/pyjwt/compare/2.12.0...2.12.1>`__
 ------------------------------------------------------------------------
 
