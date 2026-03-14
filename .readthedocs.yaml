@@ -6,14 +6,10 @@ build:
   os: "ubuntu-lts-latest"
   tools:
     python: "3.11"
-
-python:
-  install:
-    - method: "pip"
-      path: "."
-      extra_requirements:
-        - "docs"
-        - "crypto"
+  jobs:
+    install:
+      - "pip install --upgrade pip"
+      - "pip install .[crypto] --group 'docs'"
 
 sphinx:
   configuration: "docs/conf.py"

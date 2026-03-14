@@ -4,6 +4,26 @@ requires = [
     "setuptools>=77.0.3",
 ]
 
+[dependency-groups]
+dev = [
+    "coverage[toml]==7.10.7",
+    "cryptography>=3.4.0",
+    "pre-commit",
+    "pytest>=8.4.2,<9.0.0",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "zope.interface",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "zope.interface",
+]
+tests = [
+    "coverage[toml]==7.10.7",
+    "pytest>=8.4.2,<9.0.0",
+]
+
 [project]
 authors = [
     { email = "hello@jpadilla.com", name = "Jose Padilla" },
@@ -45,24 +65,6 @@ requires-python = ">=3.9"
 [project.optional-dependencies]
 crypto = [
     "cryptography>=3.4.0",
-]
-dev = [
-    "coverage[toml]==7.10.7",
-    "cryptography>=3.4.0",
-    "pre-commit",
-    "pytest>=8.4.2,<9.0.0",
-    "sphinx",
-    "sphinx-rtd-theme",
-    "zope.interface",
-]
-docs = [
-    "sphinx",
-    "sphinx-rtd-theme",
-    "zope.interface",
-]
-tests = [
-    "coverage[toml]==7.10.7",
-    "pytest>=8.4.2,<9.0.0",
 ]
 
 [project.readme]
