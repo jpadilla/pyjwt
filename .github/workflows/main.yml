@@ -67,7 +67,7 @@ jobs:
 
       - name: "Upload coverage to Codecov"
         if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
-        uses: "codecov/codecov-action@v5"
+        uses: "codecov/codecov-action@v6"
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
