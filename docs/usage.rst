@@ -360,7 +360,7 @@ imprecise.
 
 .. code-block:: pycon
 
-    >>> import time, datetime
+    >>> import datetime
     >>> from datetime import timezone
     >>> payload = {
     ...     "iat": datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=3)
