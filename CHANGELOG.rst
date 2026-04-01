@@ -36,6 +36,7 @@ Added
 ~~~~~
 
 - Docs: Add ``PyJWKClient`` API reference and document the two-tier caching system (JWK Set cache and signing key LRU cache).
+- Add `now` parameter to override current time in decode functions by @daBrado in `#1119 <https://github.com/jpadilla/pyjwt/pull/1119>`__
 
 `v2.11.0 <https://github.com/jpadilla/pyjwt/compare/2.10.1...2.11.0>`__
 -----------------------------------------------------------------------
