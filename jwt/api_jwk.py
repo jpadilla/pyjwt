@@ -116,10 +116,10 @@ class PyJWK:
         return self._jwk_data.get("kty", None)
 
     @property
-    def key_id(self) -> str | None:
+    def key_id(self) -> int | str | None:
         """The `kid` property from the JWK.
 
-        :rtype: str or None
+        :rtype: int, str, or None
         """
         return self._jwk_data.get("kid", None)
 
