@@ -218,6 +218,24 @@ class TestPyJWKClient:
             assert signing_key.algorithm_name == "RS256"
             assert signing_key.key_id == kid
 
+    def test_get_signing_key_from_jwt_prefers_matching_algorithm(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
+
+        with mocked_success_response(RESPONSE_DATA_DUPLICATE_KID_DIFFERENT_ALG):
+            jwks_client = PyJWKClient(url)
+
+            # Create a JWT whose header specifies alg RS256 and the shared kid
+            token = jwt.encode(
+                {"some": "payload"},
+                "mock-secret",
+                algorithm="RS256",
+                headers={"kid": kid},
+            )
+
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
+            assert signing_key.algorithm_name == "RS256"
+            assert signing_key.key_id == kid
     def test_get_signing_key_caches_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
