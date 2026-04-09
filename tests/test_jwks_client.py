@@ -236,6 +236,7 @@ class TestPyJWKClient:
             signing_key = jwks_client.get_signing_key_from_jwt(token)
             assert signing_key.algorithm_name == "RS256"
             assert signing_key.key_id == kid
+
     def test_get_signing_key_caches_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
