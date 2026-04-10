@@ -1,0 +1,44 @@
+name: Start Pipeline Run
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  trigger-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+      - name: Start AI CQ Pipeline
+        run: |
+          S3_PREFIX="${{ github.event.pull_request.head.ref }}_pr-${{ github.event.pull_request.number }}"
+          aws ecs run-task \
+            --cluster ${{ secrets.ECS_CLUSTER }} \
+            --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
+            --launch-type FARGATE \
+            --network-configuration '{
+              "awsvpcConfiguration": {
+                "subnets": ${{ secrets.SUBNET_IDS }},
+                "securityGroups": ${{ secrets.SECURITY_GROUP_IDS }},
+                "assignPublicIp": "ENABLED"
+              }
+            }' \
+            --overrides "{
+              \"containerOverrides\": [{
+                \"name\": \"${{ secrets.CONTAINER_NAME }}\",
+                \"environment\": [
+                  {\"name\": \"BRANCH\", \"value\": \"${{ github.event.pull_request.head.ref }}\"},
+                  {\"name\": \"PR_NUMBER\", \"value\": \"${{ github.event.pull_request.number }}\"},
+                  {\"name\": \"S3_PREFIX\", \"value\": \"$S3_PREFIX\"},
+                  {\"name\": \"REPO_NAME\", \"value\": \"${{ github.repository }}\"}
+                ]
+              }]
+            }"

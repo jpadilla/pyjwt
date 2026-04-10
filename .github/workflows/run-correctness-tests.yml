@@ -1,0 +1,67 @@
+name: Run AI Correctness Tests
+on:
+  push:
+    branches:
+      - autofix/pr-*
+
+jobs:
+  test:
+    name: Run Correctness Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies
+        working-directory: .
+        run: |
+          python -m pip install --upgrade pip
+          [ -f requirements.txt ] && pip install -r requirements.txt || true
+          pip install pytest==6.2.5 pytest-cov
+      - name: Run tests
+        id: run_tests
+        working-directory: .
+        env:
+          PYTHONPATH: src
+        run: |
+          pytest tests/ --tb=short --cov=src --cov-report=term-missing -v 2>&1 | tee pytest_output.txt || true
+          COVERAGE=$(grep 'TOTAL' pytest_output.txt | awk '{print $NF}' || echo "0%")
+          SUMMARY=$(grep -E '^\d+ passed|passed' pytest_output.txt | tail -1 || echo "0 passed")
+          PASSED=$(echo "$SUMMARY" | grep -oP '\d+(?= passed)' || echo "0")
+          FAILED=$(echo "$SUMMARY" | grep -oP '\d+(?= failed)' || echo "0")
+          PASSED=${PASSED:-0}
+          FAILED=${FAILED:-0}
+          TOTAL=$((PASSED + FAILED))
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+          TOTAL_LINES=$(grep 'TOTAL' pytest_output.txt | awk '{print $2}')
+          MISSED_LINES=$(grep 'TOTAL' pytest_output.txt | awk '{print $3}')
+          COVERED_LINES=$((TOTAL_LINES - MISSED_LINES))
+          echo "covered_lines=$COVERED_LINES" >> $GITHUB_OUTPUT
+          echo "total_lines=$TOTAL_LINES" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+      - name: Comment coverage on PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            const branch = context.ref.replace('refs/heads/', '');
+            const prNumber = branch.split('pr-')[1];
+            const body = [
+              'Test Results',
+              '',
+              `Passed: ${{ steps.run_tests.outputs.passed }} tests`,
+              `Failed: ${{ steps.run_tests.outputs.failed }} tests`,
+              `Coverage: ${{ steps.run_tests.outputs.coverage }} (${{ steps.run_tests.outputs.covered_lines }}/${{ steps.run_tests.outputs.total_lines }} lines)`
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(prNumber),
+              body: body
+            })
