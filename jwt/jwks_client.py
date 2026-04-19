@@ -97,12 +97,12 @@ class PyJWKClient:
 
         Makes an HTTP request to the configured ``uri`` and returns the
         parsed JSON response. If the JWK Set cache is enabled, the
-        response is stored in the cache.
+        response is stored in the cache on success; a previously cached
+        set is preserved if the fetch fails.
 
         :returns: The parsed JWK Set as a dictionary.
         :raises PyJWKClientConnectionError: If the HTTP request fails.
         """
-        jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
             with urllib.request.urlopen(
@@ -115,11 +115,10 @@ class PyJWKClient:
             raise PyJWKClientConnectionError(
                 f'Fail to fetch data from the url, err: "{e}"'
             ) from e
-        else:
-            return jwk_set
-        finally:
-            if self.jwk_set_cache is not None:
-                self.jwk_set_cache.put(jwk_set)
+
+        if self.jwk_set_cache is not None:
+            self.jwk_set_cache.put(jwk_set)
+        return jwk_set
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
         """Return the JWK Set, using the cache when available.

@@ -288,18 +288,30 @@ class TestPyJWKClient:
 
         assert repeated_call.call_count == 1
 
-    def test_get_jwt_set_failed_request_should_clear_cache(self) -> None:
+    def test_get_jwt_set_failed_request_preserves_cache(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url)
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
             jwks_client.get_jwk_set()
 
-        with pytest.raises(PyJWKClientError):
-            with mocked_failed_response():
+        assert jwks_client.jwk_set_cache is not None
+        assert jwks_client.jwk_set_cache.get() is not None
+
+        with mocked_failed_response():
+            with pytest.raises(PyJWKClientError):
                 jwks_client.get_jwk_set(refresh=True)
 
-            assert jwks_client.jwk_set_cache is None
+        # A failed refresh must not wipe a previously valid cache.
+        cached = jwks_client.jwk_set_cache.get()
+        assert cached is not None
+        assert cached == RESPONSE_DATA_WITH_MATCHING_KID
+
+        # The next non-refresh call should be served from cache without
+        # another network hit.
+        with mock.patch("urllib.request.urlopen") as urlopen_mock:
+            jwks_client.get_jwk_set()
+            assert urlopen_mock.call_count == 0
 
     def test_failed_request_should_raise_connection_error(self) -> None:
         token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
