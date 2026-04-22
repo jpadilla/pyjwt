@@ -139,6 +139,9 @@ class PyJWKClient:
         if data is None:
             data = self.fetch_data()
 
+        if isinstance(data, PyJWKSet):
+            return data
+
         if not isinstance(data, dict):
             raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 
