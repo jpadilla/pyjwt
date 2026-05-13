@@ -222,8 +222,7 @@ class TestPyJWKClient:
             token,
             signing_key.key,
             algorithms=["RS256"],
-            audience="https://expenses-api",
-            options={"verify_exp": False},
+            options={"audience": "https://expenses-api", "verify_exp": False},
         )
 
         assert data == {

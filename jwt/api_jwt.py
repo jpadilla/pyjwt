@@ -39,6 +39,20 @@ if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
     AllowedPublicKeyTypes: TypeAlias = Union[AllowedPublicKeys, PyJWK, str, bytes]
 
 
+_VERIFY_CLAIMS = (
+    "verify_exp", "verify_nbf", "verify_iat",
+    "verify_aud", "verify_iss", "verify_sub", "verify_jti",
+)
+
+# Validators that check a specific claim in the payload.
+# (claim_key, option_flag, validator_method_name)
+_CLAIM_VALIDATORS: tuple[tuple[str, str, str], ...] = (
+    ("iat", "verify_iat", "_validate_iat"),
+    ("nbf", "verify_nbf", "_validate_nbf"),
+    ("exp", "verify_exp", "_validate_exp"),
+)
+
+
 class PyJWT:
     def __init__(self, options: Options | None = None) -> None:
         self.options: FullOptions
@@ -62,6 +76,10 @@ class PyJWT:
             "require": [],
             "strict_aud": False,
             "enforce_minimum_key_length": False,
+            "audience": None,
+            "issuer": None,
+            "subject": None,
+            "leeway": 0,
         }
 
     def _get_sig_options(self) -> SigOptions:
@@ -78,13 +96,9 @@ class PyJWT:
 
         # (defensive) set defaults for verify_x to False if verify_signature is False
         if not options.get("verify_signature", True):
-            options["verify_exp"] = options.get("verify_exp", False)
-            options["verify_nbf"] = options.get("verify_nbf", False)
-            options["verify_iat"] = options.get("verify_iat", False)
-            options["verify_aud"] = options.get("verify_aud", False)
-            options["verify_iss"] = options.get("verify_iss", False)
-            options["verify_sub"] = options.get("verify_sub", False)
-            options["verify_jti"] = options.get("verify_jti", False)
+            for claim in _VERIFY_CLAIMS:
+                options[claim] = options.get(claim, False)
+
         return {**self.options, **options}
 
     def encode(
@@ -179,15 +193,9 @@ class PyJWT:
         options: Options | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
-        # could be used as passthrough to api_jws, consider removal in pyjwt3
+        # passthrough to api_jws
         detached_payload: bytes | None = None,
-        # passthrough arguments to _validate_claims
-        # consider putting in options
-        audience: str | Iterable[str] | None = None,
-        issuer: str | Container[str] | None = None,
-        subject: str | None = None,
-        leeway: float | timedelta = 0,
-        # kwargs
+        # kwargs for backward compat
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Identical to ``jwt.decode`` except for return value which is a dictionary containing the token header (JOSE Header),
@@ -217,17 +225,29 @@ class PyJWT:
 
         :param jwt.types.Options options: extended decoding and validation options
             Refer to :py:class:`jwt.types.Options` for more information.
-
-        :param audience: optional, the value for ``verify_aud`` check
-        :type audience: str or typing.Iterable[str] or None
-        :param issuer: optional, the value for ``verify_iss`` check
-        :type issuer: str or typing.Container[str] or None
-        :param leeway: a time margin in seconds for the expiration check
-        :type leeway: float or datetime.timedelta
+            Validation parameters ``audience``, ``issuer``, ``subject``, and ``leeway``
+            should be passed in the ``options`` dictionary.
         :rtype: dict[str, typing.Any]
         :returns: Decoded JWT with the JOSE Header on the key ``header``, the JWS
          Payload on the key ``payload``, and the JWS Signature on the key ``signature``.
         """
+        # Backward compat: absorb legacy keyword arguments into options
+        _deprecated_params = ("audience", "issuer", "subject", "leeway")
+        _found_deprecated = {k: kwargs.pop(k) for k in _deprecated_params if k in kwargs}
+        if _found_deprecated:
+            for k in _found_deprecated:
+                warnings.warn(
+                    f"Passing '{k}' as a keyword argument to decode_complete() is "
+                    "deprecated. Use the 'options' dictionary instead. "
+                    "This will be removed in PyJWT 3.",
+                    RemovedInPyjwt3Warning,
+                    stacklevel=2,
+                )
+            if options is None:
+                options = {}
+            for k, v in _found_deprecated.items():
+                options.setdefault(k, v)  # type: ignore[misc]
+
         if kwargs:
             warnings.warn(
                 "passing additional kwargs to decode_complete() is deprecated "
@@ -269,14 +289,7 @@ class PyJWT:
 
         payload = self._decode_payload(decoded)
 
-        self._validate_claims(
-            payload,
-            merged_options,
-            audience=audience,
-            issuer=issuer,
-            leeway=leeway,
-            subject=subject,
-        )
+        self._validate_claims(payload, merged_options)
 
         decoded["payload"] = payload
         return decoded
@@ -305,15 +318,9 @@ class PyJWT:
         options: Options | None = None,
         # deprecated arg, remove in pyjwt3
         verify: bool | None = None,
-        # could be used as passthrough to api_jws, consider removal in pyjwt3
+        # passthrough to api_jws
         detached_payload: bytes | None = None,
-        # passthrough arguments to _validate_claims
-        # consider putting in options
-        audience: str | Iterable[str] | None = None,
-        subject: str | None = None,
-        issuer: str | Container[str] | None = None,
-        leeway: float | timedelta = 0,
-        # kwargs
+        # kwargs for backward compat
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Verify the ``jwt`` token signature and return the token claims.
@@ -342,18 +349,28 @@ class PyJWT:
 
         :param jwt.types.Options options: extended decoding and validation options
             Refer to :py:class:`jwt.types.Options` for more information.
-
-        :param audience: optional, the value for ``verify_aud`` check
-        :type audience: str or typing.Iterable[str] or None
-        :param subject: optional, the value for ``verify_sub`` check
-        :type subject: str or None
-        :param issuer: optional, the value for ``verify_iss`` check
-        :type issuer: str or typing.Container[str] or None
-        :param leeway: a time margin in seconds for the expiration check
-        :type leeway: float or datetime.timedelta
+            Validation parameters ``audience``, ``issuer``, ``subject``, and ``leeway``
+            should be passed in the ``options`` dictionary.
         :rtype: dict[str, typing.Any]
         :returns: the JWT claims
         """
+        # Backward compat: absorb legacy keyword arguments into options
+        _deprecated_params = ("audience", "issuer", "subject", "leeway")
+        _found_deprecated = {k: kwargs.pop(k) for k in _deprecated_params if k in kwargs}
+        if _found_deprecated:
+            for k in _found_deprecated:
+                warnings.warn(
+                    f"Passing '{k}' as a keyword argument to decode() is "
+                    "deprecated. Use the 'options' dictionary instead. "
+                    "This will be removed in PyJWT 3.",
+                    RemovedInPyjwt3Warning,
+                    stacklevel=2,
+                )
+            if options is None:
+                options = {}
+            for k, v in _found_deprecated.items():
+                options.setdefault(k, v)  # type: ignore[misc]
+
         if kwargs:
             warnings.warn(
                 "passing additional kwargs to decode() is deprecated "
@@ -369,10 +386,6 @@ class PyJWT:
             options,
             verify=verify,
             detached_payload=detached_payload,
-            audience=audience,
-            subject=subject,
-            issuer=issuer,
-            leeway=leeway,
         )
         return cast(dict[str, Any], decoded["payload"])
 
@@ -380,14 +393,12 @@ class PyJWT:
         self,
         payload: dict[str, Any],
         options: FullOptions,
-        audience: Iterable[str] | str | None = None,
-        issuer: Container[str] | str | None = None,
-        subject: str | None = None,
-        leeway: float | timedelta = 0,
     ) -> None:
+        leeway = options["leeway"]
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
 
+        audience = options["audience"]
         if audience is not None and not isinstance(audience, (str, Iterable)):
             raise TypeError("audience must be a string, iterable or None")
 
@@ -395,17 +406,14 @@ class PyJWT:
 
         now = datetime.now(tz=timezone.utc).timestamp()
 
-        if "iat" in payload and options["verify_iat"]:
-            self._validate_iat(payload, now, leeway)
+        # Time-based claim validators (only run if claim is present)
+        for claim, flag, method_name in _CLAIM_VALIDATORS:
+            if claim in payload and options[flag]:
+                getattr(self, method_name)(payload, now, leeway)
 
-        if "nbf" in payload and options["verify_nbf"]:
-            self._validate_nbf(payload, now, leeway)
-
-        if "exp" in payload and options["verify_exp"]:
-            self._validate_exp(payload, now, leeway)
-
+        # Non-time validators
         if options["verify_iss"]:
-            self._validate_iss(payload, issuer)
+            self._validate_iss(payload, options["issuer"])
 
         if options["verify_aud"]:
             self._validate_aud(
@@ -413,7 +421,7 @@ class PyJWT:
             )
 
         if options["verify_sub"]:
-            self._validate_sub(payload, subject)
+            self._validate_sub(payload, options["subject"])
 
         if options["verify_jti"]:
             self._validate_jti(payload)

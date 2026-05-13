@@ -1,4 +1,8 @@
-from typing import Any, Callable, TypedDict
+from __future__ import annotations
+
+from collections.abc import Container, Iterable
+from datetime import timedelta
+from typing import Any, Callable, TypedDict, Union
 
 JWKDict = dict[str, Any]
 
@@ -51,6 +55,14 @@ class Options(TypedDict, total=False):
     """Default: ``verify_signature``. Check that ``sub`` (subject) claim is a string and matches ``subject`` (if present in payload). """
     enforce_minimum_key_length: bool
     """Default: ``False``. Raise :py:class:`jwt.exceptions.InvalidKeyError` instead of warning when keys are below minimum recommended length."""
+    audience: Union[str, Iterable[str], None]
+    """Optional audience to validate the ``aud`` claim against."""
+    issuer: Union[str, Container[str], None]
+    """Optional issuer to validate the ``iss`` claim against."""
+    subject: Union[str, None]
+    """Optional subject to validate the ``sub`` claim against."""
+    leeway: Union[float, timedelta]
+    """A time margin in seconds (or timedelta) for expiration checks. Default: ``0``."""
 
 
 # The only difference between Options and FullOptions is that FullOptions
@@ -67,3 +79,7 @@ class FullOptions(TypedDict):
     verify_nbf: bool
     verify_sub: bool
     enforce_minimum_key_length: bool
+    audience: Union[str, Iterable[str], None]
+    issuer: Union[str, Container[str], None]
+    subject: Union[str, None]
+    leeway: Union[float, timedelta]
