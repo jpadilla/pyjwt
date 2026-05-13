@@ -4,11 +4,11 @@ This document provides a categorized shortlist of code smells identified within 
 
 ## 1. Large File / God Class (Bloater)
 
-### **Location:** 
+### **Location:**
 `jwt/algorithms.py` (998 Lines of Code)
 
 ### **Cause & Metrics:**
-This file acts as a centralized "God Class" module, containing the logic for every single supported cryptographic algorithm (`RSAAlgorithm`, `ECAlgorithm`, `RSAPSSAlgorithm`, `OKPAlgorithm`, `HMACAlgorithm`, `NoneAlgorithm`). 
+This file acts as a centralized "God Class" module, containing the logic for every single supported cryptographic algorithm (`RSAAlgorithm`, `ECAlgorithm`, `RSAPSSAlgorithm`, `OKPAlgorithm`, `HMACAlgorithm`, `NoneAlgorithm`).
 - **Maintainability Index (MI):** `B` (The only file in the project that is not an `A`).
 - **Cause:** Over time, as more algorithms and features (like JWK support) were added, they were all appended to this single file, leading to low cohesion.
 
@@ -19,7 +19,7 @@ This file acts as a centralized "God Class" module, containing the logic for eve
 
 ## 2. High Cyclomatic Complexity & Long Methods
 
-### **Location:** 
+### **Location:**
 - `jwt/algorithms.py` -> `ECAlgorithm.from_jwk`, `RSAAlgorithm.from_jwk`, `OKPAlgorithm.from_jwk`
 - `jwt/api_jwt.py` -> `PyJWT._validate_aud`, `PyJWT._validate_claims`
 

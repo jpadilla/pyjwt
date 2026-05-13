@@ -38,6 +38,7 @@ class HMACAlgorithm(Algorithm):
     @staticmethod
     def to_jwk(key_obj: str | bytes, as_dict: bool = False) -> JWKDict | str:
         from ..utils import base64url_encode
+
         obj = {
             "k": base64url_encode(force_bytes(key_obj)).decode(),
             "kty": "oct",

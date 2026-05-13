@@ -71,13 +71,16 @@ try:
         EllipticCurvePublicKey,
     )
     from cryptography.hazmat.primitives.asymmetric.ed448 import (
-        Ed448PrivateKey, Ed448PublicKey,
+        Ed448PrivateKey,
+        Ed448PublicKey,
     )
     from cryptography.hazmat.primitives.asymmetric.ed25519 import (
-        Ed25519PrivateKey, Ed25519PublicKey,
+        Ed25519PrivateKey,
+        Ed25519PublicKey,
     )
     from cryptography.hazmat.primitives.asymmetric.rsa import (
-        RSAPrivateKey, RSAPublicKey,
+        RSAPrivateKey,
+        RSAPublicKey,
     )
 
     if sys.version_info >= (3, 10):
@@ -100,7 +103,8 @@ try:
 
     if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
         from cryptography.hazmat.primitives.asymmetric.types import (
-            PrivateKeyTypes, PublicKeyTypes,
+            PrivateKeyTypes,
+            PublicKeyTypes,
         )
 
     has_crypto = True
@@ -110,17 +114,27 @@ except ModuleNotFoundError:
     else:
         from typing_extensions import Never
 
-    AllowedRSAKeys = Never   # type: ignore[misc]
-    AllowedECKeys = Never    # type: ignore[misc]
-    AllowedOKPKeys = Never   # type: ignore[misc]
-    AllowedKeys = Never      # type: ignore[misc]
+    AllowedRSAKeys = Never  # type: ignore[misc]
+    AllowedECKeys = Never  # type: ignore[misc]
+    AllowedOKPKeys = Never  # type: ignore[misc]
+    AllowedKeys = Never  # type: ignore[misc]
     AllowedPrivateKeys = Never  # type: ignore[misc]
-    AllowedPublicKeys = Never   # type: ignore[misc]
+    AllowedPublicKeys = Never  # type: ignore[misc]
     has_crypto = False
 
 requires_cryptography = {
-    "RS256", "RS384", "RS512", "ES256", "ES256K", "ES384",
-    "ES521", "ES512", "PS256", "PS384", "PS512", "EdDSA",
+    "RS256",
+    "RS384",
+    "RS512",
+    "ES256",
+    "ES256K",
+    "ES384",
+    "ES521",
+    "ES512",
+    "PS256",
+    "PS384",
+    "PS512",
+    "EdDSA",
 }
 ```
 
@@ -142,7 +156,8 @@ if has_crypto:
     from cryptography.hazmat.backends import default_backend
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric.types import (
-        PrivateKeyTypes, PublicKeyTypes,
+        PrivateKeyTypes,
+        PublicKeyTypes,
     )
 
 
@@ -279,6 +294,7 @@ class HMACAlgorithm(Algorithm):
     @staticmethod
     def to_jwk(key_obj: str | bytes, as_dict: bool = False) -> JWKDict | str:
         from ..utils import base64url_encode
+
         obj = {
             "k": base64url_encode(force_bytes(key_obj)).decode(),
             "kty": "oct",
@@ -323,8 +339,12 @@ from typing import Any, ClassVar, Literal, Union, cast, get_args, overload
 from ..exceptions import InvalidKeyError
 from ..types import JWKDict
 from ..utils import (
-    base64url_decode, base64url_encode, der_to_raw_signature,
-    force_bytes, raw_to_der_signature, to_base64url_uint,
+    base64url_decode,
+    base64url_encode,
+    der_to_raw_signature,
+    force_bytes,
+    raw_to_der_signature,
+    to_base64url_uint,
 )
 from ._helpers import finalize_jwk, parse_jwk_input
 from ._types import AllowedECKeys, AllowedKeys
@@ -333,20 +353,29 @@ from .base import Algorithm
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric.ec import (
-    ECDSA, SECP256K1, SECP256R1, SECP384R1, SECP521R1,
-    EllipticCurve, EllipticCurvePrivateKey, EllipticCurvePrivateNumbers,
-    EllipticCurvePublicKey, EllipticCurvePublicNumbers,
+    ECDSA,
+    SECP256K1,
+    SECP256R1,
+    SECP384R1,
+    SECP521R1,
+    EllipticCurve,
+    EllipticCurvePrivateKey,
+    EllipticCurvePrivateNumbers,
+    EllipticCurvePublicKey,
+    EllipticCurvePublicNumbers,
 )
 from cryptography.hazmat.primitives.serialization import (
-    load_pem_private_key, load_pem_public_key, load_ssh_public_key,
+    load_pem_private_key,
+    load_pem_public_key,
+    load_ssh_public_key,
 )
 
 # ---- Curve Lookup Table (replaces ~40 lines of if/elif) ----
 
 _EC_CRV_TO_CURVE: dict[str, tuple[type[EllipticCurve], int]] = {
-    "P-256":     (SECP256R1, 32),
-    "P-384":     (SECP384R1, 48),
-    "P-521":     (SECP521R1, 66),
+    "P-256": (SECP256R1, 32),
+    "P-384": (SECP384R1, 48),
+    "P-521": (SECP521R1, 66),
     "secp256k1": (SECP256K1, 32),
 }
 
@@ -554,32 +583,49 @@ def get_default_algorithms() -> dict[str, Algorithm]:
 
     if has_crypto:
         from cryptography.hazmat.primitives.asymmetric.ec import (
-            SECP256K1, SECP256R1, SECP384R1, SECP521R1,
+            SECP256K1,
+            SECP256R1,
+            SECP384R1,
+            SECP521R1,
         )
-        default_algorithms.update({
-            "RS256": RSAAlgorithm(RSAAlgorithm.SHA256),
-            "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
-            "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
-            "ES256": ECAlgorithm(ECAlgorithm.SHA256, SECP256R1),
-            "ES256K": ECAlgorithm(ECAlgorithm.SHA256, SECP256K1),
-            "ES384": ECAlgorithm(ECAlgorithm.SHA384, SECP384R1),
-            "ES521": ECAlgorithm(ECAlgorithm.SHA512, SECP521R1),
-            "ES512": ECAlgorithm(ECAlgorithm.SHA512, SECP521R1),
-            "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
-            "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
-            "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
-            "EdDSA": OKPAlgorithm(),
-        })
+
+        default_algorithms.update(
+            {
+                "RS256": RSAAlgorithm(RSAAlgorithm.SHA256),
+                "RS384": RSAAlgorithm(RSAAlgorithm.SHA384),
+                "RS512": RSAAlgorithm(RSAAlgorithm.SHA512),
+                "ES256": ECAlgorithm(ECAlgorithm.SHA256, SECP256R1),
+                "ES256K": ECAlgorithm(ECAlgorithm.SHA256, SECP256K1),
+                "ES384": ECAlgorithm(ECAlgorithm.SHA384, SECP384R1),
+                "ES521": ECAlgorithm(ECAlgorithm.SHA512, SECP521R1),
+                "ES512": ECAlgorithm(ECAlgorithm.SHA512, SECP521R1),
+                "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
+                "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
+                "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
+                "EdDSA": OKPAlgorithm(),
+            }
+        )
 
     return default_algorithms
 
 
 __all__ = [
-    "Algorithm", "NoneAlgorithm", "HMACAlgorithm",
-    "RSAAlgorithm", "RSAPSSAlgorithm", "ECAlgorithm", "OKPAlgorithm",
-    "AllowedRSAKeys", "AllowedECKeys", "AllowedOKPKeys",
-    "AllowedKeys", "AllowedPrivateKeys", "AllowedPublicKeys",
-    "has_crypto", "requires_cryptography", "get_default_algorithms",
+    "Algorithm",
+    "NoneAlgorithm",
+    "HMACAlgorithm",
+    "RSAAlgorithm",
+    "RSAPSSAlgorithm",
+    "ECAlgorithm",
+    "OKPAlgorithm",
+    "AllowedRSAKeys",
+    "AllowedECKeys",
+    "AllowedOKPKeys",
+    "AllowedKeys",
+    "AllowedPrivateKeys",
+    "AllowedPublicKeys",
+    "has_crypto",
+    "requires_cryptography",
+    "get_default_algorithms",
 ]
 ```
 

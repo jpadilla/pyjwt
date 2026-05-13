@@ -11,7 +11,8 @@ if has_crypto:
     from cryptography.hazmat.backends import default_backend
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric.types import (
-        PrivateKeyTypes, PublicKeyTypes,
+        PrivateKeyTypes,
+        PublicKeyTypes,
     )
 
 

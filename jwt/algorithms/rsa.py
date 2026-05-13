@@ -5,7 +5,9 @@ from typing import Any, ClassVar, Literal, cast, overload
 from ..exceptions import InvalidKeyError
 from ..types import JWKDict
 from ..utils import (
-    base64url_decode, force_bytes, from_base64url_uint, to_base64url_uint,
+    force_bytes,
+    from_base64url_uint,
+    to_base64url_uint,
 )
 from ._helpers import finalize_jwk, parse_jwk_input
 from ._types import AllowedRSAKeys
@@ -15,11 +17,19 @@ from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import (
-    RSAPrivateKey, RSAPrivateNumbers, RSAPublicKey, RSAPublicNumbers,
-    rsa_crt_dmp1, rsa_crt_dmq1, rsa_crt_iqmp, rsa_recover_prime_factors,
+    RSAPrivateKey,
+    RSAPrivateNumbers,
+    RSAPublicKey,
+    RSAPublicNumbers,
+    rsa_crt_dmp1,
+    rsa_crt_dmq1,
+    rsa_crt_iqmp,
+    rsa_recover_prime_factors,
 )
 from cryptography.hazmat.primitives.serialization import (
-    load_pem_private_key, load_pem_public_key, load_ssh_public_key,
+    load_pem_private_key,
+    load_pem_public_key,
+    load_ssh_public_key,
 )
 
 
@@ -29,7 +39,8 @@ class RSAAlgorithm(Algorithm):
     SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
 
     _crypto_key_types: ClassVar[tuple[type[RSAPrivateKey], type[RSAPublicKey]]] = (
-        RSAPrivateKey, RSAPublicKey,
+        RSAPrivateKey,
+        RSAPublicKey,
     )
     _MIN_KEY_SIZE: ClassVar[int] = 2048
 
@@ -140,8 +151,7 @@ class RSAAlgorithm(Algorithm):
 
             if any_props_found and not all(props_found):
                 raise InvalidKeyError(
-                    "RSA key must include all parameters if any are present "
-                    "besides d"
+                    "RSA key must include all parameters if any are present besides d"
                 ) from None
 
             public_numbers = RSAPublicNumbers(
@@ -161,9 +171,7 @@ class RSAAlgorithm(Algorithm):
                 )
             else:
                 d = from_base64url_uint(obj["d"])
-                p, q = rsa_recover_prime_factors(
-                    public_numbers.n, d, public_numbers.e
-                )
+                p, q = rsa_recover_prime_factors(public_numbers.n, d, public_numbers.e)
                 numbers = RSAPrivateNumbers(
                     d=d,
                     p=p,

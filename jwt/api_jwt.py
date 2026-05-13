@@ -40,8 +40,13 @@ if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
 
 
 _VERIFY_CLAIMS = (
-    "verify_exp", "verify_nbf", "verify_iat",
-    "verify_aud", "verify_iss", "verify_sub", "verify_jti",
+    "verify_exp",
+    "verify_nbf",
+    "verify_iat",
+    "verify_aud",
+    "verify_iss",
+    "verify_sub",
+    "verify_jti",
 )
 
 # Validators that check a specific claim in the payload.
@@ -233,7 +238,9 @@ class PyJWT:
         """
         # Backward compat: absorb legacy keyword arguments into options
         _deprecated_params = ("audience", "issuer", "subject", "leeway")
-        _found_deprecated = {k: kwargs.pop(k) for k in _deprecated_params if k in kwargs}
+        _found_deprecated = {
+            k: kwargs.pop(k) for k in _deprecated_params if k in kwargs
+        }
         if _found_deprecated:
             for k in _found_deprecated:
                 warnings.warn(
@@ -356,7 +363,9 @@ class PyJWT:
         """
         # Backward compat: absorb legacy keyword arguments into options
         _deprecated_params = ("audience", "issuer", "subject", "leeway")
-        _found_deprecated = {k: kwargs.pop(k) for k in _deprecated_params if k in kwargs}
+        _found_deprecated = {
+            k: kwargs.pop(k) for k in _deprecated_params if k in kwargs
+        }
         if _found_deprecated:
             for k in _found_deprecated:
                 warnings.warn(

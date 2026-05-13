@@ -15,10 +15,10 @@ The original RSAAlgorithm enforces a minimum key size of 2048 bits (NIST SP 800-
          tuple[type[AllowedRSAKeys], ...], get_args(AllowedRSAKeys)
      )
 +    _MIN_KEY_SIZE: ClassVar[int] = 2048
- 
+
      def __init__(self, hash_alg: type[hashes.HashAlgorithm]) -> None:
          self.hash_alg = hash_alg
- 
+
 +    def check_key_length(self, key: AllowedRSAKeys) -> str | None:
 +        if key.key_size < self._MIN_KEY_SIZE:
 +            return (
