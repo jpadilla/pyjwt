@@ -436,7 +436,12 @@ class TestJWT:
         # With 1 seconds, should fail
         for leeway in (1, timedelta(seconds=1)):
             with pytest.raises(ExpiredSignatureError):
-                jwt.decode(jwt_message, secret, options={"leeway": leeway}, algorithms=["HS256"])
+                jwt.decode(
+                    jwt_message,
+                    secret,
+                    options={"leeway": leeway},
+                    algorithms=["HS256"],
+                )
 
     def test_decode_with_notbefore_with_leeway(
         self, jwt: PyJWT, payload: dict[str, object]
@@ -454,7 +459,9 @@ class TestJWT:
     def test_check_audience_when_valid(self, jwt: PyJWT) -> None:
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"])
+        jwt.decode(
+            token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"]
+        )
 
     def test_check_audience_list_when_valid(self, jwt: PyJWT) -> None:
         payload = {"some": "payload", "aud": "urn:me"}
@@ -486,7 +493,9 @@ class TestJWT:
     def test_check_audience_in_array_when_valid(self, jwt: PyJWT) -> None:
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
         token = jwt.encode(payload, "secret")
-        jwt.decode(token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"])
+        jwt.decode(
+            token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"]
+        )
 
     def test_raise_exception_invalid_audience(self, jwt: PyJWT) -> None:
         payload = {"some": "payload", "aud": "urn:someone-else"}
@@ -494,7 +503,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "secret", options={"audience": "urn-me"}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"audience": "urn-me"}, algorithms=["HS256"]
+            )
 
     def test_raise_exception_audience_as_bytes(self, jwt: PyJWT) -> None:
         payload = {"some": "payload", "aud": ["urn:me", "urn:someone-else"]}
@@ -516,7 +527,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidAudienceError):
-            jwt.decode(token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"]
+            )
 
     def test_raise_exception_token_without_issuer(self, jwt: PyJWT) -> None:
         issuer = "urn:wrong"
@@ -526,7 +539,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", options={"issuer": issuer}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"issuer": issuer}, algorithms=["HS256"]
+            )
 
         assert exc.value.claim == "iss"
 
@@ -538,14 +553,18 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, "secret", options={"issuer": issuer}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"issuer": issuer}, algorithms=["HS256"]
+            )
 
     def test_raise_exception_token_without_audience(self, jwt: PyJWT) -> None:
         payload = {"some": "payload"}
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"]
+            )
 
         assert exc.value.claim == "aud"
 
@@ -556,7 +575,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(MissingRequiredClaimError) as exc:
-            jwt.decode(token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"audience": "urn:me"}, algorithms=["HS256"]
+            )
 
         assert exc.value.claim == "aud"
 
@@ -580,7 +601,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, "secret", options={"issuer": issuer}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"issuer": issuer}, algorithms=["HS256"]
+            )
 
     def test_raise_exception_invalid_issuer_list(self, jwt: PyJWT) -> None:
         issuer = ["urn:wrong", "urn:bar", "urn:baz"]
@@ -590,7 +613,9 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidIssuerError):
-            jwt.decode(token, "secret", options={"issuer": issuer}, algorithms=["HS256"])
+            jwt.decode(
+                token, "secret", options={"issuer": issuer}, algorithms=["HS256"]
+            )
 
     def test_skip_check_audience(self, jwt: PyJWT) -> None:
         payload = {"some": "payload", "aud": "urn:me"}
@@ -975,7 +1000,9 @@ class TestJWT:
         secret = "your-256-bit-secret"
         token = jwt.encode(payload, secret, algorithm="HS256")
 
-        decoded = jwt.decode(token, secret, algorithms=["HS256"], options={"subject": "user123"})
+        decoded = jwt.decode(
+            token, secret, algorithms=["HS256"], options={"subject": "user123"}
+        )
 
         assert decoded["sub"] == "user123"
 
@@ -987,7 +1014,9 @@ class TestJWT:
         token = jwt.encode(payload, secret, algorithm="HS256")
 
         with pytest.raises(InvalidSubjectError) as exc_info:
-            jwt.decode(token, secret, algorithms=["HS256"], options={"subject": "user456"})
+            jwt.decode(
+                token, secret, algorithms=["HS256"], options={"subject": "user456"}
+            )
 
         assert "Invalid subject" in str(exc_info.value)
 
@@ -998,7 +1027,9 @@ class TestJWT:
         secret = "your-256-bit-secret"
         token = jwt.encode(payload, secret, algorithm="HS256")
 
-        decoded = jwt.decode(token, secret, algorithms=["HS256"], options={"subject": None})
+        decoded = jwt.decode(
+            token, secret, algorithms=["HS256"], options={"subject": None}
+        )
         assert decoded["sub"] == "user789"
 
     # -------------------- JTI Claim Tests --------------------
@@ -1102,7 +1133,9 @@ class TestJWT:
         payload = {"some": "payload", "aud": "urn:me"}
         token = jwt.encode(payload, "secret")
         with pytest.warns(RemovedInPyjwt3Warning, match="audience"):
-            decoded = jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
+            decoded = jwt.decode(
+                token, "secret", audience="urn:me", algorithms=["HS256"]
+            )
         assert decoded["aud"] == "urn:me"
 
     def test_decode_issuer_kwarg_backward_compat(self, jwt: PyJWT) -> None:
@@ -1110,7 +1143,9 @@ class TestJWT:
         payload = {"some": "payload", "iss": "urn:foo"}
         token = jwt.encode(payload, "secret")
         with pytest.warns(RemovedInPyjwt3Warning, match="issuer"):
-            decoded = jwt.decode(token, "secret", issuer="urn:foo", algorithms=["HS256"])
+            decoded = jwt.decode(
+                token, "secret", issuer="urn:foo", algorithms=["HS256"]
+            )
         assert decoded["iss"] == "urn:foo"
 
     def test_decode_subject_kwarg_backward_compat(self, jwt: PyJWT) -> None:
@@ -1118,7 +1153,9 @@ class TestJWT:
         payload = {"sub": "user123"}
         token = jwt.encode(payload, "secret")
         with pytest.warns(RemovedInPyjwt3Warning, match="subject"):
-            decoded = jwt.decode(token, "secret", subject="user123", algorithms=["HS256"])
+            decoded = jwt.decode(
+                token, "secret", subject="user123", algorithms=["HS256"]
+            )
         assert decoded["sub"] == "user123"
 
     def test_decode_leeway_kwarg_backward_compat(
@@ -1188,5 +1225,3 @@ class TestJWT:
         assert decoded["sub"] == "user123"
         assert decoded["iss"] == "urn:foo"
         assert decoded["aud"] == "urn:me"
-
-

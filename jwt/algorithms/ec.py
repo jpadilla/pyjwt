@@ -5,8 +5,11 @@ from typing import Any, ClassVar, Literal, Union, cast, get_args, overload
 from ..exceptions import InvalidKeyError
 from ..types import JWKDict
 from ..utils import (
-    base64url_decode, base64url_encode, der_to_raw_signature,
-    force_bytes, raw_to_der_signature, to_base64url_uint,
+    base64url_decode,
+    der_to_raw_signature,
+    force_bytes,
+    raw_to_der_signature,
+    to_base64url_uint,
 )
 from ._helpers import finalize_jwk, parse_jwk_input
 from ._types import AllowedECKeys, AllowedKeys
@@ -15,20 +18,29 @@ from .base import Algorithm
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric.ec import (
-    ECDSA, SECP256K1, SECP256R1, SECP384R1, SECP521R1,
-    EllipticCurve, EllipticCurvePrivateKey, EllipticCurvePrivateNumbers,
-    EllipticCurvePublicKey, EllipticCurvePublicNumbers,
+    ECDSA,
+    SECP256K1,
+    SECP256R1,
+    SECP384R1,
+    SECP521R1,
+    EllipticCurve,
+    EllipticCurvePrivateKey,
+    EllipticCurvePrivateNumbers,
+    EllipticCurvePublicKey,
+    EllipticCurvePublicNumbers,
 )
 from cryptography.hazmat.primitives.serialization import (
-    load_pem_private_key, load_pem_public_key, load_ssh_public_key,
+    load_pem_private_key,
+    load_pem_public_key,
+    load_ssh_public_key,
 )
 
 # ---- Curve Lookup Table (replaces ~40 lines of if/elif) ----
 
 _EC_CRV_TO_CURVE: dict[str, tuple[type[EllipticCurve], int]] = {
-    "P-256":     (SECP256R1, 32),
-    "P-384":     (SECP384R1, 48),
-    "P-521":     (SECP521R1, 66),
+    "P-256": (SECP256R1, 32),
+    "P-384": (SECP384R1, 48),
+    "P-521": (SECP521R1, 66),
     "secp256k1": (SECP256K1, 32),
 }
 

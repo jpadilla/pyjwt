@@ -11,14 +11,21 @@ from .base import Algorithm
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
-    Ed25519PrivateKey, Ed25519PublicKey,
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
 )
 from cryptography.hazmat.primitives.asymmetric.ed448 import (
-    Ed448PrivateKey, Ed448PublicKey,
+    Ed448PrivateKey,
+    Ed448PublicKey,
 )
 from cryptography.hazmat.primitives.serialization import (
-    Encoding, NoEncryption, PrivateFormat, PublicFormat,
-    load_pem_private_key, load_pem_public_key, load_ssh_public_key,
+    Encoding,
+    NoEncryption,
+    PrivateFormat,
+    PublicFormat,
+    load_pem_private_key,
+    load_pem_public_key,
+    load_ssh_public_key,
 )
 
 _OKP_CRV_TO_CLASS = {
@@ -34,9 +41,7 @@ class OKPAlgorithm(Algorithm):
     This class requires ``cryptography>=2.6`` to be installed.
     """
 
-    _crypto_key_types = cast(
-        tuple[type[AllowedOKPKeys], ...], get_args(AllowedOKPKeys)
-    )
+    _crypto_key_types = cast(tuple[type[AllowedOKPKeys], ...], get_args(AllowedOKPKeys))
 
     def __init__(self, **kwargs: Any) -> None:
         pass
@@ -62,15 +67,11 @@ class OKPAlgorithm(Algorithm):
         self.check_crypto_key_type(loaded_key)
         return cast(AllowedOKPKeys, loaded_key)
 
-    def sign(
-        self, msg: str | bytes, key: Ed25519PrivateKey | Ed448PrivateKey
-    ) -> bytes:
+    def sign(self, msg: str | bytes, key: Ed25519PrivateKey | Ed448PrivateKey) -> bytes:
         msg_bytes = msg.encode("utf-8") if isinstance(msg, str) else msg
         return key.sign(msg_bytes)
 
-    def verify(
-        self, msg: str | bytes, key: AllowedOKPKeys, sig: str | bytes
-    ) -> bool:
+    def verify(self, msg: str | bytes, key: AllowedOKPKeys, sig: str | bytes) -> bool:
         try:
             msg_bytes = msg.encode("utf-8") if isinstance(msg, str) else msg
             sig_bytes = sig.encode("utf-8") if isinstance(sig, str) else sig

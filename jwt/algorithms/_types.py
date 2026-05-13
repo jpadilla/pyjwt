@@ -10,13 +10,16 @@ try:
         EllipticCurvePublicKey,
     )
     from cryptography.hazmat.primitives.asymmetric.ed448 import (
-        Ed448PrivateKey, Ed448PublicKey,
+        Ed448PrivateKey,
+        Ed448PublicKey,
     )
     from cryptography.hazmat.primitives.asymmetric.ed25519 import (
-        Ed25519PrivateKey, Ed25519PublicKey,
+        Ed25519PrivateKey,
+        Ed25519PublicKey,
     )
     from cryptography.hazmat.primitives.asymmetric.rsa import (
-        RSAPrivateKey, RSAPublicKey,
+        RSAPrivateKey,
+        RSAPublicKey,
     )
 
     if sys.version_info >= (3, 10):
@@ -39,7 +42,8 @@ try:
 
     if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
         from cryptography.hazmat.primitives.asymmetric.types import (
-            PrivateKeyTypes, PublicKeyTypes,
+            PrivateKeyTypes,
+            PublicKeyTypes,
         )
 
     has_crypto = True
@@ -49,15 +53,25 @@ except ModuleNotFoundError:
     else:
         from typing_extensions import Never
 
-    AllowedRSAKeys = Never   # type: ignore[misc]
-    AllowedECKeys = Never    # type: ignore[misc]
-    AllowedOKPKeys = Never   # type: ignore[misc]
-    AllowedKeys = Never      # type: ignore[misc]
+    AllowedRSAKeys = Never  # type: ignore[misc]
+    AllowedECKeys = Never  # type: ignore[misc]
+    AllowedOKPKeys = Never  # type: ignore[misc]
+    AllowedKeys = Never  # type: ignore[misc]
     AllowedPrivateKeys = Never  # type: ignore[misc]
-    AllowedPublicKeys = Never   # type: ignore[misc]
+    AllowedPublicKeys = Never  # type: ignore[misc]
     has_crypto = False
 
 requires_cryptography = {
-    "RS256", "RS384", "RS512", "ES256", "ES256K", "ES384",
-    "ES521", "ES512", "PS256", "PS384", "PS512", "EdDSA",
+    "RS256",
+    "RS384",
+    "RS512",
+    "ES256",
+    "ES256K",
+    "ES384",
+    "ES521",
+    "ES512",
+    "PS256",
+    "PS384",
+    "PS512",
+    "EdDSA",
 }
