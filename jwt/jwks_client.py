@@ -6,6 +6,7 @@ from functools import lru_cache
 from ssl import SSLContext
 from typing import Any
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 
 from .api_jwk import PyJWK, PyJWKSet
 from .api_jwt import decode_complete as decode_token
@@ -101,7 +102,16 @@ class PyJWKClient:
 
         :returns: The parsed JWK Set as a dictionary.
         :raises PyJWKClientConnectionError: If the HTTP request fails.
+        :raises PyJWKClientError: If the URI scheme is not supported.
         """
+        # Validate the URI scheme to prevent SSRF attacks via file://, ftp://, etc.
+        parsed = urlparse(self.uri)
+        if parsed.scheme not in ("http", "https"):
+            raise PyJWKClientError(
+                f'Unsupported URI scheme: "{parsed.scheme}". '
+                f'Only "http" and "https" are allowed for JWKS endpoints.'
+            )
+
         jwk_set: Any = None
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)

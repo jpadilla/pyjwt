@@ -366,6 +366,52 @@ class TestPyJWKClient:
 
         assert jwk_set is not None
 
+    def test_fetch_data_rejects_file_scheme(self) -> None:
+        url = "file:///etc/passwd"
+        jwks_client = PyJWKClient(url)
+
+        with pytest.raises(PyJWKClientError) as exc:
+            jwks_client.fetch_data()
+
+        assert 'Unsupported URI scheme: "file"' in str(exc.value)
+        assert "Only \"http\" and \"https\" are allowed" in str(exc.value)
+
+    def test_fetch_data_rejects_ftp_scheme(self) -> None:
+        url = "ftp://example.com/jwks.json"
+        jwks_client = PyJWKClient(url)
+
+        with pytest.raises(PyJWKClientError) as exc:
+            jwks_client.fetch_data()
+
+        assert 'Unsupported URI scheme: "ftp"' in str(exc.value)
+
+    def test_fetch_data_rejects_dict_scheme(self) -> None:
+        url = "dict://127.0.0.1:80/"
+        jwks_client = PyJWKClient(url)
+
+        with pytest.raises(PyJWKClientError) as exc:
+            jwks_client.fetch_data()
+
+        assert 'Unsupported URI scheme: "dict"' in str(exc.value)
+
+    def test_fetch_data_rejects_gopher_scheme(self) -> None:
+        url = "gopher://example.com/"
+        jwks_client = PyJWKClient(url)
+
+        with pytest.raises(PyJWKClientError) as exc:
+            jwks_client.fetch_data()
+
+        assert 'Unsupported URI scheme: "gopher"' in str(exc.value)
+
+    def test_fetch_data_allows_http_scheme(self) -> None:
+        url = "http://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            jwks_client = PyJWKClient(url)
+            jwk_set = jwks_client.get_jwk_set()
+
+        assert len(jwk_set.keys) == 1
+
     def test_get_jwt_set_sslcontext_no_ca(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         jwks_client = PyJWKClient(
