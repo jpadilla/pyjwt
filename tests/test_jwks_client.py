@@ -374,7 +374,7 @@ class TestPyJWKClient:
             jwks_client.fetch_data()
 
         assert 'Unsupported URI scheme: "file"' in str(exc.value)
-        assert "Only \"http\" and \"https\" are allowed" in str(exc.value)
+        assert 'Only "http" and "https" are allowed' in str(exc.value)
 
     def test_fetch_data_rejects_ftp_scheme(self) -> None:
         url = "ftp://example.com/jwks.json"
