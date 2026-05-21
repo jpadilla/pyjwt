@@ -1603,6 +1603,59 @@ class TestKeyLengthValidation:
         with pytest.raises(InvalidKeyError):
             pyjwt_enforce.decode(token, "short", algorithms=["HS256"])
 
+    def test_pyjwt_decode_enforces_short_hmac_key_per_call_option(self) -> None:
+        import jwt
+
+        adequate_key = "a" * 32
+        token = jwt.encode({"hello": "world"}, adequate_key, algorithm="HS256")
+
+        # The enforce option passed per-call to decode() must be honored, not
+        # only when set at PyJWT construction time.
+        pyjwt = jwt.PyJWT()
+        with pytest.raises(InvalidKeyError, match="below"):
+            pyjwt.decode(
+                token,
+                "short",
+                algorithms=["HS256"],
+                options={"enforce_minimum_key_length": True},
+            )
+
+    def test_global_decode_enforces_short_hmac_key_per_call_option(self) -> None:
+        import jwt
+
+        adequate_key = "a" * 32
+        token = jwt.encode({"hello": "world"}, adequate_key, algorithm="HS256")
+
+        # The module-level jwt.decode() must also honor the per-call option.
+        with pytest.raises(InvalidKeyError, match="below"):
+            jwt.decode(
+                token,
+                "short",
+                algorithms=["HS256"],
+                options={"enforce_minimum_key_length": True},
+            )
+
+    def test_pyjws_decode_enforces_short_hmac_key_per_call_option(self) -> None:
+        import warnings
+
+        import jwt
+
+        jws = jwt.PyJWS()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", jwt.InsecureKeyLengthWarning)
+            token = jws.encode(b'{"test":"payload"}', b"short", algorithm="HS256")
+
+        with pytest.raises(InvalidKeyError, match="below"):
+            jws.decode(
+                token,
+                b"short",
+                algorithms=["HS256"],
+                options={
+                    "verify_signature": True,
+                    "enforce_minimum_key_length": True,
+                },
+            )
+
     def test_pyjwt_encode_no_warning_adequate_key(self) -> None:
         import warnings
 

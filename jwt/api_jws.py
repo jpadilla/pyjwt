@@ -250,7 +250,16 @@ class PyJWS:
             signing_input = b".".join([signing_input.rsplit(b".", 1)[0], payload])
 
         if verify_signature:
-            self._verify_signature(signing_input, header, signature, key, algorithms)
+            self._verify_signature(
+                signing_input,
+                header,
+                signature,
+                key,
+                algorithms,
+                enforce_minimum_key_length=merged_options.get(
+                    "enforce_minimum_key_length", False
+                ),
+            )
 
         return {
             "payload": payload,
@@ -336,6 +345,8 @@ class PyJWS:
         signature: bytes,
         key: AllowedPublicKeys | PyJWK | str | bytes = "",
         algorithms: Sequence[str] | None = None,
+        *,
+        enforce_minimum_key_length: bool = False,
     ) -> None:
         if algorithms is None and isinstance(key, PyJWK):
             algorithms = [key.algorithm_name]
@@ -359,7 +370,7 @@ class PyJWS:
 
         key_length_msg = alg_obj.check_key_length(prepared_key)
         if key_length_msg:
-            if self.options.get("enforce_minimum_key_length", False):
+            if enforce_minimum_key_length:
                 raise InvalidKeyError(key_length_msg)
             else:
                 warnings.warn(key_length_msg, InsecureKeyLengthWarning, stacklevel=4)

@@ -258,6 +258,7 @@ class PyJWT:
 
         sig_options: SigOptions = {
             "verify_signature": verify_signature,
+            "enforce_minimum_key_length": merged_options["enforce_minimum_key_length"],
         }
         decoded = self._jws.decode_complete(
             jwt,
