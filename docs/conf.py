@@ -4,7 +4,7 @@ import re
 
 def read(*parts) -> str:
     """
-    Build an absolute path from *parts* and and return the contents of the
+    Build an absolute path from *parts* and return the contents of the
     resulting file.  Assume UTF-8 encoding.
     """
     here = os.path.abspath(os.path.dirname(__file__))
