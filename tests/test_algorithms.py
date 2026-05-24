@@ -65,7 +65,7 @@ class TestAlgorithms:
             algo.prepare_key(object())  # type: ignore[arg-type]
 
         exception = context.value
-        assert str(exception) == "Expected a string value"
+        assert str(exception) == "Expected a string or bytes value"
 
     def test_hmac_should_accept_unicode_key(self) -> None:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
