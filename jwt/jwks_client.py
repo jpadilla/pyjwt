@@ -4,7 +4,8 @@ import json
 import urllib.request
 from functools import lru_cache
 from ssl import SSLContext
-from typing import Any, Iterable
+from typing import Any
+from collections.abc import Iterable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 
