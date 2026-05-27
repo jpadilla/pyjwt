@@ -69,8 +69,11 @@ class PyJWKClient:
         :type timeout: float
         :param ssl_context: Optional SSL context for the request.
         :type ssl_context: ssl.SSLContext or None
-        :param allowed_schemes: Allowed URI Schemes. "http" and "https" by default.
-        :type allowed_schemes: Iterator[str]
+        :param allowed_schemes: Iterable of allowed URI schemes. Defaults to
+            ``("http", "https")``. The parsed scheme from ``uri`` is normalized
+            to lowercase before comparison, so values should be provided in
+            lowercase.
+        :type allowed_schemes: Iterable[str]
         """
         if headers is None:
             headers = {}
