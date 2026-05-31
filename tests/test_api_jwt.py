@@ -305,6 +305,16 @@ class TestJWT:
         decoded = jwt.decode(example_jwt, "secret", algorithms=["HS256"])
         assert decoded["aud"] is None
 
+    def test_decode_accepts_null_kid(self, jwt: PyJWT) -> None:
+        # >>> jwt.encode({"iss": "teebee"}, "secret", headers={"kid": None})
+        example_jwt = (
+            "eyJhbGciOiJIUzI1NiIsImtpZCI6bnVsbCwidHlwIjoiSldUIn0."
+            "eyJpc3MiOiJ0ZWViZWUifQ."
+            "8BQajvskzhkMPdxDU7SLYxmlQjjfR36gPLjnR5aS9nQ"
+        )
+
+        jwt.decode(example_jwt, "secret", algorithms=["HS256"])
+
     def test_encode_datetime(self, jwt: PyJWT) -> None:
         secret = "secret"
         current_datetime = datetime.now(tz=timezone.utc)

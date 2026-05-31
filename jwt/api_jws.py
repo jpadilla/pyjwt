@@ -423,7 +423,10 @@ class PyJWS:
         self, headers: dict[str, Any], *, encoding: bool = False
     ) -> None:
         if "kid" in headers:
-            self._validate_kid(headers["kid"])
+            # When decoding, treat a null-valued 'kid' header parameter
+            # the same as if the parameter was omitted entirely.
+            if encoding or headers["kid"] is not None:
+                self._validate_kid(headers["kid"])
         if not encoding and "crit" in headers:
             self._validate_crit(headers)
 
