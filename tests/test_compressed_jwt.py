@@ -19,11 +19,11 @@ def test_decodes_complete_valid_jwt_with_compressed_payload() -> None:
     example_payload = {"hello": "world"}
     example_secret = "secret"
     # payload made with the pako (https://nodeca.github.io/pako/) library in Javascript:
-    # Buffer.from(pako.deflateRaw('{"hello": "world"}')).toString('base64')
+    # Buffer.from(pako.deflateRaw('{"hello": "world"}')).toString('base64url')
     example_jwt = (
         b"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
-        b".q1bKSM3JyVeyUlAqzy/KSVGqBQA="
-        b".08wHYeuh1rJXmcBcMrz6NxmbxAnCQp2rGTKfRNIkxiw="
+        b".q1bKSM3JyVeyUlAqzy_KSVGqBQA"
+        b".AAn1elCJC5MQCYFwTwa2tjjtyLgqLUVU-Y1vFBsU8jo"
     )
     decoded = CompressedPyJWT().decode_complete(
         example_jwt, example_secret, algorithms=["HS256"]
@@ -33,7 +33,7 @@ def test_decodes_complete_valid_jwt_with_compressed_payload() -> None:
         "header": {"alg": "HS256", "typ": "JWT"},
         "payload": example_payload,
         "signature": (
-            b"\xd3\xcc\x07a\xeb\xa1\xd6\xb2W\x99\xc0\\2\xbc\xfa7"
-            b"\x19\x9b\xc4\t\xc2B\x9d\xab\x192\x9fD\xd2$\xc6,"
+            b"\x00\t\xf5zP\x89\x0b\x93\x10\t\x81pO\x06\xb6\xb6"
+            b"8\xed\xc8\xb8*-ET\xf9\x8do\x14\x1b\x14\xf2:"
         ),
     }
