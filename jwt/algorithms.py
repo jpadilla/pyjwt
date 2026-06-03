@@ -857,6 +857,8 @@ if has_crypto:
         This class requires ``cryptography>=2.6`` to be installed.
         """
 
+        SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
+
         _crypto_key_types = cast(
             tuple[type[AllowedKeys], ...],
             get_args(
@@ -870,7 +872,13 @@ if has_crypto:
         )
 
         def __init__(self, **kwargs: Any) -> None:
-            pass
+            # EdDSA (RFC 8037) uses Ed25519 by default, which hashes with
+            # SHA-512 internally (RFC 8032). Expose that here so
+            # compute_hash_digest works (e.g. for OIDC at_hash/c_hash).
+            # Ed448 uses SHAKE256, but the curve is not known at construction
+            # time since "EdDSA" is registered without a key, so SHA-512 is
+            # used as the default.
+            self.hash_alg = self.SHA512
 
         def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
             if not isinstance(key, (str, bytes)):

@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Set ``hash_alg`` on ``OKPAlgorithm`` so ``compute_hash_digest`` works for
+  ``EdDSA`` instead of raising ``NotImplementedError``. EdDSA (Ed25519) hashes
+  with SHA-512 internally per RFC 8037 / RFC 8032. `#1097
+  <https://github.com/jpadilla/pyjwt/issues/1097>`__
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
