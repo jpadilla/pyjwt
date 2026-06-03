@@ -1,10 +1,18 @@
+import base64
+import warnings
 from contextlib import nullcontext
 
 import pytest
 
 from contextlib import AbstractContextManager
 
-from jwt.utils import force_bytes, from_base64url_uint, is_ssh_key, to_base64url_uint
+from jwt.utils import (
+    base64url_decode,
+    force_bytes,
+    from_base64url_uint,
+    is_ssh_key,
+    to_base64url_uint,
+)
 
 
 @pytest.mark.parametrize(
@@ -39,6 +47,34 @@ def test_to_base64url_uint(
 def test_from_base64url_uint(inputval: bytes, expected: int) -> None:
     actual = from_base64url_uint(inputval)
     assert actual == expected
+
+
+def test_base64url_decode_handles_standard_alphabet() -> None:
+    # The same bytes encoded with the standard ("+/") and the URL-safe ("-_")
+    # alphabets must decode to the same value. ``base64url_decode`` normalises
+    # the standard alphabet so historical callers keep working.
+    raw = bytes(range(256))
+    standard = base64.b64encode(raw)
+    urlsafe = base64.urlsafe_b64encode(raw).rstrip(b"=")
+
+    assert b"+" in standard or b"/" in standard
+    assert base64url_decode(standard) == raw
+    assert base64url_decode(urlsafe) == raw
+
+
+def test_base64url_decode_does_not_warn_on_urlsafe_input() -> None:
+    # Valid URL-safe input must never trigger the Python 3.15+ FutureWarning
+    # about "+"/"/" in URL-safe Base64 data (jpadilla/pyjwt#1167).
+    raw = bytes(range(256))
+    standard = base64.b64encode(raw)
+    urlsafe = base64.urlsafe_b64encode(raw).rstrip(b"=")
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", FutureWarning)
+        assert base64url_decode(urlsafe) == raw
+        # A standard-alphabet input is normalised first, so it must also be
+        # decoded without emitting the FutureWarning.
+        assert base64url_decode(standard) == raw
 
 
 def test_force_bytes_raises_error_on_invalid_object() -> None:
