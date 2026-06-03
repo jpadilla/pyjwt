@@ -4,6 +4,7 @@ from typing import Union, cast
 
 import pytest
 
+import jwt
 from jwt.algorithms import HMACAlgorithm, NoneAlgorithm, has_crypto
 from jwt.exceptions import InvalidKeyError
 from jwt.utils import base64url_decode
@@ -1211,6 +1212,20 @@ class TestOKPAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
         computed_hash = algo.compute_hash_digest(b"foo")
         assert computed_hash == foo_hash
+
+    @crypto_required
+    def test_okp_can_compute_digest(self) -> None:
+        # EdDSA (Ed25519) hashes with SHA-512 internally (RFC 8037 / RFC 8032).
+        # This is the well-known SHA-512 hash of "foo".
+        foo_hash = base64.b64decode(
+            b"9/u6bgY2+JDlb7vzKD5STG+jIErimDgtYkdB0NxmODJuKCxBvl5CVNiCB3LFUYosWowMf3"
+            b"7aGVlKfrU5RT4e1w=="
+        )
+
+        algo = jwt.get_algorithm_by_name("EdDSA")
+        computed_hash = algo.compute_hash_digest(b"foo")
+        assert computed_hash == foo_hash
+        assert len(computed_hash) == 64  # SHA-512 digest length
 
     @crypto_required
     def test_rsa_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
