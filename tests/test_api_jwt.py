@@ -518,6 +518,44 @@ class TestJWT:
         with pytest.raises(InvalidAudienceError):
             jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
 
+    def test_invalid_audience_error_includes_values(self, jwt: PyJWT) -> None:
+        payload = {"some": "payload", "aud": "urn:someone-else"}
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(InvalidAudienceError, match="urn:someone-else") as exc:
+            jwt.decode(
+                token, "secret", audience="urn:me", algorithms=["HS256"]
+            )
+
+        assert "urn:someone-else" in str(exc.value)
+        assert "urn:me" in str(exc.value)
+
+    def test_invalid_audience_error_includes_values_list(
+        self, jwt: PyJWT
+    ) -> None:
+        payload = {
+            "some": "payload",
+            "aud": ["urn:someone", "urn:someone-else"],
+        }
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(InvalidAudienceError) as exc:
+            jwt.decode(
+                token, "secret", audience="urn:me", algorithms=["HS256"]
+            )
+
+        assert "urn:someone" in str(exc.value)
+        assert "urn:me" in str(exc.value)
+
+    def test_invalid_audience_error_none_expected(self, jwt: PyJWT) -> None:
+        payload = {"some": "payload", "aud": "urn:someone"}
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(InvalidAudienceError) as exc:
+            jwt.decode(token, "secret", algorithms=["HS256"])
+
+        assert "urn:someone" in str(exc.value)
+
     def test_raise_exception_token_without_issuer(self, jwt: PyJWT) -> None:
         issuer = "urn:wrong"
 
