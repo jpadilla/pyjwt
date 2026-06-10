@@ -222,6 +222,85 @@ class TestPyJWK:
         with pytest.raises(MissingCryptographyError):
             PyJWK({"kty": "dummy"}, algorithm="RS256")
 
+    @crypto_required
+    def test_to_dict_rsa_public_round_trip(self) -> None:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+        result = jwk.to_dict()
+
+        assert result == key_data
+        # Ensure it's a copy, not the same object
+        assert result is not jwk._jwk_data
+
+    @crypto_required
+    def test_to_dict_rsa_private_round_trip(self) -> None:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+        result = jwk.to_dict()
+
+        assert result == key_data
+
+    @crypto_required
+    def test_to_dict_ec_p256_round_trip(self) -> None:
+        with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+        result = jwk.to_dict()
+
+        assert result == key_data
+
+    @crypto_required
+    def test_to_dict_hmac_round_trip(self) -> None:
+        with open(key_path("jwk_hmac.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+        result = jwk.to_dict()
+
+        assert result == key_data
+
+    @crypto_required
+    def test_to_dict_okp_round_trip(self) -> None:
+        with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+        result = jwk.to_dict()
+
+        assert result == key_data
+
+    @crypto_required
+    def test_to_dict_preserves_metadata(self) -> None:
+        key_data = {
+            "kty": "oct",
+            "kid": "my-key-id",
+            "use": "sig",
+            "alg": "HS256",
+            "k": "hJtXIZ2uSN5kbQfbtTNWbpdmhkV8FJG-Onbc6mxCcYg",
+        }
+
+        jwk = PyJWK.from_dict(key_data)
+        result = jwk.to_dict()
+
+        assert result["kid"] == "my-key-id"
+        assert result["use"] == "sig"
+        assert result["alg"] == "HS256"
+
+    @crypto_required
+    def test_to_json_rsa_public(self) -> None:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+        result = json.loads(jwk.to_json())
+
+        assert result == key_data
+
 
 class TestPyJWKSet:
     @crypto_required
@@ -334,6 +413,45 @@ class TestPyJWKSet:
         with pytest.raises(PyJWKSetError) as err:
             PyJWKSet(keys=[])
         assert str(err.value) == "The JWK Set did not contain any keys"
+
+    @crypto_required
+    def test_keyset_to_dict_round_trip(self) -> None:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            rsa_key_data = json.loads(keyfile.read())
+        with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
+            ec_key_data = json.loads(keyfile.read())
+
+        original = {"keys": [rsa_key_data, ec_key_data]}
+        jwk_set = PyJWKSet.from_dict(original)
+        result = jwk_set.to_dict()
+
+        assert result == original
+        assert len(result["keys"]) == 2
+
+    @crypto_required
+    def test_keyset_to_dict_skips_unusable_keys(self) -> None:
+        with open(key_path("jwk_keyset_with_unknown_alg.json")) as keyfile:
+            jwks = json.loads(keyfile.read())
+
+        # Input has 2 keys, one unusable
+        assert len(jwks["keys"]) == 2
+
+        keyset = PyJWKSet.from_dict(jwks)
+        result = keyset.to_dict()
+
+        # Output should only have the usable key
+        assert len(result["keys"]) == 1
+
+    @crypto_required
+    def test_keyset_to_json_round_trip(self) -> None:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            rsa_key_data = json.loads(keyfile.read())
+
+        original = {"keys": [rsa_key_data]}
+        jwk_set = PyJWKSet.from_dict(original)
+        result = json.loads(jwk_set.to_json())
+
+        assert result == original
 
     @no_crypto_required
     def test_missing_crypto_library_raises_when_required(self) -> None:
