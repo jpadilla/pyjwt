@@ -131,6 +131,25 @@ class PyJWK:
         """
         return self._jwk_data.get("use", None)
 
+    def to_dict(self) -> JWKDict:
+        """Serialize this key back to a JWK dictionary.
+
+        Returns all original JWK fields including metadata such as
+        ``kid``, ``use``, ``alg``, and ``key_ops``.
+
+        :rtype: dict[str, typing.Any]
+        """
+        return dict(self._jwk_data)
+
+    def to_json(self, **kwargs: Any) -> str:
+        """Serialize this key to a JSON string.
+
+        Any additional keyword arguments are passed to :func:`json.dumps`.
+
+        :rtype: str
+        """
+        return json.dumps(self.to_dict(), **kwargs)
+
 
 class PyJWKSet:
     def __init__(self, keys: list[JWKDict]) -> None:
@@ -174,6 +193,26 @@ class PyJWKSet:
 
     def __iter__(self) -> Iterator[PyJWK]:
         return iter(self.keys)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize this key set back to a JWKS dictionary.
+
+        Returns ``{"keys": [...]}``, where each key is serialized via
+        :meth:`PyJWK.to_dict`.  Keys that were skipped during construction
+        (e.g. unsupported algorithms) will not appear in the output.
+
+        :rtype: dict[str, typing.Any]
+        """
+        return {"keys": [key.to_dict() for key in self.keys]}
+
+    def to_json(self, **kwargs: Any) -> str:
+        """Serialize this key set to a JSON string.
+
+        Any additional keyword arguments are passed to :func:`json.dumps`.
+
+        :rtype: str
+        """
+        return json.dumps(self.to_dict(), **kwargs)
 
 
 class PyJWTSetWithTimestamp:
