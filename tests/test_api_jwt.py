@@ -523,16 +523,12 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidAudienceError, match="urn:someone-else") as exc:
-            jwt.decode(
-                token, "secret", audience="urn:me", algorithms=["HS256"]
-            )
+            jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
 
         assert "urn:someone-else" in str(exc.value)
         assert "urn:me" in str(exc.value)
 
-    def test_invalid_audience_error_includes_values_list(
-        self, jwt: PyJWT
-    ) -> None:
+    def test_invalid_audience_error_includes_values_list(self, jwt: PyJWT) -> None:
         payload = {
             "some": "payload",
             "aud": ["urn:someone", "urn:someone-else"],
@@ -540,9 +536,7 @@ class TestJWT:
         token = jwt.encode(payload, "secret")
 
         with pytest.raises(InvalidAudienceError) as exc:
-            jwt.decode(
-                token, "secret", audience="urn:me", algorithms=["HS256"]
-            )
+            jwt.decode(token, "secret", audience="urn:me", algorithms=["HS256"])
 
         assert "urn:someone" in str(exc.value)
         assert "urn:me" in str(exc.value)
