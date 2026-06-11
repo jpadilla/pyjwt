@@ -7,6 +7,12 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Include received and expected audience values in ``InvalidAudienceError``
+  messages for easier debugging (`#1099 <https://github.com/jpadilla/pyjwt/issues/1099>`__).
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 

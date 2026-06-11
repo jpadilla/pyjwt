@@ -522,7 +522,10 @@ class PyJWT:
                 return
             # Application did not specify an audience, but
             # the token has the 'aud' claim
-            raise InvalidAudienceError("Invalid audience")
+            raise InvalidAudienceError(
+                f"Invalid audience: token has {payload['aud']!r},"
+                " but no audience was expected"
+            )
 
         if "aud" not in payload or not payload["aud"]:
             # Application specified an audience, but it could not be
@@ -543,7 +546,11 @@ class PyJWT:
                 raise InvalidAudienceError("Invalid claim format in token (strict)")
 
             if audience != audience_claims:
-                raise InvalidAudienceError("Audience doesn't match (strict)")
+                raise InvalidAudienceError(
+                    f"Audience doesn't match (strict):"
+                    f" token has {audience_claims!r},"
+                    f" expected {audience!r}"
+                )
 
             return
 
@@ -556,9 +563,15 @@ class PyJWT:
 
         if isinstance(audience, str):
             audience = [audience]
+        else:
+            audience = list(audience)
 
         if all(aud not in audience_claims for aud in audience):
-            raise InvalidAudienceError("Audience doesn't match")
+            raise InvalidAudienceError(
+                f"Audience doesn't match:"
+                f" token has {audience_claims!r},"
+                f" expected {audience!r}"
+            )
 
     def _validate_iss(
         self, payload: dict[str, Any], issuer: Container[str] | str | None
