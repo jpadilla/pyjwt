@@ -550,6 +550,24 @@ class TestJWT:
 
         assert "urn:someone" in str(exc.value)
 
+    def test_invalid_audience_error_strict_includes_values(
+        self, jwt: PyJWT
+    ) -> None:
+        payload = {"some": "payload", "aud": "urn:someone-else"}
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(InvalidAudienceError) as exc:
+            jwt.decode(
+                token,
+                "secret",
+                audience="urn:me",
+                algorithms=["HS256"],
+                options={"strict_aud": True},
+            )
+
+        assert "urn:someone-else" in str(exc.value)
+        assert "urn:me" in str(exc.value)
+
     def test_raise_exception_token_without_issuer(self, jwt: PyJWT) -> None:
         issuer = "urn:wrong"
 

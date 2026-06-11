@@ -563,12 +563,14 @@ class PyJWT:
 
         if isinstance(audience, str):
             audience = [audience]
+        else:
+            audience = list(audience)
 
         if all(aud not in audience_claims for aud in audience):
             raise InvalidAudienceError(
                 f"Audience doesn't match:"
                 f" token has {audience_claims!r},"
-                f" expected {list(audience)!r}"
+                f" expected {audience!r}"
             )
 
     def _validate_iss(
