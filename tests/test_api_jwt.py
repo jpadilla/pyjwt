@@ -550,9 +550,7 @@ class TestJWT:
 
         assert "urn:someone" in str(exc.value)
 
-    def test_invalid_audience_error_strict_includes_values(
-        self, jwt: PyJWT
-    ) -> None:
+    def test_invalid_audience_error_strict_includes_values(self, jwt: PyJWT) -> None:
         payload = {"some": "payload", "aud": "urn:someone-else"}
         token = jwt.encode(payload, "secret")
 
