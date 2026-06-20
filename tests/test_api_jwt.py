@@ -295,6 +295,22 @@ class TestJWT:
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
+    @pytest.mark.parametrize("claim", ["exp", "nbf", "iat"])
+    @pytest.mark.parametrize("value", [[1], {"a": 1}, None])
+    def test_decode_raises_clean_error_if_claim_is_non_numeric_type(
+        self, jwt: PyJWT, claim: str, value: object
+    ) -> None:
+        # A structured/None exp/nbf/iat must raise a PyJWTError subclass, not
+        # leak a TypeError from int(): the validators caught only ValueError
+        # (which int() raises for strings but not for lists/dicts/None).
+        secret = "secret"
+        jwt_message = jwt.encode({claim: value}, secret)
+
+        expected = InvalidIssuedAtError if claim == "iat" else DecodeError
+        with pytest.raises(expected) as exc:
+            jwt.decode(jwt_message, secret, algorithms=["HS256"])
+        assert claim in str(exc.value)
+
     def test_decode_allows_aud_to_be_none(self, jwt: PyJWT) -> None:
         # >>> jwt.encode({'aud': None}, 'secret')
         example_jwt = (
