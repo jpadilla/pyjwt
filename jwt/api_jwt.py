@@ -473,7 +473,7 @@ class PyJWT:
     ) -> None:
         try:
             iat = int(payload["iat"])
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, OverflowError):
             raise InvalidIssuedAtError(
                 "Issued At claim (iat) must be an integer."
             ) from None
