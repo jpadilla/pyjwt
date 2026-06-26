@@ -488,7 +488,7 @@ class PyJWT:
     ) -> None:
         try:
             nbf = int(payload["nbf"])
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, OverflowError):
             raise DecodeError("Not Before claim (nbf) must be an integer.") from None
 
         if nbf > (now + leeway):
@@ -502,7 +502,7 @@ class PyJWT:
     ) -> None:
         try:
             exp = int(payload["exp"])
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, OverflowError):
             raise DecodeError(
                 "Expiration Time claim (exp) must be an integer."
             ) from None
