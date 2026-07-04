@@ -233,6 +233,13 @@ class PyJWS:
                 RemovedInPyjwt3Warning,
                 stacklevel=2,
             )
+        if isinstance(algorithms, str):
+            raise TypeError(
+                'The "algorithms" argument must be a sequence of strings '
+                '(e.g. ["HS256"]), not a bare string. A string is matched one '
+                "character at a time, so a token's algorithm only has to be a "
+                "substring of it, which silently weakens the algorithm allow-list."
+            )
         merged_options: SigOptions
         if options is None:
             merged_options = self.options

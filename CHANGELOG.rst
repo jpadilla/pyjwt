@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Changed
+~~~~~~~
+
+- ``decode()`` now raises ``TypeError`` when the ``algorithms`` argument is a
+  bare string instead of a sequence of strings. A string was matched one
+  character at a time, so a token's algorithm only had to be a substring of it,
+  silently weakening the algorithm allow-list.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
