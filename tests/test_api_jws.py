@@ -118,9 +118,7 @@ class TestJWS:
         with pytest.raises(InvalidAlgorithmError):
             jws.decode(jws_token, secret, algorithms=["HS384"])
 
-    def test_decode_rejects_str_algorithms(
-        self, jws: PyJWS, payload: bytes
-    ) -> None:
+    def test_decode_rejects_str_algorithms(self, jws: PyJWS, payload: bytes) -> None:
         secret = "secret"
         jws_token = jws.encode(payload, secret, algorithm="HS256")
 
