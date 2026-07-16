@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class PyJWTError(Exception):
     """
     Base class for all exceptions
@@ -72,10 +75,14 @@ class MissingRequiredClaimError(InvalidTokenError):
     """Raised when a claim that is required to be present is not contained
     in the claimset"""
 
-    def __init__(self, claim: str) -> None:
+    def __init__(self, claim: str, claims: list[str] | None = None) -> None:
         self.claim = claim
+        self.claims = claims if claims is not None else [claim]
 
     def __str__(self) -> str:
+        if len(self.claims) > 1:
+            claims_list = ", ".join(f'"{claim}"' for claim in self.claims)
+            return f"Token is missing the following claims: {claims_list}"
         return f'Token is missing the "{self.claim}" claim'
 
 

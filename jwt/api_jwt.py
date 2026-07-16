@@ -426,9 +426,10 @@ class PyJWT:
         payload: dict[str, Any],
         claims: Iterable[str],
     ) -> None:
-        for claim in claims:
-            if payload.get(claim) is None:
-                raise MissingRequiredClaimError(claim)
+        missing_claims = [claim for claim in claims if payload.get(claim) is None]
+
+        if missing_claims:
+            raise MissingRequiredClaimError(missing_claims[0], missing_claims)
 
     def _validate_sub(
         self, payload: dict[str, Any], subject: str | None = None

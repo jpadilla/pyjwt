@@ -672,6 +672,28 @@ class TestJWT:
 
         assert exc.value.claim == "nbf"
 
+    def test_decode_should_raise_error_with_all_missing_claims(
+        self, jwt: PyJWT
+    ) -> None:
+        payload = {
+            "some": "payload",
+            # sub, exp, and aud not present
+        }
+        token = jwt.encode(payload, "secret")
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(
+                token,
+                "secret",
+                options={"require": ["sub", "exp", "aud"]},
+                algorithms=["HS256"],
+            )
+
+        # `claim` keeps reporting the first missing claim for backward compatibility
+        assert exc.value.claim == "sub"
+        # `claims` reports every missing claim
+        assert exc.value.claims == ["sub", "exp", "aud"]
+
     def test_skip_check_signature(self, jwt: PyJWT) -> None:
         token = (
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"

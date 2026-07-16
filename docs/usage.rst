@@ -471,7 +471,11 @@ If you wish to require one or more claims to be present in the claimset, you can
     ... except jwt.MissingRequiredClaimError as e:
     ...     print(e)
     ...
-    Token is missing the "exp" claim
+    Token is missing the following claims: "exp", "iss"
+
+``MissingRequiredClaimError`` also exposes a ``claims`` attribute with the
+full list of missing claims, in addition to the ``claim`` attribute which
+still holds only the first one for backward compatibility.
 
 Retrieve RSA signing keys from a JWKS endpoint
 ----------------------------------------------

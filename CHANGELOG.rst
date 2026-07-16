@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- ``MissingRequiredClaimError`` now reports every missing claim from
+  ``options["require"]`` instead of only the first one encountered. The
+  existing ``claim`` attribute still holds the first missing claim for
+  backward compatibility; a new ``claims`` attribute holds the full list.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
