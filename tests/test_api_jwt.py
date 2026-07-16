@@ -295,6 +295,25 @@ class TestJWT:
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
+    @pytest.mark.parametrize("claim", ["exp", "nbf", "iat"])
+    @pytest.mark.parametrize("value", [10**50, 2**128, -(10**50)])
+    def test_decode_raises_exception_if_numeric_date_is_out_of_range(
+        self, jwt: PyJWT, claim: str, value: int
+    ) -> None:
+        # A NumericDate (RFC 7519 sec. 2) represents an actual UTC date/time.
+        # Python's arbitrary-precision ints let a claim like 10**50 pass a
+        # plain integer comparison, but the value can't be converted back to
+        # a date and would overflow datetime.fromtimestamp() in calling code.
+        # Regression test for #1171.
+        secret = "secret"
+        jwt_message = jwt.encode({claim: value}, secret)
+
+        expected = InvalidIssuedAtError if claim == "iat" else DecodeError
+        with pytest.raises(expected) as exc:
+            jwt.decode(jwt_message, secret, algorithms=["HS256"])
+        assert claim in str(exc.value)
+        assert "out of range" in str(exc.value)
+
     def test_decode_allows_aud_to_be_none(self, jwt: PyJWT) -> None:
         # >>> jwt.encode({'aud': None}, 'secret')
         example_jwt = (
