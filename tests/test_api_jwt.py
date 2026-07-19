@@ -296,9 +296,11 @@ class TestJWT:
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
     @pytest.mark.parametrize("claim", ["exp", "nbf", "iat"])
-    @pytest.mark.parametrize("value", [10**50, 2**128, -(10**50)])
+    @pytest.mark.parametrize(
+        "value", [10**50, 2**128, -(10**50), float("inf"), float("-inf")]
+    )
     def test_decode_raises_exception_if_numeric_date_is_out_of_range(
-        self, jwt: PyJWT, claim: str, value: int
+        self, jwt: PyJWT, claim: str, value: float
     ) -> None:
         # A NumericDate (RFC 7519 sec. 2) represents an actual UTC date/time.
         # Python's arbitrary-precision ints let a claim like 10**50 pass a
