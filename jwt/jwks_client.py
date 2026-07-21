@@ -102,7 +102,9 @@ class PyJWKClient:
         # Use the same TTL as JWKSetCache for consistency
         if cache_keys:
             self._key_cache_enabled = True
-            self._key_cache: dict[str, tuple[PyJWK, float]] = {}  # kid -> (key, timestamp)
+            self._key_cache: dict[
+                str, tuple[PyJWK, float]
+            ] = {}  # kid -> (key, timestamp)
             self._max_cached_keys = max_cached_keys
             self._key_cache_ttl = lifespan  # Use same TTL as JWKSetCache
         else:
