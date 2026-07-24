@@ -38,11 +38,8 @@ if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
     AllowedPrivateKeyTypes: TypeAlias = Union[AllowedPrivateKeys, PyJWK, str, bytes]
     AllowedPublicKeyTypes: TypeAlias = Union[AllowedPublicKeys, PyJWK, str, bytes]
 
-# RFC 7519 NumericDate values ("exp", "nbf", "iat") are seconds since the
-# epoch representing an actual date/time. Python ints are arbitrary
-# precision, so a claim like 10**50 passes the plain comparisons below even
-# though it can't represent a real date and overflows datetime.fromtimestamp()
-# in calling code. Reject values outside the range datetime can represent.
+# Upper bound for RFC 7519 NumericDate claim values ("exp", "nbf", "iat"):
+# the last second representable by datetime.
 MAX_NUMERIC_DATE = (
     253402300799  # datetime(9999, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
 )
