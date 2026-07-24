@@ -38,6 +38,12 @@ if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
     AllowedPrivateKeyTypes: TypeAlias = Union[AllowedPrivateKeys, PyJWK, str, bytes]
     AllowedPublicKeyTypes: TypeAlias = Union[AllowedPublicKeys, PyJWK, str, bytes]
 
+# Upper bound for RFC 7519 NumericDate claim values ("exp", "nbf", "iat"):
+# the last second representable by datetime.
+MAX_NUMERIC_DATE = (
+    253402300799  # datetime(9999, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+)
+
 
 class PyJWT:
     def __init__(self, options: Options | None = None) -> None:
@@ -473,9 +479,17 @@ class PyJWT:
     ) -> None:
         try:
             iat = int(payload["iat"])
+        except OverflowError:
+            raise InvalidIssuedAtError(
+                "Issued At claim (iat) is out of range."
+            ) from None
         except ValueError:
             raise InvalidIssuedAtError(
                 "Issued At claim (iat) must be an integer."
+            ) from None
+        if abs(iat) > MAX_NUMERIC_DATE:
+            raise InvalidIssuedAtError(
+                "Issued At claim (iat) is out of range."
             ) from None
         if iat > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (iat)")
@@ -488,8 +502,13 @@ class PyJWT:
     ) -> None:
         try:
             nbf = int(payload["nbf"])
+        except OverflowError:
+            raise DecodeError("Not Before claim (nbf) is out of range.") from None
         except ValueError:
             raise DecodeError("Not Before claim (nbf) must be an integer.") from None
+
+        if abs(nbf) > MAX_NUMERIC_DATE:
+            raise DecodeError("Not Before claim (nbf) is out of range.") from None
 
         if nbf > (now + leeway):
             raise ImmatureSignatureError("The token is not yet valid (nbf)")
@@ -502,10 +521,15 @@ class PyJWT:
     ) -> None:
         try:
             exp = int(payload["exp"])
+        except OverflowError:
+            raise DecodeError("Expiration Time claim (exp) is out of range.") from None
         except ValueError:
             raise DecodeError(
                 "Expiration Time claim (exp) must be an integer."
             ) from None
+
+        if abs(exp) > MAX_NUMERIC_DATE:
+            raise DecodeError("Expiration Time claim (exp) is out of range.") from None
 
         if exp <= (now - leeway):
             raise ExpiredSignatureError("Signature has expired")

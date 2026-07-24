@@ -295,6 +295,23 @@ class TestJWT:
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
+    @pytest.mark.parametrize("claim", ["exp", "nbf", "iat"])
+    @pytest.mark.parametrize(
+        "value", [10**50, 2**128, -(10**50), float("inf"), float("-inf")]
+    )
+    def test_decode_raises_exception_if_numeric_date_is_out_of_range(
+        self, jwt: PyJWT, claim: str, value: float
+    ) -> None:
+        # Regression test for #1171.
+        secret = "secret"
+        jwt_message = jwt.encode({claim: value}, secret)
+
+        expected = InvalidIssuedAtError if claim == "iat" else DecodeError
+        with pytest.raises(expected) as exc:
+            jwt.decode(jwt_message, secret, algorithms=["HS256"])
+        assert claim in str(exc.value)
+        assert "out of range" in str(exc.value)
+
     def test_decode_allows_aud_to_be_none(self, jwt: PyJWT) -> None:
         # >>> jwt.encode({'aud': None}, 'secret')
         example_jwt = (
