@@ -302,10 +302,6 @@ class TestJWT:
     def test_decode_raises_exception_if_numeric_date_is_out_of_range(
         self, jwt: PyJWT, claim: str, value: float
     ) -> None:
-        # A NumericDate (RFC 7519 sec. 2) represents an actual UTC date/time.
-        # Python's arbitrary-precision ints let a claim like 10**50 pass a
-        # plain integer comparison, but the value can't be converted back to
-        # a date and would overflow datetime.fromtimestamp() in calling code.
         # Regression test for #1171.
         secret = "secret"
         jwt_message = jwt.encode({claim: value}, secret)
