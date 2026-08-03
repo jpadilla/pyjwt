@@ -118,6 +118,18 @@ class TestJWS:
         with pytest.raises(InvalidAlgorithmError):
             jws.decode(jws_token, secret, algorithms=["HS384"])
 
+    def test_decode_rejects_str_algorithms(self, jws: PyJWS, payload: bytes) -> None:
+        secret = "secret"
+        jws_token = jws.encode(payload, secret, algorithm="HS256")
+
+        # A bare string used to be silently accepted and matched one character
+        # at a time, which weakens the algorithm allow-list. It must now raise.
+        with pytest.raises(TypeError):
+            jws.decode(jws_token, secret, algorithms="HS256")
+
+        # A proper sequence still works.
+        assert jws.decode(jws_token, secret, algorithms=["HS256"]) == payload
+
     def test_decode_works_with_unicode_token(self, jws: PyJWS) -> None:
         secret = "secret"
         unicode_jws = (
