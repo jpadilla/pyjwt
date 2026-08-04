@@ -133,6 +133,8 @@ requires_cryptography = {
     "PS256",
     "PS384",
     "PS512",
+    "Ed25519",
+    "Ed448",
     "EdDSA",
 }
 
@@ -164,6 +166,8 @@ def get_default_algorithms() -> dict[str, Algorithm]:
                 "PS256": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA256),
                 "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
                 "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
+                "Ed25519": OKPAlgorithm("Ed25519"),
+                "Ed448": OKPAlgorithm("Ed448"),
                 "EdDSA": OKPAlgorithm(),
             }
         )
@@ -869,30 +873,47 @@ if has_crypto:
             ),
         )
 
-        def __init__(self, **kwargs: Any) -> None:
-            pass
+        def __init__(
+            self, expected_curve: Literal["Ed25519", "Ed448"] | None = None
+        ) -> None:
+            self.expected_curve = expected_curve
 
         def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
-            if not isinstance(key, (str, bytes)):
-                self.check_crypto_key_type(key)
-                return key
-
-            key_str = key.decode("utf-8") if isinstance(key, bytes) else key
-            key_bytes = key.encode("utf-8") if isinstance(key, str) else key
-
-            loaded_key: PublicKeyTypes | PrivateKeyTypes
-            if "-----BEGIN PUBLIC" in key_str:
-                loaded_key = load_pem_public_key(key_bytes)
-            elif "-----BEGIN PRIVATE" in key_str:
-                loaded_key = load_pem_private_key(key_bytes, password=None)
-            elif key_str[0:4] == "ssh-":
-                loaded_key = load_ssh_public_key(key_bytes)
+            prepared_key: PublicKeyTypes | PrivateKeyTypes
+            if isinstance(key, (str, bytes)):
+                key_str = key.decode("utf-8") if isinstance(key, bytes) else key
+                key_bytes = key.encode("utf-8") if isinstance(key, str) else key
+                if "-----BEGIN PUBLIC" in key_str:
+                    prepared_key = load_pem_public_key(key_bytes)
+                elif "-----BEGIN PRIVATE" in key_str:
+                    prepared_key = load_pem_private_key(key_bytes, password=None)
+                elif key_str[0:4] == "ssh-":
+                    prepared_key = load_ssh_public_key(key_bytes)
+                else:
+                    raise InvalidKeyError("Not a public or private key")
             else:
-                raise InvalidKeyError("Not a public or private key")
+                prepared_key = key
 
-            # Explicit check the key to prevent confusing errors from cryptography
-            self.check_crypto_key_type(loaded_key)
-            return cast("AllowedOKPKeys", loaded_key)
+            # Explicitly check the key to prevent confusing errors from cryptography
+            self.check_crypto_key_type(prepared_key)
+            okp_key = cast("AllowedOKPKeys", prepared_key)
+
+            if self.expected_curve is not None:
+                if isinstance(okp_key, (Ed25519PrivateKey, Ed25519PublicKey)):
+                    actual_curve = "Ed25519"
+                elif isinstance(okp_key, (Ed448PrivateKey, Ed448PublicKey)):
+                    actual_curve = "Ed448"
+                else:
+                    # Unreachable in practice because of check_crypto_key_type() above
+                    raise InvalidKeyError(f"Unsupported key type: {type(okp_key)}")
+
+                if actual_curve != self.expected_curve:
+                    raise InvalidKeyError(
+                        f"The key's curve '{actual_curve}' does not match the expected "
+                        f"curve '{self.expected_curve}' for this algorithm"
+                    )
+
+            return okp_key
 
         def sign(
             self, msg: str | bytes, key: Ed25519PrivateKey | Ed448PrivateKey

@@ -1195,6 +1195,20 @@ class TestOKPAlgorithms:
         assert algo.verify(b"Hello World!", pub_key_2, signature_1)
         assert algo.verify(b"Hello World!", pub_key_2, signature_2)
 
+    def test_okp_fully_specified_algorithm_rejects_wrong_curve_key(self) -> None:
+        with open(key_path("jwk_okp_key_Ed25519.json")) as keyfile:
+            ed25519_key = OKPAlgorithm.from_jwk(keyfile.read())
+        assert isinstance(ed25519_key, Ed25519PrivateKey)
+        algorithm = OKPAlgorithm(expected_curve="Ed448")  # different curve
+        with pytest.raises(InvalidKeyError, match="does not match the expected curve"):
+            algorithm.prepare_key(ed25519_key)
+
+    def test_okp_validation_rejects_unknown_key_type(self) -> None:
+        algorithm = OKPAlgorithm(expected_curve="Ed25519")
+        invalid_key = object()
+        with pytest.raises(InvalidKeyError, match="Invalid Key type for OKPAlgorithm"):
+            algorithm.prepare_key(invalid_key)  # type: ignore[arg-type,unused-ignore]
+
 
 class TestHMACAlgorithms:
     def test_hmac_can_compute_digest(self) -> None:
