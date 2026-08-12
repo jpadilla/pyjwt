@@ -94,7 +94,7 @@ class PyJWK:
         return PyJWK(obj, algorithm)
 
     @staticmethod
-    def from_json(data: str, algorithm: None = None) -> PyJWK:
+    def from_json(data: str, algorithm: str | None = None) -> PyJWK:
         """Create a :class:`PyJWK` object from a JSON string.
         Implicitly calls :meth:`PyJWK.from_dict()`.
 
