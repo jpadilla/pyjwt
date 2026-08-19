@@ -1195,15 +1195,8 @@ class TestOKPAlgorithms:
         assert algo.verify(b"Hello World!", pub_key_2, signature_1)
         assert algo.verify(b"Hello World!", pub_key_2, signature_2)
 
-    @crypto_required
-    def test_rsa_can_compute_digest(self) -> None:
-        # this is the well-known sha256 hash of "foo"
-        foo_hash = base64.b64decode(b"LCa0a2j/xo/5m0U8HTBBNBNCLXBkg7+g+YpeiGJm564=")
 
-        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
-        computed_hash = algo.compute_hash_digest(b"foo")
-        assert computed_hash == foo_hash
-
+class TestHMACAlgorithms:
     def test_hmac_can_compute_digest(self) -> None:
         # this is the well-known sha256 hash of "foo"
         foo_hash = base64.b64decode(b"LCa0a2j/xo/5m0U8HTBBNBNCLXBkg7+g+YpeiGJm564=")
@@ -1212,7 +1205,17 @@ class TestOKPAlgorithms:
         computed_hash = algo.compute_hash_digest(b"foo")
         assert computed_hash == foo_hash
 
-    @crypto_required
+
+@crypto_required
+class TestRSAAlgorithms:
+    def test_rsa_can_compute_digest(self) -> None:
+        # this is the well-known sha256 hash of "foo"
+        foo_hash = base64.b64decode(b"LCa0a2j/xo/5m0U8HTBBNBNCLXBkg7+g+YpeiGJm564=")
+
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        computed_hash = algo.compute_hash_digest(b"foo")
+        assert computed_hash == foo_hash
+
     def test_rsa_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
         invalid_key = "invalid key"
