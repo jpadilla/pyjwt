@@ -59,8 +59,8 @@ RSA encoding and decoding require the ``cryptography`` module. See :ref:`install
     >>> jwt.decode(encoded, public_key, algorithms=["PS256"])
     {'some': 'payload'}
 
-Encoding & Decoding Tokens with EdDSA (Ed25519)
------------------------------------------------
+Encoding & Decoding Tokens with EdDSA (Ed25519 and Ed448)
+---------------------------------------------------------
 
 EdDSA encoding and decoding require the ``cryptography`` module. See :ref:`installation_cryptography`.
 
@@ -69,9 +69,21 @@ EdDSA encoding and decoding require the ``cryptography`` module. See :ref:`insta
     >>> import jwt
     >>> private_key = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIPtUxyxlhjOWetjIYmc98dmB2GxpeaMPP64qBhZmG13r\n-----END PRIVATE KEY-----\n"
     >>> public_key = "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA7p4c1IU6aA65FWn6YZ+Bya5dRbfd4P6d4a6H0u9+gCg=\n-----END PUBLIC KEY-----\n"
-    >>> encoded = jwt.encode({"some": "payload"}, private_key, algorithm="EdDSA")
-    >>> jwt.decode(encoded, public_key, algorithms=["EdDSA"])
+    >>> encoded = jwt.encode({"some": "payload"}, private_key, algorithm="Ed25519")
+    >>> jwt.decode(encoded, public_key, algorithms=["Ed25519"])
     {'some': 'payload'}
+
+The algorithm can be specified using the fully-specified algorithm
+identifiers ``Ed25519`` or ``Ed448`` (`RFC 9864
+<https://www.rfc-editor.org/info/rfc9864/>`_), or using the older
+polymorphic algorithm identifier ``EdDSA`` (`RFC 8037
+<https://www.rfc-editor.org/info/rfc8037/>`_), which will infer the key
+type (either Ed25519 or Ed448) automatically.
+
+Note that RFC 9864 deprecates the generic identifier ``EdDSA`` specified
+in RFC 8037 in favor of the more specific identifiers. Unless
+compatibility is a concern, new applications should prefer
+fully-specified identifiers.
 
 Encoding & Decoding Tokens with ES256 (ECDSA)
 ---------------------------------------------
