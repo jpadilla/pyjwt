@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Wrap ``http.client.HTTPException`` (e.g. ``IncompleteRead`` from a
+  truncated response) in ``PyJWKClient.fetch_data`` as
+  ``PyJWKClientConnectionError``, matching the other network failure
+  modes the method already documents.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 

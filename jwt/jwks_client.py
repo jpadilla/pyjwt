@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import json
 import urllib.request
 from functools import lru_cache
@@ -119,7 +120,7 @@ class PyJWKClient:
                 r, timeout=self.timeout, context=self.ssl_context
             ) as response:
                 jwk_set = json.load(response)
-        except (URLError, TimeoutError) as e:
+        except (URLError, TimeoutError, http.client.HTTPException) as e:
             if isinstance(e, HTTPError):
                 e.close()
             raise PyJWKClientConnectionError(
