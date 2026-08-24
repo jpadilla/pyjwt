@@ -1,4 +1,5 @@
 import contextlib
+import http.client
 import io
 import json
 import ssl
@@ -86,6 +87,22 @@ def mocked_first_call_wrong_kid_second_call_correct_kid(
 def mocked_timeout() -> Iterator[mock.Mock]:
     with mock.patch("urllib.request.urlopen") as urlopen_mock:
         urlopen_mock.side_effect = TimeoutError("timed out")
+        yield urlopen_mock
+
+
+@contextlib.contextmanager
+def mocked_incomplete_read_response() -> Iterator[mock.Mock]:
+    # The connection drops partway through the body, which urlopen surfaces as
+    # http.client.IncompleteRead when json.load() reads the response.
+    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+        response = mock.Mock()
+        response.__enter__ = mock.Mock(return_value=response)
+        # A truthy __exit__ return value tells the `with` statement to
+        # suppress whatever exception was raised in its body, which would
+        # hide the IncompleteRead below before fetch_data() ever sees it.
+        response.__exit__ = mock.Mock(return_value=False)
+        response.read.side_effect = http.client.IncompleteRead(partial=b"", expected=1)
+        urlopen_mock.return_value = response
         yield urlopen_mock
 
 
@@ -321,6 +338,14 @@ class TestPyJWKClient:
         with pytest.raises(PyJWKClientConnectionError):
             with mocked_failed_response():
                 jwks_client.get_signing_key_from_jwt(token)
+
+    def test_incomplete_read_should_raise_connection_error(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with pytest.raises(PyJWKClientConnectionError):
+            with mocked_incomplete_read_response():
+                jwks_client.get_jwk_set()
 
     def test_get_jwt_set_refresh_cache(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
