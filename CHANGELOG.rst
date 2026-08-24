@@ -87,6 +87,14 @@ Fixed
   ``TypeError`` when the ``exp``, ``nbf``, or ``iat`` claim decodes to a
   non-numeric, non-string value such as a list, dict, or ``null``.
 
+Fixed
+~~~~~
+
+- Wrap ``http.client.HTTPException`` (e.g. ``IncompleteRead`` from a
+  truncated response) in ``PyJWKClient.fetch_data`` as
+  ``PyJWKClientConnectionError``, matching the other network failure
+  modes the method already documents.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
