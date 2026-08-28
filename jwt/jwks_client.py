@@ -149,6 +149,10 @@ class PyJWKClient:
         if self.jwk_set_cache is not None and not refresh:
             data = self.jwk_set_cache.get()
 
+        if isinstance(data, PyJWKSet):
+            # Cache hit: return the cached PyJWKSet directly (#914).
+            return data
+
         if data is None:
             data = self.fetch_data()
 
