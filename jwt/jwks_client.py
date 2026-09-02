@@ -204,7 +204,7 @@ class PyJWKClient:
 
     def _cache_key(self, kid: str, key: PyJWK) -> None:
         """Cache a key with current timestamp."""
-        if not self._key_cache_enabled:
+        if not self._key_cache_enabled or self._max_cached_keys <= 0:
             return
 
         # Evict oldest if at capacity
