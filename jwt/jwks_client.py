@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
+import time
 import urllib.request
-from functools import lru_cache
 from ssl import SSLContext
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -42,14 +42,15 @@ class PyJWKClient:
           Defaults to ``300`` (5 minutes). Must be greater than 0.
 
         **Tier 2 — Signing key cache** (disabled by default):
-        Caches individual signing keys (looked up by ``kid``) using an LRU
-        cache with **no time-based expiration**. Keys are evicted only when
-        the cache reaches its maximum size. Controlled by:
+        Caches individual signing keys (looked up by ``kid``) using a
+        TTL-based cache. Keys expire after the configured ``lifespan``,
+        preventing indefinite caching of potentially revoked keys.
+        Controlled by:
 
         - ``cache_keys``: Set to ``True`` to enable this cache.
           Defaults to ``False``.
         - ``max_cached_keys``: Maximum number of signing keys to keep in
-          the LRU cache. Defaults to ``16``.
+          the cache. Defaults to ``16``.
 
         :param uri: The URL of the JWKS endpoint.
         :type uri: str
@@ -97,11 +98,17 @@ class PyJWKClient:
         else:
             self.jwk_set_cache = None
 
+        # Replace lru_cache with TTL-aware individual key cache
+        # Use the same TTL as JWKSetCache for consistency
         if cache_keys:
-            # Cache signing keys
-            get_signing_key = lru_cache(maxsize=max_cached_keys)(self.get_signing_key)
-            # Ignore mypy (https://github.com/python/mypy/issues/2427)
-            self.get_signing_key = get_signing_key  # type: ignore[method-assign]
+            self._key_cache_enabled = True
+            self._key_cache: dict[
+                str, tuple[PyJWK, float]
+            ] = {}  # kid -> (key, timestamp)
+            self._max_cached_keys = max_cached_keys
+            self._key_cache_ttl = lifespan  # Use same TTL as JWKSetCache
+        else:
+            self._key_cache_enabled = False
 
     def fetch_data(self) -> Any:
         """Fetch the JWK Set from the JWKS endpoint.
@@ -182,6 +189,34 @@ class PyJWKClient:
 
         return signing_keys
 
+    def _get_cached_key(self, kid: str) -> PyJWK | None:
+        """Get a cached key if it exists and hasn't expired."""
+        if not self._key_cache_enabled or kid not in self._key_cache:
+            return None
+
+        key, timestamp = self._key_cache[kid]
+
+        if time.monotonic() - timestamp > self._key_cache_ttl:
+            del self._key_cache[kid]
+            return None
+
+        return key
+
+    def _cache_key(self, kid: str, key: PyJWK) -> None:
+        """Cache a key with current timestamp."""
+        if not self._key_cache_enabled or self._max_cached_keys <= 0:
+            return
+
+        # Evict oldest if at capacity
+        if len(self._key_cache) >= self._max_cached_keys and kid not in self._key_cache:
+            # Simple eviction: remove oldest timestamp
+            oldest_kid = min(
+                self._key_cache.keys(), key=lambda k: self._key_cache[k][1]
+            )
+            del self._key_cache[oldest_kid]
+
+        self._key_cache[kid] = (key, time.monotonic())
+
     def get_signing_key(self, kid: str) -> PyJWK:
         """Return the signing key matching the given ``kid``.
 
@@ -195,11 +230,14 @@ class PyJWKClient:
         :raises PyJWKClientError: If no matching key is found after
             refreshing.
         """
+        cached_key = self._get_cached_key(kid)
+        if cached_key is not None:
+            return cached_key
+
         signing_keys = self.get_signing_keys()
         signing_key = self.match_kid(signing_keys, kid)
 
         if not signing_key:
-            # If no matching signing key from the jwk set, refresh the jwk set and try again.
             signing_keys = self.get_signing_keys(refresh=True)
             signing_key = self.match_kid(signing_keys, kid)
 
@@ -208,6 +246,7 @@ class PyJWKClient:
                     f'Unable to find a signing key that matches: "{kid}"'
                 )
 
+        self._cache_key(kid, signing_key)
         return signing_key
 
     def get_signing_key_from_jwt(self, token: str | bytes) -> PyJWK:
