@@ -7,6 +7,11 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Added
+~~~~~
+
+- Support Python 3.15 by @kytta in `#1202 <https://github.com/jpadilla/pyjwt/pull/1202>`__
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
