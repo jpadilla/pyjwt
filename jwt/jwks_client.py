@@ -195,6 +195,10 @@ class PyJWKClient:
         if data is None:
             data = self.fetch_data()
 
+        # The cache may hold a PyJWKSet (its documented value type, see
+        # JWKSetCache.put) as well as the raw dict stored by fetch_data().
+        if isinstance(data, PyJWKSet):
+            return data
         if not isinstance(data, dict):
             raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 
