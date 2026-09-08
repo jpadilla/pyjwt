@@ -225,6 +225,23 @@ class TestPyJWK:
 
 class TestPyJWKSet:
     @crypto_required
+    def test_should_skip_malformed_rsa_key_and_load_remaining_keys(self) -> None:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
+            malformed_key = json.loads(keyfile.read())
+
+        malformed_key["d"] = "AAAAAA"
+        for parameter in ("p", "q", "dp", "dq", "qi"):
+            del malformed_key[parameter]
+
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            valid_key = json.loads(keyfile.read())
+
+        jwk_set = PyJWKSet.from_dict({"keys": [malformed_key, valid_key]})
+
+        assert len(jwk_set.keys) == 1
+        assert jwk_set.keys[0].key_type == "RSA"
+
+    @crypto_required
     def test_should_load_keys_from_jwk_data_dict(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 

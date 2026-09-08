@@ -79,7 +79,12 @@ class PyJWK:
                 f"Unable to find an algorithm for key: {self._jwk_data}",
             ) from None
 
-        self.key = self.Algorithm.from_jwk(self._jwk_data)
+        try:
+            self.key = self.Algorithm.from_jwk(self._jwk_data)
+        except ValueError as error:
+            raise InvalidKeyError(
+                f"Unable to construct key from JWK: {error}"
+            ) from error
 
     @staticmethod
     def from_dict(obj: JWKDict, algorithm: str | None = None) -> PyJWK:
