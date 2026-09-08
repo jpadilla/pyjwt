@@ -7,6 +7,17 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Normalise the standard Base64 alphabet (``+`` / ``/``) to the URL-safe
+  alphabet in ``base64url_decode`` so valid URL-safe input no longer trips
+  the Python 3.15 ``FutureWarning: invalid character '/' in URL-safe Base64
+  data`` and standard-alphabet input keeps decoding deterministically once
+  CPython starts discarding those characters. Also corrects the
+  ``test_compressed_jwt`` fixture, which carried a standard-Base64 payload
+  segment instead of a URL-safe one (`#1167 <https://github.com/jpadilla/pyjwt/issues/1167>`__).
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 

@@ -22,8 +22,18 @@ def force_bytes(value: Union[bytes, str]) -> bytes:
         raise TypeError("Expected a string value")
 
 
+# Translate the standard Base64 alphabet to the URL-safe alphabet so that
+# callers passing standard-alphabet data (``+`` / ``/``) are normalised before
+# the decode. From Python 3.15 ``base64.urlsafe_b64decode`` emits a
+# ``FutureWarning`` for ``+`` / ``/`` and has announced it will eventually
+# discard those characters, which would silently corrupt the decoded bytes.
+# Normalising up front keeps valid URL-safe input warning-free and keeps the
+# historical lenient handling of standard-alphabet input deterministic.
+_STD_TO_URLSAFE = bytes.maketrans(b"+/", b"-_")
+
+
 def base64url_decode(input: Union[bytes, str]) -> bytes:
-    input_bytes = force_bytes(input)
+    input_bytes = force_bytes(input).translate(_STD_TO_URLSAFE)
 
     rem = len(input_bytes) % 4
 
