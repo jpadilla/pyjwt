@@ -1,7 +1,7 @@
 import json
 import time
 from calendar import timegm
-from collections.abc import MutableMapping
+from collections.abc import Iterator, MutableMapping
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
@@ -63,22 +63,22 @@ class TestJWT:
     def test_decode_complete_preserves_mutable_mapping_input(self, jwt: PyJWT) -> None:
         class MappingWithoutCopy(MutableMapping[str, object]):
             def __init__(self, values: dict[str, object]) -> None:
-                self.values = values
+                self._data = values
 
             def __getitem__(self, key: str) -> object:
-                return self.values[key]
+                return self._data[key]
 
             def __setitem__(self, key: str, value: object) -> None:
-                self.values[key] = value
+                self._data[key] = value
 
             def __delitem__(self, key: str) -> None:
-                del self.values[key]
+                del self._data[key]
 
-            def __iter__(self):
-                return iter(self.values)
+            def __iter__(self) -> Iterator[str]:
+                return iter(self._data)
 
             def __len__(self) -> int:
-                return len(self.values)
+                return len(self._data)
 
         options = MappingWithoutCopy({"verify_signature": False})
         token = jwt.encode({"claim": "value"}, "a" * 32, algorithm="HS256")
