@@ -250,6 +250,11 @@ class PyJWS:
 
         self._validate_headers(header)
 
+        if detached_payload is not None and header.get("b64", True) is not False:
+            raise DecodeError(
+                'It is only valid to pass "detached_payload" when the protected header has "b64" set to false.'
+            )
+
         if header.get("b64", True) is False:
             # RFC 7797 §3: when "b64" is present in the protected header,
             # it MUST also appear in "crit". A token that sets b64=false

@@ -954,6 +954,20 @@ class TestJWS:
 
         jws.decode(jws_message, secret, algorithms=["HS256"], detached_payload=payload)
 
+    def test_decode_rejects_detached_payload_for_attached_content(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "secret"
+        jws_message = jws.encode(payload, secret, algorithm="HS256")
+
+        with pytest.raises(DecodeError, match="detached_payload.*b64.*false"):
+            jws.decode(
+                jws_message,
+                secret,
+                algorithms=["HS256"],
+                detached_payload=b"different payload",
+            )
+
     def test_encode_detached_content_with_b64_header(
         self, jws: PyJWS, payload: bytes
     ) -> None:
