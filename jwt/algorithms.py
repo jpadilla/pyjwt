@@ -343,6 +343,20 @@ class HMACAlgorithm(Algorithm):
         # bytes (whose contents are not the secret material).
         try:
             jwk_obj = json.loads(key_bytes)
+        except RecursionError:
+            try:
+                decoded_key = key_bytes.decode(
+                    json.detect_encoding(key_bytes), errors="surrogatepass"
+                )
+            except UnicodeError:
+                decoded_key = ""
+            if decoded_key.lstrip().startswith("{"):
+                raise InvalidKeyError(
+                    "The specified key looks like a JWK and should not be "
+                    "used directly as an HMAC secret. Load it via "
+                    "PyJWK / HMACAlgorithm.from_jwk first."
+                ) from None
+            jwk_obj = None
         except ValueError:
             jwk_obj = None
         if isinstance(jwk_obj, dict) and "kty" in jwk_obj:
