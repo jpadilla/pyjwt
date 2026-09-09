@@ -7,6 +7,11 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
 ------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Fix indefinite key caching in PyJWKClient by replacing lru_cache with TTL-aware cache in `#1070 <https://github.com/jpadilla/pyjwt/pull/1070>`__
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
