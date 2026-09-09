@@ -342,9 +342,7 @@ class HMACAlgorithm(Algorithm):
         # should be loaded via PyJWK / from_jwk rather than fed as raw JSON
         # bytes (whose contents are not the secret material).
         stripped = key_bytes.lstrip()
-        if stripped.startswith(b"\xef\xbb\xbf"):
-            stripped = stripped[3:].lstrip()
-        if stripped.startswith(b"{"):
+        if stripped.startswith((b"{", b"\xef\xbb\xbf", b"\xff\xfe", b"\xfe\xff")):
             try:
                 jwk_obj = json.loads(key_bytes)
             except ValueError:
