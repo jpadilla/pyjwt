@@ -357,7 +357,7 @@ class PyJWS:
 
         try:
             header: dict[str, Any] = json.loads(header_data)
-        except ValueError as e:
+        except (ValueError, RecursionError) as e:
             raise DecodeError(f"Invalid header string: {e}") from e
 
         if not isinstance(header, dict):
