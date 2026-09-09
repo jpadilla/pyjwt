@@ -414,7 +414,7 @@ class PyJWS:
                     f"algorithm {key.algorithm_name!r}"
                 )
             alg_obj = key.Algorithm
-            prepared_key = key.key
+            prepared_key = alg_obj.prepare_key(key.key)
         else:
             try:
                 alg_obj = self.get_algorithm_by_name(alg)
