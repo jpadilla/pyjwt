@@ -341,18 +341,16 @@ class HMACAlgorithm(Algorithm):
         # non-key-shaped input naturally. Even a symmetric (kty=oct) JWK
         # should be loaded via PyJWK / from_jwk rather than fed as raw JSON
         # bytes (whose contents are not the secret material).
-        stripped = key_bytes.lstrip()
-        if stripped.startswith((b"{", b"\xef\xbb\xbf", b"\xff\xfe", b"\xfe\xff")):
-            try:
-                jwk_obj = json.loads(key_bytes)
-            except ValueError:
-                jwk_obj = None
-            if isinstance(jwk_obj, dict) and "kty" in jwk_obj:
-                raise InvalidKeyError(
-                    "The specified key looks like a JWK and should not be "
-                    "used directly as an HMAC secret. Load it via "
-                    "PyJWK / HMACAlgorithm.from_jwk first."
-                )
+        try:
+            jwk_obj = json.loads(key_bytes)
+        except ValueError:
+            jwk_obj = None
+        if isinstance(jwk_obj, dict) and "kty" in jwk_obj:
+            raise InvalidKeyError(
+                "The specified key looks like a JWK and should not be "
+                "used directly as an HMAC secret. Load it via "
+                "PyJWK / HMACAlgorithm.from_jwk first."
+            )
 
         return key_bytes
 

@@ -147,7 +147,19 @@ class TestAlgorithms:
             with pytest.raises(InvalidKeyError, match="looks like a JWK"):
                 algo.prepare_key(keyfile.read())
 
-    @pytest.mark.parametrize("encoding", ["utf-8-sig", "utf-16", "utf-32"])
+    @pytest.mark.parametrize(
+        "encoding",
+        [
+            "utf-8",
+            "utf-8-sig",
+            "utf-16",
+            "utf-16-le",
+            "utf-16-be",
+            "utf-32",
+            "utf-32-le",
+            "utf-32-be",
+        ],
+    )
     def test_hmac_prepare_key_rejects_bom_prefixed_jwk_json(
         self, encoding: str
     ) -> None:
@@ -155,7 +167,7 @@ class TestAlgorithms:
 
         with open(key_path("jwk_rsa_pub.json"), encoding="utf-8") as keyfile:
             with pytest.raises(InvalidKeyError, match="looks like a JWK"):
-                algo.prepare_key(keyfile.read().encode(encoding))
+                algo.prepare_key((" \n" + keyfile.read()).encode(encoding))
 
     def test_hmac_prepare_key_accepts_json_without_kty(self) -> None:
         # JSON that doesn't look like a JWK (no "kty") should not be misclassified.
