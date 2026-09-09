@@ -657,6 +657,17 @@ class TestJWS:
 
         assert "Invalid crypto padding" in str(exc.value)
 
+    def test_decode_rejects_non_canonical_crypto_segment(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "a" * 32
+        token = jws.encode(payload, secret, algorithm="HS256")
+        header, encoded_payload, signature = token.split(".")
+        mutated_token = ".".join((header, encoded_payload, f"{signature}!!!!"))
+
+        with pytest.raises(DecodeError, match="Invalid crypto padding"):
+            jws.decode(mutated_token, secret, algorithms=["HS256"])
+
     def test_decode_with_algo_none_should_fail(
         self, jws: PyJWS, payload: bytes
     ) -> None:
