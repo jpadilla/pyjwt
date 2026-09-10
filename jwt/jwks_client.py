@@ -23,7 +23,7 @@ class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
         msg: str,
         headers: Any,
         newurl: str,
-    ) -> None:
+    ) -> urllib.request.Request | None:
         return None
 
 
