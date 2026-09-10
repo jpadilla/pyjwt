@@ -14,6 +14,19 @@ from .exceptions import PyJWKClientConnectionError, PyJWKClientError
 from .jwk_set_cache import JWKSetCache
 
 
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> None:
+        return None
+
+
 class PyJWKClient:
     def __init__(
         self,
@@ -115,9 +128,11 @@ class PyJWKClient:
         """
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
-            with urllib.request.urlopen(
-                r, timeout=self.timeout, context=self.ssl_context
-            ) as response:
+            handlers: list[Any] = [_NoRedirectHandler()]
+            if self.ssl_context is not None:
+                handlers.append(urllib.request.HTTPSHandler(context=self.ssl_context))
+            opener = urllib.request.build_opener(*handlers)
+            with opener.open(r, timeout=self.timeout) as response:
                 jwk_set = json.load(response)
         except (URLError, TimeoutError) as e:
             if isinstance(e, HTTPError):
