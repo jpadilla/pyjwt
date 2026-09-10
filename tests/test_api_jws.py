@@ -1264,6 +1264,7 @@ class TestJWS:
 
         with pytest.raises(InvalidTokenError, match="Unsupported critical extension"):
             jws.get_unverified_header(token)
+
     def test_decode_rejects_empty_hmac_pyjwk(self) -> None:
         import base64
         import hashlib
