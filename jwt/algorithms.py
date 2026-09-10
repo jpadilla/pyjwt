@@ -33,6 +33,7 @@ from .utils import (
 )
 
 try:
+    from cryptography import x509
     from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
     from cryptography.hazmat.backends import default_backend
     from cryptography.hazmat.primitives import hashes
@@ -72,6 +73,7 @@ try:
         NoEncryption,
         PrivateFormat,
         PublicFormat,
+        load_der_public_key,
         load_pem_private_key,
         load_pem_public_key,
         load_ssh_public_key,
@@ -322,13 +324,36 @@ class HMACAlgorithm(Algorithm):
     def __init__(self, hash_alg: HashlibHash) -> None:
         self.hash_alg = hash_alg
 
+    @staticmethod
+    def _is_der_key(key_bytes: bytes) -> bool:
+        if not has_crypto:
+            return False
+
+        try:
+            load_der_public_key(key_bytes)
+        except (TypeError, ValueError, UnsupportedAlgorithm):
+            pass
+        else:
+            return True
+
+        try:
+            x509.load_der_x509_certificate(key_bytes)
+        except (TypeError, ValueError, UnsupportedAlgorithm):
+            return False
+        else:
+            return True
+
     def prepare_key(self, key: str | bytes) -> bytes:
         key_bytes = force_bytes(key)
 
         if len(key_bytes) == 0:
             raise InvalidKeyError("HMAC key must not be empty.")
 
-        if is_pem_format(key_bytes) or is_ssh_key(key_bytes):
+        if (
+            is_pem_format(key_bytes)
+            or is_ssh_key(key_bytes)
+            or self._is_der_key(key_bytes)
+        ):
             raise InvalidKeyError(
                 "The specified key is an asymmetric key or x509 certificate and"
                 " should not be used as an HMAC secret."

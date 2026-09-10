@@ -12,6 +12,7 @@ from .keys import load_ec_pub_key_p_521, load_hmac_key, load_rsa_pub_key
 from .utils import crypto_required, key_path
 
 if has_crypto:
+    from cryptography import x509
     from cryptography.hazmat.primitives.asymmetric.ec import (
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
@@ -27,6 +28,10 @@ if has_crypto:
     from cryptography.hazmat.primitives.asymmetric.rsa import (
         RSAPrivateKey,
         RSAPublicKey,
+    )
+    from cryptography.hazmat.primitives.serialization import (
+        Encoding,
+        PublicFormat,
     )
 
     from jwt.algorithms import ECAlgorithm, OKPAlgorithm, RSAAlgorithm, RSAPSSAlgorithm
@@ -258,6 +263,40 @@ class TestAlgorithms:
 
         with pytest.raises(InvalidKeyError, match="looks like a JWK"):
             algo.prepare_key(key)
+
+    @crypto_required
+    @pytest.mark.parametrize(
+        "key_format_name",
+        ("SubjectPublicKeyInfo", "PKCS1"),
+    )
+    def test_hmac_prepare_key_rejects_der_public_key(
+        self, key_format_name: str
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        public_key = cast(RSAPublicKey, load_rsa_pub_key())
+        der_key = public_key.public_bytes(
+            Encoding.DER, getattr(PublicFormat, key_format_name)
+        )
+
+        with pytest.raises(InvalidKeyError, match="asymmetric key"):
+            algo.prepare_key(der_key)
+
+    @crypto_required
+    def test_hmac_prepare_key_rejects_der_certificate(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        with open(key_path("testkey_rsa.cer"), "rb") as certificate_file:
+            certificate = x509.load_pem_x509_certificate(certificate_file.read())
+        der_certificate = certificate.public_bytes(Encoding.DER)
+
+        with pytest.raises(InvalidKeyError, match="x509 certificate"):
+            algo.prepare_key(der_certificate)
+
+    @crypto_required
+    def test_hmac_prepare_key_accepts_non_key_binary_secret(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        secret = b"\x30\x82not-a-der-key"
+
+        assert algo.prepare_key(secret) == secret
 
     @crypto_required
     def test_rsa_should_parse_pem_public_key(self) -> None:
