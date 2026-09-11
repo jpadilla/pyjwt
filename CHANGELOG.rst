@@ -29,9 +29,11 @@ Security
   errors or whole-set parsing failures. See
   `GHSA-8wjv-2p76-3863 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-8wjv-2p76-3863>`__
   and `GHSA-w6j9-cwv2-h6wq <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-w6j9-cwv2-h6wq>`__.
-- Enforce detached-payload and compact JWS encoding rules during decoding.
-  See `GHSA-hxm8-2xgr-2p9m <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-hxm8-2xgr-2p9m>`__
-  and `GHSA-mvj7-wp6q-v59j <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-mvj7-wp6q-v59j>`__.
+- Enforce compact JWS encoding rules during decoding. See
+  `GHSA-hxm8-2xgr-2p9m <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-hxm8-2xgr-2p9m>`__.
+- Reject detached-payload arguments for attached JWS inputs. Thanks to `@xclow3n
+  <https://github.com/xclow3n>`__ for reporting this behavior; fixed in commit
+  `37b54877 <https://github.com/jpadilla/pyjwt/commit/37b54877bf7bea67e8149130e96929e3ec798122>`__.
 
 Fixed
 ~~~~~
