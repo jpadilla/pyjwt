@@ -200,9 +200,7 @@ class TestAlgorithms:
             with pytest.raises(InvalidKeyError, match="looks like a JWK"):
                 algo.prepare_key(keyfile.read())
 
-    @pytest.mark.parametrize(
-        "container", ("jwks", "array", "nested-array", "bom-jwks")
-    )
+    @pytest.mark.parametrize("container", ("jwks", "array", "nested-array", "bom-jwks"))
     def test_hmac_prepare_key_rejects_public_jwk_containers(
         self, container: str
     ) -> None:
@@ -218,9 +216,7 @@ class TestAlgorithms:
         elif container == "nested-array":
             key = json.dumps([[public_jwk]])
         else:
-            key = b"\xef\xbb\xbf" + json.dumps(
-                {"keys": [public_jwk]}
-            ).encode()
+            key = b"\xef\xbb\xbf" + json.dumps({"keys": [public_jwk]}).encode()
 
         with pytest.raises(InvalidKeyError, match="looks like a JWK"):
             algo.prepare_key(key)

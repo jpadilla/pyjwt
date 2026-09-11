@@ -393,15 +393,16 @@ class HMACAlgorithm(Algorithm):
                 if end >= len(decoded_key):
                     break
                 next_index = end + 1
-                while next_index < len(decoded_key) and decoded_key[
-                    next_index
-                ] in " \t\r\n":
+                while (
+                    next_index < len(decoded_key)
+                    and decoded_key[next_index] in " \t\r\n"
+                ):
                     next_index += 1
                 if next_index < len(decoded_key) and decoded_key[next_index] == ":":
                     try:
-                        has_jwk_member = json.loads(
-                            decoded_key[index : end + 1]
-                        ) == "kty"
+                        has_jwk_member = (
+                            json.loads(decoded_key[index : end + 1]) == "kty"
+                        )
                     except ValueError:
                         pass
                     if has_jwk_member:
