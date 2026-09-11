@@ -367,7 +367,7 @@ class HMACAlgorithm(Algorithm):
         # should be loaded via PyJWK / from_jwk rather than fed as raw JSON
         # bytes (whose contents are not the secret material).
         try:
-            jwk_obj = json.loads(key_bytes)
+            jwk_obj = json.loads(key_bytes, parse_int=lambda _: 0)
         except RecursionError:
             try:
                 decoded_key = key_bytes.decode(
@@ -375,7 +375,41 @@ class HMACAlgorithm(Algorithm):
                 )
             except UnicodeError:
                 decoded_key = ""
-            if decoded_key.lstrip().startswith("{"):
+            stripped_key = decoded_key.lstrip("\ufeff \t\r\n")
+            has_jwk_member = False
+            index = 0
+            while index < len(decoded_key):
+                if decoded_key[index] != '"':
+                    index += 1
+                    continue
+                end = index + 1
+                while end < len(decoded_key):
+                    if decoded_key[end] == "\\":
+                        end += 2
+                    elif decoded_key[end] == '"':
+                        break
+                    else:
+                        end += 1
+                if end >= len(decoded_key):
+                    break
+                next_index = end + 1
+                while next_index < len(decoded_key) and decoded_key[
+                    next_index
+                ] in " \t\r\n":
+                    next_index += 1
+                if next_index < len(decoded_key) and decoded_key[next_index] == ":":
+                    try:
+                        has_jwk_member = json.loads(
+                            decoded_key[index : end + 1]
+                        ) == "kty"
+                    except ValueError:
+                        pass
+                    if has_jwk_member:
+                        break
+                index = end + 1
+            if stripped_key.startswith("{") or (
+                stripped_key.startswith("[") and has_jwk_member
+            ):
                 raise InvalidKeyError(
                     "The specified key looks like a JWK and should not be "
                     "used directly as an HMAC secret. Load it via "
@@ -384,7 +418,18 @@ class HMACAlgorithm(Algorithm):
             jwk_obj = None
         except ValueError:
             jwk_obj = None
-        if isinstance(jwk_obj, dict) and "kty" in jwk_obj:
+        contains_jwk_member = False
+        objects_to_check = [jwk_obj]
+        while objects_to_check:
+            obj = objects_to_check.pop()
+            if isinstance(obj, dict):
+                if "kty" in obj:
+                    contains_jwk_member = True
+                    break
+                objects_to_check.extend(obj.values())
+            elif isinstance(obj, list):
+                objects_to_check.extend(obj)
+        if contains_jwk_member:
             raise InvalidKeyError(
                 "The specified key looks like a JWK and should not be "
                 "used directly as an HMAC secret. Load it via "
