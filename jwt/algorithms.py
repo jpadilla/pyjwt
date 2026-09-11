@@ -428,7 +428,10 @@ class HMACAlgorithm(Algorithm):
         if obj.get("kty") != "oct":
             raise InvalidKeyError("Not an HMAC key")
 
-        return base64url_decode(obj["k"])
+        key_bytes = base64url_decode(obj["k"])
+        if len(key_bytes) == 0:
+            raise InvalidKeyError("HMAC key must not be empty.")
+        return key_bytes
 
     def check_key_length(self, key: bytes) -> str | None:
         min_length = self.hash_alg().digest_size

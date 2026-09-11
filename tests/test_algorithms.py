@@ -169,6 +169,12 @@ class TestAlgorithms:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
 
+    def test_hmac_from_jwk_should_reject_empty_key(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError, match="must not be empty"):
+            algo.from_jwk({"kty": "oct", "k": ""})
+
     @pytest.mark.parametrize("empty_key", ["", b""])
     def test_hmac_prepare_key_rejects_empty_key(
         self, empty_key: Union[str, bytes]
