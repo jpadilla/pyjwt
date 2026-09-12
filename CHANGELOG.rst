@@ -44,6 +44,16 @@ Fixed
 - Reject empty HMAC keys when represented as JWKs.
   See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 
+Fixed
+~~~~~
+
+- Reject ``exp``, ``nbf``, and ``iat`` claim values outside the range of
+  dates representable by ``datetime`` (up to year 9999). Python's
+  arbitrary-precision integers previously let claims like ``10**50`` pass
+  the plain comparisons used to validate these claims, even though such
+  values don't represent a real date and would overflow
+  ``datetime.fromtimestamp()`` in calling code.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
