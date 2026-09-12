@@ -475,7 +475,7 @@ class PyJWT:
     ) -> None:
         try:
             iat = int(payload["iat"])
-        except ValueError:
+        except (ValueError, TypeError, OverflowError):
             raise InvalidIssuedAtError(
                 "Issued At claim (iat) must be an integer."
             ) from None
@@ -490,7 +490,7 @@ class PyJWT:
     ) -> None:
         try:
             nbf = int(payload["nbf"])
-        except ValueError:
+        except (ValueError, TypeError, OverflowError):
             raise DecodeError("Not Before claim (nbf) must be an integer.") from None
 
         if nbf > (now + leeway):
@@ -504,7 +504,7 @@ class PyJWT:
     ) -> None:
         try:
             exp = int(payload["exp"])
-        except ValueError:
+        except (ValueError, TypeError, OverflowError):
             raise DecodeError(
                 "Expiration Time claim (exp) must be an integer."
             ) from None

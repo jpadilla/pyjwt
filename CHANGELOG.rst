@@ -44,6 +44,13 @@ Fixed
 - Reject empty HMAC keys when represented as JWKs.
   See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 
+Fixed
+~~~~~
+
+- Raise the documented ``PyJWTError`` subclass instead of leaking a
+  ``TypeError`` when the ``exp``, ``nbf``, or ``iat`` claim decodes to a
+  non-numeric, non-string value such as a list, dict, or ``null``.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
