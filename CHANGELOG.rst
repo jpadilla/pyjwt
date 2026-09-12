@@ -44,6 +44,14 @@ Fixed
 - Reject empty HMAC keys when represented as JWKs.
   See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 
+Added
+~~~~~
+
+- Add ``PyJWK.to_dict()``, ``PyJWK.to_json()``, ``PyJWKSet.to_dict()``, and
+  ``PyJWKSet.to_json()`` for serializing JWK objects back to dictionaries and
+  JSON, preserving all metadata such as ``kid``, ``use``, and ``alg``
+  (`#1106 <https://github.com/jpadilla/pyjwt/issues/1106>`__).
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
