@@ -72,11 +72,17 @@ class MissingRequiredClaimError(InvalidTokenError):
     """Raised when a claim that is required to be present is not contained
     in the claimset"""
 
-    def __init__(self, claim: str) -> None:
+    def __init__(self, claim: str, claims: list[str] | None = None) -> None:
+        # `.claim` remains the first missing claim for backward compatibility.
+        # `.claims` lists every missing required claim (issue #1189).
         self.claim = claim
+        self.claims = list(claims) if claims is not None else [claim]
 
     def __str__(self) -> str:
-        return f'Token is missing the "{self.claim}" claim'
+        if len(self.claims) == 1:
+            return f'Token is missing the "{self.claim}" claim'
+        missing = ", ".join(f'"{c}"' for c in self.claims)
+        return f"Token is missing the required claims: {missing}"
 
 
 class PyJWKError(PyJWTError):
