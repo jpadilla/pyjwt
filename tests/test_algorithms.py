@@ -1069,6 +1069,35 @@ class TestAlgorithmsRFC7520:
 
 @crypto_required
 class TestOKPAlgorithms:
+    @pytest.mark.parametrize("curve", ("Ed25519", "Ed448"))
+    @pytest.mark.parametrize("as_dict", (False, True))
+    def test_okp_jwk_should_reject_inconsistent_private_key(
+        self, curve: str, as_dict: bool
+    ) -> None:
+        with open(key_path(f"jwk_okp_key_{curve}.json")) as keyfile:
+            jwk = json.load(keyfile)
+
+        d = base64url_decode(jwk["d"])
+        jwk["d"] = (
+            base64.urlsafe_b64encode(bytes([d[0] ^ 1]) + d[1:]).rstrip(b"=").decode()
+        )
+
+        with pytest.raises(InvalidKeyError):
+            OKPAlgorithm.from_jwk(jwk if as_dict else json.dumps(jwk))
+
+    @pytest.mark.parametrize("curve", ("Ed25519", "Ed448"))
+    @pytest.mark.parametrize("length", (0, 1, 56, 58))
+    def test_okp_jwk_should_reject_private_key_with_invalid_public_length(
+        self, curve: str, length: int
+    ) -> None:
+        with open(key_path(f"jwk_okp_key_{curve}.json")) as keyfile:
+            jwk = json.load(keyfile)
+
+        jwk["x"] = base64.urlsafe_b64encode(b"\x00" * length).rstrip(b"=").decode()
+
+        with pytest.raises(InvalidKeyError):
+            OKPAlgorithm.from_jwk(jwk)
+
     hello_world_sig = b"Qxa47mk/azzUgmY2StAOguAd4P7YBLpyCfU3JdbaiWnXM4o4WibXwmIHvNYgN3frtE2fcyd8OYEaOiD/KiwkCg=="
     hello_world_sig_pem = b"9ueQE7PT8uudHIQb2zZZ7tB7k1X3jeTnIfOVvGCINZejrqQbru1EXPeuMlGcQEZrGkLVcfMmr99W/+byxfppAg=="
     hello_world = b"Hello World!"

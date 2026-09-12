@@ -1104,8 +1104,18 @@ if has_crypto:
                         return Ed25519PublicKey.from_public_bytes(x)
                     return Ed448PublicKey.from_public_bytes(x)
                 d = base64url_decode(obj.get("d"))
+                private_key: Ed25519PrivateKey | Ed448PrivateKey
                 if curve == "Ed25519":
-                    return Ed25519PrivateKey.from_private_bytes(d)
-                return Ed448PrivateKey.from_private_bytes(d)
+                    private_key = Ed25519PrivateKey.from_private_bytes(d)
+                else:
+                    private_key = Ed448PrivateKey.from_private_bytes(d)
+                if (
+                    private_key.public_key().public_bytes(
+                        encoding=Encoding.Raw, format=PublicFormat.Raw
+                    )
+                    != x
+                ):
+                    raise InvalidKeyError("Public key does not match private key")
+                return private_key
             except ValueError as err:
                 raise InvalidKeyError("Invalid key parameter") from err
