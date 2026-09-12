@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import json
 import math
 import threading
@@ -161,7 +162,7 @@ class PyJWKClient:
             opener = urllib.request.build_opener(*handlers)
             with opener.open(r, timeout=self.timeout) as response:
                 jwk_set = json.load(response)
-        except (URLError, TimeoutError) as e:
+        except (URLError, TimeoutError, http.client.HTTPException) as e:
             if isinstance(e, HTTPError):
                 e.close()
             raise PyJWKClientConnectionError(

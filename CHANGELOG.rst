@@ -44,6 +44,14 @@ Fixed
 - Reject empty HMAC keys when represented as JWKs.
   See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 
+Fixed
+~~~~~
+
+- Wrap ``http.client.HTTPException`` (e.g. ``IncompleteRead`` from a
+  truncated response) in ``PyJWKClient.fetch_data`` as
+  ``PyJWKClientConnectionError``, matching the other network failure
+  modes the method already documents.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
