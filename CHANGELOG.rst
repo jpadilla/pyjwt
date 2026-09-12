@@ -44,6 +44,12 @@ Fixed
 - Reject empty HMAC keys when represented as JWKs.
   See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 
+Fixed
+~~~~~
+
+- Include received and expected audience values in ``InvalidAudienceError``
+  messages for easier debugging (`#1099 <https://github.com/jpadilla/pyjwt/issues/1099>`__).
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
