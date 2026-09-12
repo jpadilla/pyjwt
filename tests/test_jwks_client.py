@@ -15,7 +15,7 @@ import pytest
 import jwt
 from jwt import PyJWKClient
 from jwt.jwks_client import _NoRedirectHandler
-from jwt.api_jwk import PyJWK
+from jwt.api_jwk import PyJWK, PyJWKSet
 from jwt.exceptions import PyJWKClientConnectionError, PyJWKClientError
 
 from .utils import crypto_required
@@ -187,6 +187,22 @@ class TestPyJWKClient:
             jwks_client = PyJWKClient(url)
             jwk_set = jwks_client.get_jwk_set()
 
+        assert len(jwk_set.keys) == 1
+
+    def test_get_jwk_set_with_pyjwkset_in_cache(self) -> None:
+        # gh-914: JWKSetCache.put() documents PyJWKSet as the cached value,
+        # so a cache hit holding a PyJWKSet must be returned, not rejected
+        # as "did not return a JSON object".
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        jwks_client.jwk_set_cache.put(
+            PyJWKSet.from_dict(RESPONSE_DATA_WITH_MATCHING_KID)
+        )
+
+        jwk_set = jwks_client.get_jwk_set()
+
+        assert isinstance(jwk_set, PyJWKSet)
         assert len(jwk_set.keys) == 1
 
     def test_get_signing_keys(self) -> None:
