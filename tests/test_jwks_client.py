@@ -1,10 +1,12 @@
 import contextlib
+import copy
 import io
 import json
 import ssl
 import threading
 import time
 from collections.abc import Iterator
+from typing import Any
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest import mock
 from urllib.error import HTTPError, URLError
@@ -373,15 +375,43 @@ class TestPyJWKClient:
 
         jwks_client = PyJWKClient(url)
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
-            jwks_client.get_jwk_set()
+            first = jwks_client.get_jwk_set()
 
         assert jwks_client.jwk_set_cache is not None
-        cached = jwks_client.jwk_set_cache.get()
+        assert jwks_client.jwk_set_cache.get() is first
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as repeated_call:
-            assert jwks_client.get_jwk_set() is cached
+            second = jwks_client.get_jwk_set()
 
+        assert second is first
         assert repeated_call.call_count == 0
+
+    def test_fetch_data_override_result_is_cached(self) -> None:
+        # A subclass may filter or transform `fetch_data()`'s result. That
+        # final value has to be what later cache hits serve, otherwise a key
+        # the subclass removed reappears on the second call.
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        dropped = "SECOND-KEY-KID"
+
+        two_keys = copy.deepcopy(RESPONSE_DATA_WITH_MATCHING_KID)
+        second_key = copy.deepcopy(two_keys["keys"][0])
+        second_key["kid"] = dropped
+        two_keys["keys"].append(second_key)
+
+        class FilteringClient(PyJWKClient):
+            def fetch_data(self) -> Any:
+                data = super().fetch_data()
+                return {"keys": [k for k in data["keys"] if k["kid"] != dropped]}
+
+        jwks_client = FilteringClient(url)
+        with mocked_success_response(two_keys):
+            first = [key.key_id for key in jwks_client.get_jwk_set().keys]
+
+        # No second mock: a cache hit must not reach the network.
+        second = [key.key_id for key in jwks_client.get_jwk_set().keys]
+
+        assert dropped not in first
+        assert second == first
 
     def test_cache_put_rejects_a_value_that_is_not_a_jwk_set(self) -> None:
         cache = JWKSetCache(300)

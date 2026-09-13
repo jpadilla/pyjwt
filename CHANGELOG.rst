@@ -32,6 +32,10 @@ Fixed
   so callers pre-populating the cache to avoid a network round-trip could not
   read it back in `#914 <https://github.com/jpadilla/pyjwt/issues/914>`__ and
   `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
+- ``PyJWKClient.get_jwk_set()`` now caches the key set it returns, so a
+  ``fetch_data()`` override that filters or transforms the JWKS is no longer
+  undone by the next cache hit in
+  `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
 
 `v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
 -----------------------------------------------------------------------
