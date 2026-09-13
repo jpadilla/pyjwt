@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import time
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, Union
 
 from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
 from .exceptions import (
@@ -181,12 +181,19 @@ class PyJWKSet:
         return iter(self.keys)
 
 
+# A JWK Set held in the client-side cache is either an already-parsed
+# ``PyJWKSet`` or the raw JSON payload it was parsed from: ``PyJWKClient``
+# caches the payload it fetched, while callers pre-populating the cache
+# themselves typically hand it a ``PyJWKSet``.
+CachedJWKSet = Union[PyJWKSet, dict[str, Any]]
+
+
 class PyJWTSetWithTimestamp:
-    def __init__(self, jwk_set: PyJWKSet):
+    def __init__(self, jwk_set: CachedJWKSet):
         self.jwk_set = jwk_set
         self.timestamp = time.monotonic()
 
-    def get_jwk_set(self) -> PyJWKSet:
+    def get_jwk_set(self) -> CachedJWKSet:
         return self.jwk_set
 
     def get_timestamp(self) -> float:

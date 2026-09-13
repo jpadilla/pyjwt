@@ -1,7 +1,7 @@
 import time
 from typing import Optional
 
-from .api_jwk import PyJWKSet, PyJWTSetWithTimestamp
+from .api_jwk import CachedJWKSet, PyJWTSetWithTimestamp
 
 
 class JWKSetCache:
@@ -9,14 +9,14 @@ class JWKSetCache:
         self.jwk_set_with_timestamp: Optional[PyJWTSetWithTimestamp] = None
         self.lifespan = lifespan
 
-    def put(self, jwk_set: PyJWKSet) -> None:
+    def put(self, jwk_set: Optional[CachedJWKSet]) -> None:
         if jwk_set is not None:
             self.jwk_set_with_timestamp = PyJWTSetWithTimestamp(jwk_set)
         else:
             # clear cache
             self.jwk_set_with_timestamp = None
 
-    def get(self) -> Optional[PyJWKSet]:
+    def get(self) -> Optional[CachedJWKSet]:
         if self.jwk_set_with_timestamp is None or self.is_expired():
             return None
 

@@ -195,6 +195,14 @@ class PyJWKClient:
         if data is None:
             data = self.fetch_data()
 
+        # The cache holds whatever was handed to `JWKSetCache.put()`:
+        # `fetch_data()` stores the raw JSON payload, while callers
+        # pre-populating the cache themselves store a `PyJWKSet`, which is
+        # what `put()` documents. Accept both rather than reporting an
+        # already-parsed key set as a bad endpoint response.
+        if isinstance(data, PyJWKSet):
+            return data
+
         if not isinstance(data, dict):
             raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 

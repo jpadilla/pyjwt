@@ -7,6 +7,15 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.14.0...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Return cached ``PyJWKSet`` values from ``PyJWKClient.get_jwk_set()`` instead
+  of raising ``PyJWKClientError("The JWKS endpoint did not return a JSON
+  object")``. ``JWKSetCache.put()`` documents ``PyJWKSet`` as the cached value,
+  so callers pre-populating the cache to avoid a network round-trip could not
+  read it back in `#914 <https://github.com/jpadilla/pyjwt/issues/914>`__
+
 `v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
 -----------------------------------------------------------------------
 
