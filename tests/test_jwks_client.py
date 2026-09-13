@@ -389,6 +389,15 @@ class TestPyJWKClient:
         with pytest.raises(PyJWKSetError, match="Invalid JWK Set value"):
             cache.put("not a jwk set")  # type: ignore[arg-type]
 
+    def test_cache_put_none_clears_the_cache(self) -> None:
+        cache = JWKSetCache(300)
+        cache.put(RESPONSE_DATA_WITH_MATCHING_KID)
+        assert cache.get() is not None
+
+        cache.put(None)
+
+        assert cache.get() is None
+
     def test_get_jwk_set_raises_when_endpoint_does_not_return_an_object(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
