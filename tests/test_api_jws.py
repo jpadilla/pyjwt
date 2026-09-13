@@ -631,6 +631,19 @@ class TestJWS:
 
         assert "Invalid header" in str(exc.value)
 
+    def test_decode_deeply_nested_header_throws_decode_error(self, jws: PyJWS) -> None:
+        nested_header = b"[" * 1000 + b"]" * 1000
+        example_jws = ".".join(
+            (
+                base64url_encode(nested_header).decode(),
+                "eyJoZWxsbyI6ICJ3b3JsZCJ9",
+                "tvagLDLoaiJKxOKqpBXSEGy7SYSifZhjntgm9ctpyj8",
+            )
+        )
+
+        with pytest.raises(DecodeError, match="Invalid header"):
+            jws.decode(example_jws, "secret", algorithms=["HS256"])
+
     def test_decode_invalid_payload_padding(self, jws: PyJWS) -> None:
         example_jws = (
             "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9"
@@ -656,6 +669,17 @@ class TestJWS:
             jws.decode(example_jws, example_secret, algorithms=["HS256"])
 
         assert "Invalid crypto padding" in str(exc.value)
+
+    def test_decode_rejects_non_canonical_crypto_segment(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "a" * 32
+        token = jws.encode(payload, secret, algorithm="HS256")
+        header, encoded_payload, signature = token.split(".")
+        mutated_token = ".".join((header, encoded_payload, f"{signature}!!!!"))
+
+        with pytest.raises(DecodeError, match="Invalid crypto padding"):
+            jws.decode(mutated_token, secret, algorithms=["HS256"])
 
     def test_decode_with_algo_none_should_fail(
         self, jws: PyJWS, payload: bytes
@@ -954,6 +978,20 @@ class TestJWS:
 
         jws.decode(jws_message, secret, algorithms=["HS256"], detached_payload=payload)
 
+    def test_decode_rejects_detached_payload_for_attached_content(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "secret"
+        jws_message = jws.encode(payload, secret, algorithm="HS256")
+
+        with pytest.raises(DecodeError, match="detached_payload.*b64.*false"):
+            jws.decode(
+                jws_message,
+                secret,
+                algorithms=["HS256"],
+                detached_payload=b"different payload",
+            )
+
     def test_encode_detached_content_with_b64_header(
         self, jws: PyJWS, payload: bytes
     ) -> None:
@@ -1226,3 +1264,11 @@ class TestJWS:
 
         with pytest.raises(InvalidTokenError, match="Unsupported critical extension"):
             jws.get_unverified_header(token)
+
+    def test_pyjwk_rejects_empty_hmac_key(self) -> None:
+        import jwt
+
+        with pytest.raises(jwt.InvalidKeyError, match="must not be empty"):
+            jwt.PyJWK.from_dict(
+                {"kty": "oct", "k": "", "kid": "active", "alg": "HS256"}
+            )

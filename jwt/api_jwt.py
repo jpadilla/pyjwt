@@ -76,16 +76,18 @@ class PyJWT:
         if options is None:
             return self.options
 
+        merged_options = cast("Options", dict(options))
+
         # (defensive) set defaults for verify_x to False if verify_signature is False
-        if not options.get("verify_signature", True):
-            options["verify_exp"] = options.get("verify_exp", False)
-            options["verify_nbf"] = options.get("verify_nbf", False)
-            options["verify_iat"] = options.get("verify_iat", False)
-            options["verify_aud"] = options.get("verify_aud", False)
-            options["verify_iss"] = options.get("verify_iss", False)
-            options["verify_sub"] = options.get("verify_sub", False)
-            options["verify_jti"] = options.get("verify_jti", False)
-        return {**self.options, **options}
+        if not merged_options.get("verify_signature", True):
+            merged_options["verify_exp"] = merged_options.get("verify_exp", False)
+            merged_options["verify_nbf"] = merged_options.get("verify_nbf", False)
+            merged_options["verify_iat"] = merged_options.get("verify_iat", False)
+            merged_options["verify_aud"] = merged_options.get("verify_aud", False)
+            merged_options["verify_iss"] = merged_options.get("verify_iss", False)
+            merged_options["verify_sub"] = merged_options.get("verify_sub", False)
+            merged_options["verify_jti"] = merged_options.get("verify_jti", False)
+        return {**self.options, **merged_options}
 
     def encode(
         self,

@@ -2,8 +2,10 @@ import contextlib
 import io
 import json
 import ssl
+import threading
 import time
 from collections.abc import Iterator
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest import mock
 from urllib.error import HTTPError, URLError
 from email.message import Message
@@ -12,6 +14,7 @@ import pytest
 
 import jwt
 from jwt import PyJWKClient
+from jwt.jwks_client import _NoRedirectHandler
 from jwt.api_jwk import PyJWK
 from jwt.exceptions import PyJWKClientConnectionError, PyJWKClientError
 
@@ -50,7 +53,10 @@ RESPONSE_DATA_NO_MATCHING_KID = {
 
 @contextlib.contextmanager
 def mocked_success_response(data: object) -> Iterator[mock.Mock]:
-    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+    with mock.patch("urllib.request.build_opener") as build_opener_mock:
+        opener = mock.Mock()
+        build_opener_mock.return_value = opener
+        urlopen_mock = opener.open
         response = mock.Mock()
         response.__enter__ = mock.Mock(return_value=response)
         response.__exit__ = mock.Mock()
@@ -61,7 +67,10 @@ def mocked_success_response(data: object) -> Iterator[mock.Mock]:
 
 @contextlib.contextmanager
 def mocked_failed_response() -> Iterator[mock.Mock]:
-    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+    with mock.patch("urllib.request.build_opener") as build_opener_mock:
+        opener = mock.Mock()
+        build_opener_mock.return_value = opener
+        urlopen_mock = opener.open
         urlopen_mock.side_effect = URLError("Fail to process the request.")
         yield urlopen_mock
 
@@ -70,7 +79,10 @@ def mocked_failed_response() -> Iterator[mock.Mock]:
 def mocked_first_call_wrong_kid_second_call_correct_kid(
     response_data_one: object, response_data_two: object
 ) -> Iterator[mock.Mock]:
-    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+    with mock.patch("urllib.request.build_opener") as build_opener_mock:
+        opener = mock.Mock()
+        build_opener_mock.return_value = opener
+        urlopen_mock = opener.open
         response = mock.Mock()
         response.__enter__ = mock.Mock(return_value=response)
         response.__exit__ = mock.Mock()
@@ -84,14 +96,20 @@ def mocked_first_call_wrong_kid_second_call_correct_kid(
 
 @contextlib.contextmanager
 def mocked_timeout() -> Iterator[mock.Mock]:
-    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+    with mock.patch("urllib.request.build_opener") as build_opener_mock:
+        opener = mock.Mock()
+        build_opener_mock.return_value = opener
+        urlopen_mock = opener.open
         urlopen_mock.side_effect = TimeoutError("timed out")
         yield urlopen_mock
 
 
 @contextlib.contextmanager
 def mocked_http_error_response() -> Iterator[tuple[mock.Mock, HTTPError]]:
-    with mock.patch("urllib.request.urlopen") as urlopen_mock:
+    with mock.patch("urllib.request.build_opener") as build_opener_mock:
+        opener = mock.Mock()
+        build_opener_mock.return_value = opener
+        urlopen_mock = opener.open
         http_error = HTTPError(
             url="https://example.com",
             code=401,
@@ -105,6 +123,50 @@ def mocked_http_error_response() -> Iterator[tuple[mock.Mock, HTTPError]]:
 
 @crypto_required
 class TestPyJWKClient:
+    def test_fetch_data_rejects_redirect_without_contacting_destination(self) -> None:
+        destination_requests = 0
+
+        class RedirectHandler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:  # noqa: N802 - stdlib handler API
+                nonlocal destination_requests
+                if self.path == "/start":
+                    self.send_response(302)
+                    self.send_header("Location", f"{base_url}/destination")
+                    self.end_headers()
+                else:
+                    destination_requests += 1
+                    self.send_response(200)
+                    self.end_headers()
+
+            def log_message(self, _format: str, *args: object) -> None:
+                return
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), RedirectHandler)
+        base_url = f"http://127.0.0.1:{server.server_port}"
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            client = PyJWKClient(
+                f"{base_url}/start", headers={"Authorization": "secret"}
+            )
+            with pytest.raises(PyJWKClientConnectionError):
+                client.fetch_data()
+            assert destination_requests == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join()
+
+    def test_redirect_handler_does_not_follow_redirects(self) -> None:
+        handler = _NoRedirectHandler()
+
+        assert (
+            handler.redirect_request(
+                mock.Mock(), mock.Mock(), 302, "Found", {}, "https://other.test"
+            )
+            is None
+        )
+
     def test_fetch_data_forwards_headers_to_correct_url(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
@@ -324,7 +386,7 @@ class TestPyJWKClient:
 
     def test_get_jwt_set_refresh_cache(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
-        jwks_client = PyJWKClient(url)
+        jwks_client = PyJWKClient(url, cooldown_duration=0)
 
         kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
 
@@ -348,6 +410,145 @@ class TestPyJWKClient:
                 RESPONSE_DATA_NO_MATCHING_KID, RESPONSE_DATA_NO_MATCHING_KID
             ):
                 jwks_client.get_signing_key(kid)
+
+    def test_unknown_kid_refresh_is_cooled_down(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "unknown-kid"
+        jwks_client = PyJWKClient(url, cooldown_duration=30)
+
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            opener = mock.Mock()
+            build_opener_mock.return_value = opener
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.return_value = json.dumps(RESPONSE_DATA_NO_MATCHING_KID)
+            opener.open.return_value = response
+
+            for _ in range(2):
+                with pytest.raises(PyJWKClientError, match="matches"):
+                    jwks_client.get_signing_key(kid)
+
+        assert opener.open.call_count == 1
+
+    def test_unknown_kid_refresh_runs_again_after_cooldown(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "unknown-kid"
+        jwks_client = PyJWKClient(url, cooldown_duration=0.01)
+
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            opener = mock.Mock()
+            build_opener_mock.return_value = opener
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.return_value = json.dumps(RESPONSE_DATA_NO_MATCHING_KID)
+            opener.open.return_value = response
+
+            clock = [0.0]
+            with mock.patch(
+                "jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]
+            ):
+                with pytest.raises(PyJWKClientError, match="matches"):
+                    jwks_client.get_signing_key(kid)
+                clock[0] = 0.02
+                with pytest.raises(PyJWKClientError, match="matches"):
+                    jwks_client.get_signing_key(kid)
+
+        assert opener.open.call_count == 2
+
+    def test_unknown_kid_refresh_serializes_concurrent_misses(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "unknown-kid"
+        jwks_client = PyJWKClient(url, cooldown_duration=30)
+        refresh_started = threading.Event()
+        second_done = threading.Event()
+        release_refresh = threading.Event()
+
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            opener = mock.Mock()
+            build_opener_mock.return_value = opener
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.return_value = json.dumps(RESPONSE_DATA_NO_MATCHING_KID)
+
+            opener.open.return_value = response
+            jwks_client.get_jwk_set()
+            jwks_client._last_successful_fetch = 0
+
+            def open_response(*args: object, **kwargs: object) -> mock.Mock:
+                if opener.open.call_count == 1:
+                    refresh_started.set()
+                    release_refresh.wait(timeout=5)
+                return response
+
+            opener.open.reset_mock()
+            opener.open.side_effect = open_response
+            errors: list[Exception] = []
+
+            def lookup() -> None:
+                try:
+                    jwks_client.get_signing_key(kid)
+                except PyJWKClientError as error:
+                    errors.append(error)
+
+            first = threading.Thread(target=lookup)
+
+            def second_lookup() -> None:
+                lookup()
+                second_done.set()
+
+            second = threading.Thread(target=second_lookup)
+            with mock.patch("jwt.jwks_client.time.monotonic", return_value=31):
+                first.start()
+                assert refresh_started.wait(timeout=5)
+                second.start()
+                assert not second_done.wait(timeout=0.1)
+                release_refresh.set()
+                first.join(timeout=5)
+                second.join(timeout=5)
+
+        assert len(errors) == 2
+        assert not first.is_alive()
+        assert not second.is_alive()
+        assert opener.open.call_count == 1
+
+    def test_unknown_kid_refresh_ignores_cooldown_when_cache_disabled(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "unknown-kid"
+        jwks_client = PyJWKClient(url, cache_jwk_set=False, cooldown_duration=30)
+
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            opener = mock.Mock()
+            build_opener_mock.return_value = opener
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.side_effect = [
+                json.dumps(RESPONSE_DATA_NO_MATCHING_KID),
+                json.dumps(RESPONSE_DATA_NO_MATCHING_KID),
+                json.dumps(RESPONSE_DATA_NO_MATCHING_KID),
+                json.dumps(RESPONSE_DATA_NO_MATCHING_KID),
+            ]
+            opener.open.return_value = response
+
+            for _ in range(2):
+                with pytest.raises(PyJWKClientError, match="matches"):
+                    jwks_client.get_signing_key(kid)
+
+        assert opener.open.call_count == 4
+
+    @pytest.mark.parametrize(
+        "cooldown_duration", [float("nan"), float("inf"), float("-inf")]
+    )
+    def test_unknown_kid_refresh_rejects_non_finite_cooldown(
+        self, cooldown_duration: float
+    ) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        with pytest.raises(PyJWKClientError, match="Cooldown duration"):
+            PyJWKClient(url, cooldown_duration=cooldown_duration)
 
     def test_get_jwt_set_invalid_lifespan(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
@@ -401,10 +602,19 @@ class TestPyJWKClient:
         ssl_ctx = ssl.create_default_context()
         jwks_client = PyJWKClient(url, ssl_context=ssl_ctx)
 
-        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as mock_request:
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            opener = mock.Mock()
+            build_opener_mock.return_value = opener
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.return_value = json.dumps(RESPONSE_DATA_WITH_MATCHING_KID)
+            opener.open.return_value = response
             jwk_set = jwks_client.get_jwk_set()
-            request_call = mock_request.call_args
-            assert request_call[1].get("context") is ssl_ctx
+            handlers = build_opener_mock.call_args.args
+            assert any(
+                getattr(handler, "_context", None) is ssl_ctx for handler in handlers
+            )
 
         assert jwk_set is not None
 
@@ -414,8 +624,8 @@ class TestPyJWKClient:
             url, ssl_context=ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
         )
 
-        with mock.patch("urllib.request.urlopen") as urlopen_mock:
-            urlopen_mock.side_effect = URLError(
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            build_opener_mock.return_value.open.side_effect = URLError(
                 ssl.SSLCertVerificationError("certificate verify failed")
             )
             with pytest.raises(PyJWKClientError):

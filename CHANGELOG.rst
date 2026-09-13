@@ -4,8 +4,45 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.13.0...HEAD>`__
-------------------------------------------------------------------------
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.14.0...HEAD>`__
+-------------------------------------------------------------------------
+
+`v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
+-----------------------------------------------------------------------
+
+Security
+~~~~~~~~
+
+- Harden HMAC key validation against public-key material supplied as JWK,
+  JWKS, array, encoded, BOM-prefixed, DER, or PEM input. See
+  `GHSA-r6x4-923q-g947 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-r6x4-923q-g947>`__,
+  `GHSA-ffc3-869f-jxw9 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-ffc3-869f-jxw9>`__,
+  `GHSA-p4g4-x82p-q773 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-p4g4-x82p-q773>`__,
+  and `GHSA-w2cx-738m-mc7w <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-w2cx-738m-mc7w>`__.
+- Reject automatic redirects when ``PyJWKClient`` fetches a JWKS, preventing
+  redirected destinations from being treated as trusted key sources. See
+  `GHSA-9v7f-9g4p-ffgj <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-9v7f-9g4p-ffgj>`__.
+- Limit repeated JWKS refreshes caused by unknown key IDs while preserving
+  normal key-rotation behavior. See
+  `GHSA-2gx3-rcp4-g85q <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-2gx3-rcp4-g85q>`__.
+- Handle deeply nested and malformed JWS/JWK input without uncaught recursion
+  errors or whole-set parsing failures. See
+  `GHSA-8wjv-2p76-3863 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-8wjv-2p76-3863>`__
+  and `GHSA-w6j9-cwv2-h6wq <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-w6j9-cwv2-h6wq>`__.
+- Enforce compact JWS encoding rules during decoding. See
+  `GHSA-hxm8-2xgr-2p9m <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-hxm8-2xgr-2p9m>`__.
+- Reject detached-payload arguments for attached JWS inputs. Thanks to `@xclow3n
+  <https://github.com/xclow3n>`__ for reporting this behavior; fixed in commit
+  `37b54877 <https://github.com/jpadilla/pyjwt/commit/37b54877bf7bea67e8149130e96929e3ec798122>`__.
+
+Fixed
+~~~~~
+
+- Apply HMAC key validation consistently when keys are loaded through
+  ``PyJWK`` and ``PyJWKClient``. See
+  `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
+- Reject empty HMAC keys when represented as JWKs.
+  See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------

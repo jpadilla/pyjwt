@@ -1,6 +1,7 @@
 import json
 import time
 from calendar import timegm
+from collections.abc import Iterator, MutableMapping
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
@@ -38,6 +39,61 @@ def payload() -> dict[str, object]:
 
 
 class TestJWT:
+    def test_decode_does_not_mutate_options_when_signature_verification_is_disabled(
+        self, jwt: PyJWT
+    ) -> None:
+        options: Options = {"verify_signature": False}
+        token = jwt.encode({"claim": "value"}, "a" * 32, algorithm="HS256")
+        original_options = options.copy()
+
+        jwt.decode(token, options=options)
+
+        assert options == original_options
+
+    def test_reused_options_do_not_disable_claim_verification(self, jwt: PyJWT) -> None:
+        options: Options = {"verify_signature": False}
+        token = jwt.encode({"exp": utc_timestamp() - 1}, "a" * 32, algorithm="HS256")
+
+        jwt.decode(token, options=options)
+        options["verify_signature"] = True
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(token, "a" * 32, algorithms=["HS256"], options=options)
+
+    def test_decode_complete_preserves_mutable_mapping_input(self, jwt: PyJWT) -> None:
+        class MappingWithoutCopy(MutableMapping[str, object]):
+            def __init__(self, values: dict[str, object]) -> None:
+                self._data = values
+
+            def __getitem__(self, key: str) -> object:
+                return self._data[key]
+
+            def __setitem__(self, key: str, value: object) -> None:
+                self._data[key] = value
+
+            def __delitem__(self, key: str) -> None:
+                del self._data[key]
+
+            def __iter__(self) -> Iterator[str]:
+                return iter(self._data)
+
+            def __len__(self) -> int:
+                return len(self._data)
+
+        options = MappingWithoutCopy({"verify_signature": False})
+        token = jwt.encode({"claim": "value"}, "a" * 32, algorithm="HS256")
+
+        jwt.decode_complete(token, options=options)  # type: ignore[arg-type]
+
+        assert dict(options) == {"verify_signature": False}
+
+    def test_constructor_does_not_mutate_options_input(self, jwt: PyJWT) -> None:
+        options: Options = {"verify_signature": False}
+
+        PyJWT(options=options)
+
+        assert options == {"verify_signature": False}
+
     def test_jwt_with_options(self) -> None:
         jwt = PyJWT(options={"verify_signature": False})
         assert jwt.options["verify_signature"] is False

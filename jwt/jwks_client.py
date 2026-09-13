@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import math
+import threading
+import time
 import urllib.request
 from functools import lru_cache
 from ssl import SSLContext
@@ -14,6 +17,19 @@ from .exceptions import PyJWKClientConnectionError, PyJWKClientError
 from .jwk_set_cache import JWKSetCache
 
 
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> urllib.request.Request | None:
+        return None
+
+
 class PyJWKClient:
     def __init__(
         self,
@@ -25,6 +41,7 @@ class PyJWKClient:
         headers: dict[str, Any] | None = None,
         timeout: float = 30,
         ssl_context: SSLContext | None = None,
+        cooldown_duration: float = 30,
     ):
         """A client for retrieving signing keys from a JWKS endpoint.
 
@@ -40,6 +57,14 @@ class PyJWKClient:
           when the cache is empty or expired.
         - ``lifespan``: Time in seconds before the cached JWK Set expires.
           Defaults to ``300`` (5 minutes). Must be greater than 0.
+
+        Unknown key IDs can trigger one forced refresh after the cooldown
+        period configured by ``cooldown_duration``. Every successful fetch
+        starts this cooldown, including the initial fetch and cache-expiry
+        fetches. A newly rotated key may therefore wait for the cooldown
+        period before it is fetched; set ``cooldown_duration`` to ``0`` to
+        disable this behavior. The cooldown is bypassed when
+        ``cache_jwk_set`` is ``False``.
 
         **Tier 2 — Signing key cache** (disabled by default):
         Caches individual signing keys (looked up by ``kid``) using an LRU
@@ -67,6 +92,9 @@ class PyJWKClient:
         :type timeout: float
         :param ssl_context: Optional SSL context for the request.
         :type ssl_context: ssl.SSLContext or None
+        :param cooldown_duration: Minimum time in seconds between forced
+            refreshes after an unknown key ID. Defaults to ``30``.
+        :type cooldown_duration: float
         """
         if headers is None:
             headers = {}
@@ -85,6 +113,18 @@ class PyJWKClient:
         self.headers = headers
         self.timeout = timeout
         self.ssl_context = ssl_context
+        if cooldown_duration < 0:
+            raise PyJWKClientError(
+                "Cooldown duration must be greater than or equal to 0, "
+                f'the input is "{cooldown_duration}"'
+            )
+        if not math.isfinite(cooldown_duration):
+            raise PyJWKClientError(
+                f'Cooldown duration must be finite, the input is "{cooldown_duration}"'
+            )
+        self.cooldown_duration = cooldown_duration
+        self._last_successful_fetch: float | None = None
+        self._client_lock = threading.RLock()
 
         if cache_jwk_set:
             # Init jwt set cache with default or given lifespan.
@@ -115,9 +155,11 @@ class PyJWKClient:
         """
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
-            with urllib.request.urlopen(
-                r, timeout=self.timeout, context=self.ssl_context
-            ) as response:
+            handlers: list[Any] = [_NoRedirectHandler()]
+            if self.ssl_context is not None:
+                handlers.append(urllib.request.HTTPSHandler(context=self.ssl_context))
+            opener = urllib.request.build_opener(*handlers)
+            with opener.open(r, timeout=self.timeout) as response:
                 jwk_set = json.load(response)
         except (URLError, TimeoutError) as e:
             if isinstance(e, HTTPError):
@@ -132,6 +174,7 @@ class PyJWKClient:
         # wipe that breaks legitimate auth.
         if self.jwk_set_cache is not None:
             self.jwk_set_cache.put(jwk_set)
+        self._last_successful_fetch = time.monotonic()
         return jwk_set
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
@@ -171,6 +214,10 @@ class PyJWKClient:
         :raises PyJWKClientError: If no signing keys are found.
         """
         jwk_set = self.get_jwk_set(refresh)
+        return self._get_signing_keys_from_jwk_set(jwk_set)
+
+    @staticmethod
+    def _get_signing_keys_from_jwk_set(jwk_set: PyJWKSet) -> list[PyJWK]:
         signing_keys = [
             jwk_set_key
             for jwk_set_key in jwk_set.keys
@@ -185,8 +232,9 @@ class PyJWKClient:
     def get_signing_key(self, kid: str) -> PyJWK:
         """Return the signing key matching the given ``kid``.
 
-        If no match is found in the current JWK Set, the set is
-        refreshed from the endpoint and the lookup is retried once.
+        If no match is found in the current JWK Set, the set is refreshed
+        from the endpoint and the lookup is retried once when the refresh
+        cooldown permits it.
 
         :param kid: The key ID to look up.
         :type kid: str
@@ -195,20 +243,28 @@ class PyJWKClient:
         :raises PyJWKClientError: If no matching key is found after
             refreshing.
         """
-        signing_keys = self.get_signing_keys()
-        signing_key = self.match_kid(signing_keys, kid)
-
-        if not signing_key:
-            # If no matching signing key from the jwk set, refresh the jwk set and try again.
-            signing_keys = self.get_signing_keys(refresh=True)
+        with self._client_lock:
+            signing_keys = self.get_signing_keys()
             signing_key = self.match_kid(signing_keys, kid)
 
             if not signing_key:
-                raise PyJWKClientError(
-                    f'Unable to find a signing key that matches: "{kid}"'
+                cooling_down = (
+                    self.jwk_set_cache is not None
+                    and self._last_successful_fetch is not None
+                    and time.monotonic() - self._last_successful_fetch
+                    < self.cooldown_duration
                 )
+                if not cooling_down:
+                    signing_keys = self.get_signing_keys(refresh=True)
+                    self._last_successful_fetch = time.monotonic()
+                    signing_key = self.match_kid(signing_keys, kid)
 
-        return signing_key
+                if not signing_key:
+                    raise PyJWKClientError(
+                        f'Unable to find a signing key that matches: "{kid}"'
+                    )
+
+            return signing_key
 
     def get_signing_key_from_jwt(self, token: str | bytes) -> PyJWK:
         """Return the signing key for a JWT by reading its ``kid`` header.

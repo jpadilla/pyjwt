@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Union, cast
+from typing import Callable, Union, cast
 
 import pytest
 
@@ -12,6 +12,7 @@ from .keys import load_ec_pub_key_p_521, load_hmac_key, load_rsa_pub_key
 from .utils import crypto_required, key_path
 
 if has_crypto:
+    from cryptography import x509
     from cryptography.hazmat.primitives.asymmetric.ec import (
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
@@ -27,6 +28,10 @@ if has_crypto:
     from cryptography.hazmat.primitives.asymmetric.rsa import (
         RSAPrivateKey,
         RSAPublicKey,
+    )
+    from cryptography.hazmat.primitives.serialization import (
+        Encoding,
+        PublicFormat,
     )
 
     from jwt.algorithms import ECAlgorithm, OKPAlgorithm, RSAAlgorithm, RSAPSSAlgorithm
@@ -89,6 +94,48 @@ class TestAlgorithms:
             with open(key_path(key)) as keyfile:
                 algo.prepare_key(keyfile.read())
 
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            lambda key: key.replace(b"-----END", b"\t-----END"),
+            lambda key: key.replace(b"\n", b"\r"),
+            lambda key: key.replace(b"\n", b""),
+        ],
+    )
+    def test_hmac_should_reject_loader_accepted_pem_mutations(
+        self, mutation: Callable[[bytes], bytes]
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        with open(key_path("testkey2_rsa.pub.pem"), "rb") as keyfile:
+            mutated_key = mutation(keyfile.read())
+
+        with pytest.raises(InvalidKeyError):
+            algo.prepare_key(mutated_key)
+
+    def test_hmac_should_accept_incomplete_pem_marker(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = b"-----BEGIN PUBLIC KEY-----" * 10000
+
+        assert algo.prepare_key(key) == key
+
+    def test_hmac_should_reject_a_later_pem_block(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        with open(key_path("testkey2_rsa.pub.pem"), "rb") as keyfile:
+            key = b"-----BEGIN PUBLIC KEY-----" + keyfile.read()
+
+        with pytest.raises(InvalidKeyError):
+            algo.prepare_key(key)
+
+    def test_hmac_should_reject_a_pem_block_after_an_overlapping_end_marker(
+        self,
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        with open(key_path("testkey2_rsa.pub.pem"), "rb") as keyfile:
+            key = b"-----END CERTIFICATE" + keyfile.read()
+
+        with pytest.raises(InvalidKeyError):
+            algo.prepare_key(key)
+
     def test_hmac_jwk_should_parse_and_verify(self) -> None:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
@@ -122,6 +169,12 @@ class TestAlgorithms:
             with pytest.raises(InvalidKeyError):
                 algo.from_jwk(keyfile.read())
 
+    def test_hmac_from_jwk_should_reject_empty_key(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError, match="must not be empty"):
+            algo.from_jwk({"kty": "oct", "k": ""})
+
     @pytest.mark.parametrize("empty_key", ["", b""])
     def test_hmac_prepare_key_rejects_empty_key(
         self, empty_key: Union[str, bytes]
@@ -147,12 +200,167 @@ class TestAlgorithms:
             with pytest.raises(InvalidKeyError, match="looks like a JWK"):
                 algo.prepare_key(keyfile.read())
 
+    @pytest.mark.parametrize("container", ("jwks", "array", "nested-array", "bom-jwks"))
+    def test_hmac_prepare_key_rejects_public_jwk_containers(
+        self, container: str
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            public_jwk = json.load(keyfile)
+
+        if container == "jwks":
+            key: Union[str, bytes] = json.dumps({"keys": [public_jwk]})
+        elif container == "array":
+            key = json.dumps([public_jwk])
+        elif container == "nested-array":
+            key = json.dumps([[public_jwk]])
+        else:
+            key = b"\xef\xbb\xbf" + json.dumps({"keys": [public_jwk]}).encode()
+
+        with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+            algo.prepare_key(key)
+
+    def test_hmac_prepare_key_rejects_deep_public_jwk_array(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        depth = 20000
+        key = b"[" * depth + b'{"kty":"RSA"}' + b"]" * depth
+
+        with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+            algo.prepare_key(key)
+
+    def test_hmac_prepare_key_rejects_deep_public_jwk_array_with_escaped_kty(
+        self,
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        depth = 20000
+        key = b"[" * depth + b'{"\\u006bty":"RSA"}' + b"]" * depth
+
+        with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+            algo.prepare_key(key)
+
+    def test_hmac_prepare_key_accepts_deep_array_secret_with_kty_string(
+        self,
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        depth = 20000
+        key = b'["kty",' + b"[" * depth + b"0" + b"]" * depth + b"]"
+
+        assert algo.prepare_key(key) == key
+
+    def test_hmac_prepare_key_rejects_jwks_with_oversized_integer(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            public_jwk = json.load(keyfile)
+        key = json.dumps({"keys": [public_jwk], "extra": 0})
+        key = key.replace('"extra": 0', '"extra": ' + "1" * 5000)
+
+        with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+            algo.prepare_key(key)
+
+    @pytest.mark.parametrize(
+        "encoding",
+        [
+            "utf-8",
+            "utf-8-sig",
+            "utf-16",
+            "utf-16-le",
+            "utf-16-be",
+            "utf-32",
+            "utf-32-le",
+            "utf-32-be",
+        ],
+    )
+    def test_hmac_prepare_key_rejects_bom_prefixed_jwk_json(
+        self, encoding: str
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with open(key_path("jwk_rsa_pub.json"), encoding="utf-8") as keyfile:
+            with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+                algo.prepare_key((" \n" + keyfile.read()).encode(encoding))
+
     def test_hmac_prepare_key_accepts_json_without_kty(self) -> None:
         # JSON that doesn't look like a JWK (no "kty") should not be misclassified.
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 
         key = algo.prepare_key('{"this": "is just a json-shaped secret"}')
         assert key == b'{"this": "is just a json-shaped secret"}'
+
+    def test_hmac_prepare_key_accepts_deep_non_jwk_bytes(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = b"[" * 1100 + b"0" + b"]" * 1100
+
+        assert algo.prepare_key(key) == key
+
+    def test_hmac_prepare_key_rejects_deep_jwk_object(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = b'{"kty":"RSA","nested":' + b"[" * 1100 + b"0" + b"]" * 1100 + b"}"
+
+        with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+            algo.prepare_key(key)
+
+    @pytest.mark.parametrize(
+        "encoding",
+        [
+            "utf-8",
+            "utf-8-sig",
+            "utf-16",
+            "utf-16-le",
+            "utf-16-be",
+            "utf-32",
+            "utf-32-le",
+            "utf-32-be",
+        ],
+    )
+    def test_hmac_prepare_key_rejects_deep_jwk_with_surrogate(
+        self, encoding: str
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        key = (
+            '{"kty":"RSA","extra":"\ud800","nested":'
+            + "[" * 1100
+            + "0"
+            + "]" * 1100
+            + "}"
+        ).encode(encoding, errors="surrogatepass")
+
+        with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+            algo.prepare_key(key)
+
+    @crypto_required
+    @pytest.mark.parametrize(
+        "key_format_name",
+        ("SubjectPublicKeyInfo", "PKCS1"),
+    )
+    def test_hmac_prepare_key_rejects_der_public_key(
+        self, key_format_name: str
+    ) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        public_key = cast(RSAPublicKey, load_rsa_pub_key())
+        der_key = public_key.public_bytes(
+            Encoding.DER, getattr(PublicFormat, key_format_name)
+        )
+
+        with pytest.raises(InvalidKeyError, match="asymmetric key"):
+            algo.prepare_key(der_key)
+
+    @crypto_required
+    def test_hmac_prepare_key_rejects_der_certificate(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        with open(key_path("testkey_rsa.cer"), "rb") as certificate_file:
+            certificate = x509.load_pem_x509_certificate(certificate_file.read())
+        der_certificate = certificate.public_bytes(Encoding.DER)
+
+        with pytest.raises(InvalidKeyError, match="x509 certificate"):
+            algo.prepare_key(der_certificate)
+
+    @crypto_required
+    def test_hmac_prepare_key_accepts_non_key_binary_secret(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        secret = b"\x30\x82not-a-der-key"
+
+        assert algo.prepare_key(secret) == secret
 
     @crypto_required
     def test_rsa_should_parse_pem_public_key(self) -> None:
@@ -861,6 +1069,35 @@ class TestAlgorithmsRFC7520:
 
 @crypto_required
 class TestOKPAlgorithms:
+    @pytest.mark.parametrize("curve", ("Ed25519", "Ed448"))
+    @pytest.mark.parametrize("as_dict", (False, True))
+    def test_okp_jwk_should_reject_inconsistent_private_key(
+        self, curve: str, as_dict: bool
+    ) -> None:
+        with open(key_path(f"jwk_okp_key_{curve}.json")) as keyfile:
+            jwk = json.load(keyfile)
+
+        d = base64url_decode(jwk["d"])
+        jwk["d"] = (
+            base64.urlsafe_b64encode(bytes([d[0] ^ 1]) + d[1:]).rstrip(b"=").decode()
+        )
+
+        with pytest.raises(InvalidKeyError):
+            OKPAlgorithm.from_jwk(jwk if as_dict else json.dumps(jwk))
+
+    @pytest.mark.parametrize("curve", ("Ed25519", "Ed448"))
+    @pytest.mark.parametrize("length", (0, 1, 56, 58))
+    def test_okp_jwk_should_reject_private_key_with_invalid_public_length(
+        self, curve: str, length: int
+    ) -> None:
+        with open(key_path(f"jwk_okp_key_{curve}.json")) as keyfile:
+            jwk = json.load(keyfile)
+
+        jwk["x"] = base64.urlsafe_b64encode(b"\x00" * length).rstrip(b"=").decode()
+
+        with pytest.raises(InvalidKeyError):
+            OKPAlgorithm.from_jwk(jwk)
+
     hello_world_sig = b"Qxa47mk/azzUgmY2StAOguAd4P7YBLpyCfU3JdbaiWnXM4o4WibXwmIHvNYgN3frtE2fcyd8OYEaOiD/KiwkCg=="
     hello_world_sig_pem = b"9ueQE7PT8uudHIQb2zZZ7tB7k1X3jeTnIfOVvGCINZejrqQbru1EXPeuMlGcQEZrGkLVcfMmr99W/+byxfppAg=="
     hello_world = b"Hello World!"
