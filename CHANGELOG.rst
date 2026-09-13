@@ -51,6 +51,11 @@ Fixed
   ``TypeError`` when the ``exp``, ``nbf``, or ``iat`` claim decodes to a
   non-numeric, non-string value such as a list, dict, or ``null``.
 
+Added
+~~~~~
+
+- Support Python 3.15 by @kytta in `#1202 <https://github.com/jpadilla/pyjwt/pull/1202>`__
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
