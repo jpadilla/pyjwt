@@ -14,12 +14,14 @@ Changed
   payload, so a cache hit no longer re-parses every key. ``JWKSetCache.put()``
   accepts either form and raises ``PyJWKSetError`` for anything else. As a
   result, ``PyJWKClient.get_jwk_set()`` returns the same ``PyJWKSet`` instance
-  for as long as it stays cached, rather than a freshly built one per call.
+  for as long as it stays cached, rather than a freshly built one per call in
+  `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
 - ``PyJWKClient.fetch_data()`` now raises
   ``PyJWKClientError("The JWKS endpoint did not return a JSON object")`` when
   the endpoint response is not a JSON object, instead of returning it for
   ``get_jwk_set()`` to reject. Callers reaching the JWKS through
-  ``get_jwk_set()`` see the same error as before.
+  ``get_jwk_set()`` see the same error as before in
+  `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
 
 Fixed
 ~~~~~
@@ -28,7 +30,8 @@ Fixed
   of raising ``PyJWKClientError("The JWKS endpoint did not return a JSON
   object")``. ``JWKSetCache.put()`` documents ``PyJWKSet`` as the cached value,
   so callers pre-populating the cache to avoid a network round-trip could not
-  read it back in `#914 <https://github.com/jpadilla/pyjwt/issues/914>`__
+  read it back in `#914 <https://github.com/jpadilla/pyjwt/issues/914>`__ and
+  `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
 
 `v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
 -----------------------------------------------------------------------
