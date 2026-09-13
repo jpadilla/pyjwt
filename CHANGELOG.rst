@@ -7,6 +7,16 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.14.0...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Treat malformed JWK Set members as unusable keys rather than letting
+  ``AttributeError`` or ``TypeError`` escape ``PyJWKSet``. A member that is not
+  a JSON object is skipped, a key whose components have the wrong type raises
+  ``InvalidKeyError`` and is skipped, and a set left with no usable keys raises
+  ``PyJWKSetError``. A single bad entry no longer fails an otherwise usable
+  JWK Set.
+
 `v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
 -----------------------------------------------------------------------
 
