@@ -7,6 +7,20 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.14.0...HEAD>`__
 -------------------------------------------------------------------------
 
+Changed
+~~~~~~~
+
+- ``JWKSetCache`` now stores the parsed ``PyJWKSet`` rather than the raw JWKS
+  payload, so a cache hit no longer re-parses every key. ``JWKSetCache.put()``
+  accepts either form and raises ``PyJWKSetError`` for anything else. As a
+  result, ``PyJWKClient.get_jwk_set()`` returns the same ``PyJWKSet`` instance
+  for as long as it stays cached, rather than a freshly built one per call.
+- ``PyJWKClient.fetch_data()`` now raises
+  ``PyJWKClientError("The JWKS endpoint did not return a JSON object")`` when
+  the endpoint response is not a JSON object, instead of returning it for
+  ``get_jwk_set()`` to reject. Callers reaching the JWKS through
+  ``get_jwk_set()`` see the same error as before.
+
 Fixed
 ~~~~~
 

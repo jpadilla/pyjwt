@@ -16,7 +16,12 @@ import jwt
 from jwt import PyJWKClient
 from jwt.jwks_client import _NoRedirectHandler
 from jwt.api_jwk import PyJWK, PyJWKSet
-from jwt.exceptions import PyJWKClientConnectionError, PyJWKClientError
+from jwt.exceptions import (
+    PyJWKClientConnectionError,
+    PyJWKClientError,
+    PyJWKSetError,
+)
+from jwt.jwk_set_cache import JWKSetCache
 
 from .utils import crypto_required
 
@@ -351,15 +356,46 @@ class TestPyJWKClient:
         assert isinstance(jwk_set, PyJWKSet)
         assert jwk_set[kid].key_id == kid
 
-    def test_get_jwk_set_raises_for_invalid_cached_value(self) -> None:
+    def test_client_caches_the_parsed_jwk_set(self) -> None:
+        # The cache stores the parsed `PyJWKSet`, not the raw payload, so
+        # every cache hit is served without re-parsing each key.
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url)
-        assert jwks_client.jwk_set_cache is not None
-        jwks_client.jwk_set_cache.put("not a jwk set")  # type: ignore[arg-type]
-
-        with pytest.raises(PyJWKClientError, match="did not return a JSON object"):
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
             jwks_client.get_jwk_set()
+
+        assert jwks_client.jwk_set_cache is not None
+        assert isinstance(jwks_client.jwk_set_cache.get(), PyJWKSet)
+
+    def test_get_jwk_set_reuses_the_cached_instance(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            jwks_client.get_jwk_set()
+
+        assert jwks_client.jwk_set_cache is not None
+        cached = jwks_client.jwk_set_cache.get()
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as repeated_call:
+            assert jwks_client.get_jwk_set() is cached
+
+        assert repeated_call.call_count == 0
+
+    def test_cache_put_rejects_a_value_that_is_not_a_jwk_set(self) -> None:
+        cache = JWKSetCache(300)
+
+        with pytest.raises(PyJWKSetError, match="Invalid JWK Set value"):
+            cache.put("not a jwk set")  # type: ignore[arg-type]
+
+    def test_get_jwk_set_raises_when_endpoint_does_not_return_an_object(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with mocked_success_response([{"kty": "RSA"}]):
+            with pytest.raises(PyJWKClientError, match="did not return a JSON object"):
+                jwks_client.get_jwk_set()
 
     def test_get_jwt_set_cache_expired_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
