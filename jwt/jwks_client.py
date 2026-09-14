@@ -152,6 +152,10 @@ class PyJWKClient:
 
         :returns: The parsed JWK Set as a dictionary.
         :raises PyJWKClientConnectionError: If the HTTP request fails.
+        :raises PyJWKClientError: If the endpoint does not return a JSON
+            object.
+        :raises PyJWKSetError: If the JWK Set cache is enabled and the
+            response contains no usable keys.
         """
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
@@ -167,6 +171,11 @@ class PyJWKClient:
             raise PyJWKClientConnectionError(
                 f'Fail to fetch data from the url, err: "{e}"'
             ) from e
+
+        # Validate the payload before it reaches the cache, so an endpoint
+        # returning something that isn't a JSON object is reported as such
+        # rather than as a malformed JWK Set.
+        jwk_set = self._as_jwk_set_payload(jwk_set)
 
         # Only update the cache on a successful fetch. Writing in a
         # `finally` block with `jwk_set=None` on error clears any
@@ -189,16 +198,37 @@ class PyJWKClient:
             object.
         """
         data = None
+        fetched = False
         if self.jwk_set_cache is not None and not refresh:
             data = self.jwk_set_cache.get()
 
         if data is None:
             data = self.fetch_data()
+            fetched = True
 
+        # A cache hit is already parsed, so serve it as-is. Only a fresh
+        # fetch reaches the check below, which still matters because
+        # `fetch_data()` may be overridden by a subclass.
+        if isinstance(data, PyJWKSet):
+            jwk_set = data
+        else:
+            jwk_set = PyJWKSet.from_dict(self._as_jwk_set_payload(data))
+
+        # `fetch_data()` caches the payload it received from the endpoint,
+        # but a subclass may filter or transform it before returning. Cache
+        # the value actually being returned, so later cache hits serve the
+        # same key set as this call rather than the pre-transform one.
+        if fetched and self.jwk_set_cache is not None:
+            self.jwk_set_cache.put(jwk_set)
+
+        return jwk_set
+
+    @staticmethod
+    def _as_jwk_set_payload(data: Any) -> dict[str, Any]:
         if not isinstance(data, dict):
             raise PyJWKClientError("The JWKS endpoint did not return a JSON object")
 
-        return PyJWKSet.from_dict(data)
+        return data
 
     def get_signing_keys(self, refresh: bool = False) -> list[PyJWK]:
         """Return all signing keys from the JWK Set.

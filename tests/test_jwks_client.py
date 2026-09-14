@@ -1,10 +1,12 @@
 import contextlib
+import copy
 import io
 import json
 import ssl
 import threading
 import time
 from collections.abc import Iterator
+from typing import Any
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest import mock
 from urllib.error import HTTPError, URLError
@@ -15,8 +17,13 @@ import pytest
 import jwt
 from jwt import PyJWKClient
 from jwt.jwks_client import _NoRedirectHandler
-from jwt.api_jwk import PyJWK
-from jwt.exceptions import PyJWKClientConnectionError, PyJWKClientError
+from jwt.api_jwk import PyJWK, PyJWKSet
+from jwt.exceptions import (
+    PyJWKClientConnectionError,
+    PyJWKClientError,
+    PyJWKSetError,
+)
+from jwt.jwk_set_cache import JWKSetCache
 
 from .utils import crypto_required
 
@@ -313,6 +320,121 @@ class TestPyJWKClient:
             jwks_client.get_jwk_set()
 
         assert repeated_call.call_count == 0
+
+    def test_get_jwk_set_returns_pyjwkset_cached_by_the_client(self) -> None:
+        # Regression for #914: whatever the client itself stores in the JWK
+        # Set cache must be readable back out of it on the next call.
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            first = jwks_client.get_jwk_set()
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as repeated_call:
+            second = jwks_client.get_jwk_set()
+
+        assert repeated_call.call_count == 0
+        assert isinstance(second, PyJWKSet)
+        assert [key.key_id for key in second.keys] == [key.key_id for key in first.keys]
+
+    def test_get_jwk_set_accepts_externally_cached_pyjwkset(self) -> None:
+        # Regression for #914: `JWKSetCache.put()` documents `PyJWKSet` as the
+        # cached value, so callers may pre-populate the cache with one to skip
+        # the network round-trip. Reading it back used to raise
+        # PyJWKClientError("The JWKS endpoint did not return a JSON object").
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
+
+        jwks_client = PyJWKClient(url)
+        assert jwks_client.jwk_set_cache is not None
+        jwks_client.jwk_set_cache.put(
+            PyJWKSet.from_dict(RESPONSE_DATA_WITH_MATCHING_KID)
+        )
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as call:
+            jwk_set = jwks_client.get_jwk_set()
+
+        assert call.call_count == 0
+        assert isinstance(jwk_set, PyJWKSet)
+        assert jwk_set[kid].key_id == kid
+
+    def test_client_caches_the_parsed_jwk_set(self) -> None:
+        # The cache stores the parsed `PyJWKSet`, not the raw payload, so
+        # every cache hit is served without re-parsing each key.
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            jwks_client.get_jwk_set()
+
+        assert jwks_client.jwk_set_cache is not None
+        assert isinstance(jwks_client.jwk_set_cache.get(), PyJWKSet)
+
+    def test_get_jwk_set_reuses_the_cached_instance(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            first = jwks_client.get_jwk_set()
+
+        assert jwks_client.jwk_set_cache is not None
+        assert jwks_client.jwk_set_cache.get() is first
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as repeated_call:
+            second = jwks_client.get_jwk_set()
+
+        assert second is first
+        assert repeated_call.call_count == 0
+
+    def test_fetch_data_override_result_is_cached(self) -> None:
+        # A subclass may filter or transform `fetch_data()`'s result. That
+        # final value has to be what later cache hits serve, otherwise a key
+        # the subclass removed reappears on the second call.
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        dropped = "SECOND-KEY-KID"
+
+        two_keys = copy.deepcopy(RESPONSE_DATA_WITH_MATCHING_KID)
+        second_key = copy.deepcopy(two_keys["keys"][0])
+        second_key["kid"] = dropped
+        two_keys["keys"].append(second_key)
+
+        class FilteringClient(PyJWKClient):
+            def fetch_data(self) -> Any:
+                data = super().fetch_data()
+                return {"keys": [k for k in data["keys"] if k["kid"] != dropped]}
+
+        jwks_client = FilteringClient(url)
+        with mocked_success_response(two_keys):
+            first = [key.key_id for key in jwks_client.get_jwk_set().keys]
+
+        # No second mock: a cache hit must not reach the network.
+        second = [key.key_id for key in jwks_client.get_jwk_set().keys]
+
+        assert dropped not in first
+        assert second == first
+
+    def test_cache_put_rejects_a_value_that_is_not_a_jwk_set(self) -> None:
+        cache = JWKSetCache(300)
+
+        with pytest.raises(PyJWKSetError, match="Invalid JWK Set value"):
+            cache.put("not a jwk set")  # type: ignore[arg-type]
+
+    def test_cache_put_none_clears_the_cache(self) -> None:
+        cache = JWKSetCache(300)
+        cache.put(RESPONSE_DATA_WITH_MATCHING_KID)
+        assert cache.get() is not None
+
+        cache.put(None)
+
+        assert cache.get() is None
+
+    def test_get_jwk_set_raises_when_endpoint_does_not_return_an_object(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with mocked_success_response([{"kty": "RSA"}]):
+            with pytest.raises(PyJWKClientError, match="did not return a JSON object"):
+                jwks_client.get_jwk_set()
 
     def test_get_jwt_set_cache_expired_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"

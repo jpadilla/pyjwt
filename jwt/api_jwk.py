@@ -81,7 +81,7 @@ class PyJWK:
 
         try:
             self.key = self.Algorithm.from_jwk(self._jwk_data)
-        except ValueError as error:
+        except (TypeError, ValueError) as error:
             raise InvalidKeyError(
                 f"Unable to construct key from JWK: {error}"
             ) from error
@@ -148,6 +148,9 @@ class PyJWKSet:
             raise PyJWKSetError("Invalid JWK Set value")
 
         for key in keys:
+            if not isinstance(key, dict):
+                # skip members that aren't JWK objects
+                continue
             try:
                 self.keys.append(PyJWK(key))
             except PyJWTError as error:
