@@ -196,6 +196,7 @@ class TestPyJWKClient:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         jwks_client = PyJWKClient(url)
+        assert jwks_client.jwk_set_cache is not None
         jwks_client.jwk_set_cache.put(
             PyJWKSet.from_dict(RESPONSE_DATA_WITH_MATCHING_KID)
         )

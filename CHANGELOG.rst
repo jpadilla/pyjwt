@@ -7,6 +7,12 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.14.0...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Return a ``PyJWKSet`` from ``PyJWKClient.get_jwk_set()`` when the JWK Set
+  cache holds one, instead of raising ``PyJWKClientError``.
+
 `v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
 -----------------------------------------------------------------------
 
