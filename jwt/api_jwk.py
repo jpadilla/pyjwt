@@ -37,9 +37,9 @@ class PyJWK:
         if not algorithm and isinstance(self._jwk_data, dict):
             algorithm = self._jwk_data.get("alg", None)
 
+        crv = self._jwk_data.get("crv", None)
         if not algorithm:
             # Determine alg with kty (and crv).
-            crv = self._jwk_data.get("crv", None)
             if kty == "EC":
                 if crv == "P-256" or not crv:
                     algorithm = "ES256"
@@ -58,7 +58,7 @@ class PyJWK:
             elif kty == "OKP":
                 if not crv:
                     raise InvalidKeyError(f"crv is not found: {self._jwk_data}")
-                if crv == "Ed25519":
+                if crv in ("Ed25519", "Ed448"):
                     algorithm = "EdDSA"
                 else:
                     raise InvalidKeyError(f"Unsupported crv: {crv}")
@@ -69,6 +69,14 @@ class PyJWK:
             raise MissingCryptographyError(
                 f"{algorithm} requires 'cryptography' to be installed."
             )
+
+        # For the OKP key type, the optional ‘alg’ can be either a polymorphic
+        # algorithm identifier (EdDSA), or a fully-specified algorithm
+        # identifier (Ed25519 or Ed448), in which case it must match the value
+        # in the required curve field. (This check cannot be done above because
+        # the OKP inference branch above only runs when the ‘alg’ is missing.)
+        if kty == "OKP" and algorithm in ("Ed25519", "Ed448") and algorithm != crv:
+            raise InvalidKeyError(f"Unsupported crv for {algorithm}: {crv}")
 
         self.algorithm_name = algorithm
 

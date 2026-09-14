@@ -87,6 +87,12 @@ Fixed
   ``TypeError`` when the ``exp``, ``nbf``, or ``iat`` claim decodes to a
   non-numeric, non-string value such as a list, dict, or ``null``.
 
+Added
+~~~~~
+
+- Support fully-specified algorithm identifiers ``Ed25519`` and
+  ``Ed448`` as defined in RFC 9864.
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 

@@ -24,6 +24,7 @@ try:
         load_pem_public_key,
         load_ssh_public_key,
     )
+    from cryptography.hazmat.primitives.asymmetric import ed25519, ed448
     from cryptography.hazmat.primitives.asymmetric.ec import (
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
@@ -560,6 +561,37 @@ class TestJWS:
     def test_invalid_crypto_alg(self, jws: PyJWS, payload: bytes) -> None:
         with pytest.raises(NotImplementedError):
             jws.encode(payload, "secret", algorithm="HS1024")
+
+    @crypto_required
+    @pytest.mark.parametrize(
+        ("algorithm", "private_key_file", "public_key_file"),
+        [
+            ("Ed25519", "jwk_okp_key_Ed25519.json", "jwk_okp_pub_Ed25519.json"),
+            ("Ed448", "jwk_okp_key_Ed448.json", "jwk_okp_pub_Ed448.json"),
+        ],
+    )
+    def test_fully_specified_eddsa_algorithms(
+        self,
+        jws: PyJWS,
+        payload: bytes,
+        algorithm: str,
+        private_key_file: str,
+        public_key_file: str,
+    ) -> None:
+        from jwt.algorithms import OKPAlgorithm
+
+        with open(key_path(private_key_file)) as keyfile:
+            priv_key = OKPAlgorithm.from_jwk(keyfile.read())
+        with open(key_path(public_key_file)) as keyfile:
+            pub_key = OKPAlgorithm.from_jwk(keyfile.read())
+
+        assert isinstance(priv_key, (ed25519.Ed25519PrivateKey, ed448.Ed448PrivateKey))
+        assert isinstance(pub_key, (ed25519.Ed25519PublicKey, ed448.Ed448PublicKey))
+
+        token = jws.encode(payload, priv_key, algorithm=algorithm)
+
+        assert jws.get_unverified_header(token)["alg"] == algorithm
+        assert jws.decode(token, pub_key, algorithms=[algorithm]) == payload
 
     @no_crypto_required
     def test_missing_crypto_library_better_error_messages(
