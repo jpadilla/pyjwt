@@ -36,6 +36,12 @@ Fixed
   ``fetch_data()`` override that filters or transforms the JWKS is no longer
   undone by the next cache hit in
   `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
+- Treat malformed JWK Set members as unusable keys rather than letting
+  ``AttributeError`` or ``TypeError`` escape ``PyJWKSet``. A member that is not
+  a JSON object is skipped, a key whose components have the wrong type raises
+  ``InvalidKeyError`` and is skipped, and a set left with no usable keys raises
+  ``PyJWKSetError``. A single bad entry no longer fails an otherwise usable
+  JWK Set in `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
 
 `v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
 -----------------------------------------------------------------------
