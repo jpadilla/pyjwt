@@ -87,6 +87,14 @@ Fixed
   ``TypeError`` when the ``exp``, ``nbf``, or ``iat`` claim decodes to a
   non-numeric, non-string value such as a list, dict, or ``null``.
 
+Added
+~~~~~
+
+- Add ``PyJWK.to_dict()``, ``PyJWK.to_json()``, ``PyJWKSet.to_dict()``, and
+  ``PyJWKSet.to_json()`` for serializing JWK objects back to dictionaries and
+  JSON, preserving all metadata such as ``kid``, ``use``, and ``alg``
+  (`#1106 <https://github.com/jpadilla/pyjwt/issues/1106>`__).
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
