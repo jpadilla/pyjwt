@@ -9,7 +9,7 @@ Encoding & Decoding Tokens with HS256
     >>> import jwt
     >>> key = "secret"
     >>> encoded = jwt.encode({"some": "payload"}, key, algorithm="HS256")
-    >>> jwt.decode(encoded, key, algorithms="HS256")
+    >>> jwt.decode(encoded, key, algorithms=["HS256"])
     {'some': 'payload'}
 
 Encoding & Decoding Tokens with RS256 (RSA)
