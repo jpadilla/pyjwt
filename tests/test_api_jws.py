@@ -688,7 +688,9 @@ class TestJWS:
         token = jws.encode(payload, secret, algorithm="HS256")
         header, encoded_payload, signature = token.split(".")
         pad = "=" * ((4 - len(signature) % 4) % 4)
-        assert pad, "HS256 signatures should need padding when restored to 4-char groups"
+        assert pad, (
+            "HS256 signatures should need padding when restored to 4-char groups"
+        )
         padded_token = ".".join((header, encoded_payload, signature + pad))
 
         assert jws.decode(padded_token, secret, algorithms=["HS256"]) == payload
