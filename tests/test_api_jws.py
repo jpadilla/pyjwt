@@ -708,6 +708,23 @@ class TestJWS:
         with pytest.raises(DecodeError, match="Invalid crypto padding"):
             jws.decode(mutated_token, secret, algorithms=["HS256"])
 
+    @pytest.mark.parametrize(
+        ("segment", "decoded"),
+        [(b"Zg", b"f"), (b"Zg==", b"f"), (b"Zm8=", b"fo")],
+    )
+    def test_decode_accepts_canonical_base64url_padding(
+        self, segment: bytes, decoded: bytes
+    ) -> None:
+        assert PyJWS._decode_base64url_segment(segment, "crypto") == decoded
+
+    @pytest.mark.parametrize(
+        "segment",
+        [b"Zg===", b"Zg=", b"a", b"Z?==", b"Zh", b"Zh=="],
+    )
+    def test_decode_rejects_invalid_base64url_padding(self, segment: bytes) -> None:
+        with pytest.raises(DecodeError, match="Invalid crypto padding"):
+            PyJWS._decode_base64url_segment(segment, "crypto")
+
     def test_decode_with_algo_none_should_fail(
         self, jws: PyJWS, payload: bytes
     ) -> None:
