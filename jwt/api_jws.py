@@ -348,6 +348,9 @@ class PyJWS:
         except (TypeError, binascii.Error) as err:
             raise DecodeError(f"Invalid {name} padding") from err
 
+        if base64url_encode(decoded) != stripped:
+            raise DecodeError(f"Invalid {name} padding")
+
         return decoded
 
     def _load(self, jwt: str | bytes) -> tuple[bytes, bytes, dict[str, Any], bytes]:
