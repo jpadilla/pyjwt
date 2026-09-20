@@ -486,6 +486,12 @@ Pass the JWKS URL to create a client, then call
 ``get_signing_key_from_jwt()`` with a token to look up the matching key by its
 ``kid`` header claim:
 
+For RSA JWKs, ``PyJWK`` and ``PyJWKClient`` construct the verification key from
+the ``n`` and ``e`` members. They do not validate the certificate-related
+``x5c``, ``x5t``, or ``x5t#S256`` members. If your application trusts or pins a
+certificate, verify that its public key matches the key used for JWT signature
+verification; do not infer that relationship from those JWK members alone.
+
 .. code-block:: pycon
 
     >>> import jwt
