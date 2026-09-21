@@ -42,6 +42,10 @@ Fixed
   ``InvalidKeyError`` and is skipped, and a set left with no usable keys raises
   ``PyJWKSetError``. A single bad entry no longer fails an otherwise usable
   JWK Set in `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
+- Wrap ``http.client.HTTPException`` (e.g. ``IncompleteRead`` from a
+  truncated response) in ``PyJWKClient.fetch_data`` as
+  ``PyJWKClientConnectionError``, matching the other network failure
+  modes the method already documents.
 
 `v2.14.0 <https://github.com/jpadilla/pyjwt/compare/2.13.0...2.14.0>`__
 -----------------------------------------------------------------------
