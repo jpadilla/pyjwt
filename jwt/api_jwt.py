@@ -296,7 +296,7 @@ class PyJWT:
         """
         try:
             payload: dict[str, Any] = json.loads(decoded["payload"])
-        except ValueError as e:
+        except (ValueError, RecursionError) as e:
             raise DecodeError(f"Invalid payload string: {e}") from e
         if not isinstance(payload, dict):
             raise DecodeError("Invalid payload string: must be a json object")

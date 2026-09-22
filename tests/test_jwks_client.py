@@ -20,11 +20,13 @@ from jwt import PyJWKClient
 from jwt.jwks_client import _NoRedirectHandler
 from jwt.api_jwk import PyJWK, PyJWKSet
 from jwt.exceptions import (
+    DecodeError,
     PyJWKClientConnectionError,
     PyJWKClientError,
     PyJWKSetError,
 )
 from jwt.jwk_set_cache import JWKSetCache
+from jwt.utils import base64url_encode
 
 from .utils import crypto_required
 
@@ -324,6 +326,25 @@ class TestPyJWKClient:
             "azp": "aW4Cca79xReLWUz0aE2H6kD0O3cXBVtC",
             "gty": "client-credentials",
         }
+
+    def test_get_signing_key_from_jwt_rejects_deeply_nested_payload(self) -> None:
+        nested_payload = b"[" * 100_000 + b"]" * 100_000
+        header = b'{"alg":"RS256","kid":"test-key"}'
+        token = ".".join(
+            (
+                base64url_encode(header).decode(),
+                base64url_encode(nested_payload).decode(),
+                "",
+            )
+        )
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as open_mock:
+            jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
+            with pytest.raises(DecodeError, match="Invalid payload") as exc:
+                jwks_client.get_signing_key_from_jwt(token)
+
+        assert isinstance(exc.value.__cause__, RecursionError)
+        assert open_mock.call_count == 0
 
     def test_get_jwk_set_caches_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"

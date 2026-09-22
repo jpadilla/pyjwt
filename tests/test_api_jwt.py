@@ -7,6 +7,7 @@ from decimal import Decimal
 
 import pytest
 
+import jwt as pyjwt
 from jwt.types import Options
 from jwt.api_jwk import PyJWK
 from jwt.api_jwt import PyJWT
@@ -21,7 +22,7 @@ from jwt.exceptions import (
     InvalidSubjectError,
     MissingRequiredClaimError,
 )
-from jwt.utils import base64url_decode
+from jwt.utils import base64url_decode, base64url_encode
 from jwt.warnings import RemovedInPyjwt3Warning
 
 from .utils import crypto_required, key_path, utc_timestamp
@@ -176,6 +177,21 @@ class TestJWT:
             jwt.decode(example_jwt, example_secret, algorithms=["HS256"])
 
         assert "Invalid payload string" in str(exc.value)
+
+    def test_decode_deeply_nested_payload_throws_decode_error(self) -> None:
+        nested_payload = b"[" * 100_000 + b"]" * 100_000
+        token = ".".join(
+            (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                base64url_encode(nested_payload).decode(),
+                "",
+            )
+        )
+
+        with pytest.raises(DecodeError, match="Invalid payload") as exc:
+            pyjwt.decode(token, options={"verify_signature": False})
+
+        assert isinstance(exc.value.__cause__, RecursionError)
 
     def test_decode_with_non_mapping_payload_throws_exception(self, jwt: PyJWT) -> None:
         secret = "secret"
