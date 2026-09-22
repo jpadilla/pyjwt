@@ -19,7 +19,7 @@ def force_bytes(value: Union[bytes, str]) -> bytes:
     elif isinstance(value, bytes):
         return value
     else:
-        raise TypeError("Expected a string value")
+        raise TypeError("Expected a string or bytes value")
 
 
 def base64url_decode(input: Union[bytes, str]) -> bytes:
