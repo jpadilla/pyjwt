@@ -31,6 +31,9 @@ Changed
 Fixed
 ~~~~~
 
+- ``decode(..., options={"aud_subset": True})`` rejects a token whose ``aud``
+  claim contains a value outside the audiences passed in. Overlap with one
+  trusted audience is no longer enough when that option is set.
 - Return cached ``PyJWKSet`` values from ``PyJWKClient.get_jwk_set()`` instead
   of raising ``PyJWKClientError("The JWKS endpoint did not return a JSON
   object")``. ``JWKSetCache.put()`` documents ``PyJWKSet`` as the cached value,

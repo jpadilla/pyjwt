@@ -61,6 +61,7 @@ class PyJWT:
             "verify_jti": True,
             "require": [],
             "strict_aud": False,
+            "aud_subset": False,
             "enforce_minimum_key_length": False,
         }
 
@@ -414,7 +415,10 @@ class PyJWT:
 
         if options["verify_aud"]:
             self._validate_aud(
-                payload, audience, strict=options.get("strict_aud", False)
+                payload,
+                audience,
+                strict=options.get("strict_aud", False),
+                subset=options.get("aud_subset", False),
             )
 
         if options["verify_sub"]:
@@ -518,6 +522,7 @@ class PyJWT:
         audience: str | Iterable[str] | None,
         *,
         strict: bool = False,
+        subset: bool = False,
     ) -> None:
         if audience is None:
             if "aud" not in payload or not payload["aud"]:
@@ -532,6 +537,9 @@ class PyJWT:
             raise MissingRequiredClaimError("aud")
 
         audience_claims = payload["aud"]
+
+        if strict and subset:
+            raise InvalidAudienceError("strict_aud and aud_subset cannot both be enabled")
 
         # In strict mode, we forbid list matching: the supplied audience
         # must be a string, and it must exactly match the audience claim.
@@ -561,6 +569,11 @@ class PyJWT:
 
         if all(aud not in audience_claims for aud in audience):
             raise InvalidAudienceError("Audience doesn't match")
+
+        # OIDC: extra audiences the caller does not trust must be rejected,
+        # not only a missing overlap with the trusted set.
+        if subset and any(claim not in audience for claim in audience_claims):
+            raise InvalidAudienceError("Audience contains an untrusted value")
 
     def _validate_iss(
         self, payload: dict[str, Any], issuer: Container[str] | str | None
