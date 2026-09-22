@@ -539,7 +539,9 @@ class PyJWT:
         audience_claims = payload["aud"]
 
         if strict and subset:
-            raise InvalidAudienceError("strict_aud and aud_subset cannot both be enabled")
+            raise InvalidAudienceError(
+                "strict_aud and aud_subset cannot both be enabled"
+            )
 
         # In strict mode, we forbid list matching: the supplied audience
         # must be a string, and it must exactly match the audience claim.
