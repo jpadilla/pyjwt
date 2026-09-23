@@ -31,6 +31,11 @@ Changed
 Fixed
 ~~~~~
 
+- Accept trailing Base64URL ``=`` padding when decoding JWS segments, so
+  tokens issued by AWS ALB and similar systems verify instead of raising
+  ``DecodeError: Invalid crypto padding``. Non-alphabet junk such as
+  ``!!!!`` is still rejected in
+  `#1209 <https://github.com/jpadilla/pyjwt/issues/1209>`__
 - Return cached ``PyJWKSet`` values from ``PyJWKClient.get_jwk_set()`` instead
   of raising ``PyJWKClientError("The JWKS endpoint did not return a JSON
   object")``. ``JWKSetCache.put()`` documents ``PyJWKSet`` as the cached value,
