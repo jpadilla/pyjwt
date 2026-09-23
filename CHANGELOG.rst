@@ -4,8 +4,17 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.14.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.0...HEAD>`__
 -------------------------------------------------------------------------
+
+`v2.15.0 <https://github.com/jpadilla/pyjwt/compare/2.14.0...2.15.0>`__
+-----------------------------------------------------------------------
+
+Security
+~~~~~~~~
+
+- Wrap recursion errors from deeply nested JWT payloads in ``DecodeError``
+  instead of exposing a raw ``RecursionError``.
 
 Added
 ~~~~~
@@ -41,6 +50,11 @@ Fixed
   ``fetch_data()`` override that filters or transforms the JWKS is no longer
   undone by the next cache hit in
   `#1208 <https://github.com/jpadilla/pyjwt/pull/1208>`__
+- Raise the documented ``PyJWTError`` subclass instead of leaking a
+  ``TypeError`` when the ``exp``, ``nbf``, or ``iat`` claim decodes to a
+  non-numeric, non-string value such as a list, dict, or ``null``.
+- Reject OKP JWK private keys when their public ``x`` component does not
+  match the private ``d`` component.
 - Treat malformed JWK Set members as unusable keys rather than letting
   ``AttributeError`` or ``TypeError`` escape ``PyJWKSet``. A member that is not
   a JSON object is skipped, a key whose components have the wrong type raises
@@ -88,13 +102,6 @@ Fixed
   `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 - Reject empty HMAC keys when represented as JWKs.
   See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
-
-Fixed
-~~~~~
-
-- Raise the documented ``PyJWTError`` subclass instead of leaking a
-  ``TypeError`` when the ``exp``, ``nbf``, or ``iat`` claim decodes to a
-  non-numeric, non-string value such as a list, dict, or ``null``.
 
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
