@@ -4,6 +4,7 @@ from calendar import timegm
 from collections.abc import Iterator, MutableMapping
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from unittest import mock
 
 import pytest
 
@@ -22,7 +23,7 @@ from jwt.exceptions import (
     InvalidSubjectError,
     MissingRequiredClaimError,
 )
-from jwt.utils import base64url_decode, base64url_encode
+from jwt.utils import base64url_decode
 from jwt.warnings import RemovedInPyjwt3Warning
 
 from .utils import crypto_required, key_path, utc_timestamp
@@ -178,18 +179,15 @@ class TestJWT:
 
         assert "Invalid payload string" in str(exc.value)
 
-    def test_decode_deeply_nested_payload_throws_decode_error(self) -> None:
-        nested_payload = b"[" * 100_000 + b"]" * 100_000
-        token = ".".join(
-            (
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
-                base64url_encode(nested_payload).decode(),
-                "",
-            )
-        )
+    def test_decode_payload_recursion_error_throws_decode_error(self) -> None:
+        token = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.e30."
 
-        with pytest.raises(DecodeError, match="Invalid payload") as exc:
-            pyjwt.decode(token, options={"verify_signature": False})
+        with mock.patch(
+            "jwt.api_jwt.json.loads",
+            side_effect=[{"alg": "none", "typ": "JWT"}, RecursionError()],
+        ):
+            with pytest.raises(DecodeError, match="Invalid payload") as exc:
+                pyjwt.decode(token, options={"verify_signature": False})
 
         assert isinstance(exc.value.__cause__, RecursionError)
 

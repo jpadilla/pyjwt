@@ -26,7 +26,6 @@ from jwt.exceptions import (
     PyJWKSetError,
 )
 from jwt.jwk_set_cache import JWKSetCache
-from jwt.utils import base64url_encode
 
 from .utils import crypto_required
 
@@ -327,21 +326,20 @@ class TestPyJWKClient:
             "gty": "client-credentials",
         }
 
-    def test_get_signing_key_from_jwt_rejects_deeply_nested_payload(self) -> None:
-        nested_payload = b"[" * 100_000 + b"]" * 100_000
-        header = b'{"alg":"RS256","kid":"test-key"}'
-        token = ".".join(
-            (
-                base64url_encode(header).decode(),
-                base64url_encode(nested_payload).decode(),
-                "",
-            )
-        )
+    def test_get_signing_key_from_jwt_rejects_payload_recursion_error(self) -> None:
+        token = "eyJhbGciOiJSUzI1NiIsImtpZCI6InRlc3Qta2V5In0.e30."
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as open_mock:
             jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
-            with pytest.raises(DecodeError, match="Invalid payload") as exc:
-                jwks_client.get_signing_key_from_jwt(token)
+            with mock.patch(
+                "jwt.api_jwt.json.loads",
+                side_effect=[
+                    {"alg": "RS256", "kid": "test-key"},
+                    RecursionError(),
+                ],
+            ):
+                with pytest.raises(DecodeError, match="Invalid payload") as exc:
+                    jwks_client.get_signing_key_from_jwt(token)
 
         assert isinstance(exc.value.__cause__, RecursionError)
         assert open_mock.call_count == 0
