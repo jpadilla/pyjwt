@@ -35,6 +35,8 @@ class Options(TypedDict, total=False):
           **Only verifies that the claims exists**. Does not verify that the claims are valid."""
     strict_aud: bool
     """Default: ``False``. (requires ``verify_aud=True``) Check that the ``aud`` claim is a single value (not a list), and matches ``audience`` exactly."""
+    aud_subset: bool
+    """Default: ``False``. (requires ``verify_aud=True``) Every value in the token ``aud`` claim must be one of the audiences passed to ``decode``. Cannot be combined with ``strict_aud``."""
     verify_aud: bool
     """Default: ``verify_signature``. Check that ``aud`` (audience) claim matches ``audience``."""
     verify_exp: bool
@@ -59,6 +61,7 @@ class FullOptions(TypedDict):
     verify_signature: bool
     require: list[str]
     strict_aud: bool
+    aud_subset: bool
     verify_aud: bool
     verify_exp: bool
     verify_iat: bool

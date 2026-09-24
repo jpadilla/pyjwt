@@ -921,6 +921,51 @@ class TestJWT:
         assert len(deprecation_warnings) == 1
         assert "foo" in str(deprecation_warnings[0].message)
 
+    def test_decode_aud_subset_rejects_extra_audience(
+        self, jwt: PyJWT, payload: dict[str, object]
+    ) -> None:
+        secret = "secret"
+        payload["aud"] = ["client", "untrusted"]
+        token = jwt.encode(payload, secret)
+        with pytest.raises(InvalidAudienceError, match="untrusted value"):
+            jwt.decode(
+                token,
+                secret,
+                audience=["client", "partner"],
+                options={"aud_subset": True},
+                algorithms=["HS256"],
+            )
+
+    def test_decode_aud_subset_allows_trusted_audiences(
+        self, jwt: PyJWT, payload: dict[str, object]
+    ) -> None:
+        secret = "secret"
+        payload["aud"] = ["client", "partner"]
+        token = jwt.encode(payload, secret)
+        decoded = jwt.decode(
+            token,
+            secret,
+            audience=["client", "partner"],
+            options={"aud_subset": True},
+            algorithms=["HS256"],
+        )
+        assert decoded["aud"] == ["client", "partner"]
+
+    def test_decode_aud_subset_conflicts_with_strict(
+        self, jwt: PyJWT, payload: dict[str, object]
+    ) -> None:
+        secret = "secret"
+        payload["aud"] = "client"
+        token = jwt.encode(payload, secret)
+        with pytest.raises(InvalidAudienceError, match="cannot both"):
+            jwt.decode(
+                token,
+                secret,
+                audience="client",
+                options={"aud_subset": True, "strict_aud": True},
+                algorithms=["HS256"],
+            )
+
     def test_decode_complete_warns_on_unsupported_kwarg(
         self, jwt: PyJWT, payload: dict[str, object]
     ) -> None:
