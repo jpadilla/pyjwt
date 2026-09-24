@@ -4,5 +4,5 @@
   "crv": "Ed448",
   "use": "sig",
   "x": "kvqP7TzMosCQCpNcW8qY2HmVmpPYUEIGn-sQWQgoWlAZbWpnXpXqAT6yMoYA08pkJm7P_HKZoHwA",
-  "alg": "EdDSA"
+  "alg": "Ed448"
 }
