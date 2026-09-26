@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import warnings
 from calendar import timegm
 from collections.abc import Container, Iterable, Sequence
@@ -45,6 +46,7 @@ class PyJWT:
         self.options = self._get_default_options()
         if options is not None:
             self.options = self._merge_options(options)
+        self._verify_iat_unset = options is None
 
         self._jws = PyJWS(options=self._get_sig_options())
 
@@ -281,6 +283,8 @@ class PyJWT:
             issuer=issuer,
             leeway=leeway,
             subject=subject,
+            warn_future_iat=self._verify_iat_unset
+            and "verify_iat" not in (options or {}),
         )
 
         decoded["payload"] = payload
@@ -389,6 +393,7 @@ class PyJWT:
         issuer: Container[str] | str | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
+        warn_future_iat: bool = False,
     ) -> None:
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
@@ -401,7 +406,7 @@ class PyJWT:
         now = datetime.now(tz=timezone.utc).timestamp()
 
         if "iat" in payload and options["verify_iat"]:
-            self._validate_iat(payload, now, leeway)
+            self._validate_iat(payload, now, leeway, warn_future_iat)
 
         if "nbf" in payload and options["verify_nbf"]:
             self._validate_nbf(payload, now, leeway)
@@ -472,6 +477,7 @@ class PyJWT:
         payload: dict[str, Any],
         now: float,
         leeway: float,
+        warn_future_iat: bool = False,
     ) -> None:
         try:
             iat = int(payload["iat"])
@@ -480,6 +486,19 @@ class PyJWT:
                 "Issued At claim (iat) must be an integer."
             ) from None
         if iat > (now + leeway):
+            if warn_future_iat:
+                # decode() and decode_complete() reach this frame at different depths.
+                frame, stacklevel = sys._getframe(), 1
+                while frame.f_back and frame.f_code.co_filename == __file__:
+                    frame, stacklevel = frame.f_back, stacklevel + 1
+                warnings.warn(
+                    "rejecting a token whose iat claim is in the future is "
+                    "deprecated. The verify_iat option will default to False in "
+                    "pyjwt version 3. Set verify_iat in options to keep rejecting "
+                    "such tokens (True) or to accept them now (False).",
+                    RemovedInPyjwt3Warning,
+                    stacklevel=stacklevel,
+                )
             raise ImmatureSignatureError("The token is not yet valid (iat)")
 
     def _validate_nbf(
