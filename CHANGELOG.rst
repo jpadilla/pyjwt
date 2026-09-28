@@ -4,8 +4,11 @@ Changelog
 All notable changes to this project will be documented in this file.
 This project adheres to `Semantic Versioning <https://semver.org/>`__.
 
-`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.0...HEAD>`__
+`Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
+
+`v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
+-----------------------------------------------------------------------
 
 Fixed
 ~~~~~
