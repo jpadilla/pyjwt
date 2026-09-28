@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.0...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Accept trailing Base64URL ``=`` padding when decoding JWS segments, so
+  tokens issued by AWS ALB and similar systems verify instead of raising
+  ``DecodeError: Invalid crypto padding``. Non-alphabet junk such as
+  ``!!!!`` remains rejected (`#1209 <https://github.com/jpadilla/pyjwt/issues/1209>`__).
+
 `v2.15.0 <https://github.com/jpadilla/pyjwt/compare/2.14.0...2.15.0>`__
 -----------------------------------------------------------------------
 

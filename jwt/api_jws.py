@@ -325,17 +325,30 @@ class PyJWS:
 
     @staticmethod
     def _decode_base64url_segment(segment: bytes, name: str) -> bytes:
-        if len(segment) % 4 == 1 or any(
-            character not in _BASE64URL_ALPHABET for character in segment
+        # Accept trailing '=' used by some issuers (e.g. AWS ALB). Still
+        # reject non-alphabet junk such as '!!!!' (GHSA-hxm8-2xgr-2p9m).
+        padding = 0
+        stripped = segment
+        while stripped.endswith(b"="):
+            stripped = stripped[:-1]
+            padding += 1
+            if padding > 2:
+                raise DecodeError(f"Invalid {name} padding")
+
+        if padding and len(segment) % 4 != 0:
+            raise DecodeError(f"Invalid {name} padding")
+
+        if len(stripped) % 4 == 1 or any(
+            character not in _BASE64URL_ALPHABET for character in stripped
         ):
             raise DecodeError(f"Invalid {name} padding")
 
         try:
-            decoded = base64url_decode(segment)
+            decoded = base64url_decode(stripped)
         except (TypeError, binascii.Error) as err:
             raise DecodeError(f"Invalid {name} padding") from err
 
-        if base64url_encode(decoded) != segment:
+        if base64url_encode(decoded) != stripped:
             raise DecodeError(f"Invalid {name} padding")
 
         return decoded
