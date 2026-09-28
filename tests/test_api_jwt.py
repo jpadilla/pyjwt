@@ -418,7 +418,12 @@ class TestJWT:
     # encoding / decoding operations equally (causing tests
     # to still pass).
     @crypto_required
-    def test_decodes_valid_es256_jwt(self, jwt: PyJWT) -> None:
+    @pytest.mark.parametrize(
+        "signature_padding", [b"", b"=="], ids=["compact", "alb-padded"]
+    )
+    def test_decodes_valid_es256_jwt(
+        self, jwt: PyJWT, signature_padding: bytes
+    ) -> None:
         example_payload = {"hello": "world"}
         with open(key_path("testkey_ec.pub")) as fp:
             example_pubkey = fp.read()
@@ -428,7 +433,10 @@ class TestJWT:
             b"d2SsX8hhlnWelQFmPFSf_JzC2EbLnar92t-bXsDovzxp25ExazrVHkfPkQ"
         )
 
-        decoded_payload = jwt.decode(example_jwt, example_pubkey, algorithms=["ES256"])
+        # AWS ALB can include standard padding on its ES256 signature (#1209).
+        decoded_payload = jwt.decode(
+            example_jwt + signature_padding, example_pubkey, algorithms=["ES256"]
+        )
         assert decoded_payload == example_payload
 
     # 'Control' RSA JWT created by another library.
