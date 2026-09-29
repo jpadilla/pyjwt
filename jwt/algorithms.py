@@ -871,7 +871,9 @@ if has_crypto:
             ),
         )
 
-        def __init__(self, hash_alg: type[hashes.HashAlgorithm] | None = None, **kwargs: Any) -> None:
+        def __init__(
+            self, hash_alg: type[hashes.HashAlgorithm] | None = None, **kwargs: Any
+        ) -> None:
             # "EdDSA" is registered without a key, so the curve is unknown here and
             # there is no single correct digest: Ed25519 hashes with SHA-512 and
             # Ed448 with SHAKE256 (RFC 8032). Callers who know their curve can pass
