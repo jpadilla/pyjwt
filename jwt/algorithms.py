@@ -871,14 +871,14 @@ if has_crypto:
             ),
         )
 
-        def __init__(self, **kwargs: Any) -> None:
-            # EdDSA (RFC 8037) uses Ed25519 by default, which hashes with
-            # SHA-512 internally (RFC 8032). Expose that here so
-            # compute_hash_digest works (e.g. for OIDC at_hash/c_hash).
-            # Ed448 uses SHAKE256, but the curve is not known at construction
-            # time since "EdDSA" is registered without a key, so SHA-512 is
-            # used as the default.
-            self.hash_alg = self.SHA512
+        def __init__(self, hash_alg: type[hashes.HashAlgorithm] | None = None, **kwargs: Any) -> None:
+            # "EdDSA" is registered without a key, so the curve is unknown here and
+            # there is no single correct digest: Ed25519 hashes with SHA-512 and
+            # Ed448 with SHAKE256 (RFC 8032). Callers who know their curve can pass
+            # the digest they need, and compute_hash_digest keeps raising
+            # NotImplementedError otherwise.
+            if hash_alg is not None:
+                self.hash_alg = hash_alg
 
         def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
             if not isinstance(key, (str, bytes)):

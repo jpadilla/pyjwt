@@ -10,10 +10,11 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Fixed
 ~~~~~
 
-- Set ``hash_alg`` on ``OKPAlgorithm`` so ``compute_hash_digest`` works for
-  ``EdDSA`` instead of raising ``NotImplementedError``. EdDSA (Ed25519) hashes
-  with SHA-512 internally per RFC 8037 / RFC 8032. `#1097
-  <https://github.com/jpadilla/pyjwt/issues/1097>`__
+- Allow ``OKPAlgorithm`` to be constructed with a ``hash_alg`` so callers who
+  know their curve can use ``compute_hash_digest``. The registered ``EdDSA``
+  algorithm still raises ``NotImplementedError``, since Ed25519 hashes with
+  SHA-512 and Ed448 with SHAKE256 and the curve is not known without a key.
+  `#1097 <https://github.com/jpadilla/pyjwt/issues/1097>`__
 
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------

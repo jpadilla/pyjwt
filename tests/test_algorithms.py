@@ -1214,18 +1214,24 @@ class TestOKPAlgorithms:
         assert computed_hash == foo_hash
 
     @crypto_required
-    def test_okp_can_compute_digest(self) -> None:
-        # EdDSA (Ed25519) hashes with SHA-512 internally (RFC 8037 / RFC 8032).
-        # This is the well-known SHA-512 hash of "foo".
+    def test_okp_compute_digest_without_a_hash_alg(self) -> None:
+        algo = jwt.get_algorithm_by_name("EdDSA")
+
+        with pytest.raises(NotImplementedError):
+            algo.compute_hash_digest(b"foo")
+
+    @crypto_required
+    def test_okp_compute_digest_with_an_explicit_hash_alg(self) -> None:
+        # Ed25519 hashes with SHA-512 (RFC 8032), so a caller on that curve can ask
+        # for it. This is the SHA-512 hash of "foo".
         foo_hash = base64.b64decode(
             b"9/u6bgY2+JDlb7vzKD5STG+jIErimDgtYkdB0NxmODJuKCxBvl5CVNiCB3LFUYosWowMf3"
             b"7aGVlKfrU5RT4e1w=="
         )
 
-        algo = jwt.get_algorithm_by_name("EdDSA")
-        computed_hash = algo.compute_hash_digest(b"foo")
-        assert computed_hash == foo_hash
-        assert len(computed_hash) == 64  # SHA-512 digest length
+        algo = OKPAlgorithm(hash_alg=OKPAlgorithm.SHA512)
+
+        assert algo.compute_hash_digest(b"foo") == foo_hash
 
     @crypto_required
     def test_rsa_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
