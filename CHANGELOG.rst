@@ -114,6 +114,15 @@ Fixed
 - Reject empty HMAC keys when represented as JWKs.
   See `GHSA-pxh4-856f-4h89 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-pxh4-856f-4h89>`__.
 
+Fixed
+~~~~~
+
+- Allow ``OKPAlgorithm`` to be constructed with a ``hash_alg`` so callers who
+  know their curve can use ``compute_hash_digest``. The registered ``EdDSA``
+  algorithm still raises ``NotImplementedError``, since Ed25519 hashes with
+  SHA-512 and Ed448 with SHAKE256 and the curve is not known without a key.
+  `#1097 <https://github.com/jpadilla/pyjwt/issues/1097>`__
+
 `v2.13.0 <https://github.com/jpadilla/pyjwt/compare/2.12.1...2.13.0>`__
 -----------------------------------------------------------------------
 
