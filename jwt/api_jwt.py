@@ -46,7 +46,7 @@ class PyJWT:
         self.options = self._get_default_options()
         if options is not None:
             self.options = self._merge_options(options)
-        self._verify_iat_unset = options is None
+        self._verify_iat_unset = "verify_iat" not in (options or {})
 
         self._jws = PyJWS(options=self._get_sig_options())
 
