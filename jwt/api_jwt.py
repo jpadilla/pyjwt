@@ -444,6 +444,8 @@ class PyJWT:
         """
 
         if "sub" not in payload:
+            if subject is not None:
+                raise MissingRequiredClaimError("sub")
             return
 
         if not isinstance(payload["sub"], str):
