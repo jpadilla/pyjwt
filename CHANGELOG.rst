@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Raise ``MissingRequiredClaimError`` when ``subject`` is passed to
+  ``jwt.decode()`` but the token has no ``sub`` claim, matching how
+  ``issuer`` and ``audience`` already behave for a missing ``iss`` or
+  ``aud``.
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 
