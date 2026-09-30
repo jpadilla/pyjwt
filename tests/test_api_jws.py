@@ -681,6 +681,50 @@ class TestJWS:
         with pytest.raises(DecodeError, match="Invalid crypto padding"):
             jws.decode(mutated_token, secret, algorithms=["HS256"])
 
+    def test_decode_accepts_padded_crypto_segment(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "a" * 32
+        token = jws.encode(payload, secret, algorithm="HS256")
+        header, encoded_payload, signature = token.split(".")
+        pad = "=" * ((4 - len(signature) % 4) % 4)
+        assert pad, (
+            "HS256 signatures should need padding when restored to 4-char groups"
+        )
+        padded_token = ".".join((header, encoded_payload, signature + pad))
+
+        assert jws.decode(padded_token, secret, algorithms=["HS256"]) == payload
+
+    def test_decode_rejects_embedded_padding_in_crypto_segment(
+        self, jws: PyJWS, payload: bytes
+    ) -> None:
+        secret = "a" * 32
+        token = jws.encode(payload, secret, algorithm="HS256")
+        header, encoded_payload, signature = token.split(".")
+        mutated_token = ".".join(
+            (header, encoded_payload, signature[:2] + "=" + signature[2:])
+        )
+
+        with pytest.raises(DecodeError, match="Invalid crypto padding"):
+            jws.decode(mutated_token, secret, algorithms=["HS256"])
+
+    @pytest.mark.parametrize(
+        ("segment", "decoded"),
+        [(b"Zg", b"f"), (b"Zg==", b"f"), (b"Zm8=", b"fo")],
+    )
+    def test_decode_accepts_canonical_base64url_padding(
+        self, segment: bytes, decoded: bytes
+    ) -> None:
+        assert PyJWS._decode_base64url_segment(segment, "crypto") == decoded
+
+    @pytest.mark.parametrize(
+        "segment",
+        [b"Zg===", b"Zg=", b"a", b"Z?==", b"Zh", b"Zh=="],
+    )
+    def test_decode_rejects_invalid_base64url_padding(self, segment: bytes) -> None:
+        with pytest.raises(DecodeError, match="Invalid crypto padding"):
+            PyJWS._decode_base64url_segment(segment, "crypto")
+
     def test_decode_with_algo_none_should_fail(
         self, jws: PyJWS, payload: bytes
     ) -> None:
