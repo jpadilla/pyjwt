@@ -1,3 +1,4 @@
+import base64
 import json
 import time
 from calendar import timegm
@@ -9,6 +10,7 @@ from unittest import mock
 import pytest
 
 import jwt as pyjwt
+from jwt.algorithms import get_default_algorithms
 from jwt.types import Options
 from jwt.api_jwk import PyJWK
 from jwt.api_jwt import PyJWT
@@ -20,6 +22,7 @@ from jwt.exceptions import (
     InvalidIssuedAtError,
     InvalidIssuerError,
     InvalidJTIError,
+    InvalidSignatureError,
     InvalidSubjectError,
     MissingRequiredClaimError,
 )
@@ -438,6 +441,56 @@ class TestJWT:
             example_jwt + signature_padding, example_pubkey, algorithms=["ES256"]
         )
         assert decoded_payload == example_payload
+
+    @crypto_required
+    def test_decode_verifies_alb_style_padded_es256_token(self, jwt: PyJWT) -> None:
+        # AWS ALB x-amzn-oidc-data tokens (#1209) are compact ES256 JWTs whose
+        # Base64URL segments keep trailing '='. The signature covers that padded
+        # header.payload as received, not an unpadded re-encoding.
+        payload = {"email": "a@b.com", "exp": 9999999999, "sub": "user"}
+        header = {"alg": "ES256", "kid": "alb1", "typ": "JWT"}
+        with open(key_path("testkey_ec.priv")) as private_key_file:
+            private_key = private_key_file.read()
+        with open(key_path("testkey_ec.pub")) as public_key_file:
+            public_key = public_key_file.read()
+
+        header_segment = base64.urlsafe_b64encode(
+            json.dumps(header, separators=(",", ":"), sort_keys=True).encode()
+        )
+        payload_segment = base64.urlsafe_b64encode(
+            json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
+        )
+        signing_input = b".".join((header_segment, payload_segment))
+        algorithm = get_default_algorithms()["ES256"]
+        signature = algorithm.sign(signing_input, algorithm.prepare_key(private_key))
+        signature_segment = base64.urlsafe_b64encode(signature)
+        assert header_segment.endswith(b"=")
+        assert payload_segment.endswith(b"=")
+        assert signature_segment.endswith(b"=")
+        token = b".".join((header_segment, payload_segment, signature_segment)).decode()
+
+        assert jwt.decode(token, public_key, algorithms=["ES256"]) == payload
+
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+        header_b64, payload_b64, signature_b64 = token.split(".")
+
+        def flip_leading_char(segment: str) -> str:
+            return (
+                alphabet[(alphabet.index(segment[0]) + 1) % len(alphabet)] + segment[1:]
+            )
+
+        with pytest.raises(InvalidSignatureError):
+            jwt.decode(
+                ".".join((header_b64, flip_leading_char(payload_b64), signature_b64)),
+                public_key,
+                algorithms=["ES256"],
+            )
+        with pytest.raises(InvalidSignatureError):
+            jwt.decode(
+                ".".join((header_b64, payload_b64, flip_leading_char(signature_b64))),
+                public_key,
+                algorithms=["ES256"],
+            )
 
     # 'Control' RSA JWT created by another library.
     # Used to test for regressions that could affect both
