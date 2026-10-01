@@ -225,6 +225,23 @@ class TestPyJWK:
 
 class TestPyJWKSet:
     @crypto_required
+    def test_should_skip_malformed_rsa_key_and_load_remaining_keys(self) -> None:
+        with open(key_path("jwk_rsa_key.json")) as keyfile:
+            malformed_key = json.loads(keyfile.read())
+
+        malformed_key["d"] = "AAAAAA"
+        for parameter in ("p", "q", "dp", "dq", "qi"):
+            del malformed_key[parameter]
+
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            valid_key = json.loads(keyfile.read())
+
+        jwk_set = PyJWKSet.from_dict({"keys": [malformed_key, valid_key]})
+
+        assert len(jwk_set.keys) == 1
+        assert jwk_set.keys[0].key_type == "RSA"
+
+    @crypto_required
     def test_should_load_keys_from_jwk_data_dict(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
 
@@ -304,6 +321,39 @@ class TestPyJWKSet:
         jwk_set = PyJWKSet.from_dict({"keys": [key_data]})
 
         assert jwk_set.keys == [jwk for jwk in jwk_set]
+
+    @crypto_required
+    def test_keyset_skips_members_that_are_not_objects(self) -> None:
+        # A JWKS member that isn't a JSON object is an unusable key, not a
+        # reason to fail the whole set with an uncaught AttributeError.
+        algo = RSAAlgorithm(RSAAlgorithm.SHA256)
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            pub_key = algo.from_jwk(keyfile.read())
+
+        key_data = json.loads(algo.to_jwk(pub_key))
+        key_data["alg"] = "RS256"
+        key_data["kid"] = "usable"
+
+        keyset = PyJWKSet.from_dict({"keys": [None, "nope", 7, key_data]})
+
+        assert [key.key_id for key in keyset.keys] == ["usable"]
+
+    @crypto_required
+    def test_keyset_of_only_non_object_members_raises_set_error(self) -> None:
+        with pytest.raises(PyJWKSetError):
+            PyJWKSet.from_dict({"keys": [None]})
+
+    @crypto_required
+    def test_keyset_skips_members_with_invalid_component_types(self) -> None:
+        # RSA components must be strings; a number is unusable and must not
+        # surface as an uncaught TypeError.
+        with pytest.raises(PyJWKSetError):
+            PyJWKSet.from_dict({"keys": [{"kty": "RSA", "n": 1, "e": "AQAB"}]})
+
+    @crypto_required
+    def test_jwk_with_invalid_component_type_raises_invalid_key_error(self) -> None:
+        with pytest.raises(InvalidKeyError):
+            PyJWK({"kty": "RSA", "alg": "RS256", "n": 1, "e": "AQAB"})
 
     @crypto_required
     def test_keyset_with_unknown_alg(self) -> None:

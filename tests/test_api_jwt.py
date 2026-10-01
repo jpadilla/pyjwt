@@ -1,11 +1,14 @@
 import json
 import time
 from calendar import timegm
+from collections.abc import Iterator, MutableMapping
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from unittest import mock
 
 import pytest
 
+import jwt as pyjwt
 from jwt.types import Options
 from jwt.api_jwk import PyJWK
 from jwt.api_jwt import PyJWT
@@ -38,6 +41,61 @@ def payload() -> dict[str, object]:
 
 
 class TestJWT:
+    def test_decode_does_not_mutate_options_when_signature_verification_is_disabled(
+        self, jwt: PyJWT
+    ) -> None:
+        options: Options = {"verify_signature": False}
+        token = jwt.encode({"claim": "value"}, "a" * 32, algorithm="HS256")
+        original_options = options.copy()
+
+        jwt.decode(token, options=options)
+
+        assert options == original_options
+
+    def test_reused_options_do_not_disable_claim_verification(self, jwt: PyJWT) -> None:
+        options: Options = {"verify_signature": False}
+        token = jwt.encode({"exp": utc_timestamp() - 1}, "a" * 32, algorithm="HS256")
+
+        jwt.decode(token, options=options)
+        options["verify_signature"] = True
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(token, "a" * 32, algorithms=["HS256"], options=options)
+
+    def test_decode_complete_preserves_mutable_mapping_input(self, jwt: PyJWT) -> None:
+        class MappingWithoutCopy(MutableMapping[str, object]):
+            def __init__(self, values: dict[str, object]) -> None:
+                self._data = values
+
+            def __getitem__(self, key: str) -> object:
+                return self._data[key]
+
+            def __setitem__(self, key: str, value: object) -> None:
+                self._data[key] = value
+
+            def __delitem__(self, key: str) -> None:
+                del self._data[key]
+
+            def __iter__(self) -> Iterator[str]:
+                return iter(self._data)
+
+            def __len__(self) -> int:
+                return len(self._data)
+
+        options = MappingWithoutCopy({"verify_signature": False})
+        token = jwt.encode({"claim": "value"}, "a" * 32, algorithm="HS256")
+
+        jwt.decode_complete(token, options=options)  # type: ignore[arg-type]
+
+        assert dict(options) == {"verify_signature": False}
+
+    def test_constructor_does_not_mutate_options_input(self, jwt: PyJWT) -> None:
+        options: Options = {"verify_signature": False}
+
+        PyJWT(options=options)
+
+        assert options == {"verify_signature": False}
+
     def test_jwt_with_options(self) -> None:
         jwt = PyJWT(options={"verify_signature": False})
         assert jwt.options["verify_signature"] is False
@@ -120,6 +178,18 @@ class TestJWT:
             jwt.decode(example_jwt, example_secret, algorithms=["HS256"])
 
         assert "Invalid payload string" in str(exc.value)
+
+    def test_decode_payload_recursion_error_throws_decode_error(self) -> None:
+        token = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.e30."
+
+        with mock.patch(
+            "jwt.api_jwt.json.loads",
+            side_effect=[{"alg": "none", "typ": "JWT"}, RecursionError()],
+        ):
+            with pytest.raises(DecodeError, match="Invalid payload") as exc:
+                pyjwt.decode(token, options={"verify_signature": False})
+
+        assert isinstance(exc.value.__cause__, RecursionError)
 
     def test_decode_with_non_mapping_payload_throws_exception(self, jwt: PyJWT) -> None:
         secret = "secret"
@@ -295,6 +365,21 @@ class TestJWT:
         with pytest.raises(DecodeError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
+    @pytest.mark.parametrize("claim", ["exp", "nbf", "iat"])
+    @pytest.mark.parametrize("value", [[1], {"a": 1}, None, float("inf")])
+    def test_decode_raises_clean_error_if_claim_is_non_numeric_type(
+        self, jwt: PyJWT, claim: str, value: object
+    ) -> None:
+        # A structured/None exp/nbf/iat must raise a PyJWTError subclass, not
+        # leak the runtime errors int() raises for unconvertible JSON values.
+        secret = "secret"
+        jwt_message = jwt.encode({claim: value}, secret)
+
+        expected = InvalidIssuedAtError if claim == "iat" else DecodeError
+        with pytest.raises(expected) as exc:
+            jwt.decode(jwt_message, secret, algorithms=["HS256"])
+        assert claim in str(exc.value)
+
     def test_decode_allows_aud_to_be_none(self, jwt: PyJWT) -> None:
         # >>> jwt.encode({'aud': None}, 'secret')
         example_jwt = (
@@ -333,7 +418,12 @@ class TestJWT:
     # encoding / decoding operations equally (causing tests
     # to still pass).
     @crypto_required
-    def test_decodes_valid_es256_jwt(self, jwt: PyJWT) -> None:
+    @pytest.mark.parametrize(
+        "signature_padding", [b"", b"=="], ids=["compact", "alb-padded"]
+    )
+    def test_decodes_valid_es256_jwt(
+        self, jwt: PyJWT, signature_padding: bytes
+    ) -> None:
         example_payload = {"hello": "world"}
         with open(key_path("testkey_ec.pub")) as fp:
             example_pubkey = fp.read()
@@ -343,7 +433,10 @@ class TestJWT:
             b"d2SsX8hhlnWelQFmPFSf_JzC2EbLnar92t-bXsDovzxp25ExazrVHkfPkQ"
         )
 
-        decoded_payload = jwt.decode(example_jwt, example_pubkey, algorithms=["ES256"])
+        # AWS ALB can include standard padding on its ES256 signature (#1209).
+        decoded_payload = jwt.decode(
+            example_jwt + signature_padding, example_pubkey, algorithms=["ES256"]
+        )
         assert decoded_payload == example_payload
 
     # 'Control' RSA JWT created by another library.
