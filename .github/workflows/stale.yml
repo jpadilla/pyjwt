@@ -22,4 +22,6 @@ jobs:
           stale-pr-label: stale
           exempt-issue-labels: 'blocked,must,should,keep'
       - name: Print outputs
-        run: echo ${{ join(steps.stale.outputs.*, ',') }}
+        env:
+          STALE_OUTPUTS: ${{ join(steps.stale.outputs.*, ',') }}
+        run: printf '%s\n' "$STALE_OUTPUTS"
