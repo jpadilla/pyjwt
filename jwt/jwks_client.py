@@ -107,9 +107,14 @@ class PyJWKClient:
         if headers is None:
             headers = {}
         # urllib's default OpenerDirector also handles file://, ftp://, and
-        # data: URIs. Reject anything that isn't http(s) eagerly so a caller
-        # passing an attacker-influenced URL (e.g. taken from a `jku` token
-        # header) can't read local files or reach other unintended schemes.
+        # data: URIs. Reject anything that isn't in allowed_schemes eagerly
+        # so a caller passing an attacker-influenced URL (e.g. taken from a
+        # `jku` token header) can't read local files or reach other unintended
+        # schemes.
+        if isinstance(allowed_schemes, str):
+            allowed_schemes = {allowed_schemes}
+        else:
+            allowed_schemes = set(allowed_schemes)
         scheme = urlparse(uri).scheme.lower()
         if scheme not in allowed_schemes:
             raise PyJWKClientError(
