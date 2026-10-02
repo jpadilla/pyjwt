@@ -14,8 +14,6 @@ on:
 
 permissions:
   contents: read
-  # Needed for trusted publishing.
-  id-token: write
 
 jobs:
   # Always build & lint package.
@@ -34,6 +32,9 @@ jobs:
   # Upload to Test PyPI on every commit on master.
   release-test-pypi:
     name: Publish in-dev package to test.pypi.org
+    permissions:
+      # Needed for trusted publishing.
+      id-token: write
     environment: release-test-pypi
     if: github.repository_owner == 'jpadilla' && github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
@@ -54,6 +55,9 @@ jobs:
   # Upload to real PyPI on GitHub Releases.
   release-pypi:
     name: Publish released package to pypi.org
+    permissions:
+      # Needed for trusted publishing.
+      id-token: write
     environment: release-pypi
     if: github.repository_owner == 'jpadilla' && github.event.action == 'published'
     runs-on: ubuntu-latest
