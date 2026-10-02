@@ -776,7 +776,8 @@ class TestPyJWKClient:
         PyJWKClient(uri)
 
     @pytest.mark.parametrize(
-        "uri", "allowed_schemes",
+        "uri",
+        "allowed_schemes",
         [
             ("s3://example.test/jwks.json", "s3"),
             ("S3://Example.Test/jwks.json", "s3"),  # case-insensitive
