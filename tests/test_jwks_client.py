@@ -744,6 +744,25 @@ class TestPyJWKClient:
         with pytest.raises(PyJWKClientError, match="Invalid JWKS URI scheme"):
             PyJWKClient(uri)
 
+    def test_pyjwkclient_rejects_non_specified_schemes(self, uri: str) -> None:
+        # urllib's default OpenerDirector handles file://, ftp://, and data:
+        # URIs. PyJWKClient must reject these so callers can't be tricked
+        # into reading attacker-controlled local files or other unintended
+        # schemes via a manipulated URI.
+        uri = "http://localhost/jwks.json"
+        allowed_schemes = [
+            "HTTP",
+            "https",
+            "file",
+            "ftp",
+            "data",
+            "",
+            "ldap",
+            "s3",
+        ]
+        with pytest.raises(PyJWKClientError, match="Invalid JWKS URI scheme"):
+            PyJWKClient(uri, allowed_schemes=allowed_schemes)
+
     @pytest.mark.parametrize(
         "uri",
         [
@@ -755,6 +774,31 @@ class TestPyJWKClient:
     def test_pyjwkclient_accepts_http_https_schemes(self, uri: str) -> None:
         # Construction succeeds; no fetch is made until get_jwk_set().
         PyJWKClient(uri)
+
+    @pytest.mark.parametrize(
+        "uri",
+        "allowed_schemes",
+        [
+            ("s3://example.test/jwks.json", "s3"),
+            ("S3://Example.Test/jwks.json", "s3"),  # case-insensitive
+        ],
+    )
+    def test_pyjwkclient_accepts_specified_schemes(self, uri: str) -> None:
+        # Construction succeeds; no fetch is made until get_jwk_set().
+        PyJWKClient(uri, allowed_schemes=allowed_schemes)
+
+    @pytest.mark.parametrize(
+        "allowed_schemes",
+        [
+            "http",  # str
+            iter("http"),  # single-use
+            ["http"],  # reusable
+        ],
+    )
+    def test_pyjwkclient_accepts_allowed_schemes(self, uri: str) -> None:
+        uri = "http://localhost/jwks.json"
+        # Construction succeeds; no fetch is made until get_jwk_set().
+        PyJWKClient(uri, allowed_schemes=allowed_schemes)
 
     def test_get_jwt_set_timeout(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
