@@ -12,7 +12,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v11
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
         id: stale
         with:
           stale-issue-message: 'This issue is stale because it has been open 60 days with no activity. Remove stale label or comment or this will be closed in 7 days'
@@ -22,4 +22,6 @@ jobs:
           stale-pr-label: stale
           exempt-issue-labels: 'blocked,must,should,keep'
       - name: Print outputs
-        run: echo ${{ join(steps.stale.outputs.*, ',') }}
+        env:
+          STALE_OUTPUTS: ${{ join(steps.stale.outputs.*, ',') }}
+        run: printf '%s\n' "$STALE_OUTPUTS"
