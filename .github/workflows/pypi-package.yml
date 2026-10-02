@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: hynek/build-and-inspect-python-package@v2
 
