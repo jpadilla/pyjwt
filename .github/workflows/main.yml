@@ -34,10 +34,10 @@ jobs:
           - "pypy3.11"
 
     steps:
-      - uses: "actions/checkout@v7"
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
         with:
           persist-credentials: false
-      - uses: "actions/setup-python@v7"
+      - uses: "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" # v7.0.0
 
         with:
           python-version: "${{ matrix.python-version }}"
@@ -55,7 +55,7 @@ jobs:
 
       # We always use a modern Python version for combining coverage to prevent
       # parsing errors in older versions for modern code.
-      - uses: "actions/setup-python@v7"
+      - uses: "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" # v7.0.0
         with:
           python-version: "3.9"
 
@@ -69,7 +69,7 @@ jobs:
 
       - name: "Upload coverage to Codecov"
         if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
-        uses: "codecov/codecov-action@v7"
+        uses: "codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5" # v7.1.1
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -80,10 +80,10 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: "actions/checkout@v7"
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
         with:
           persist-credentials: false
-      - uses: "actions/setup-python@v7"
+      - uses: "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" # v7.0.0
 
         with:
           python-version: "3.9"
@@ -110,10 +110,10 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: "actions/checkout@v7"
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
         with:
           persist-credentials: false
-      - uses: "actions/setup-python@v7"
+      - uses: "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" # v7.0.0
 
         with:
           python-version: "${{ matrix.python-version }}"
