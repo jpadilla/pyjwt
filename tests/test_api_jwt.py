@@ -765,6 +765,27 @@ class TestJWT:
 
         assert exc.value.claim == "nbf"
 
+    def test_decode_should_succeed_if_required_claims_are_present(
+        self, jwt: PyJWT
+    ) -> None:
+        now = utc_timestamp()
+        payload = {
+            "some": "payload",
+            "exp": now + 60,
+            "iat": now,
+            "nbf": now,
+        }
+        token = jwt.encode(payload, "secret")
+
+        decoded = jwt.decode(
+            token,
+            "secret",
+            options={"require": ["exp", "iat", "nbf"]},
+            algorithms=["HS256"],
+        )
+
+        assert decoded == payload
+
     def test_skip_check_signature(self, jwt: PyJWT) -> None:
         token = (
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
