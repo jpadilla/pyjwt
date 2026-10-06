@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 import pytest
 
@@ -211,6 +212,20 @@ class TestPyJWK:
         with pytest.raises(InvalidKeyError):
             PyJWK.from_dict(v)
 
+    @pytest.mark.parametrize("algorithm", [["HS256"], {"name": "HS256"}])
+    def test_unhashable_algorithm_raises_key_error(self, algorithm: Any) -> None:
+        with pytest.raises(InvalidKeyError, match="alg must be a string"):
+            PyJWK({"kty": "oct", "k": "c2VjcmV0", "alg": algorithm})
+
+    @pytest.mark.parametrize("algorithm", [["HS256"], {"name": "HS256"}])
+    def test_explicit_algorithm_overrides_invalid_jwk_algorithm(
+        self, algorithm: Any
+    ) -> None:
+        jwk = PyJWK(
+            {"kty": "oct", "k": "c2VjcmV0", "alg": algorithm}, algorithm="HS256"
+        )
+        assert jwk.algorithm_name == "HS256"
+
     @no_crypto_required
     def test_missing_crypto_library_good_error_message(self) -> None:
         with pytest.raises(PyJWKError) as exc:
@@ -224,6 +239,25 @@ class TestPyJWK:
 
 
 class TestPyJWKSet:
+    @pytest.mark.parametrize("algorithm", [["HS256"], {"name": "HS256"}])
+    def test_skips_keys_with_unhashable_algorithms(self, algorithm: Any) -> None:
+        keyset = PyJWKSet.from_dict(
+            {
+                "keys": [
+                    {"kty": "oct", "k": "c2VjcmV0", "alg": algorithm, "kid": "bad"},
+                    {"kty": "oct", "k": "c2VjcmV0", "kid": "good"},
+                ]
+            }
+        )
+        assert [key.key_id for key in keyset] == ["good"]
+
+    @pytest.mark.parametrize("algorithm", [["HS256"], {"name": "HS256"}])
+    def test_only_unhashable_algorithms_raise_set_error(self, algorithm: Any) -> None:
+        with pytest.raises(PyJWKSetError, match="did not contain any usable keys"):
+            PyJWKSet.from_dict(
+                {"keys": [{"kty": "oct", "k": "c2VjcmV0", "alg": algorithm}]}
+            )
+
     @crypto_required
     def test_should_skip_malformed_rsa_key_and_load_remaining_keys(self) -> None:
         with open(key_path("jwk_rsa_key.json")) as keyfile:

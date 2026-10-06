@@ -65,6 +65,9 @@ class PyJWK:
             else:
                 raise InvalidKeyError(f"Unsupported kty: {kty}")
 
+        if not isinstance(algorithm, str):
+            raise InvalidKeyError("alg must be a string")
+
         if not has_crypto and algorithm in requires_cryptography:
             raise MissingCryptographyError(
                 f"{algorithm} requires 'cryptography' to be installed."
