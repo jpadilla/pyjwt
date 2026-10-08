@@ -5,7 +5,7 @@ import pytest
 
 from jwt.algorithms import NoneAlgorithm, has_crypto
 from jwt.api_jwk import PyJWK
-from jwt.api_jws import PyJWS
+from jwt.api_jws import _BASE64URL_ALPHABET, PyJWS
 from jwt.exceptions import (
     DecodeError,
     InvalidAlgorithmError,
@@ -724,6 +724,14 @@ class TestJWS:
     def test_decode_rejects_invalid_base64url_padding(self, segment: bytes) -> None:
         with pytest.raises(DecodeError, match="Invalid crypto padding"):
             PyJWS._decode_base64url_segment(segment, "crypto")
+
+    def test_decode_rejects_every_byte_outside_base64url_alphabet(self) -> None:
+        for byte in range(256):
+            if byte in _BASE64URL_ALPHABET or byte == ord("="):
+                continue
+            segment = b"Zm9" + bytes([byte])
+            with pytest.raises(DecodeError, match="Invalid crypto padding"):
+                PyJWS._decode_base64url_segment(segment, "crypto")
 
     def test_decode_with_algo_none_should_fail(
         self, jws: PyJWS, payload: bytes
