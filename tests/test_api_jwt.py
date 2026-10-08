@@ -5,6 +5,7 @@ from collections.abc import Iterator, MutableMapping
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from unittest import mock
+from typing import Any, cast
 
 import pytest
 
@@ -103,6 +104,124 @@ class TestJWT:
         assert jwt.options["strict_aud"] is False
         # assert that verify_signature is respected unless verify_exp is overridden
         assert jwt.options["verify_exp"] is False
+
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    @pytest.mark.parametrize("options", [None, {}, {"verify_aud": False}])
+    def test_decode_respects_instance_signature_option(
+        self, method: str, options: Options | None
+    ) -> None:
+        decoder = PyJWT(options={"verify_signature": False})
+        payload = {"message": "hello"}
+        token = pyjwt.encode(payload, "a" * 32, algorithm="HS256")
+
+        result = getattr(decoder, method)(token, options=options)
+        assert (result["payload"] if method == "decode_complete" else result) == payload
+
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    @pytest.mark.parametrize("options", [None, {}, {"verify_signature": True}])
+    def test_instance_signature_verification_remains_enabled_by_default(
+        self, method: str, options: Options | None
+    ) -> None:
+        decoder = PyJWT(options=options)
+        token = pyjwt.encode({"message": "hello"}, "a" * 32, algorithm="HS256")
+
+        with pytest.raises(pyjwt.InvalidSignatureError):
+            getattr(decoder, method)(token, "b" * 32, algorithms=["HS256"])
+
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    @pytest.mark.parametrize("value", [None, 0, 0.0, "", [], {}])
+    def test_invalid_instance_signature_option_does_not_disable_verification(
+        self, method: str, value: object
+    ) -> None:
+        decoder = PyJWT(options=cast(Options, {"verify_signature": value}))
+        token = pyjwt.encode({"message": "hello"}, "a" * 32, algorithm="HS256")
+
+        for options in (None, {}, {"verify_aud": False}):
+            with pytest.raises(pyjwt.InvalidSignatureError):
+                getattr(decoder, method)(
+                    token, "b" * 32, algorithms=["HS256"], options=options
+                )
+
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    def test_per_call_signature_option_overrides_instance(self, method: str) -> None:
+        instance_options: Options = {"verify_signature": False}
+        call_options: Options = {"verify_signature": True}
+        decoder = PyJWT(options=instance_options)
+        token = pyjwt.encode({"message": "hello"}, "a" * 32, algorithm="HS256")
+
+        with pytest.raises(pyjwt.InvalidSignatureError):
+            getattr(decoder, method)(
+                token, "b" * 32, algorithms=["HS256"], options=call_options
+            )
+        result = getattr(decoder, method)(
+            token, "a" * 32, algorithms=["HS256"], options=call_options
+        )
+        assert (result["payload"] if method == "decode_complete" else result) == {
+            "message": "hello"
+        }
+        # An override applies only to this call, without mutating either input.
+        getattr(decoder, method)(token)
+        assert decoder.options["verify_signature"] is False
+        assert instance_options == {"verify_signature": False}
+        assert call_options == {"verify_signature": True}
+
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    @pytest.mark.parametrize(
+        "claim, value, arguments, error",
+        [
+            ("exp", 0, {}, ExpiredSignatureError),
+            ("iat", 4102444800, {}, ImmatureSignatureError),
+            ("nbf", 4102444800, {}, ImmatureSignatureError),
+            ("aud", "service", {"audience": "other"}, InvalidAudienceError),
+            ("iss", "issuer", {"issuer": "other"}, InvalidIssuerError),
+            ("sub", 123, {}, InvalidSubjectError),
+            ("jti", 123, {}, InvalidJTIError),
+        ],
+    )
+    def test_instance_signature_option_preserves_claim_overrides(
+        self,
+        method: str,
+        claim: str,
+        value: object,
+        arguments: dict[str, Any],
+        error: type[pyjwt.PyJWTError],
+    ) -> None:
+        payload = {claim: value}
+        token = pyjwt.encode(payload, "a" * 32, algorithm="HS256")
+        flag = f"verify_{claim}"
+        decoder = PyJWT(options=cast(Options, {"verify_signature": False, flag: True}))
+        with pytest.raises(error):
+            getattr(decoder, method)(token, **arguments)
+
+        result = getattr(decoder, method)(token, options={flag: False}, **arguments)
+        assert (result["payload"] if method == "decode_complete" else result) == payload
+
+        decoder = PyJWT(options={"verify_signature": False})
+        with pytest.raises(error):
+            getattr(decoder, method)(token, options={flag: True}, **arguments)
+
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    def test_instance_signature_option_preserves_required_claims(
+        self, method: str
+    ) -> None:
+        token = pyjwt.encode({}, "a" * 32, algorithm="HS256")
+        decoder = PyJWT(options={"verify_signature": False, "require": ["sub"]})
+        with pytest.raises(MissingRequiredClaimError, match='"sub"'):
+            getattr(decoder, method)(token)
+        getattr(decoder, method)(token, options={"require": []})
+        with pytest.raises(MissingRequiredClaimError, match='"aud"'):
+            getattr(decoder, method)(token, options={"require": ["aud"]})
+
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    def test_legacy_verify_warning_uses_instance_signature_option(
+        self, method: str
+    ) -> None:
+        token = pyjwt.encode({}, "a" * 32, algorithm="HS256")
+        decoder = PyJWT(options={"verify_signature": False})
+        # Warnings are errors in this suite; matching the effective setting must not warn.
+        getattr(decoder, method)(token, verify=False)
+        with pytest.warns(DeprecationWarning, match="mismatch"):
+            getattr(decoder, method)(token, verify=True)
 
     def test_encode_with_jwk_uses_key_algorithm(self, jwt: PyJWT) -> None:
         """Test that encoding with a PyJWK key uses the key's algorithm

@@ -239,10 +239,9 @@ class PyJWT:
                 stacklevel=2,
             )
 
-        if options is None:
-            verify_signature = True
-        else:
-            verify_signature = options.get("verify_signature", True)
+        verify_signature = self.options["verify_signature"] is not False
+        if options is not None:
+            verify_signature = options.get("verify_signature", verify_signature)
 
         # If the user has set the legacy `verify` argument, and it doesn't match
         # what the relevant `options` entry for the argument is, inform the user
