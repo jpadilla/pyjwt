@@ -1065,6 +1065,55 @@ class TestJWS:
         assert "b64" not in msg_header_obj
         assert msg_payload
 
+    @pytest.mark.parametrize("sort_headers", [False, True])
+    def test_encode_preserves_critical_b64_true(
+        self, jws: PyJWS, sort_headers: bool
+    ) -> None:
+        secret = "x" * 32
+        payload = b"payload with dots . and non-ascii bytes \xff"
+        headers = {"b64": True, "crit": ["b64"]}
+        token = jws.encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers=headers,
+            sort_headers=sort_headers,
+        )
+
+        assert jws.decode(token, secret, algorithms=["HS256"]) == payload
+        assert jws.get_unverified_header(token)["b64"] is True
+        assert jws.get_unverified_header(token)["crit"] == ["b64"]
+        assert base64url_decode(token.split(".")[1]) == payload
+        assert headers == {"b64": True, "crit": ["b64"]}
+
+    @pytest.mark.parametrize("b64", [None, 0, 1, "false", "true", {}, []])
+    def test_encode_critical_b64_keeps_invalid_values_rejected(
+        self, jws: PyJWS, payload: bytes, b64: object
+    ) -> None:
+        token = jws.encode(
+            payload,
+            "x" * 32,
+            algorithm="HS256",
+            headers={"b64": b64, "crit": ["b64"]},
+        )
+
+        with pytest.raises(InvalidTokenError, match="missing from headers"):
+            jws.decode(token, "x" * 32, algorithms=["HS256"])
+
+    @pytest.mark.parametrize("crit", [None, False, 0, "b64", {}, []])
+    def test_encode_b64_true_keeps_invalid_crit_rejected(
+        self, jws: PyJWS, payload: bytes, crit: object
+    ) -> None:
+        token = jws.encode(
+            payload,
+            "x" * 32,
+            algorithm="HS256",
+            headers={"b64": True, "crit": crit},
+        )
+
+        with pytest.raises(InvalidTokenError, match="must be a non-empty list"):
+            jws.decode(token, "x" * 32, algorithms=["HS256"])
+
     def test_encode_b64_false_auto_adds_b64_to_crit(
         self, jws: PyJWS, payload: bytes
     ) -> None:
