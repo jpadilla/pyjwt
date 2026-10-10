@@ -389,3 +389,34 @@ class TestPyJWKSet:
     def test_missing_crypto_library_raises_when_required(self) -> None:
         with pytest.raises(MissingCryptographyError):
             PyJWKSet(keys=[{"kty": "RSA"}])
+
+
+@pytest.mark.parametrize("as_json", [False, True])
+def test_hmac_jwk_rejects_missing_key_parameter(as_json: bool) -> None:
+    with pytest.raises(InvalidKeyError, match='HMAC key must have "k" parameter'):
+        if as_json:
+            PyJWK.from_json('{"kty": "oct"}')
+        else:
+            PyJWK.from_dict({"kty": "oct"})
+
+
+@pytest.mark.parametrize("as_json", [False, True])
+@pytest.mark.parametrize("invalid_first", [False, True])
+def test_keyset_skips_hmac_member_missing_key_parameter(
+    as_json: bool, invalid_first: bool
+) -> None:
+    invalid_key = {"kty": "oct"}
+    valid_key = {"kty": "oct", "k": "c2VjcmV0", "kid": "usable"}
+    keys = [invalid_key, valid_key] if invalid_first else [valid_key, invalid_key]
+    data = {"keys": keys}
+    keyset = (
+        PyJWKSet.from_json(json.dumps(data)) if as_json else PyJWKSet.from_dict(data)
+    )
+
+    assert len(keyset.keys) == 1
+    assert keyset["usable"].key == b"secret"
+
+
+def test_keyset_with_only_hmac_member_missing_key_parameter() -> None:
+    with pytest.raises(PyJWKSetError, match="did not contain any usable keys"):
+        PyJWKSet.from_dict({"keys": [{"kty": "oct"}]})

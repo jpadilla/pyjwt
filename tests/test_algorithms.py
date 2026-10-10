@@ -1918,3 +1918,10 @@ class TestKeyLengthValidation:
         token = jwt.encode({"hello": "world"}, "a" * 32, algorithm="HS256")
         decoded = jwt.decode(token, "a" * 32, algorithms=["HS256"])
         assert decoded == {"hello": "world"}
+
+
+@pytest.mark.parametrize("as_json", [False, True])
+def test_hmac_from_jwk_rejects_missing_key_parameter(as_json: bool) -> None:
+    algorithm = HMACAlgorithm(HMACAlgorithm.SHA256)
+    with pytest.raises(InvalidKeyError, match='HMAC key must have "k" parameter'):
+        algorithm.from_jwk('{"kty": "oct"}' if as_json else {"kty": "oct"})
