@@ -178,8 +178,11 @@ class PyJWS:
             if "b64" not in existing_crit:
                 header["crit"] = [*existing_crit, "b64"]
         elif "b64" in header:
-            # True is the standard value for b64, so no need for it
-            del header["b64"]
+            # The default value can be omitted unless crit requires it to remain
+            # present in the protected header.
+            crit = header.get("crit")
+            if not (header["b64"] is True and isinstance(crit, list) and "b64" in crit):
+                del header["b64"]
 
         json_header = json.dumps(
             header, separators=(",", ":"), cls=json_encoder, sort_keys=sort_headers

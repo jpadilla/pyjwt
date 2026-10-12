@@ -266,6 +266,23 @@ class TestJWT:
         exception = context.value
         assert str(exception) == "Invalid claim format in token"
 
+    @pytest.mark.parametrize("sort_headers", [False, True])
+    def test_encode_preserves_critical_b64_true(
+        self, jwt: PyJWT, sort_headers: bool
+    ) -> None:
+        payload = {"message": "test"}
+        headers = {"b64": True, "crit": ["b64"]}
+        token = jwt.encode(
+            payload,
+            "x" * 32,
+            algorithm="HS256",
+            headers=headers,
+            sort_headers=sort_headers,
+        )
+
+        assert jwt.decode(token, "x" * 32, algorithms=["HS256"]) == payload
+        assert headers == {"b64": True, "crit": ["b64"]}
+
     def test_encode_bad_type(self, jwt: PyJWT) -> None:
         types = ["string", tuple(), list(), 42, set()]
 
