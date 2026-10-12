@@ -99,6 +99,11 @@ Security
   errors or whole-set parsing failures. See
   `GHSA-8wjv-2p76-3863 <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-8wjv-2p76-3863>`__
   and `GHSA-w6j9-cwv2-h6wq <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-w6j9-cwv2-h6wq>`__.
+- Stop mutating the caller-supplied ``options`` mapping during decode
+  when ``verify_signature`` is false, so a mapping reused across a
+  signature-disabled peek and a fully verified decode cannot silently
+  skip registered-claim verification. See
+  `GHSA-gvp8-978c-rx2q <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-gvp8-978c-rx2q>`__.
 - Enforce compact JWS encoding rules during decoding. See
   `GHSA-hxm8-2xgr-2p9m <https://github.com/jpadilla/pyjwt/security/advisories/GHSA-hxm8-2xgr-2p9m>`__.
 - Reject detached-payload arguments for attached JWS inputs. Thanks to `@xclow3n
