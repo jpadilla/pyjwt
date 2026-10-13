@@ -1090,6 +1090,15 @@ class TestJWT:
 
         assert "Invalid subject" in str(exc_info.value)
 
+    def test_decode_missing_sub_with_subject(self, jwt: PyJWT) -> None:
+        secret = "your-256-bit-secret"
+        token = jwt.encode({}, secret, algorithm="HS256")
+
+        with pytest.raises(MissingRequiredClaimError) as exc:
+            jwt.decode(token, secret, algorithms=["HS256"], subject="user123")
+
+        assert exc.value.claim == "sub"
+
     def test_decode_with_sub_claim_and_none_subject(self, jwt: PyJWT) -> None:
         payload = {
             "sub": "user789",
