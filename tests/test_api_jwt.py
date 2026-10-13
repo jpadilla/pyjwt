@@ -4,6 +4,7 @@ from calendar import timegm
 from collections.abc import Iterator, MutableMapping
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from typing import Optional
 from unittest import mock
 
 import pytest
@@ -335,15 +336,51 @@ class TestJWT:
         with pytest.raises(InvalidIssuedAtError):
             jwt.decode(example_jwt, "secret", algorithms=["HS256"])
 
+    @pytest.mark.parametrize("method", ["decode", "decode_complete"])
+    @pytest.mark.parametrize(
+        ("instance_options", "options"),
+        [(None, None), ({"verify_exp": True}, None), (None, {"verify_exp": True})],
+    )
     def test_decode_raises_exception_if_iat_is_greater_than_now(
-        self, jwt: PyJWT, payload: dict[str, object]
+        self,
+        payload: dict[str, object],
+        method: str,
+        instance_options: Optional[Options],
+        options: Optional[Options],
     ) -> None:
         payload["iat"] = utc_timestamp() + 10
         secret = "secret"
+        jwt = PyJWT(instance_options)
+        jwt_message = jwt.encode(payload, secret)
+
+        with pytest.warns(RemovedInPyjwt3Warning, match="verify_iat") as record:
+            with pytest.raises(ImmatureSignatureError):
+                getattr(jwt, method)(
+                    jwt_message, secret, algorithms=["HS256"], options=options
+                )
+        deprecation_warnings = [
+            w for w in record if issubclass(w.category, RemovedInPyjwt3Warning)
+        ]
+        assert len(deprecation_warnings) == 1
+        assert deprecation_warnings[0].filename == __file__
+
+    @pytest.mark.parametrize(
+        ("instance_options", "options"),
+        [({"verify_iat": True}, None), (None, {"verify_iat": True})],
+    )
+    def test_decode_does_not_warn_if_verify_iat_is_set(
+        self,
+        payload: dict[str, object],
+        instance_options: Optional[Options],
+        options: Optional[Options],
+    ) -> None:
+        payload["iat"] = utc_timestamp() + 10
+        secret = "secret"
+        jwt = PyJWT(instance_options)
         jwt_message = jwt.encode(payload, secret)
 
         with pytest.raises(ImmatureSignatureError):
-            jwt.decode(jwt_message, secret, algorithms=["HS256"])
+            jwt.decode(jwt_message, secret, algorithms=["HS256"], options=options)
 
     def test_decode_works_if_iat_is_str_of_a_number(
         self, jwt: PyJWT, payload: dict[str, object]
