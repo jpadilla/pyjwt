@@ -219,7 +219,7 @@ class Algorithm(ABC):
             )
 
         if not isinstance(key, self._crypto_key_types):
-            valid_classes = (cls.__name__ for cls in self._crypto_key_types)
+            valid_classes = ", ".join(cls.__name__ for cls in self._crypto_key_types)
             actual_class = key.__class__.__name__
             self_class = self.__class__.__name__
             raise InvalidKeyError(
@@ -751,7 +751,10 @@ if has_crypto:
                 self._validate_curve(ec_public_key)
                 return ec_public_key
             except ValueError:
-                private_key = load_pem_private_key(key_bytes, password=None)
+                try:
+                    private_key = load_pem_private_key(key_bytes, password=None)
+                except (ValueError, UnsupportedAlgorithm):
+                    raise InvalidKeyError("Could not parse the provided key.") from None
                 self.check_crypto_key_type(private_key)
                 ec_private_key = cast(EllipticCurvePrivateKey, private_key)
                 self._validate_curve(ec_private_key)
@@ -963,18 +966,21 @@ if has_crypto:
                 self.check_crypto_key_type(key)
                 return key
 
-            key_str = key.decode("utf-8") if isinstance(key, bytes) else key
-            key_bytes = key.encode("utf-8") if isinstance(key, str) else key
-
             loaded_key: PublicKeyTypes | PrivateKeyTypes
-            if "-----BEGIN PUBLIC" in key_str:
-                loaded_key = load_pem_public_key(key_bytes)
-            elif "-----BEGIN PRIVATE" in key_str:
-                loaded_key = load_pem_private_key(key_bytes, password=None)
-            elif key_str[0:4] == "ssh-":
-                loaded_key = load_ssh_public_key(key_bytes)
-            else:
-                raise InvalidKeyError("Not a public or private key")
+            try:
+                key_str = key.decode("utf-8") if isinstance(key, bytes) else key
+                key_bytes = key.encode("utf-8") if isinstance(key, str) else key
+
+                if "-----BEGIN PUBLIC" in key_str:
+                    loaded_key = load_pem_public_key(key_bytes)
+                elif "-----BEGIN PRIVATE" in key_str:
+                    loaded_key = load_pem_private_key(key_bytes, password=None)
+                elif key_str[0:4] == "ssh-":
+                    loaded_key = load_ssh_public_key(key_bytes)
+                else:
+                    raise InvalidKeyError("Not a public or private key")
+            except (ValueError, UnsupportedAlgorithm):
+                raise InvalidKeyError("Could not parse the provided key.") from None
 
             # Explicit check the key to prevent confusing errors from cryptography
             self.check_crypto_key_type(loaded_key)
