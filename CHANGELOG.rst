@@ -7,6 +7,13 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Preserve microseconds when ``jwt.encode()`` converts ``datetime`` values of
+  the ``exp``, ``iat`` and ``nbf`` claims. Whole-second datetimes still encode
+  as integers (`#1126 <https://github.com/jpadilla/pyjwt/issues/1126>`__).
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 

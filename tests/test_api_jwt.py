@@ -4,6 +4,7 @@ from calendar import timegm
 from collections.abc import Iterator, MutableMapping
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from typing import Optional
 from unittest import mock
 
 import pytest
@@ -403,15 +404,44 @@ class TestJWT:
             jwt_message, secret, leeway=1, algorithms=["HS256"]
         )
 
-        assert decoded_payload["exp"] == timegm(current_datetime.utctimetuple())
-        assert decoded_payload["iat"] == timegm(current_datetime.utctimetuple())
-        assert decoded_payload["nbf"] == timegm(current_datetime.utctimetuple())
+        assert decoded_payload["exp"] == current_datetime.timestamp()
+        assert decoded_payload["iat"] == current_datetime.timestamp()
+        assert decoded_payload["nbf"] == current_datetime.timestamp()
         # payload is not mutated.
         assert payload == {
             "exp": current_datetime,
             "iat": current_datetime,
             "nbf": current_datetime,
         }
+
+    @pytest.mark.parametrize("tzinfo", [None, timezone.utc])
+    def test_encode_datetime_preserves_microseconds(
+        self, jwt: PyJWT, tzinfo: Optional[timezone]
+    ) -> None:
+        secret = "secret"
+        iat_datetime = datetime(2025, 1, 1, 0, 0, 0, 123456, tzinfo=tzinfo)
+        exp_datetime = datetime(2100, 1, 1, 0, 0, 0, 654321, tzinfo=tzinfo)
+        payload = {
+            "exp": exp_datetime,
+            "iat": iat_datetime,
+            "nbf": iat_datetime,
+        }
+        jwt_message = jwt.encode(payload, secret)
+        decoded_payload = jwt.decode(jwt_message, secret, algorithms=["HS256"])
+
+        # naive datetimes are treated as UTC
+        expected_iat = (
+            timegm(iat_datetime.utctimetuple()) + iat_datetime.microsecond / 1e6
+        )
+        expected_exp = (
+            timegm(exp_datetime.utctimetuple()) + exp_datetime.microsecond / 1e6
+        )
+        assert decoded_payload["exp"] == expected_exp
+        assert decoded_payload["iat"] == expected_iat
+        assert decoded_payload["nbf"] == expected_iat
+
+        decoded_iat = datetime.fromtimestamp(decoded_payload["iat"], tz=timezone.utc)
+        assert decoded_iat == iat_datetime.replace(tzinfo=timezone.utc)
 
     # 'Control' Elliptic Curve JWT created by another library.
     # Used to test for regressions that could affect both
