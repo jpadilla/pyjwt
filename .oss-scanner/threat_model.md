@@ -1,10 +1,59 @@
 # Threat model
 
-The authoritative threat model for PyJWT is the "Threat Model" section of
-[`SECURITY.md`](../SECURITY.md) at the repository root (`/src/SECURITY.md` in
-the scanner image). Read it first; this file only adds scanner-specific notes.
-Anything SECURITY.md lists under "What Is Not Considered a PyJWT
-Vulnerability" should not be reported.
+This file is self-contained. It summarises the "Threat Model" section of
+`SECURITY.md` at the repository root (`/src/SECURITY.md` in the scanner
+image), which is the authoritative version and has more detail.
+
+## Trust assumptions
+
+- The attacker can supply arbitrary JWTs, JWSs, JWKs, JWKS responses, key
+  identifiers, headers, claims, signatures and payloads.
+- The application's keys, algorithm allowlist, validation options, JWKS URL,
+  runtime, network and caches are trusted and not compromised.
+- The application picks the allowed algorithms independently of the token's
+  `alg` header: an explicit `algorithms` list for raw keys, or the algorithm
+  bound to a `PyJWK` obtained from trusted configuration.
+- PyJWT validates only the claims the application asked it to validate.
+- `cryptography`, OpenSSL and the Python standard library are assumed to
+  implement their primitives correctly.
+- PyJWT does not impose hard size limits on input; applications limit input
+  size and request rates. PyJWT is still responsible for not doing
+  unnecessary or disproportionate work.
+
+## What PyJWT guarantees when configured correctly
+
+- Correct implementation of the supported JWT, JWS, JWK and JWA operations.
+- Signature verification with trusted keys and either an explicit algorithm
+  allowlist or the algorithm bound to a `PyJWK`.
+- Validation of `exp`, `nbf`, `iat`, `aud`, `iss`, `sub` and `jti` according
+  to the arguments and options the application supplies.
+- Rejection of malformed or unsupported input where safe processing needs it.
+
+## Not a PyJWT vulnerability (do not report)
+
+Unless PyJWT violates a check the application explicitly configured, or uses
+an underlying primitive incorrectly:
+
+- Authentication or authorization failures caused by application policy,
+  including claims the application did not require or validate.
+- Treating unverified headers or payloads as authenticated, including data
+  decoded with `verify_signature=False` or read with `get_unverified_header`.
+- Choosing allowed algorithms, keys or trust anchors from attacker-controlled
+  token data.
+- Weak, exposed, badly generated or mismanaged keys and secrets supplied by
+  the application.
+- Failures caused by an untrusted JWKS source, insecure transport, a
+  user-configured proxy, or a writable cache.
+- Treating the original JWT string as a canonical identity (more than one
+  encoding can decode to the same content).
+- Missing replay prevention, revocation, nonce validation, session binding,
+  rate limiting or resource controls in the application.
+- Resource exhaustion caused only by input volume or size, where PyJWT does
+  no unnecessary or disproportionate work.
+- Reading secrets via a debugger, process memory, heap or core dumps, or any
+  other runtime compromise; no secure memory erasure is promised.
+- Bugs in a compromised or malicious runtime, OS, dependency, crypto library
+  or hardware, and side channels that exist only in those components.
 
 ## What this project does and where untrusted input enters
 
@@ -60,7 +109,7 @@ application and are trusted.
   only matters with insecure application configuration.
 
 Reports must show the issue under a correct application configuration as
-described in SECURITY.md. Findings that require `verify_signature=False`,
+described above. Findings that require `verify_signature=False`,
 an algorithm list derived from the token, attacker-supplied keys, or a
 compromised runtime are not vulnerabilities.
 
@@ -69,4 +118,5 @@ compromised runtime are not vulnerabilities.
 - Timing side channels that exist only in `cryptography`/OpenSSL or the
   Python runtime.
 - Resource exhaustion that is purely proportional to input size.
-- Lack of key-size enforcement beyond what SECURITY.md promises.
+- Lack of key-size enforcement: PyJWT and its dependencies may reject some
+  weak keys, but enforcing every key-size recommendation is not promised.
