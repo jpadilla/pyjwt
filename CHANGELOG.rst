@@ -7,6 +7,13 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Changed
+~~~~~~~
+
+- Add public ``jwt.decode`` regression coverage for AWS ALB-style padded
+  ES256 tokens, including rejection of tampered payloads and signatures,
+  in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 
