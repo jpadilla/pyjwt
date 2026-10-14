@@ -943,6 +943,8 @@ if has_crypto:
         This class requires ``cryptography>=2.6`` to be installed.
         """
 
+        SHA512: ClassVar[type[hashes.HashAlgorithm]] = hashes.SHA512
+
         _crypto_key_types = cast(
             tuple[type[AllowedKeys], ...],
             get_args(
@@ -955,8 +957,16 @@ if has_crypto:
             ),
         )
 
-        def __init__(self, **kwargs: Any) -> None:
-            pass
+        def __init__(
+            self, hash_alg: type[hashes.HashAlgorithm] | None = None, **kwargs: Any
+        ) -> None:
+            # "EdDSA" is registered without a key, so the curve is unknown here and
+            # there is no single correct digest: Ed25519 hashes with SHA-512 and
+            # Ed448 with SHAKE256 (RFC 8032). Callers who know their curve can pass
+            # the digest they need, and compute_hash_digest keeps raising
+            # NotImplementedError otherwise.
+            if hash_alg is not None:
+                self.hash_alg = hash_alg
 
         def prepare_key(self, key: AllowedOKPKeys | str | bytes) -> AllowedOKPKeys:
             if not isinstance(key, (str, bytes)):
