@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from collections.abc import Iterator
 from typing import Any
+
+from .utils import base64url_encode
 
 from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
 from .exceptions import (
@@ -135,6 +138,62 @@ class PyJWK:
         :rtype: str or None
         """
         return self._jwk_data.get("use", None)
+
+    # The members required for a thumbprint, per key type, as defined by
+    # RFC 7638, Section 3.2. All other members are excluded.
+    _THUMBPRINT_REQUIRED_MEMBERS: dict[str, tuple[str, ...]] = {
+        "EC": ("crv", "kty", "x", "y"),
+        "OKP": ("crv", "kty", "x"),
+        "RSA": ("e", "kty", "n"),
+        "oct": ("k", "kty"),
+    }
+
+    def thumbprint(self, hash_algorithm: str = "SHA-256") -> str:
+        """Compute the JWK thumbprint of this key, as defined by
+        `RFC 7638 <https://www.rfc-editor.org/rfc/rfc7638.html>`_.
+
+        Only the members required for the key's ``kty`` are included, in
+        lexicographic order, so members such as ``kid``, ``alg`` and
+        ``use`` do not affect the result. The JSON representation is
+        hashed and the digest is Base64URL-encoded without padding.
+
+        :param hash_algorithm: The hash function to use, for example
+            ``"SHA-256"`` (the default), ``"SHA-384"`` or ``"SHA-512"``.
+        :type hash_algorithm: str
+        :rtype: str
+        :raises InvalidKeyError: If the key type is unsupported or a
+            member required for the thumbprint is missing.
+        :raises ValueError: If ``hash_algorithm`` is not a known hash
+            function.
+        """
+        kty = self.key_type
+        try:
+            required_members = self._THUMBPRINT_REQUIRED_MEMBERS[kty]  # type: ignore[index]
+        except KeyError:
+            raise InvalidKeyError(f"Unsupported kty for thumbprint: {kty}") from None
+
+        missing_members = [
+            member for member in required_members if member not in self._jwk_data
+        ]
+        if missing_members:
+            raise InvalidKeyError(
+                "Unable to compute thumbprint, missing required "
+                f"member(s): {', '.join(missing_members)}"
+            )
+
+        try:
+            hash_function = hashlib.new(hash_algorithm.replace("-", "").lower())
+        except ValueError:
+            raise ValueError(f"Unsupported hash algorithm: {hash_algorithm}") from None
+
+        thumbprint_json = json.dumps(
+            {member: self._jwk_data[member] for member in required_members},
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+        hash_function.update(thumbprint_json)
+        return base64url_encode(hash_function.digest()).decode("ascii")
 
 
 class PyJWKSet:

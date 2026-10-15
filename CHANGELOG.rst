@@ -7,6 +7,12 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Added
+~~~~~
+
+- Add ``PyJWK.thumbprint()`` to compute the RFC 7638 JWK thumbprint of a
+  key, for use cases such as DPoP (`#1032 <https://github.com/jpadilla/pyjwt/issues/1032>`__).
+
 Changed
 ~~~~~~~
 
