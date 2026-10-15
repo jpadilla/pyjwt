@@ -14,6 +14,16 @@ Changed
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
 
+Fixed
+~~~~~
+
+- Reject ``exp``, ``nbf``, and ``iat`` claim values outside the range of
+  dates representable by ``datetime`` (up to year 9999). Python's
+  arbitrary-precision integers previously let claims like ``10**50`` pass
+  the plain comparisons used to validate these claims, even though such
+  values don't represent a real date and would overflow
+  ``datetime.fromtimestamp()`` in calling code.
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 
