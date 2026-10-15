@@ -169,6 +169,80 @@ class TestPyJWK:
         assert jwk.algorithm_name == "EdDSA"
 
     @crypto_required
+    def test_thumbprint_matches_rfc7638_example(self) -> None:
+        # The example JWK and expected thumbprint from RFC 7638, Section 3.1.
+        key_data = {
+            "kty": "RSA",
+            "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx"
+            "4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn"
+            "64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2Qvzq"
+            "Y368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08"
+            "qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls"
+            "1jF44-csFCur-kEgU8awapJzKnqDKgw",
+            "e": "AQAB",
+            "alg": "RS256",
+            "kid": "2011-04-29",
+        }
+
+        jwk = PyJWK.from_dict(key_data)
+
+        assert jwk.thumbprint() == "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs"
+
+    @crypto_required
+    def test_thumbprint_ignores_non_required_members(self) -> None:
+        with open(key_path("jwk_ec_pub_P-256.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+
+        key_data["kid"] = "some-other-key-id"
+        key_data["use"] = "enc"
+        jwk_with_extra_members = PyJWK.from_dict(key_data)
+
+        assert jwk_with_extra_members.thumbprint() == jwk.thumbprint()
+
+    @crypto_required
+    def test_thumbprint_supports_other_key_types_and_hash_algorithms(
+        self,
+    ) -> None:
+        for key_file in (
+            "jwk_ec_pub_P-256.json",
+            "jwk_hmac.json",
+            "jwk_okp_pub_Ed25519.json",
+            "jwk_rsa_pub.json",
+        ):
+            with open(key_path(key_file)) as keyfile:
+                key_data = json.loads(keyfile.read())
+
+            jwk = PyJWK.from_dict(key_data)
+
+            assert jwk.thumbprint()
+            # A SHA-384 digest is 48 bytes, so its Base64URL encoding
+            # without padding is longer than the SHA-256 one.
+            assert len(jwk.thumbprint("SHA-384")) > len(jwk.thumbprint())
+
+    @crypto_required
+    def test_thumbprint_raises_for_unsupported_hash_algorithm(self) -> None:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+
+        with pytest.raises(ValueError):
+            jwk.thumbprint("not-a-hash")
+
+    @crypto_required
+    def test_thumbprint_raises_if_required_member_is_missing(self) -> None:
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+        del jwk._jwk_data["n"]
+
+        with pytest.raises(InvalidKeyError):
+            jwk.thumbprint()
+
+    @crypto_required
     def test_from_dict_should_throw_exception_if_arg_is_invalid(self) -> None:
         with open(key_path("jwk_rsa_pub.json")) as keyfile:
             valid_rsa_pub = json.loads(keyfile.read())
