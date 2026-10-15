@@ -14,6 +14,14 @@ Changed
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
 
+Fixed
+~~~~~
+
+- Raise ``InvalidKeyError`` instead of ``ValueError`` when ``ECAlgorithm`` or
+  ``OKPAlgorithm`` cannot parse a PEM or SSH key, like ``RSAAlgorithm`` does,
+  and name the expected key classes in the key type error instead of printing
+  a generator object (`#1229 <https://github.com/jpadilla/pyjwt/issues/1229>`__).
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 

@@ -892,7 +892,10 @@ class TestAlgorithms:
     def test_ec_should_throw_exception_on_wrong_key(self) -> None:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
-        with pytest.raises(InvalidKeyError):
+        with pytest.raises(
+            InvalidKeyError,
+            match="Expected one of EllipticCurvePrivateKey, EllipticCurvePublicKey,",
+        ):
             with open(key_path("testkey_rsa.priv")) as keyfile:
                 algo.prepare_key(keyfile.read())
 
@@ -1204,6 +1207,23 @@ class TestOKPAlgorithms:
         with pytest.raises(InvalidKeyError):
             algo.prepare_key("not a valid key")
 
+    @pytest.mark.parametrize(
+        "invalid_key",
+        [
+            "-----BEGIN PUBLIC KEY-----\nnot-base64\n-----END PUBLIC KEY-----\n",
+            "-----BEGIN PRIVATE KEY-----\nnot-base64\n-----END PRIVATE KEY-----\n",
+            "ssh-ed25519 not-base64",
+            b"\xff",
+        ],
+    )
+    def test_okp_prepare_key_raises_invalid_key_error_on_unparseable_key(
+        self, invalid_key: Union[str, bytes]
+    ) -> None:
+        algo = OKPAlgorithm()
+
+        with pytest.raises(InvalidKeyError, match="Could not parse the provided key."):
+            algo.prepare_key(invalid_key)
+
     def test_okp_ed25519_jwk_private_key_should_parse_and_verify(self) -> None:
         algo = OKPAlgorithm()
 
@@ -1459,6 +1479,23 @@ class TestOKPAlgorithms:
 
         # Check that the exception message is correct
         assert "Could not parse the provided public key." in str(excinfo.value)
+
+    @crypto_required
+    @pytest.mark.parametrize(
+        "invalid_key",
+        [
+            "invalid key",
+            "-----BEGIN PUBLIC KEY-----\nnot-base64\n-----END PUBLIC KEY-----\n",
+            "ecdsa-sha2-nistp256 not-base64",
+        ],
+    )
+    def test_ec_prepare_key_raises_invalid_key_error_on_invalid_pem(
+        self, invalid_key: str
+    ) -> None:
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError, match="Could not parse the provided key."):
+            algo.prepare_key(invalid_key)
 
 
 @crypto_required
