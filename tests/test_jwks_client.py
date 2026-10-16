@@ -783,7 +783,9 @@ class TestPyJWKClient:
             ("S3://Example.Test/jwks.json", "s3"),  # case-insensitive
         ],
     )
-    def test_pyjwkclient_accepts_specified_schemes(self, uri: str, allowed_schemes: str) -> None:
+    def test_pyjwkclient_accepts_specified_schemes(
+        self, uri: str, allowed_schemes: str
+    ) -> None:
         # Construction succeeds; no fetch is made until get_jwk_set().
         PyJWKClient(uri, allowed_schemes=allowed_schemes)
 
