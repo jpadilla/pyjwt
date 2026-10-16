@@ -797,7 +797,7 @@ class TestPyJWKClient:
             ["http"],  # reusable
         ],
     )
-    def test_pyjwkclient_accepts_allowed_schemes(self, uri: str) -> None:
+    def test_pyjwkclient_accepts_allowed_schemes(self, allowed_schemes: str) -> None:
         uri = "http://localhost/jwks.json"
         # Construction succeeds; no fetch is made until get_jwk_set().
         PyJWKClient(uri, allowed_schemes=allowed_schemes)
