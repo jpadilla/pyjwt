@@ -73,8 +73,8 @@ content-type = "text/x-rst"
 file = "README.rst"
 
 [project.urls]
-Homepage = "https://github.com/jpadilla/pyjwt"
 Changelog = "https://github.com/jpadilla/pyjwt/blob/master/CHANGELOG.rst"
+Homepage = "https://github.com/jpadilla/pyjwt"
 
 [tool.coverage.paths]
 source = [
