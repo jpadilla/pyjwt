@@ -74,6 +74,7 @@ file = "README.rst"
 
 [project.urls]
 Homepage = "https://github.com/jpadilla/pyjwt"
+Changelog = "https://github.com/jpadilla/pyjwt/blob/master/CHANGELOG.rst"
 
 [tool.coverage.paths]
 source = [
