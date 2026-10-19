@@ -4,7 +4,12 @@ from typing import Callable, Union, cast
 
 import pytest
 
-from jwt.algorithms import HMACAlgorithm, NoneAlgorithm, has_crypto
+from jwt.algorithms import (
+    HMACAlgorithm,
+    NoneAlgorithm,
+    get_default_algorithms,
+    has_crypto,
+)
 from jwt.exceptions import InvalidKeyError
 from jwt.utils import base64url_decode
 
@@ -38,6 +43,22 @@ if has_crypto:
 
 
 class TestAlgorithms:
+    @pytest.mark.parametrize(
+        "algorithm",
+        [
+            "HS256",
+            pytest.param("RS256", marks=crypto_required),
+            pytest.param("ES256", marks=crypto_required),
+            pytest.param("EdDSA", marks=crypto_required),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "data", ["null", "[]", '["kty", "oct"]', "true", "1", '"key"']
+    )
+    def test_from_jwk_rejects_nonobject_json(self, algorithm: str, data: str) -> None:
+        with pytest.raises(InvalidKeyError):
+            get_default_algorithms()[algorithm].from_jwk(data)
+
     def test_check_crypto_key_type_should_fail_when_not_using_crypto(self) -> None:
         """If has_crypto is False, or if _crypto_key_types is None, then this method should throw."""
 
