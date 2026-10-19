@@ -110,6 +110,8 @@ class PyJWK:
         :rtype: PyJWK
         """
         obj = json.loads(data)
+        if not isinstance(obj, dict):
+            raise InvalidKeyError("JWK must be a JSON object")
         return PyJWK.from_dict(obj, algorithm)
 
     @property
@@ -172,6 +174,8 @@ class PyJWKSet:
     @staticmethod
     def from_json(data: str) -> PyJWKSet:
         obj = json.loads(data)
+        if not isinstance(obj, dict):
+            raise PyJWKSetError("JWK Set must be a JSON object")
         return PyJWKSet.from_dict(obj)
 
     def __getitem__(self, kid: str) -> PyJWK:

@@ -471,7 +471,7 @@ class HMACAlgorithm(Algorithm):
         except ValueError:
             raise InvalidKeyError("Key is not valid JSON") from None
 
-        if obj.get("kty") != "oct":
+        if not isinstance(obj, dict) or obj.get("kty") != "oct":
             raise InvalidKeyError("Not an HMAC key")
 
         key_bytes = base64url_decode(obj["k"])
@@ -619,7 +619,7 @@ if has_crypto:
             except ValueError:
                 raise InvalidKeyError("Key is not valid JSON") from None
 
-            if obj.get("kty") != "RSA":
+            if not isinstance(obj, dict) or obj.get("kty") != "RSA":
                 raise InvalidKeyError("Not an RSA key") from None
 
             if "d" in obj and "e" in obj and "n" in obj:
@@ -843,14 +843,14 @@ if has_crypto:
             except ValueError:
                 raise InvalidKeyError("Key is not valid JSON") from None
 
-            if obj.get("kty") != "EC":
+            if not isinstance(obj, dict) or obj.get("kty") != "EC":
                 raise InvalidKeyError("Not an Elliptic curve key") from None
 
             if "x" not in obj or "y" not in obj:
                 raise InvalidKeyError("Not an Elliptic curve key") from None
 
-            x = base64url_decode(obj.get("x"))
-            y = base64url_decode(obj.get("y"))
+            x = base64url_decode(obj["x"])
+            y = base64url_decode(obj["y"])
 
             curve = obj.get("crv")
             curve_obj: EllipticCurve
@@ -895,7 +895,7 @@ if has_crypto:
             if "d" not in obj:
                 return public_numbers.public_key()
 
-            d = base64url_decode(obj.get("d"))
+            d = base64url_decode(obj["d"])
             if len(d) != len(x):
                 raise InvalidKeyError(
                     "D should be {} bytes for curve {}", len(x), curve
@@ -1087,7 +1087,7 @@ if has_crypto:
             except ValueError:
                 raise InvalidKeyError("Key is not valid JSON") from None
 
-            if obj.get("kty") != "OKP":
+            if not isinstance(obj, dict) or obj.get("kty") != "OKP":
                 raise InvalidKeyError("Not an Octet Key Pair")
 
             curve = obj.get("crv")
@@ -1096,14 +1096,14 @@ if has_crypto:
 
             if "x" not in obj:
                 raise InvalidKeyError('OKP should have "x" parameter')
-            x = base64url_decode(obj.get("x"))
+            x = base64url_decode(obj["x"])
 
             try:
                 if "d" not in obj:
                     if curve == "Ed25519":
                         return Ed25519PublicKey.from_public_bytes(x)
                     return Ed448PublicKey.from_public_bytes(x)
-                d = base64url_decode(obj.get("d"))
+                d = base64url_decode(obj["d"])
                 private_key: Ed25519PrivateKey | Ed448PrivateKey
                 if curve == "Ed25519":
                     private_key = Ed25519PrivateKey.from_private_bytes(d)

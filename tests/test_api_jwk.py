@@ -1,4 +1,7 @@
 import json
+from collections import UserDict
+from types import MappingProxyType
+from typing import Any
 
 import pytest
 
@@ -18,6 +21,13 @@ if has_crypto:
 
 
 class TestPyJWK:
+    @pytest.mark.parametrize(
+        "data", ["null", "[]", '["kty", "oct"]', "true", "1", '"key"']
+    )
+    def test_from_json_rejects_nonobject_json(self, data: str) -> None:
+        with pytest.raises(InvalidKeyError, match="JWK must be a JSON object"):
+            PyJWK.from_json(data)
+
     @crypto_required
     def test_should_load_key_from_jwk_data_dict(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
@@ -224,6 +234,16 @@ class TestPyJWK:
 
 
 class TestPyJWKSet:
+    @pytest.mark.parametrize("mapping_type", [dict, UserDict, MappingProxyType])
+    def test_from_dict_accepts_mapping(self, mapping_type: Any) -> None:
+        data = mapping_type({"keys": [{"kty": "oct", "k": "c2VjcmV0", "kid": "test"}]})
+        assert PyJWKSet.from_dict(data)["test"].key == b"secret"
+
+    @pytest.mark.parametrize("data", ["null", "[]", '["keys"]', "true", "1", '"key"'])
+    def test_from_json_rejects_nonobject_json(self, data: str) -> None:
+        with pytest.raises(PyJWKSetError, match="JWK Set must be a JSON object"):
+            PyJWKSet.from_json(data)
+
     @crypto_required
     def test_should_skip_malformed_rsa_key_and_load_remaining_keys(self) -> None:
         with open(key_path("jwk_rsa_key.json")) as keyfile:

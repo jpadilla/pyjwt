@@ -7,6 +7,12 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Reject non-object JSON in JWK and JWK Set loaders with the corresponding
+  key-format exception instead of leaking ``AttributeError``.
+
 Changed
 ~~~~~~~
 
