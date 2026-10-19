@@ -7,6 +7,11 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Allow ``PyJWKClient`` to select signing keys with an empty-string ``kid``.
+
 Changed
 ~~~~~~~
 
