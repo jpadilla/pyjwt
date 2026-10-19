@@ -12,6 +12,7 @@ include jwt/py.typed
 graft docs
 graft tests
 exclude codecov.yml
+prune .oss-scanner
 recursive-exclude docs/_build *
 recursive-exclude * *.py[co]
 recursive-exclude * __pycache__
