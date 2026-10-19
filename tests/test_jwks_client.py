@@ -809,3 +809,94 @@ class TestPyJWKClient:
                 jwks_client.get_jwk_set()
 
             assert http_error.closed
+
+
+class TestPyJWKClientEmptyKeyId:
+    @pytest.mark.parametrize("cache_keys", [False, True])
+    @pytest.mark.parametrize("cache_jwk_set", [False, True])
+    def test_get_signing_key_from_jwt_with_empty_kid(
+        self, cache_keys: bool, cache_jwk_set: bool
+    ) -> None:
+        secret = b"0123456789abcdef0123456789abcdef"
+        key = {
+            "kty": "oct",
+            "k": jwt.utils.base64url_encode(secret).decode(),
+            "kid": "",
+            "use": "sig",
+        }
+        payload = {"message": "test"}
+        token = jwt.encode(payload, secret, algorithm="HS256", headers={"kid": ""})
+        client = PyJWKClient(
+            "https://example.com/jwks",
+            cache_keys=cache_keys,
+            cache_jwk_set=cache_jwk_set,
+        )
+
+        with mocked_success_response({"keys": [key]}) as request:
+            signing_key = client.get_signing_key_from_jwt(token)
+
+        assert signing_key.key_id == ""
+        assert jwt.decode(token, signing_key, algorithms=["HS256"]) == payload
+        assert request.call_count == 1
+
+    @pytest.mark.parametrize("use", ["sig", None])
+    def test_get_signing_keys_keeps_empty_kid(self, use: Any) -> None:
+        keys = [
+            {"kty": "oct", "k": "c2VjcmV0", "kid": "", "use": use},
+            {"kty": "oct", "k": "b3RoZXI", "kid": "other", "use": use},
+        ]
+        client = PyJWKClient("https://example.com/jwks")
+
+        with mocked_success_response({"keys": keys}):
+            signing_keys = client.get_signing_keys()
+
+        assert [key.key_id for key in signing_keys] == ["", "other"]
+
+    @pytest.mark.parametrize("kid", [None, False, 0, [], {}])
+    def test_get_signing_keys_still_excludes_false_non_string_kid(
+        self, kid: Any
+    ) -> None:
+        key = {"kty": "oct", "k": "c2VjcmV0", "kid": kid}
+        client = PyJWKClient("https://example.com/jwks")
+
+        with mocked_success_response({"keys": [key]}):
+            with pytest.raises(
+                PyJWKClientError, match="did not contain any signing keys"
+            ):
+                client.get_signing_keys()
+
+    def test_get_signing_keys_still_excludes_missing_kid(self) -> None:
+        key = {"kty": "oct", "k": "c2VjcmV0"}
+        client = PyJWKClient("https://example.com/jwks")
+
+        with mocked_success_response({"keys": [key]}):
+            with pytest.raises(
+                PyJWKClientError, match="did not contain any signing keys"
+            ):
+                client.get_signing_keys()
+
+    def test_get_signing_keys_still_excludes_encryption_key_with_empty_kid(
+        self,
+    ) -> None:
+        key = {"kty": "oct", "k": "c2VjcmV0", "kid": "", "use": "enc"}
+        client = PyJWKClient("https://example.com/jwks")
+
+        with mocked_success_response({"keys": [key]}):
+            with pytest.raises(
+                PyJWKClientError, match="did not contain any signing keys"
+            ):
+                client.get_signing_keys()
+
+    def test_missing_token_kid_does_not_match_empty_key_id(self) -> None:
+        secret = b"0123456789abcdef0123456789abcdef"
+        key = {
+            "kty": "oct",
+            "k": jwt.utils.base64url_encode(secret).decode(),
+            "kid": "",
+        }
+        token = jwt.encode({"message": "test"}, secret, algorithm="HS256")
+        client = PyJWKClient("https://example.com/jwks")
+
+        with mocked_success_response({"keys": [key]}):
+            with pytest.raises(PyJWKClientError):
+                client.get_signing_key_from_jwt(token)
