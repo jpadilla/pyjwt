@@ -20,10 +20,12 @@ Fixed
 - ``PyJWKClient.fetch_data()`` now raises ``PyJWKClientError("The JWKS
   endpoint did not return a JSON object")`` when the response body is not
   valid JSON, such as an HTML error page or an empty body, instead of leaking
-  a raw ``json.JSONDecodeError`` or ``UnicodeDecodeError``.
+  a raw ``json.JSONDecodeError`` or ``UnicodeDecodeError``, in
+  `#1238 <https://github.com/jpadilla/pyjwt/pull/1238>`__.
 - ``PyJWKClient.fetch_data()`` now raises ``PyJWKClientConnectionError`` when
   the connection fails while the response body is being read, such as a
-  ``ConnectionResetError``, instead of leaking the raw ``OSError``.
+  ``ConnectionResetError``, instead of leaking the raw ``OSError``, in
+  `#1238 <https://github.com/jpadilla/pyjwt/pull/1238>`__.
 
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
