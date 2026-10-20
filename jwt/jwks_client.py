@@ -9,7 +9,7 @@ import urllib.request
 from functools import lru_cache
 from ssl import SSLContext
 from typing import Any
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 from urllib.parse import urlparse
 
 from .api_jwk import PyJWK, PyJWKSet
@@ -165,8 +165,18 @@ class PyJWKClient:
                 handlers.append(urllib.request.HTTPSHandler(context=self.ssl_context))
             opener = urllib.request.build_opener(*handlers)
             with opener.open(r, timeout=self.timeout) as response:
-                jwk_set = json.load(response)
-        except (URLError, TimeoutError, http.client.HTTPException) as e:
+                try:
+                    jwk_set = json.load(response)
+                except ValueError as e:
+                    # Covers JSONDecodeError and UnicodeDecodeError, e.g. an
+                    # HTML error page or an empty body served with status 200.
+                    raise PyJWKClientError(
+                        "The JWKS endpoint did not return a JSON object"
+                    ) from e
+        except (OSError, http.client.HTTPException) as e:
+            # OSError covers URLError and TimeoutError, as well as socket
+            # errors such as ConnectionResetError that are raised while the
+            # response body is being read and are not wrapped in URLError.
             if isinstance(e, HTTPError):
                 e.close()
             raise PyJWKClientConnectionError(

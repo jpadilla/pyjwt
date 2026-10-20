@@ -133,6 +133,38 @@ def mocked_incomplete_read_response() -> Iterator[mock.Mock]:
 
 
 @contextlib.contextmanager
+def mocked_non_json_response(body: bytes) -> Iterator[mock.Mock]:
+    with mock.patch("urllib.request.build_opener") as build_opener_mock:
+        opener = mock.Mock()
+        build_opener_mock.return_value = opener
+        urlopen_mock = opener.open
+        response = mock.Mock()
+        response.__enter__ = mock.Mock(return_value=response)
+        # Let exceptions raised while parsing the body propagate.
+        response.__exit__ = mock.Mock(return_value=False)
+        response.read.side_effect = [body]
+        urlopen_mock.return_value = response
+        yield urlopen_mock
+
+
+@contextlib.contextmanager
+def mocked_connection_reset_response() -> Iterator[mock.Mock]:
+    # The server resets the connection while the body is being read. urllib
+    # only wraps errors raised while opening the URL in URLError, so this
+    # surfaces as a bare ConnectionResetError when json.load() reads it.
+    with mock.patch("urllib.request.build_opener") as build_opener_mock:
+        opener = mock.Mock()
+        build_opener_mock.return_value = opener
+        urlopen_mock = opener.open
+        response = mock.Mock()
+        response.__enter__ = mock.Mock(return_value=response)
+        response.__exit__ = mock.Mock(return_value=False)
+        response.read.side_effect = ConnectionResetError(54, "Connection reset by peer")
+        urlopen_mock.return_value = response
+        yield urlopen_mock
+
+
+@contextlib.contextmanager
 def mocked_http_error_response() -> Iterator[tuple[mock.Mock, HTTPError]]:
     with mock.patch("urllib.request.build_opener") as build_opener_mock:
         opener = mock.Mock()
@@ -475,6 +507,28 @@ class TestPyJWKClient:
             with pytest.raises(PyJWKClientError, match="did not return a JSON object"):
                 jwks_client.get_jwk_set()
 
+    @pytest.mark.parametrize(
+        "body",
+        [
+            b"<html><body>Service Unavailable</body></html>",
+            b"",
+            b'{"keys": "\xff"}',
+        ],
+    )
+    def test_get_jwk_set_raises_when_endpoint_does_not_return_json(
+        self, body: bytes
+    ) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with mocked_non_json_response(body):
+            with pytest.raises(
+                PyJWKClientError, match="did not return a JSON object"
+            ) as exc:
+                jwks_client.get_jwk_set()
+
+        assert isinstance(exc.value.__cause__, ValueError)
+
     def test_get_jwt_set_cache_expired_result(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
@@ -552,6 +606,16 @@ class TestPyJWKClient:
         with pytest.raises(PyJWKClientConnectionError):
             with mocked_incomplete_read_response():
                 jwks_client.get_jwk_set()
+
+    def test_connection_reset_should_raise_connection_error(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        jwks_client = PyJWKClient(url)
+        with pytest.raises(PyJWKClientConnectionError) as exc:
+            with mocked_connection_reset_response():
+                jwks_client.get_jwk_set()
+
+        assert isinstance(exc.value.__cause__, ConnectionResetError)
 
     def test_get_jwt_set_refresh_cache(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
