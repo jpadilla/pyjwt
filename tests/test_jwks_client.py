@@ -467,6 +467,18 @@ class TestPyJWKClient:
 
         assert cache.get() is None
 
+    def test_cache_get_serves_expired_set_within_max_stale(self) -> None:
+        cache = JWKSetCache(300)
+
+        clock = [0.0]
+        with mock.patch(
+            "jwt.jwk_set_cache.time.monotonic", side_effect=lambda: clock[0]
+        ):
+            cache.put(RESPONSE_DATA_WITH_MATCHING_KID)
+            clock[0] = 350
+            assert cache.get(max_stale=49.9) is None
+            assert cache.get(max_stale=50) is not None
+
     def test_get_jwk_set_raises_when_endpoint_does_not_return_an_object(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
