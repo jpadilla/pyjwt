@@ -7,6 +7,15 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Added
+~~~~~
+
+- Add ``stale_if_error`` to ``PyJWKClient`` to keep serving an expired JWK Set
+  for up to that many seconds when refreshing it fails with a connection error,
+  a timeout, or an HTTP 500, 502, 503 or 504 response. Disabled by default. The
+  ``JWKSetCache`` ``get()`` and ``is_expired()`` methods accept a matching
+  ``max_stale`` argument, in `#1239 <https://github.com/jpadilla/pyjwt/pull/1239>`__.
+
 Changed
 ~~~~~~~
 
