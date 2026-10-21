@@ -43,6 +43,7 @@ class PyJWKClient:
         timeout: float = 30,
         ssl_context: SSLContext | None = None,
         cooldown_duration: float = 30,
+        stale_if_error: float = 0,
     ):
         """A client for retrieving signing keys from a JWKS endpoint.
 
@@ -66,6 +67,15 @@ class PyJWKClient:
         period before it is fetched; set ``cooldown_duration`` to ``0`` to
         disable this behavior. The cooldown is bypassed when
         ``cache_jwk_set`` is ``False``.
+
+        If refreshing an expired JWK Set fails, ``stale_if_error`` lets the
+        client keep serving it for up to that many seconds past expiry
+        instead of raising. This covers connection failures, timeouts, and
+        HTTP 500, 502, 503 and 504 responses; other errors still raise, as
+        does ``get_jwk_set(refresh=True)``. Pass ``float("inf")`` to serve it
+        for as long as fetching fails. Stale keys are served silently, and
+        a key removed from the endpoint stays usable until the stale set is
+        discarded. Each fallback still waits for ``timeout`` first.
 
         **Tier 2 — Signing key cache** (disabled by default):
         Caches individual signing keys (looked up by ``kid``) using an LRU
@@ -96,6 +106,10 @@ class PyJWKClient:
         :param cooldown_duration: Minimum time in seconds between forced
             refreshes after an unknown key ID. Defaults to ``30``.
         :type cooldown_duration: float
+        :param stale_if_error: Time in seconds past expiry that a cached
+            JWK Set may still be served when refreshing it fails. Defaults
+            to ``0`` (disabled).
+        :type stale_if_error: float
         """
         if headers is None:
             headers = {}
@@ -124,6 +138,24 @@ class PyJWKClient:
                 f'Cooldown duration must be finite, the input is "{cooldown_duration}"'
             )
         self.cooldown_duration = cooldown_duration
+
+        if stale_if_error < 0:
+            raise PyJWKClientError(
+                "Stale if error must be greater than or equal to 0, "
+                f'the input is "{stale_if_error}"'
+            )
+
+        if math.isnan(stale_if_error):
+            raise PyJWKClientError(
+                f'Stale if error must not be NaN, the input is "{stale_if_error}"'
+            )
+
+        if stale_if_error > 0 and not cache_jwk_set:
+            raise PyJWKClientError(
+                "Stale if error must be 0 if JWK Set caching is disabled"
+            )
+        self.stale_if_error = stale_if_error
+
         self._last_successful_fetch: float | None = None
         self._client_lock = threading.RLock()
 
@@ -187,6 +219,19 @@ class PyJWKClient:
         self._last_successful_fetch = time.monotonic()
         return jwk_set
 
+    @staticmethod
+    def _should_serve_stale_on(cause: BaseException | None) -> bool:
+        if cause is None or isinstance(cause, http.client.HTTPException):
+            return True
+
+        if isinstance(cause, HTTPError):
+            return cause.code in (500, 502, 503, 504)
+
+        if isinstance(cause, OSError):
+            return True
+
+        return False
+
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
         """Return the JWK Set, using the cache when available.
 
@@ -204,8 +249,19 @@ class PyJWKClient:
             data = self.jwk_set_cache.get()
 
         if data is None:
-            data = self.fetch_data()
-            fetched = True
+            try:
+                data = self.fetch_data()
+                fetched = True
+            except PyJWKClientConnectionError as e:
+                if self.stale_if_error == 0 or refresh or self.jwk_set_cache is None:
+                    raise
+
+                cause = e.__cause__
+                if self._should_serve_stale_on(cause):
+                    data = self.jwk_set_cache.get(max_stale=self.stale_if_error)
+
+                if data is None:
+                    raise
 
         # A cache hit is already parsed, so serve it as-is. Only a fresh
         # fetch reaches the check below, which still matters because
