@@ -738,6 +738,106 @@ class TestPyJWKClient:
             jwks_client = PyJWKClient(url, lifespan=-1)
             assert jwks_client is None
 
+    def test_rejects_invalid_stale_if_error(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+
+        with pytest.raises(
+            PyJWKClientError,
+            match="Stale if error must be greater than or equal to 0",
+        ):
+            PyJWKClient(url, stale_if_error=-1)
+
+        with pytest.raises(
+            PyJWKClientError,
+            match="Stale if error must not be NaN",
+        ):
+            PyJWKClient(url, stale_if_error=float("nan"))
+
+        with pytest.raises(
+            PyJWKClientError,
+            match="Stale if error must be 0 if JWK Set caching is disabled",
+        ):
+            PyJWKClient(url, cache_jwk_set=False, stale_if_error=1)
+
+    def test_infinite_stale_if_error_serves_stale_set_indefinitely(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url, lifespan=300, stale_if_error=float("inf"))
+
+        clock = [0.0]
+        with mock.patch("jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]):
+            with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+                initial_set = jwks_client.get_jwk_set()
+
+            clock[0] = 10**9
+            with mocked_failed_response():
+                assert jwks_client.get_jwk_set() is initial_set
+
+    @pytest.mark.parametrize(
+        ("cause", "expected"),
+        [
+            pytest.param(None, True, id="no-cause"),
+            pytest.param(URLError("refused"), True, id="url-error"),
+            pytest.param(TimeoutError(), True, id="timeout"),
+            pytest.param(http.client.IncompleteRead(b""), True, id="incomplete-read"),
+            pytest.param(ValueError(), False, id="other-error"),
+        ],
+    )
+    def test_should_serve_stale_on_cause(
+        self, cause: BaseException | None, expected: bool
+    ) -> None:
+        assert PyJWKClient._should_serve_stale_on(cause) is expected
+
+    @pytest.mark.parametrize(
+        ("code", "expected"),
+        [
+            (500, True),
+            (502, True),
+            (503, True),
+            (504, True),
+            (401, False),
+            (404, False),
+            (429, False),
+        ],
+    )
+    def test_stale_served_only_on_gateway_http_errors(
+        self, code: int, expected: bool
+    ) -> None:
+        error = HTTPError("https://example.com", code, "msg", Message(), None)
+        assert PyJWKClient._should_serve_stale_on(error) is expected
+
+    def test_forced_refresh_bypasses_stale_if_error(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url, lifespan=300, stale_if_error=float("inf"))
+
+        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+            jwks_client.get_jwk_set()
+
+        with pytest.raises(PyJWKClientConnectionError):
+            with mocked_failed_response():
+                jwks_client.get_jwk_set(refresh=True)
+
+    def test_serves_expired_set_within_stale_if_error(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url, lifespan=300, stale_if_error=60)
+
+        clock = [0.0]
+        with mock.patch("jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]):
+            with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+                initial_set = jwks_client.get_jwk_set()
+
+            clock[0] = 330.0
+            with mocked_failed_response():
+                assert jwks_client.get_jwk_set() is initial_set
+
+            with pytest.raises(PyJWKClientConnectionError):
+                with mocked_http_error_response():
+                    jwks_client.get_jwk_set()
+
+            clock[0] = 361.0
+            with pytest.raises(PyJWKClientConnectionError):
+                with mocked_failed_response():
+                    jwks_client.get_jwk_set()
+
     @pytest.mark.parametrize(
         "uri",
         [
