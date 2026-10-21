@@ -132,9 +132,13 @@ class PyJWT:
         # Payload
         payload = payload.copy()
         for time_claim in ["exp", "iat", "nbf"]:
-            # Convert datetime to a intDate value in known time-format claims
+            # Convert datetime to a NumericDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
-                payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+                claim_value = payload[time_claim]
+                payload[time_claim] = timegm(claim_value.utctimetuple())
+                if claim_value.microsecond:
+                    # utctimetuple() drops sub-second precision
+                    payload[time_claim] += claim_value.microsecond / 1e6
 
         # Issue #1039, iss being set to non-string
         if "iss" in payload and not isinstance(payload["iss"], str):

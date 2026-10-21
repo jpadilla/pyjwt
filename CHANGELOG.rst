@@ -14,6 +14,13 @@ Changed
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
 
+Fixed
+~~~~~
+
+- Preserve microseconds when ``jwt.encode()`` converts ``datetime`` values of
+  the ``exp``, ``iat`` and ``nbf`` claims. Whole-second datetimes still encode
+  as integers (`#1126 <https://github.com/jpadilla/pyjwt/issues/1126>`__).
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 
