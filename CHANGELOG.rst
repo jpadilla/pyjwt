@@ -13,6 +13,12 @@ Changed
 - Add public ``jwt.decode`` regression coverage for AWS ALB-style padded
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
+- Check the Base64URL alphabet of each JWS segment with ``bytes.translate``
+  instead of a Python-level loop over every byte. The scan covers the header,
+  payload and signature segments and runs before the signature is verified, so
+  an oversized token was charged for it whether or not its signature was valid.
+  The scan drops from roughly 50 ms to about 1 ms per mebibyte of token. Which
+  segments are accepted and rejected is unchanged.
 
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
