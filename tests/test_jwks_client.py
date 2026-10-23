@@ -133,14 +133,16 @@ def mocked_incomplete_read_response() -> Iterator[mock.Mock]:
 
 
 @contextlib.contextmanager
-def mocked_http_error_response() -> Iterator[tuple[mock.Mock, HTTPError]]:
+def mocked_http_error_response(
+    code: int = 401,
+) -> Iterator[tuple[mock.Mock, HTTPError]]:
     with mock.patch("urllib.request.build_opener") as build_opener_mock:
         opener = mock.Mock()
         build_opener_mock.return_value = opener
         urlopen_mock = opener.open
         http_error = HTTPError(
             url="https://example.com",
-            code=401,
+            code=code,
             msg="Unauthorized",
             hdrs=Message(),
             fp=io.BytesIO(b""),
@@ -794,6 +796,7 @@ class TestPyJWKClient:
             (502, True),
             (503, True),
             (504, True),
+            (501, False),
             (401, False),
             (404, False),
             (429, False),
@@ -837,6 +840,29 @@ class TestPyJWKClient:
             with pytest.raises(PyJWKClientConnectionError):
                 with mocked_failed_response():
                     jwks_client.get_jwk_set()
+
+    @pytest.mark.parametrize(("code", "serves_stale"), [(503, True), (401, False)])
+    def test_get_signing_key_stale_if_error_on_http_status(
+        self, code: int, serves_stale: bool
+    ) -> None:
+        kid = "NEE1QURBOTM4MzI5RkFDNTYxOTU1MDg2ODgwQ0UzMTk1QjYyRkRFQw"
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url, lifespan=300, stale_if_error=60)
+
+        clock = [0.0]
+        with mock.patch("jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]):
+            with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+                initial_key = jwks_client.get_signing_key(kid)
+
+            clock[0] = 330.0
+            with mocked_http_error_response(code) as (urlopen_mock, _):
+                if serves_stale:
+                    assert jwks_client.get_signing_key(kid) is initial_key
+                else:
+                    with pytest.raises(PyJWKClientConnectionError):
+                        jwks_client.get_signing_key(kid)
+
+            assert urlopen_mock.call_count == 1
 
     @pytest.mark.parametrize(
         "uri",
