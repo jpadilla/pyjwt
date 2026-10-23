@@ -75,7 +75,9 @@ class PyJWKClient:
         does ``get_jwk_set(refresh=True)``. Pass ``float("inf")`` to serve it
         for as long as fetching fails. Stale keys are served silently, and
         a key removed from the endpoint stays usable until the stale set is
-        discarded. Each fallback still waits for ``timeout`` first.
+        discarded. After a fallback, the client serves the stale set without
+        fetching for ``cooldown_duration`` seconds, so only one request per
+        cooldown waits for ``timeout``.
 
         **Tier 2 — Signing key cache** (disabled by default):
         Caches individual signing keys (looked up by ``kid``) using an LRU
@@ -104,7 +106,8 @@ class PyJWKClient:
         :param ssl_context: Optional SSL context for the request.
         :type ssl_context: ssl.SSLContext or None
         :param cooldown_duration: Minimum time in seconds between forced
-            refreshes after an unknown key ID. Defaults to ``30``.
+            refreshes after an unknown key ID, and between fetches after a
+            ``stale_if_error`` fallback. Defaults to ``30``.
         :type cooldown_duration: float
         :param stale_if_error: Time in seconds past expiry that a cached
             JWK Set may still be served when refreshing it fails. Defaults
@@ -157,6 +160,7 @@ class PyJWKClient:
         self.stale_if_error = stale_if_error
 
         self._last_successful_fetch: float | None = None
+        self._last_failed_fetch: float | None = None
         self._client_lock = threading.RLock()
 
         if cache_jwk_set:
@@ -248,12 +252,25 @@ class PyJWKClient:
         if self.jwk_set_cache is not None and not refresh:
             data = self.jwk_set_cache.get()
 
+        skip_stale_if_error = self.stale_if_error == 0 or refresh
+
+        # After a stale_if_error fallback, keep serving the stale set
+        # without fetching until the cooldown has passed.
+        if data is None and not skip_stale_if_error:
+            if (
+                self.jwk_set_cache is not None
+                and self._last_failed_fetch is not None
+                and time.monotonic() < self._last_failed_fetch + self.cooldown_duration
+            ):
+                data = self.jwk_set_cache.get(max_stale=self.stale_if_error)
+
         if data is None:
             try:
                 data = self.fetch_data()
                 fetched = True
+                self._last_failed_fetch = None
             except PyJWKClientConnectionError as e:
-                if self.stale_if_error == 0 or refresh or self.jwk_set_cache is None:
+                if skip_stale_if_error or self.jwk_set_cache is None:
                     raise
 
                 cause = e.__cause__
@@ -262,6 +279,8 @@ class PyJWKClient:
 
                 if data is None:
                     raise
+
+                self._last_failed_fetch = time.monotonic()
 
         # A cache hit is already parsed, so serve it as-is. Only a fresh
         # fetch reaches the check below, which still matters because

@@ -821,7 +821,9 @@ class TestPyJWKClient:
 
     def test_serves_expired_set_within_stale_if_error(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
-        jwks_client = PyJWKClient(url, lifespan=300, stale_if_error=60)
+        jwks_client = PyJWKClient(
+            url, lifespan=300, stale_if_error=60, cooldown_duration=0
+        )
 
         clock = [0.0]
         with mock.patch("jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]):
@@ -863,6 +865,74 @@ class TestPyJWKClient:
                         jwks_client.get_signing_key(kid)
 
             assert urlopen_mock.call_count == 1
+
+    def test_stale_if_error_backs_off_after_fallback(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(
+            url, lifespan=300, stale_if_error=60, cooldown_duration=30
+        )
+
+        clock = [0.0]
+        with mock.patch("jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]):
+            with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+                initial_set = jwks_client.get_jwk_set()
+
+            clock[0] = 330.0
+            with mocked_failed_response() as urlopen_mock:
+                assert jwks_client.get_jwk_set() is initial_set
+
+                clock[0] = 359.0
+                assert jwks_client.get_jwk_set() is initial_set
+                assert urlopen_mock.call_count == 1
+
+            clock[0] = 361.0
+            with mocked_success_response(
+                RESPONSE_DATA_WITH_MATCHING_KID
+            ) as urlopen_mock:
+                assert jwks_client.get_jwk_set() is not initial_set
+                assert urlopen_mock.call_count == 1
+
+    def test_unknown_kid_fetches_during_stale_if_error_backoff(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(
+            url, lifespan=300, stale_if_error=60, cooldown_duration=30
+        )
+
+        clock = [0.0]
+        with mock.patch("jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]):
+            with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+                jwks_client.get_jwk_set()
+
+            clock[0] = 330.0
+            with mocked_failed_response():
+                jwks_client.get_jwk_set()
+
+            clock[0] = 340.0
+            with mocked_failed_response() as urlopen_mock:
+                with pytest.raises(PyJWKClientConnectionError):
+                    jwks_client.get_signing_key("unknown-kid")
+                assert urlopen_mock.call_count == 1
+
+    def test_backoff_does_not_extend_stale_if_error_window(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(
+            url, lifespan=300, stale_if_error=30, cooldown_duration=60
+        )
+
+        clock = [0.0]
+        with mock.patch("jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]):
+            with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
+                initial_set = jwks_client.get_jwk_set()
+
+            clock[0] = 310.0
+            with mocked_failed_response():
+                assert jwks_client.get_jwk_set() is initial_set
+
+            clock[0] = 340.0
+            with mocked_failed_response() as urlopen_mock:
+                with pytest.raises(PyJWKClientConnectionError):
+                    jwks_client.get_jwk_set()
+                assert urlopen_mock.call_count == 1
 
     @pytest.mark.parametrize(
         "uri",
