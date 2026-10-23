@@ -7,6 +7,17 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Verify registered claims when a ``PyJWT`` instance built with
+  ``options={"verify_signature": False}`` decodes with signature
+  verification enabled. The ``verify_exp``, ``verify_aud``, ``verify_iss``
+  and other claim defaults that instance derived from the disabled
+  signature check no longer carry over to a verified decode, so an expired
+  token or one with the wrong ``aud`` or ``iss`` is rejected. Claim options
+  set explicitly on the instance are still honored.
+
 Changed
 ~~~~~~~
 

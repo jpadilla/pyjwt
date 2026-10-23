@@ -65,6 +65,32 @@ class TestJWT:
         with pytest.raises(ExpiredSignatureError):
             jwt.decode(token, "a" * 32, algorithms=["HS256"], options=options)
 
+    def test_verified_decode_on_signature_disabled_instance_checks_claims(
+        self,
+    ) -> None:
+        jwt = PyJWT(options={"verify_signature": False})
+        token = jwt.encode({"exp": utc_timestamp() - 1}, "a" * 32, algorithm="HS256")
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(token, "a" * 32, algorithms=["HS256"])
+
+        with pytest.raises(ExpiredSignatureError):
+            jwt.decode(
+                token,
+                "a" * 32,
+                algorithms=["HS256"],
+                options={"verify_signature": True},
+            )
+
+    def test_verified_decode_keeps_explicit_instance_claim_options(self) -> None:
+        jwt = PyJWT(options={"verify_signature": False, "verify_exp": False})
+        token = jwt.encode(
+            {"exp": utc_timestamp() - 1, "aud": "other"}, "a" * 32, algorithm="HS256"
+        )
+
+        with pytest.raises(InvalidAudienceError):
+            jwt.decode(token, "a" * 32, algorithms=["HS256"], audience="api")
+
     def test_decode_complete_preserves_mutable_mapping_input(self, jwt: PyJWT) -> None:
         class MappingWithoutCopy(MutableMapping[str, object]):
             def __init__(self, values: dict[str, object]) -> None:
