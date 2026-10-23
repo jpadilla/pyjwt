@@ -43,8 +43,10 @@ class PyJWT:
     def __init__(self, options: Options | None = None) -> None:
         self.options: FullOptions
         self.options = self._get_default_options()
+        self._init_options: Options = {}
         if options is not None:
             self.options = self._merge_options(options)
+            self._init_options = cast("Options", dict(options))
 
         self._jws = PyJWS(options=self._get_sig_options())
 
@@ -73,10 +75,8 @@ class PyJWT:
         }
 
     def _merge_options(self, options: Options | None = None) -> FullOptions:
-        if options is None:
-            return self.options
-
-        merged_options = cast("Options", dict(options))
+        merged_options = cast("Options", dict(options or {}))
+        base_options = self.options
 
         # (defensive) set defaults for verify_x to False if verify_signature is False
         if not merged_options.get("verify_signature", True):
@@ -87,7 +87,19 @@ class PyJWT:
             merged_options["verify_iss"] = merged_options.get("verify_iss", False)
             merged_options["verify_sub"] = merged_options.get("verify_sub", False)
             merged_options["verify_jti"] = merged_options.get("verify_jti", False)
-        return {**self.options, **merged_options}
+        elif not base_options["verify_signature"]:
+            # decode_complete() verifies the signature unless the call itself
+            # disables it, so the verify_x defaults this instance derived from
+            # verify_signature=False must not leak into a verified decode.
+            base_options = cast(
+                "FullOptions",
+                {
+                    **self._get_default_options(),
+                    **self._init_options,
+                    "verify_signature": True,
+                },
+            )
+        return {**base_options, **merged_options}
 
     def encode(
         self,
