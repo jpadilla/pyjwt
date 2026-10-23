@@ -13,6 +13,10 @@ Changed
 - Add public ``jwt.decode`` regression coverage for AWS ALB-style padded
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
+- Rejecting a token whose ``iat`` claim is in the future now emits
+  ``RemovedInPyjwt3Warning`` when ``verify_iat`` is not set explicitly.
+  ``verify_iat`` will default to ``False`` in PyJWT 3. See
+  `#939 <https://github.com/jpadilla/pyjwt/issues/939>`__.
 
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
