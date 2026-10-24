@@ -125,6 +125,7 @@ class PyJWKClient:
             )
         self.cooldown_duration = cooldown_duration
         self._last_successful_fetch: float | None = None
+        self._last_response_headers: dict[str, str] = {}
         self._client_lock = threading.RLock()
 
         if cache_jwk_set:
@@ -144,12 +145,75 @@ class PyJWKClient:
             # Ignore mypy (https://github.com/python/mypy/issues/2427)
             self.get_signing_key = get_signing_key  # type: ignore[method-assign]
 
+    @property
+    def last_response_headers(self) -> dict[str, str]:
+        """HTTP headers from the most recent successful JWKS fetch.
+
+        This is the full, unparsed header set returned by the JWKS
+        endpoint — for example the complete ``Cache-Control`` value,
+        including directives such as ``stale-while-revalidate`` that a
+        parsed ``max-age`` alone would lose. Applications that implement
+        their own CDN-bypass or cache logic on top of this client can
+        read the provider's stated intent from here.
+
+        The value describes the last *network* fetch: calls served from
+        the JWK Set cache do not change it, and a failed fetch does not
+        clear it. It is an empty dict before the first successful fetch.
+        A copy is returned, so mutating it does not affect the client.
+        """
+        return dict(self._last_response_headers)
+
+    @staticmethod
+    def _extract_response_headers(response: Any) -> dict[str, str]:
+        """Best-effort extraction of a plain dict from a response's headers.
+
+        Real urllib responses expose an ``http.client.HTTPMessage``
+        (via ``.headers`` or ``.info()``); anything that does not yield
+        header pairs — including test doubles — results in an empty
+        dict rather than an error, since the headers are advisory.
+        """
+        headers_obj = getattr(response, "headers", None)
+        if headers_obj is None:
+            info = getattr(response, "info", None)
+            if callable(info):
+                try:
+                    headers_obj = info()
+                except Exception:
+                    headers_obj = None
+        if headers_obj is None:
+            return {}
+
+        pairs: Any = None
+        getheaders = getattr(headers_obj, "getheaders", None)
+        if callable(getheaders):
+            try:
+                pairs = getheaders()
+            except Exception:
+                pairs = None
+        if pairs is None:
+            items = getattr(headers_obj, "items", None)
+            if callable(items):
+                try:
+                    pairs = items()
+                except Exception:
+                    pairs = None
+        if pairs is None and isinstance(headers_obj, dict):
+            pairs = headers_obj.items()
+        if pairs is None:
+            return {}
+
+        try:
+            return {str(name): str(value) for name, value in pairs}
+        except Exception:
+            return {}
+
     def fetch_data(self) -> Any:
         """Fetch the JWK Set from the JWKS endpoint.
 
         Makes an HTTP request to the configured ``uri`` and returns the
         parsed JSON response. If the JWK Set cache is enabled, the
-        response is stored in the cache.
+        response is stored in the cache. The response's HTTP headers
+        are stored and exposed via :attr:`last_response_headers`.
 
         :returns: The parsed JWK Set as a dictionary.
         :raises PyJWKClientConnectionError: If the HTTP request fails.
@@ -165,6 +229,7 @@ class PyJWKClient:
                 handlers.append(urllib.request.HTTPSHandler(context=self.ssl_context))
             opener = urllib.request.build_opener(*handlers)
             with opener.open(r, timeout=self.timeout) as response:
+                response_headers = self._extract_response_headers(response)
                 jwk_set = json.load(response)
         except (URLError, TimeoutError, http.client.HTTPException) as e:
             if isinstance(e, HTTPError):
@@ -184,6 +249,9 @@ class PyJWKClient:
         # wipe that breaks legitimate auth.
         if self.jwk_set_cache is not None:
             self.jwk_set_cache.put(jwk_set)
+        # Only a successful fetch replaces the stored headers, so a
+        # transient failure cannot erase the last known provider intent.
+        self._last_response_headers = response_headers
         self._last_successful_fetch = time.monotonic()
         return jwk_set
 
