@@ -120,7 +120,7 @@ class PyJWT:
         :rtype: str
         :returns: a JSON Web Token
 
-        :raises TypeError: if ``payload`` is not a ``dict``
+        :raises TypeError: if ``payload`` is not a ``dict`` or a time claim is boolean
         """
         # Check that we get a dict
         if not isinstance(payload, dict):
@@ -131,10 +131,19 @@ class PyJWT:
 
         # Payload
         payload = payload.copy()
-        for time_claim in ["exp", "iat", "nbf"]:
+        time_claim_names = {
+            "exp": "Expiration Time",
+            "iat": "Issued At",
+            "nbf": "Not Before",
+        }
+        for time_claim, claim_name in time_claim_names.items():
             # Convert datetime to a intDate value in known time-format claims
             if isinstance(payload.get(time_claim), datetime):
                 payload[time_claim] = timegm(payload[time_claim].utctimetuple())
+            elif isinstance(payload.get(time_claim), bool):
+                raise TypeError(
+                    f"{claim_name} claim ({time_claim}) must be an integer."
+                )
 
         # Issue #1039, iss being set to non-string
         if "iss" in payload and not isinstance(payload["iss"], str):
@@ -473,6 +482,8 @@ class PyJWT:
         now: float,
         leeway: float,
     ) -> None:
+        if isinstance(payload["iat"], bool):
+            raise InvalidIssuedAtError("Issued At claim (iat) must be an integer.")
         try:
             iat = int(payload["iat"])
         except (ValueError, TypeError, OverflowError):
@@ -488,6 +499,8 @@ class PyJWT:
         now: float,
         leeway: float,
     ) -> None:
+        if isinstance(payload["nbf"], bool):
+            raise DecodeError("Not Before claim (nbf) must be an integer.")
         try:
             nbf = int(payload["nbf"])
         except (ValueError, TypeError, OverflowError):
@@ -502,6 +515,8 @@ class PyJWT:
         now: float,
         leeway: float,
     ) -> None:
+        if isinstance(payload["exp"], bool):
+            raise DecodeError("Expiration Time claim (exp) must be an integer.")
         try:
             exp = int(payload["exp"])
         except (ValueError, TypeError, OverflowError):

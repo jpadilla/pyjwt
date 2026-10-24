@@ -7,6 +7,13 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Fixed
+~~~~~
+
+- Reject boolean ``exp``, ``nbf``, and ``iat`` claims on decode and raise
+  ``TypeError`` when encoding them
+  in `#1233 <https://github.com/jpadilla/pyjwt/pull/1233>`__.
+
 Changed
 ~~~~~~~
 
