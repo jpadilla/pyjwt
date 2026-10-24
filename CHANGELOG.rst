@@ -10,8 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Fixed
 ~~~~~
 
-- Reject boolean ``exp``, ``nbf``, and ``iat`` claims with the existing
-  claim-specific errors instead of converting them to integers
+- Reject boolean ``exp``, ``nbf``, and ``iat`` claims on decode and raise
+  ``TypeError`` when encoding them
   in `#1233 <https://github.com/jpadilla/pyjwt/pull/1233>`__.
 
 Changed

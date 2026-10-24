@@ -288,6 +288,14 @@ class TestJWT:
                 key="secret",
             )
 
+    @pytest.mark.parametrize("value", [True, False])
+    @pytest.mark.parametrize("claim", ["exp", "iat", "nbf"])
+    def test_encode_rejects_boolean_numericdate(
+        self, jwt: PyJWT, claim: str, value: bool
+    ) -> None:
+        with pytest.raises(TypeError, match=rf"\({claim}\) must be an integer"):
+            jwt.encode({claim: value}, key="secret")
+
     def test_encode_with_typ(self, jwt: PyJWT) -> None:
         payload = {
             "iss": "https://scim.example.com",
@@ -360,9 +368,13 @@ class TestJWT:
     def test_decode_rejects_boolean_numericdate(
         self, jwt: PyJWT, claim: str, error: type[Exception], value: bool
     ) -> None:
-        token = jwt.encode({claim: value}, "a" * 32, algorithm="HS256")
+        token = pyjwt.api_jws.encode(
+            json.dumps({claim: value}, separators=(",", ":")).encode(),
+            "a" * 32,
+            algorithm="HS256",
+        )
 
-        with pytest.raises(error, match="must be an integer"):
+        with pytest.raises(error, match=rf"\({claim}\) must be an integer"):
             jwt.decode(token, "a" * 32, algorithms=["HS256"])
 
     @pytest.mark.parametrize(
@@ -376,11 +388,15 @@ class TestJWT:
     def test_decode_boolean_numericdate_with_verification_disabled(
         self, jwt: PyJWT, claim: str, options: Options
     ) -> None:
-        token = jwt.encode({claim: True}, "a" * 32, algorithm="HS256")
+        token = pyjwt.api_jws.encode(
+            json.dumps({claim: True}, separators=(",", ":")).encode(),
+            "a" * 32,
+            algorithm="HS256",
+        )
 
-        assert jwt.decode(token, "a" * 32, algorithms=["HS256"], options=options) == {
-            claim: True
-        }
+        decoded = jwt.decode(token, "a" * 32, algorithms=["HS256"], options=options)
+        assert decoded == {claim: True}
+        assert decoded[claim] is True
 
     def test_decode_works_if_iat_is_str_of_a_number(
         self, jwt: PyJWT, payload: dict[str, object]
