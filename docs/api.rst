@@ -3,7 +3,7 @@ API Reference
 
 .. module:: jwt
 
-.. autofunction:: encode(payload, key, algorithm="HS256", headers=None, json_encoder=None) -> str
+.. autofunction:: encode(payload, key, algorithm="HS256", headers=None, json_encoder=None, sort_headers=True) -> str
 
 .. autofunction:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0) -> dict[str, typing.Any]
 
