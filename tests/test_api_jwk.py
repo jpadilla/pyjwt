@@ -320,7 +320,7 @@ class TestPyJWKSet:
 
         jwk_set = PyJWKSet.from_dict({"keys": [key_data]})
 
-        assert jwk_set.keys == [jwk for jwk in jwk_set]
+        assert jwk_set.keys == [*jwk_set]
 
     @crypto_required
     def test_keyset_skips_members_that_are_not_objects(self) -> None:
