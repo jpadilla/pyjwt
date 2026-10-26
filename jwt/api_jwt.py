@@ -116,6 +116,10 @@ class PyJWT:
         :type headers: dict[str, typing.Any] or None
         :param json_encoder: custom JSON encoder for ``payload`` and ``headers``
         :type json_encoder: json.JSONEncoder or None
+        :param sort_headers: sort the JOSE header keys before encoding. Defaults
+            to ``True``. Set to ``False`` to preserve the header dictionary's
+            insertion order. This does not sort the payload claims.
+        :type sort_headers: bool
 
         :rtype: str
         :returns: a JSON Web Token
