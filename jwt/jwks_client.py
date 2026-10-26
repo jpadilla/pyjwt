@@ -76,8 +76,7 @@ class PyJWKClient:
         for as long as fetching fails. Stale keys are served silently, and
         a key removed from the endpoint stays usable until the stale set is
         discarded. After a fallback, the client serves the stale set without
-        fetching for ``cooldown_duration`` seconds, so only one request per
-        cooldown waits for ``timeout``.
+        fetching for ``cooldown_duration`` seconds.
 
         **Tier 2 — Signing key cache** (disabled by default):
         Caches individual signing keys (looked up by ``kid``) using an LRU
