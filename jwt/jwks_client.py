@@ -202,8 +202,21 @@ class PyJWKClient:
         if pairs is None:
             return {}
 
+        # A field name can appear on multiple field lines; RFC 9110
+        # section 5.2 combines those into a single field value joined
+        # with ", " instead of dropping all but the last line.
         try:
-            return {str(name): str(value) for name, value in pairs}
+            combined: dict[str, str] = {}
+            seen: dict[str, str] = {}
+            for name, value in pairs:
+                name_str = str(name)
+                value_str = str(value)
+                key = seen.setdefault(name_str.lower(), name_str)
+                if key in combined:
+                    combined[key] = f"{combined[key]}, {value_str}"
+                else:
+                    combined[key] = value_str
+            return combined
         except Exception:
             return {}
 

@@ -858,6 +858,33 @@ class TestPyJWKClient:
         assert "max-age=600" in cache_control
         assert "stale-while-revalidate=86400" in cache_control
 
+    def test_extract_response_headers_combines_repeated_field_lines(
+        self,
+    ) -> None:
+        # RFC 9110 section 5.2: repeated field lines combine into one
+        # field value joined with ", ", they do not overwrite each other.
+        from http.client import parse_headers
+        from urllib.response import addinfourl
+
+        raw_headers = (
+            b"Content-Type: application/json\r\n"
+            b"Cache-Control: public\r\n"
+            b"Cache-Control: max-age=3600\r\n"
+            b"\r\n"
+        )
+        headers = parse_headers(io.BytesIO(raw_headers))
+        response = addinfourl(
+            io.BytesIO(b'{"keys": []}'),
+            headers,
+            "https://example.com/.well-known/jwks.json",
+            code=200,
+        )
+
+        assert PyJWKClient._extract_response_headers(response) == {
+            "Content-Type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+        }
+
     def test_last_response_headers_available_after_get_signing_keys(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         headers = {"Cache-Control": "public, max-age=60"}
