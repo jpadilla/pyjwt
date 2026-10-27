@@ -835,7 +835,8 @@ class TestPyJWKClient:
 
         jwks_client = PyJWKClient(url)
 
-        assert jwks_client.last_response_headers == {}
+        assert len(jwks_client.last_response_headers) == 0
+        assert jwks_client.last_response_headers.items() == []
 
     def test_last_response_headers_exposes_full_cache_control(self) -> None:
         # Regression for #1166: applications implementing CDN-bypass logic
@@ -853,16 +854,20 @@ class TestPyJWKClient:
             jwks_client = PyJWKClient(url)
             jwks_client.fetch_data()
 
-        assert jwks_client.last_response_headers == headers
+        assert dict(jwks_client.last_response_headers.items()) == headers
         cache_control = jwks_client.last_response_headers["Cache-Control"]
         assert "max-age=600" in cache_control
         assert "stale-while-revalidate=86400" in cache_control
 
-    def test_extract_response_headers_combines_repeated_field_lines(
+    def test_extract_response_headers_preserves_repeated_field_lines(
         self,
     ) -> None:
-        # RFC 9110 section 5.2: repeated field lines combine into one
-        # field value joined with ", ", they do not overwrite each other.
+        # A field name can appear on multiple field lines. Flattening
+        # them into a dict either drops all but the last line or, if
+        # combined with ", ", corrupts fields that must not be combined:
+        # RFC 9110 section 5.3 singles out Set-Cookie, whose values
+        # contain commas (e.g. in Expires). Every line must survive,
+        # in order, so callers can read them with get_all().
         from http.client import parse_headers
         from urllib.response import addinfourl
 
@@ -870,6 +875,8 @@ class TestPyJWKClient:
             b"Content-Type: application/json\r\n"
             b"Cache-Control: public\r\n"
             b"Cache-Control: max-age=3600\r\n"
+            b"Set-Cookie: a=1; Expires=Wed, 21 Oct 2015 07:28:00 GMT\r\n"
+            b"Set-Cookie: b=2\r\n"
             b"\r\n"
         )
         headers = parse_headers(io.BytesIO(raw_headers))
@@ -880,10 +887,19 @@ class TestPyJWKClient:
             code=200,
         )
 
-        assert PyJWKClient._extract_response_headers(response) == {
-            "Content-Type": "application/json",
-            "Cache-Control": "public, max-age=3600",
-        }
+        extracted = PyJWKClient._extract_response_headers(response)
+        assert extracted.items() == [
+            ("Content-Type", "application/json"),
+            ("Cache-Control", "public"),
+            ("Cache-Control", "max-age=3600"),
+            ("Set-Cookie", "a=1; Expires=Wed, 21 Oct 2015 07:28:00 GMT"),
+            ("Set-Cookie", "b=2"),
+        ]
+        assert extracted.get_all("Cache-Control") == ["public", "max-age=3600"]
+        assert extracted.get_all("Set-Cookie") == [
+            "a=1; Expires=Wed, 21 Oct 2015 07:28:00 GMT",
+            "b=2",
+        ]
 
     def test_last_response_headers_available_after_get_signing_keys(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
@@ -896,7 +912,7 @@ class TestPyJWKClient:
             signing_keys = jwks_client.get_signing_keys()
 
         assert len(signing_keys) == 1
-        assert jwks_client.last_response_headers == headers
+        assert dict(jwks_client.last_response_headers.items()) == headers
 
     def test_last_response_headers_survive_cache_hit(self) -> None:
         # A call served from the JWK Set cache performs no fetch, so the
@@ -916,7 +932,7 @@ class TestPyJWKClient:
             jwks_client.get_jwk_set()
 
         assert repeated_call.call_count == 0
-        assert jwks_client.last_response_headers == headers
+        assert dict(jwks_client.last_response_headers.items()) == headers
 
     def test_last_response_headers_updated_on_refresh(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
@@ -926,7 +942,9 @@ class TestPyJWKClient:
             RESPONSE_DATA_WITH_MATCHING_KID, {"Cache-Control": "max-age=60"}
         ):
             jwks_client.get_jwk_set()
-        assert jwks_client.last_response_headers == {"Cache-Control": "max-age=60"}
+        assert dict(jwks_client.last_response_headers.items()) == {
+            "Cache-Control": "max-age=60"
+        }
 
         with mocked_success_response_with_headers(
             RESPONSE_DATA_WITH_MATCHING_KID,
@@ -934,7 +952,7 @@ class TestPyJWKClient:
         ):
             jwks_client.get_jwk_set(refresh=True)
 
-        assert jwks_client.last_response_headers == {
+        assert dict(jwks_client.last_response_headers.items()) == {
             "Cache-Control": "max-age=600, stale-while-revalidate=86400"
         }
 
@@ -952,20 +970,20 @@ class TestPyJWKClient:
             with mocked_failed_response():
                 jwks_client.get_jwk_set(refresh=True)
 
-        assert jwks_client.last_response_headers == headers
+        assert dict(jwks_client.last_response_headers.items()) == headers
 
     def test_last_response_headers_empty_when_response_has_no_headers(
         self,
     ) -> None:
         # The plain mocked responses carry no real header mapping; header
-        # extraction must degrade to an empty dict instead of failing.
+        # extraction must degrade to an empty message instead of failing.
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
 
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID):
             jwks_client = PyJWKClient(url)
             jwks_client.get_jwk_set()
 
-        assert jwks_client.last_response_headers == {}
+        assert len(jwks_client.last_response_headers) == 0
 
     def test_last_response_headers_returns_a_copy(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
@@ -980,4 +998,4 @@ class TestPyJWKClient:
         returned = jwks_client.last_response_headers
         returned["Cache-Control"] = "no-store"
 
-        assert jwks_client.last_response_headers == headers
+        assert dict(jwks_client.last_response_headers.items()) == headers

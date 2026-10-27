@@ -125,7 +125,7 @@ class PyJWKClient:
             )
         self.cooldown_duration = cooldown_duration
         self._last_successful_fetch: float | None = None
-        self._last_response_headers: dict[str, str] = {}
+        self._last_response_headers: http.client.HTTPMessage = http.client.HTTPMessage()
         self._client_lock = threading.RLock()
 
         if cache_jwk_set:
@@ -146,7 +146,7 @@ class PyJWKClient:
             self.get_signing_key = get_signing_key  # type: ignore[method-assign]
 
     @property
-    def last_response_headers(self) -> dict[str, str]:
+    def last_response_headers(self) -> http.client.HTTPMessage:
         """HTTP headers from the most recent successful JWKS fetch.
 
         This is the full, unparsed header set returned by the JWKS
@@ -156,21 +156,38 @@ class PyJWKClient:
         their own CDN-bypass or cache logic on top of this client can
         read the provider's stated intent from here.
 
+        It is an ``http.client.HTTPMessage``, not a plain dict, on
+        purpose: a field name can appear on multiple field lines, and
+        some of those must not be combined — RFC 9110 section 5.3
+        singles out ``Set-Cookie``, whose values contain commas
+        (e.g. in ``Expires``) and must stay separate. Flattening to a
+        dict either drops all but one line or corrupts the combined
+        value. Callers read repeated fields with ``get_all(name)``,
+        e.g. ``headers.get_all("Set-Cookie")``.
+
         The value describes the last *network* fetch: calls served from
         the JWK Set cache do not change it, and a failed fetch does not
-        clear it. It is an empty dict before the first successful fetch.
+        clear it. It is empty before the first successful fetch.
         A copy is returned, so mutating it does not affect the client.
         """
-        return dict(self._last_response_headers)
+        message = http.client.HTTPMessage()
+        for name, value in self._last_response_headers.items():
+            message.add_header(name, value)
+        return message
 
     @staticmethod
-    def _extract_response_headers(response: Any) -> dict[str, str]:
-        """Best-effort extraction of a plain dict from a response's headers.
+    def _extract_response_headers(response: Any) -> http.client.HTTPMessage:
+        """Best-effort extraction of a header message from a response.
 
         Real urllib responses expose an ``http.client.HTTPMessage``
         (via ``.headers`` or ``.info()``); anything that does not yield
         header pairs — including test doubles — results in an empty
-        dict rather than an error, since the headers are advisory.
+        message rather than an error, since the headers are advisory.
+
+        Every field line is preserved verbatim, in order. Nothing is
+        combined or dropped here: combining is the caller's decision,
+        and it is wrong for fields like ``Set-Cookie`` (RFC 9110
+        section 5.3).
         """
         headers_obj = getattr(response, "headers", None)
         if headers_obj is None:
@@ -181,7 +198,7 @@ class PyJWKClient:
                 except Exception:
                     headers_obj = None
         if headers_obj is None:
-            return {}
+            return http.client.HTTPMessage()
 
         pairs: Any = None
         getheaders = getattr(headers_obj, "getheaders", None)
@@ -200,25 +217,19 @@ class PyJWKClient:
         if pairs is None and isinstance(headers_obj, dict):
             pairs = headers_obj.items()
         if pairs is None:
-            return {}
+            return http.client.HTTPMessage()
 
-        # A field name can appear on multiple field lines; RFC 9110
-        # section 5.2 combines those into a single field value joined
-        # with ", " instead of dropping all but the last line.
         try:
-            combined: dict[str, str] = {}
-            seen: dict[str, str] = {}
+            message = http.client.HTTPMessage()
             for name, value in pairs:
-                name_str = str(name)
-                value_str = str(value)
-                key = seen.setdefault(name_str.lower(), name_str)
-                if key in combined:
-                    combined[key] = f"{combined[key]}, {value_str}"
-                else:
-                    combined[key] = value_str
-            return combined
+                # Reject non-pair yields (e.g. mock objects) rather
+                # than letting them turn into bogus header lines.
+                if not isinstance(name, str) or not isinstance(value, str):
+                    return http.client.HTTPMessage()
+                message.add_header(name, value)
+            return message
         except Exception:
-            return {}
+            return http.client.HTTPMessage()
 
     def fetch_data(self) -> Any:
         """Fetch the JWK Set from the JWKS endpoint.
