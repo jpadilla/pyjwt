@@ -136,6 +136,29 @@ class TestAlgorithms:
         with pytest.raises(InvalidKeyError):
             algo.prepare_key(key)
 
+    def test_hmac_should_reject_x509_certificate_pem_label(self) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+        with open(key_path("testkey_rsa.cer"), "rb") as certificate_file:
+            key = certificate_file.read().replace(
+                b"CERTIFICATE-----", b"X509 CERTIFICATE-----"
+            )
+
+        with pytest.raises(InvalidKeyError, match="x509 certificate"):
+            algo.prepare_key(key)
+
+    @pytest.mark.parametrize(
+        "key_type",
+        [
+            b"sk-ssh-ed25519@openssh.com",
+            b"sk-ecdsa-sha2-nistp256@openssh.com",
+        ],
+    )
+    def test_hmac_should_reject_sk_ssh_public_key(self, key_type: bytes) -> None:
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError, match="asymmetric key"):
+            algo.prepare_key(key_type + b" AAAA")
+
     def test_hmac_jwk_should_parse_and_verify(self) -> None:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
 

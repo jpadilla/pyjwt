@@ -14,6 +14,14 @@ Changed
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
 
+Fixed
+~~~~~
+
+- Reject PEM certificates labelled ``X509 CERTIFICATE`` and
+  ``sk-ssh-ed25519@openssh.com`` / ``sk-ecdsa-sha2-nistp256@openssh.com``
+  SSH public keys as HMAC secrets. ``cryptography`` loads both forms as
+  public-key material, but the HMAC key check did not recognize them.
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 
