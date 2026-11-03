@@ -14,7 +14,7 @@ permissions:
 jobs:
   tests:
     name: "Python ${{ matrix.python-version }} on ${{ matrix.platform }}"
-    runs-on: "${{ matrix.platform }}"
+    runs-on: "${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.9' && 'ubuntu-24.04' || matrix.platform }}"
     env:
       USING_COVERAGE: '3.9'
 
@@ -56,6 +56,7 @@ jobs:
       - uses: "actions/setup-python@v7"
         with:
           python-version: "3.9"
+        if: "contains(env.USING_COVERAGE, matrix.python-version) && matrix.platform == 'ubuntu-latest'"
 
       - name: "Combine coverage"
         run: |
@@ -75,7 +76,7 @@ jobs:
 
   package:
     name: "Build & verify package"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
 
     steps:
       - uses: "actions/checkout@v7"
@@ -103,7 +104,7 @@ jobs:
         python-version: ["3.9", "3.13"]
 
     name: "Verify dev env (Python ${{ matrix.python-version }}, ${{ matrix.os }})"
-    runs-on: "${{ matrix.os }}"
+    runs-on: "${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9' && 'ubuntu-24.04' || matrix.os }}"
 
     steps:
       - uses: "actions/checkout@v7"
