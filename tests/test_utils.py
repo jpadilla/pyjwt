@@ -55,6 +55,8 @@ def test_force_bytes_raises_error_on_invalid_object() -> None:
         b"ecdsa-sha2-nistp256",
         b"ecdsa-sha2-nistp384",
         b"ecdsa-sha2-nistp521",
+        b"sk-ssh-ed25519@openssh.com",
+        b"sk-ecdsa-sha2-nistp256@openssh.com",
     ),
 )
 def test_is_ssh_key(key_format: bytes) -> None:
