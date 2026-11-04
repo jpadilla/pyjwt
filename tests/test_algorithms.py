@@ -1454,7 +1454,9 @@ class TestOKPAlgorithms:
         # RSA already did this; EC leaked cryptography's ValueError from the
         # private-key fallback, so callers catching PyJWTError missed it.
         algo = ECAlgorithm(ECAlgorithm.SHA256)
-        invalid_key = "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        invalid_key = (
+            "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        )
 
         with pytest.raises(InvalidKeyError) as excinfo:
             algo.prepare_key(invalid_key)
@@ -1464,7 +1466,9 @@ class TestOKPAlgorithms:
     @crypto_required
     def test_okp_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
         algo = OKPAlgorithm()
-        invalid_key = "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        invalid_key = (
+            "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        )
 
         with pytest.raises(InvalidKeyError) as excinfo:
             algo.prepare_key(invalid_key)

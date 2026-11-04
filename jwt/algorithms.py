@@ -219,9 +219,7 @@ class Algorithm(ABC):
             )
 
         if not isinstance(key, self._crypto_key_types):
-            valid_classes = ", ".join(
-                cls.__name__ for cls in self._crypto_key_types
-            )
+            valid_classes = ", ".join(cls.__name__ for cls in self._crypto_key_types)
             actual_class = key.__class__.__name__
             self_class = self.__class__.__name__
             raise InvalidKeyError(
