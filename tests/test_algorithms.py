@@ -1450,6 +1450,46 @@ class TestOKPAlgorithms:
         assert computed_hash == foo_hash
 
     @crypto_required
+    def test_ec_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
+        # RSA already did this; EC leaked cryptography's ValueError from the
+        # private-key fallback, so callers catching PyJWTError missed it.
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+        invalid_key = (
+            "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        )
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(invalid_key)
+
+        assert "Could not parse the provided public key." in str(excinfo.value)
+
+    @crypto_required
+    def test_okp_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
+        algo = OKPAlgorithm()
+        invalid_key = (
+            "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        )
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(invalid_key)
+
+        assert "Could not parse the provided public key." in str(excinfo.value)
+
+    @crypto_required
+    def test_crypto_key_type_error_lists_the_expected_classes(self) -> None:
+        # The message used to interpolate a generator object, so callers got
+        # "<generator object ...>" instead of the class names.
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.check_crypto_key_type(b"not-a-key-object")
+
+        message = str(excinfo.value)
+        assert "generator" not in message
+        assert "EllipticCurvePrivateKey" in message
+        assert "EllipticCurvePublicKey" in message
+
+    @crypto_required
     def test_rsa_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
         invalid_key = "invalid key"
