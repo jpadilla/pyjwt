@@ -13,6 +13,9 @@ Changed
 - Add public ``jwt.decode`` regression coverage for AWS ALB-style padded
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
+- Cache the result of the HMAC key checks in ``HMACAlgorithm.prepare_key``
+  for the 16 most recent keys, so verifying with the same secret no longer
+  parses it as PEM, DER and JSON on every call. Rejected keys are not cached.
 
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
