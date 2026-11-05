@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import hashlib
 import hmac
 import json
@@ -344,15 +345,21 @@ class HMACAlgorithm(Algorithm):
             return True
 
     def prepare_key(self, key: str | bytes) -> bytes:
-        key_bytes = force_bytes(key)
+        return self._prepare_key_bytes(force_bytes(key))
 
+    # The checks below try to parse the key several times and give the same
+    # answer for the same bytes. Keyed on the bytes only, so instances are not
+    # kept alive; rejected keys raise and are not cached.
+    @staticmethod
+    @functools.lru_cache(maxsize=16)
+    def _prepare_key_bytes(key_bytes: bytes) -> bytes:
         if len(key_bytes) == 0:
             raise InvalidKeyError("HMAC key must not be empty.")
 
         if (
             is_pem_format(key_bytes)
             or is_ssh_key(key_bytes)
-            or self._is_der_key(key_bytes)
+            or HMACAlgorithm._is_der_key(key_bytes)
         ):
             raise InvalidKeyError(
                 "The specified key is an asymmetric key or x509 certificate and"
