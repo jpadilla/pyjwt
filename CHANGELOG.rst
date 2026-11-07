@@ -7,6 +7,13 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Added
+~~~~~
+
+- Add a keyword-only ``now`` parameter to ``decode`` and ``decode_complete``
+  to validate ``exp``, ``nbf`` and ``iat`` against an application-supplied time
+  (`#921 <https://github.com/jpadilla/pyjwt/issues/921>`__).
+
 Changed
 ~~~~~~~
 
