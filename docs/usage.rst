@@ -230,6 +230,29 @@ instance can be used. The last line in the example above is equivalent to:
     ...     token, "secret", leeway=datetime.timedelta(seconds=5), algorithms=["HS256"]
     ... )
 
+Validating at a specified time
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pass ``now`` to ``jwt.decode()`` or ``jwt.decode_complete()`` to validate
+``exp``, ``nbf`` and ``iat`` at a specific instant, for example in deterministic
+tests. The value may be a finite Unix timestamp in seconds (including fractional
+seconds) or a ``datetime.datetime``. Aware datetimes use their UTC offset;
+naive datetimes are interpreted as UTC, independently of the local timezone.
+Omitting ``now`` or passing ``None`` uses the current UTC time.
+
+.. code-block:: pycon
+
+    >>> key = "test-signing-key-32-characters-long"
+    >>> token = jwt.encode({"iat": 100, "nbf": 100, "exp": 101}, key, algorithm="HS256")
+    >>> jwt.decode(token, key, algorithms=["HS256"], now=100.5)
+    {'iat': 100, 'nbf': 100, 'exp': 101}
+
+The same time is used for all three claims in a call. The usual verification
+options and ``leeway`` still apply, and subsequent calls use their own validation
+time. ``now`` must be chosen by the application, never taken from untrusted token
+claims or headers. Booleans and other non-numeric values raise ``TypeError``;
+non-finite numeric values raise ``ValueError``.
+
 Not Before Time Claim (nbf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

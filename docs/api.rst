@@ -5,9 +5,9 @@ API Reference
 
 .. autofunction:: encode(payload, key, algorithm="HS256", headers=None, json_encoder=None) -> str
 
-.. autofunction:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0) -> dict[str, typing.Any]
+.. autofunction:: decode(jwt, key="", algorithms=None, options=None, audience=None, issuer=None, leeway=0, *, now=None) -> dict[str, typing.Any]
 
-.. autofunction:: decode_complete(jwt, key="", algorithms=None, options=None, verify=None, detached_payload=None, audience=None, issuer=None, subject=None, leeway=0) -> dict[str, typing.Any]
+.. autofunction:: decode_complete(jwt, key="", algorithms=None, options=None, verify=None, detached_payload=None, audience=None, issuer=None, subject=None, leeway=0, *, now=None) -> dict[str, typing.Any]
 
 .. autoclass:: PyJWT
     :class-doc-from: init

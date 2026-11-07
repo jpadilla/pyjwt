@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import warnings
 from calendar import timegm
@@ -189,6 +190,8 @@ class PyJWT:
         issuer: str | Container[str] | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
+        *,
+        now: float | datetime | None = None,
         # kwargs
         **kwargs: Any,
     ) -> dict[str, Any]:
@@ -226,6 +229,11 @@ class PyJWT:
         :type issuer: str or typing.Container[str] or None
         :param leeway: a time margin in seconds for the expiration check
         :type leeway: float or datetime.timedelta
+        :param now: optional validation time, as a finite Unix timestamp in
+            seconds or a datetime. Naive datetimes are interpreted as UTC.
+            Defaults to the current UTC time. This value must come from the
+            application, not from untrusted token data.
+        :type now: float or datetime.datetime or None
         :rtype: dict[str, typing.Any]
         :returns: Decoded JWT with the JOSE Header on the key ``header``, the JWS
          Payload on the key ``payload``, and the JWS Signature on the key ``signature``.
@@ -281,6 +289,7 @@ class PyJWT:
             issuer=issuer,
             leeway=leeway,
             subject=subject,
+            **({"now": now} if now is not None else {}),
         )
 
         decoded["payload"] = payload
@@ -318,6 +327,8 @@ class PyJWT:
         subject: str | None = None,
         issuer: str | Container[str] | None = None,
         leeway: float | timedelta = 0,
+        *,
+        now: float | datetime | None = None,
         # kwargs
         **kwargs: Any,
     ) -> dict[str, Any]:
@@ -356,6 +367,11 @@ class PyJWT:
         :type issuer: str or typing.Container[str] or None
         :param leeway: a time margin in seconds for the expiration check
         :type leeway: float or datetime.timedelta
+        :param now: optional validation time, as a finite Unix timestamp in
+            seconds or a datetime. Naive datetimes are interpreted as UTC.
+            Defaults to the current UTC time. This value must come from the
+            application, not from untrusted token data.
+        :type now: float or datetime.datetime or None
         :rtype: dict[str, typing.Any]
         :returns: the JWT claims
         """
@@ -378,6 +394,7 @@ class PyJWT:
             subject=subject,
             issuer=issuer,
             leeway=leeway,
+            **({"now": now} if now is not None else {}),
         )
         return cast(dict[str, Any], decoded["payload"])
 
@@ -389,6 +406,7 @@ class PyJWT:
         issuer: Container[str] | str | None = None,
         subject: str | None = None,
         leeway: float | timedelta = 0,
+        now: float | datetime | None = None,
     ) -> None:
         if isinstance(leeway, timedelta):
             leeway = leeway.total_seconds()
@@ -398,7 +416,22 @@ class PyJWT:
 
         self._validate_required_claims(payload, options["require"])
 
-        now = datetime.now(tz=timezone.utc).timestamp()
+        if now is None:
+            now = datetime.now(tz=timezone.utc).timestamp()
+        elif isinstance(now, datetime):
+            if now.utcoffset() is None:
+                now = now.replace(tzinfo=timezone.utc)
+            now = now.timestamp()
+        elif isinstance(now, bool) or not isinstance(now, (int, float)):
+            raise TypeError("now must be a numeric timestamp, datetime or None")
+        else:
+            try:
+                now = float(now)
+            except OverflowError:
+                raise ValueError("now must be finite") from None
+
+        if not math.isfinite(now):
+            raise ValueError("now must be finite")
 
         if "iat" in payload and options["verify_iat"]:
             self._validate_iat(payload, now, leeway)
