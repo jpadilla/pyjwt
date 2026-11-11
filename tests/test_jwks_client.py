@@ -61,7 +61,9 @@ RESPONSE_DATA_NO_MATCHING_KID = {
 
 
 @contextlib.contextmanager
-def mocked_success_response(data: object) -> Iterator[mock.Mock]:
+def mocked_success_response(
+    data: object, headers: list[tuple[str, str]] | None = None
+) -> Iterator[mock.Mock]:
     with mock.patch("urllib.request.build_opener") as build_opener_mock:
         opener = mock.Mock()
         build_opener_mock.return_value = opener
@@ -70,6 +72,10 @@ def mocked_success_response(data: object) -> Iterator[mock.Mock]:
         response.__enter__ = mock.Mock(return_value=response)
         response.__exit__ = mock.Mock()
         response.read.side_effect = [json.dumps(data)]
+        # Assigning to an HTTPMessage appends, so repeated names are kept.
+        response.headers = http.client.HTTPMessage()
+        for name, value in headers or []:
+            response.headers[name] = value
         urlopen_mock.return_value = response
         yield urlopen_mock
 
@@ -535,6 +541,51 @@ class TestPyJWKClient:
         with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as call:
             jwks_client.get_jwk_set()
         assert call.call_count == 0
+
+    def test_last_response_headers_exposes_fetch_headers(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url)
+        assert jwks_client.last_response_headers is None
+
+        with mocked_success_response(
+            RESPONSE_DATA_WITH_MATCHING_KID,
+            headers=[
+                ("Cache-Control", "max-age=300"),
+                ("Cache-Control", "stale-while-revalidate=86400"),
+            ],
+        ):
+            jwks_client.get_jwk_set()
+
+        headers = jwks_client.last_response_headers
+        assert headers is not None
+        assert headers.get_all("cache-control") == [
+            "max-age=300",
+            "stale-while-revalidate=86400",
+        ]
+
+        # The property returns a copy, so mutating it does not leak back.
+        headers["X-Test"] = "1"
+        fresh = jwks_client.last_response_headers
+        assert fresh is not None
+        assert "X-Test" not in fresh
+
+    def test_last_response_headers_preserved_on_failed_fetch(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        jwks_client = PyJWKClient(url)
+
+        with mocked_success_response(
+            RESPONSE_DATA_WITH_MATCHING_KID,
+            headers=[("Cache-Control", "max-age=300")],
+        ):
+            jwks_client.get_jwk_set()
+
+        with pytest.raises(PyJWKClientConnectionError):
+            with mocked_failed_response():
+                jwks_client.get_jwk_set(refresh=True)
+
+        headers = jwks_client.last_response_headers
+        assert headers is not None
+        assert headers["Cache-Control"] == "max-age=300"
 
     def test_failed_request_should_raise_connection_error(self) -> None:
         token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5FRTFRVVJCT1RNNE16STVSa0ZETlRZeE9UVTFNRGcyT0Rnd1EwVXpNVGsxUWpZeVJrUkZRdyJ9.eyJpc3MiOiJodHRwczovL2Rldi04N2V2eDlydS5hdXRoMC5jb20vIiwic3ViIjoiYVc0Q2NhNzl4UmVMV1V6MGFFMkg2a0QwTzNjWEJWdENAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZXhwZW5zZXMtYXBpIiwiaWF0IjoxNTcyMDA2OTU0LCJleHAiOjE1NzIwMDY5NjQsImF6cCI6ImFXNENjYTc5eFJlTFdVejBhRTJINmtEME8zY1hCVnRDIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.PUxE7xn52aTCohGiWoSdMBZGiYAHwE5FYie0Y1qUT68IHSTXwXVd6hn02HTah6epvHHVKA2FqcFZ4GGv5VTHEvYpeggiiZMgbxFrmTEY0csL6VNkX1eaJGcuehwQCRBKRLL3zKmA5IKGy5GeUnIbpPHLHDxr-GXvgFzsdsyWlVQvPX2xjeaQ217r2PtxDeqjlf66UYl6oY6AqNS8DH3iryCvIfCcybRZkc_hdy-6ZMoKT6Piijvk_aXdm7-QQqKJFHLuEqrVSOuBqqiNfVrG27QzAPuPOxvfXTVLXL2jek5meH6n-VWgrBdoMFH93QEszEDowDAEhQPHVs0xj7SIzA"
