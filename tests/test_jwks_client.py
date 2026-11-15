@@ -7,7 +7,7 @@ import ssl
 import threading
 import time
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, Optional
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest import mock
 from urllib.error import HTTPError, URLError
@@ -62,7 +62,7 @@ RESPONSE_DATA_NO_MATCHING_KID = {
 
 @contextlib.contextmanager
 def mocked_success_response(
-    data: object, headers: list[tuple[str, str]] | None = None
+    data: object, headers: Optional[list[tuple[str, str]]] = None
 ) -> Iterator[mock.Mock]:
     with mock.patch("urllib.request.build_opener") as build_opener_mock:
         opener = mock.Mock()
