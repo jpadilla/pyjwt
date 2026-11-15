@@ -7,7 +7,7 @@ import ssl
 import threading
 import time
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, Optional
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest import mock
 from urllib.error import HTTPError, URLError
@@ -785,7 +785,7 @@ class TestPyJWKClient:
         ],
     )
     def test_should_serve_stale_on_cause(
-        self, cause: BaseException | None, expected: bool
+        self, cause: Optional[BaseException], expected: bool
     ) -> None:
         assert PyJWKClient._should_serve_stale_on(cause) is expected
 
@@ -805,8 +805,10 @@ class TestPyJWKClient:
     def test_stale_served_only_on_gateway_http_errors(
         self, code: int, expected: bool
     ) -> None:
-        error = HTTPError("https://example.com", code, "msg", Message(), None)
-        assert PyJWKClient._should_serve_stale_on(error) is expected
+        with HTTPError(
+            "https://example.com", code, "msg", Message(), io.BytesIO(b"")
+        ) as error:
+            assert PyJWKClient._should_serve_stale_on(error) is expected
 
     def test_forced_refresh_bypasses_stale_if_error(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
