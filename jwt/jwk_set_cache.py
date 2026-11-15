@@ -32,16 +32,28 @@ class JWKSetCache:
 
         self.jwk_set_with_timestamp = PyJWTSetWithTimestamp(jwk_set)
 
-    def get(self) -> Optional[PyJWKSet]:
-        if self.jwk_set_with_timestamp is None or self.is_expired():
+    def get(self, max_stale: float = 0) -> Optional[PyJWKSet]:
+        """Return the cached ``PyJWKSet`` if it is not expired.
+
+        Can return keys that are up to *max_stale* seconds
+        past expiration. Returns ``None`` if the cache is empty
+        or expired past *max_stale* tolerance.
+        """
+        if self.jwk_set_with_timestamp is None or self.is_expired(max_stale):
             return None
 
         return self.jwk_set_with_timestamp.get_jwk_set()
 
-    def is_expired(self) -> bool:
+    def is_expired(self, max_stale: float = 0) -> bool:
+        """Return whether the currently cached ``PyJWKSet`` is expired.
+
+        Returns ``True`` if the cached ``PyJWKSet`` is more than
+        *max_stale* seconds past its lifetime. Returns ``False``
+        otherwise. Always returns ``False`` for a lifespan of ``-1``.
+        """
         return (
             self.jwk_set_with_timestamp is not None
             and self.lifespan > -1
             and time.monotonic()
-            > self.jwk_set_with_timestamp.get_timestamp() + self.lifespan
+            > self.jwk_set_with_timestamp.get_timestamp() + self.lifespan + max_stale
         )
