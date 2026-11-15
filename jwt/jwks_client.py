@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import http.client
 import json
 import math
@@ -125,6 +126,7 @@ class PyJWKClient:
             )
         self.cooldown_duration = cooldown_duration
         self._last_successful_fetch: float | None = None
+        self._last_response_headers: http.client.HTTPMessage | None = None
         self._client_lock = threading.RLock()
 
         if cache_jwk_set:
@@ -166,6 +168,7 @@ class PyJWKClient:
             opener = urllib.request.build_opener(*handlers)
             with opener.open(r, timeout=self.timeout) as response:
                 jwk_set = json.load(response)
+                response_headers = response.headers
         except (URLError, TimeoutError, http.client.HTTPException) as e:
             if isinstance(e, HTTPError):
                 e.close()
@@ -185,6 +188,7 @@ class PyJWKClient:
         if self.jwk_set_cache is not None:
             self.jwk_set_cache.put(jwk_set)
         self._last_successful_fetch = time.monotonic()
+        self._last_response_headers = response_headers
         return jwk_set
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
@@ -331,3 +335,17 @@ class PyJWKClient:
                 break
 
         return signing_key
+
+    @property
+    def last_response_headers(self) -> http.client.HTTPMessage | None:
+        """Response headers from the last successful JWKS fetch.
+
+        ``None`` until the first successful fetch. Cache hits and failed
+        fetches leave it unchanged; headers of an HTTP error response are
+        available via ``PyJWKClientConnectionError.__cause__.headers``.
+        Not set if a subclass overrides :meth:`fetch_data` without calling
+        ``super()``. Returns a copy.
+
+        :rtype: http.client.HTTPMessage or None
+        """
+        return copy.deepcopy(self._last_response_headers)

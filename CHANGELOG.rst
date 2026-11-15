@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Added
+~~~~~
+
+- Add ``PyJWKClient.last_response_headers``, exposing the HTTP response
+  headers of the last successful JWKS fetch so applications can read
+  directives such as ``Cache-Control`` from the provider
+  (`#1166 <https://github.com/jpadilla/pyjwt/issues/1166>`__).
+
 Changed
 ~~~~~~~
 
