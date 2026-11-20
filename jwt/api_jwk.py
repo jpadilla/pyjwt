@@ -5,7 +5,13 @@ import time
 from collections.abc import Iterator
 from typing import Any
 
-from .algorithms import get_default_algorithms, has_crypto, requires_cryptography
+from .algorithms import (
+    get_default_algorithms,
+    has_crypto,
+    has_mldsa,
+    requires_cryptography,
+    requires_mldsa,
+)
 from .exceptions import (
     InvalidKeyError,
     MissingCryptographyError,
@@ -62,12 +68,35 @@ class PyJWK:
                     algorithm = "EdDSA"
                 else:
                     raise InvalidKeyError(f"Unsupported crv: {crv}")
+            elif kty == "AKP":
+                # AKP keys carry no curve/size hint; "alg" is mandatory.
+                raise InvalidKeyError('AKP keys must specify "alg"')
             else:
                 raise InvalidKeyError(f"Unsupported kty: {kty}")
+
+        if kty == "AKP":
+            # MLDSAAlgorithm.from_jwk() picks the parameter set (44/65/87) from
+            # the JWK's own "alg" and ignores the ``algorithm`` argument. If the
+            # two disagreed, algorithm_name would not match the loaded key, and
+            # the error would only appear later when the key is used. Reject
+            # the mismatch here instead.
+            jwk_alg = self._jwk_data.get("alg")
+            if jwk_alg is not None and jwk_alg != algorithm:
+                raise InvalidKeyError(
+                    f"Algorithm {algorithm!r} does not match AKP key alg {jwk_alg!r}"
+                )
 
         if not has_crypto and algorithm in requires_cryptography:
             raise MissingCryptographyError(
                 f"{algorithm} requires 'cryptography' to be installed."
+            )
+
+        # PyJWKError rather than MissingCryptographyError so PyJWKSet skips
+        # the key instead of failing the whole set on older cryptography.
+        if has_crypto and not has_mldsa and algorithm in requires_mldsa:
+            raise PyJWKError(
+                f"{algorithm} requires cryptography >= 48.0.0 with ML-DSA support. "
+                "Please upgrade: pip install 'cryptography>=48.0.0'"
             )
 
         self.algorithm_name = algorithm

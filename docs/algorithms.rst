@@ -18,6 +18,14 @@ This library currently supports:
 * PS384 - RSASSA-PSS signature using SHA-384 and MGF1 padding with SHA-384
 * PS512 - RSASSA-PSS signature using SHA-512 and MGF1 padding with SHA-512
 * EdDSA - Both Ed25519 signature using SHA-512 and Ed448 signature using SHA-3 are supported. Ed25519 and Ed448 provide 128-bit and 224-bit security respectively.
+* ML-DSA-44 - Module-Lattice-Based Digital Signature Algorithm (FIPS 204), NIST security category 2
+* ML-DSA-65 - Module-Lattice-Based Digital Signature Algorithm (FIPS 204), NIST security category 3
+* ML-DSA-87 - Module-Lattice-Based Digital Signature Algorithm (FIPS 204), NIST security category 5
+
+The ML-DSA algorithms are post-quantum signature schemes and require
+``cryptography >= 48.0.0``. With older versions of ``cryptography`` they are
+not registered; JWKs using them are skipped by ``PyJWKSet`` and raise
+``PyJWKError`` when loaded with ``PyJWK``.
 
 Minimum Key Length Requirements
 -------------------------------

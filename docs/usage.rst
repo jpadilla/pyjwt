@@ -73,6 +73,34 @@ EdDSA encoding and decoding require the ``cryptography`` module. See :ref:`insta
     >>> jwt.decode(encoded, public_key, algorithms=["EdDSA"])
     {'some': 'payload'}
 
+Encoding & Decoding Tokens with ML-DSA
+--------------------------------------
+
+ML-DSA (FIPS 204) encoding and decoding require ``cryptography >= 48.0.0``.
+See :ref:`installation_cryptography`. The ``ML-DSA-44``, ``ML-DSA-65`` and
+``ML-DSA-87`` parameter sets are supported, and each algorithm only accepts
+keys of its own parameter set.
+
+.. code-block:: python
+
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric.mldsa import MLDSA65PrivateKey
+
+    private_key = MLDSA65PrivateKey.generate()
+    encoded = jwt.encode({"some": "payload"}, private_key, algorithm="ML-DSA-65")
+    jwt.decode(encoded, private_key.public_key(), algorithms=["ML-DSA-65"])
+
+Keys may also be given as PEM strings: an unencrypted PKCS8 private key
+(``-----BEGIN PRIVATE KEY-----``) or a SubjectPublicKeyInfo public key
+(``-----BEGIN PUBLIC KEY-----``). Encrypted private keys are not loaded
+automatically; decrypt them with
+:py:func:`cryptography.hazmat.primitives.serialization.load_pem_private_key`
+and pass the resulting key object instead.
+
+As JWKs, ML-DSA keys use ``"kty": "AKP"`` with the ``pub`` member holding the
+raw public key and the optional ``priv`` member holding the 32-byte seed. The
+``alg`` member is required and determines the parameter set.
+
 Encoding & Decoding Tokens with ES256 (ECDSA)
 ---------------------------------------------
 

@@ -11,7 +11,7 @@ from jwt.exceptions import (
     PyJWKSetError,
 )
 
-from .utils import crypto_required, key_path, no_crypto_required
+from .utils import crypto_required, key_path, mldsa_required, no_crypto_required
 
 if has_crypto:
     from jwt.algorithms import ECAlgorithm, HMACAlgorithm, OKPAlgorithm, RSAAlgorithm
@@ -389,3 +389,54 @@ class TestPyJWKSet:
     def test_missing_crypto_library_raises_when_required(self) -> None:
         with pytest.raises(MissingCryptographyError):
             PyJWKSet(keys=[{"kty": "RSA"}])
+
+    @crypto_required
+    def test_mldsa_key_skipped_when_cryptography_lacks_mldsa(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import jwt.api_jwk
+        from jwt.algorithms import get_default_algorithms
+
+        default_algorithms = get_default_algorithms()
+        monkeypatch.setattr(jwt.api_jwk, "has_mldsa", False)
+        monkeypatch.setattr(
+            jwt.api_jwk,
+            "get_default_algorithms",
+            lambda: {
+                k: v
+                for k, v in default_algorithms.items()
+                if not k.startswith("ML-DSA")
+            },
+        )
+
+        with open(key_path("jwk_rsa_pub.json")) as keyfile:
+            rsa_key = json.load(keyfile)
+        with open(key_path("jwk_akp_pub_ML-DSA-65.json")) as keyfile:
+            mldsa_key = json.load(keyfile)
+
+        jwk_set = PyJWKSet(keys=[rsa_key, mldsa_key])
+        assert [k.key_type for k in jwk_set] == ["RSA"]
+
+        with pytest.raises(PyJWKError, match="cryptography >= 48.0.0"):
+            PyJWK(mldsa_key)
+
+    @mldsa_required
+    def test_akp_jwk_without_alg_raises_invalid_key(self) -> None:
+        with open(key_path("jwk_akp_pub_ML-DSA-65.json")) as keyfile:
+            key_data = json.load(keyfile)
+        del key_data["alg"]
+        with pytest.raises(InvalidKeyError, match='must specify "alg"'):
+            PyJWK(key_data)
+
+    @mldsa_required
+    def test_akp_jwk_algorithm_override_mismatch_raises(self) -> None:
+        with open(key_path("jwk_akp_pub_ML-DSA-65.json")) as keyfile:
+            key_data = json.load(keyfile)
+        with pytest.raises(InvalidKeyError, match="does not match AKP key alg"):
+            PyJWK(key_data, algorithm="ML-DSA-44")
+
+    @mldsa_required
+    def test_akp_jwk_matching_algorithm_override_is_accepted(self) -> None:
+        with open(key_path("jwk_akp_pub_ML-DSA-65.json")) as keyfile:
+            key_data = json.load(keyfile)
+        assert PyJWK(key_data, algorithm="ML-DSA-65").algorithm_name == "ML-DSA-65"

@@ -20,6 +20,7 @@ from typing import (
 
 from .exceptions import InvalidKeyError
 from .types import HashlibHash, JWKDict
+
 from .utils import (
     base64url_decode,
     base64url_encode,
@@ -31,6 +32,11 @@ from .utils import (
     raw_to_der_signature,
     to_base64url_uint,
 )
+
+if sys.version_info >= (3, 11):
+    from typing import Never
+else:
+    from typing_extensions import Never
 
 try:
     from cryptography import x509
@@ -85,20 +91,67 @@ try:
         # Python 3.9 and lower
         from typing_extensions import TypeAlias
 
+    # ML-DSA (post-quantum, FIPS 204) — requires cryptography >= 48.0.0
+    try:
+        import cryptography
+
+        # 47.x ships the mldsa module but only works when built against AWS-LC
+        # or BoringSSL; standard OpenSSL builds import it fine, then raise
+        # UnsupportedAlgorithm when signing. OpenSSL support arrived in 48.0.0,
+        # so an import check alone would wrongly enable ML-DSA on 47.x.
+        if int(cryptography.__version__.split(".")[0]) < 48:
+            raise ImportError("ML-DSA requires cryptography >= 48.0.0")
+
+        from cryptography.hazmat.primitives.asymmetric.mldsa import (
+            MLDSA44PrivateKey,
+            MLDSA44PublicKey,
+            MLDSA65PrivateKey,
+            MLDSA65PublicKey,
+            MLDSA87PrivateKey,
+            MLDSA87PublicKey,
+        )
+
+        AllowedMLDSAPrivateKeys: TypeAlias = Union[
+            MLDSA44PrivateKey, MLDSA65PrivateKey, MLDSA87PrivateKey
+        ]
+        AllowedMLDSAPublicKeys: TypeAlias = Union[
+            MLDSA44PublicKey, MLDSA65PublicKey, MLDSA87PublicKey
+        ]
+        AllowedMLDSAKeys: TypeAlias = Union[
+            AllowedMLDSAPrivateKeys, AllowedMLDSAPublicKeys
+        ]
+        has_mldsa = True
+    except ImportError:
+        # cryptography is installed but is < 48.0.0
+        AllowedMLDSAPrivateKeys: TypeAlias = Never  # type: ignore[misc,no-redef]
+        AllowedMLDSAPublicKeys: TypeAlias = Never  # type: ignore[misc,no-redef]
+        AllowedMLDSAKeys: TypeAlias = Never  # type: ignore[misc,no-redef]
+        has_mldsa = False
+
     # Type aliases for convenience in algorithms method signatures
     AllowedRSAKeys: TypeAlias = Union[RSAPrivateKey, RSAPublicKey]
     AllowedECKeys: TypeAlias = Union[EllipticCurvePrivateKey, EllipticCurvePublicKey]
     AllowedOKPKeys: TypeAlias = Union[
         Ed25519PrivateKey, Ed25519PublicKey, Ed448PrivateKey, Ed448PublicKey
     ]
-    AllowedKeys: TypeAlias = Union[AllowedRSAKeys, AllowedECKeys, AllowedOKPKeys]
+    AllowedKeys: TypeAlias = Union[
+        AllowedRSAKeys, AllowedECKeys, AllowedOKPKeys, AllowedMLDSAKeys
+    ]
     #: Type alias for allowed ``cryptography`` private keys (requires ``cryptography`` to be installed)
     AllowedPrivateKeys: TypeAlias = Union[
-        RSAPrivateKey, EllipticCurvePrivateKey, Ed25519PrivateKey, Ed448PrivateKey
+        RSAPrivateKey,
+        EllipticCurvePrivateKey,
+        Ed25519PrivateKey,
+        Ed448PrivateKey,
+        AllowedMLDSAPrivateKeys,
     ]
     #: Type alias for allowed ``cryptography`` public keys (requires ``cryptography`` to be installed)
     AllowedPublicKeys: TypeAlias = Union[
-        RSAPublicKey, EllipticCurvePublicKey, Ed25519PublicKey, Ed448PublicKey
+        RSAPublicKey,
+        EllipticCurvePublicKey,
+        Ed25519PublicKey,
+        Ed448PublicKey,
+        AllowedMLDSAPublicKeys,
     ]
 
     if TYPE_CHECKING or bool(os.getenv("SPHINX_BUILD", "")):
@@ -109,18 +162,17 @@ try:
 
     has_crypto = True
 except ModuleNotFoundError:
-    if sys.version_info >= (3, 11):
-        from typing import Never
-    else:
-        from typing_extensions import Never
-
     AllowedRSAKeys = Never  # type: ignore[misc]
     AllowedECKeys = Never  # type: ignore[misc]
     AllowedOKPKeys = Never  # type: ignore[misc]
     AllowedKeys = Never  # type: ignore[misc]
     AllowedPrivateKeys = Never  # type: ignore[misc]
     AllowedPublicKeys = Never  # type: ignore[misc]
+    AllowedMLDSAPrivateKeys = Never  # type: ignore[misc]
+    AllowedMLDSAPublicKeys = Never  # type: ignore[misc]
+    AllowedMLDSAKeys = Never  # type: ignore[misc]
     has_crypto = False
+    has_mldsa = False
 
 
 requires_cryptography = {
@@ -136,6 +188,17 @@ requires_cryptography = {
     "PS384",
     "PS512",
     "EdDSA",
+    "ML-DSA-44",
+    "ML-DSA-65",
+    "ML-DSA-87",
+}
+
+#: Algorithms that need cryptography >= 48.0.0 (ML-DSA support).
+#: These are a subset of ``requires_cryptography``.
+requires_mldsa = {
+    "ML-DSA-44",
+    "ML-DSA-65",
+    "ML-DSA-87",
 }
 
 
@@ -167,6 +230,15 @@ def get_default_algorithms() -> dict[str, Algorithm]:
                 "PS384": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA384),
                 "PS512": RSAPSSAlgorithm(RSAPSSAlgorithm.SHA512),
                 "EdDSA": OKPAlgorithm(),
+            }
+        )
+
+    if has_mldsa:
+        default_algorithms.update(
+            {
+                "ML-DSA-44": MLDSAAlgorithm("ML-DSA-44"),
+                "ML-DSA-65": MLDSAAlgorithm("ML-DSA-65"),
+                "ML-DSA-87": MLDSAAlgorithm("ML-DSA-87"),
             }
         )
 
@@ -1119,3 +1191,209 @@ if has_crypto:
                 return private_key
             except ValueError as err:
                 raise InvalidKeyError("Invalid key parameter") from err
+
+    if has_mldsa:
+
+        class MLDSAAlgorithm(Algorithm):
+            """
+            Performs signing and verification using ML-DSA (Module-Lattice-Based
+            Digital Signature Algorithm, FIPS 204).
+
+            This class requires ``cryptography >= 48.0.0`` to be installed.
+
+            :param alg_id: One of ``"ML-DSA-44"``, ``"ML-DSA-65"``, or ``"ML-DSA-87"``.
+            :type alg_id: str
+            """
+
+            # Maps alg_id -> (priv_cls, pub_cls, pub_key_byte_len)
+            _PARAMS: ClassVar[
+                dict[
+                    str,
+                    tuple[
+                        type[AllowedMLDSAPrivateKeys],
+                        type[AllowedMLDSAPublicKeys],
+                        int,
+                    ],
+                ]
+            ] = {
+                "ML-DSA-44": (MLDSA44PrivateKey, MLDSA44PublicKey, 1312),
+                "ML-DSA-65": (MLDSA65PrivateKey, MLDSA65PublicKey, 1952),
+                "ML-DSA-87": (MLDSA87PrivateKey, MLDSA87PublicKey, 2592),
+            }
+
+            _crypto_key_types = cast(
+                tuple[type[AllowedKeys], ...],
+                get_args(AllowedMLDSAKeys),
+            )
+
+            def __init__(self, alg_id: str) -> None:
+                if alg_id not in self._PARAMS:
+                    raise ValueError(
+                        f"Unsupported ML-DSA parameter set: {alg_id!r}. "
+                        f"Choose from: {list(self._PARAMS)}"
+                    )
+                self.alg_id = alg_id
+                self._priv_cls, self._pub_cls, self._pub_len = self._PARAMS[alg_id]
+
+            def prepare_key(
+                self, key: AllowedMLDSAKeys | str | bytes
+            ) -> AllowedMLDSAKeys:
+                if not isinstance(key, (str, bytes)):
+                    # Already a cryptography key object — validate family and parameter set.
+                    self.check_crypto_key_type(key)
+                    if not isinstance(key, (self._priv_cls, self._pub_cls)):
+                        raise InvalidKeyError(
+                            f"Key parameter set does not match algorithm {self.alg_id!r}"
+                        )
+                    return key
+
+                key_bytes = force_bytes(key)
+
+                # Only unencrypted PKCS8 private keys and SubjectPublicKeyInfo
+                # public keys are supported. Encrypted keys should be loaded by
+                # the caller and passed in as key objects.
+                loaded_key: PublicKeyTypes | PrivateKeyTypes
+                try:
+                    if b"-----BEGIN PUBLIC KEY-----" in key_bytes:
+                        loaded_key = load_pem_public_key(key_bytes)
+                    elif b"-----BEGIN PRIVATE KEY-----" in key_bytes:
+                        loaded_key = load_pem_private_key(key_bytes, password=None)
+                    else:
+                        raise InvalidKeyError(
+                            "Not a supported ML-DSA key format. Expected a "
+                            "PEM-encoded unencrypted PKCS8 private key or "
+                            "SubjectPublicKeyInfo public key."
+                        )
+                except (ValueError, TypeError, UnsupportedAlgorithm) as err:
+                    raise InvalidKeyError("Could not parse ML-DSA PEM key") from err
+
+                self.check_crypto_key_type(loaded_key)
+                if not isinstance(loaded_key, (self._priv_cls, self._pub_cls)):
+                    raise InvalidKeyError(
+                        f"PEM key parameter set does not match algorithm {self.alg_id!r}"
+                    )
+                return cast("AllowedMLDSAKeys", loaded_key)
+
+            def sign(self, msg: bytes, key: AllowedMLDSAPrivateKeys) -> bytes:
+                if not isinstance(
+                    key, (MLDSA44PrivateKey, MLDSA65PrivateKey, MLDSA87PrivateKey)
+                ):
+                    raise InvalidKeyError(
+                        f"{self.alg_id} signing requires a private key, "
+                        f"got {key.__class__.__name__}"
+                    )
+                return key.sign(msg)
+
+            def verify(
+                self,
+                msg: bytes,
+                key: AllowedMLDSAKeys,
+                sig: bytes,
+            ) -> bool:
+                public_key = (
+                    key.public_key()
+                    if isinstance(
+                        key, (MLDSA44PrivateKey, MLDSA65PrivateKey, MLDSA87PrivateKey)
+                    )
+                    else key
+                )
+                try:
+                    public_key.verify(sig, msg)
+                    return True
+                except InvalidSignature:
+                    return False
+
+            @overload
+            @staticmethod
+            def to_jwk(key: AllowedMLDSAKeys, as_dict: Literal[True]) -> JWKDict: ...
+
+            @overload
+            @staticmethod
+            def to_jwk(
+                key: AllowedMLDSAKeys, as_dict: Literal[False] = False
+            ) -> str: ...
+
+            @staticmethod
+            def to_jwk(key: AllowedMLDSAKeys, as_dict: bool = False) -> JWKDict | str:
+                # Resolve algorithm name from key type
+                alg: str | None = None
+                for name, (priv_cls, pub_cls, _) in MLDSAAlgorithm._PARAMS.items():
+                    if isinstance(key, (priv_cls, pub_cls)):
+                        alg = name
+                        break
+                if alg is None:
+                    raise InvalidKeyError("Not a supported ML-DSA key")
+
+                obj: JWKDict
+                if isinstance(
+                    key, (MLDSA44PrivateKey, MLDSA65PrivateKey, MLDSA87PrivateKey)
+                ):
+                    obj = {
+                        "kty": "AKP",
+                        "alg": alg,
+                        "pub": base64url_encode(
+                            key.public_key().public_bytes_raw()
+                        ).decode(),
+                        # The "priv" member holds the 32-byte FIPS 204 seed.
+                        "priv": base64url_encode(key.private_bytes_raw()).decode(),
+                    }
+                else:
+                    obj = {
+                        "kty": "AKP",
+                        "alg": alg,
+                        "pub": base64url_encode(key.public_bytes_raw()).decode(),
+                    }
+
+                return obj if as_dict else json.dumps(obj)
+
+            @staticmethod
+            def from_jwk(jwk: str | JWKDict) -> AllowedMLDSAKeys:
+                try:
+                    if isinstance(jwk, str):
+                        obj = json.loads(jwk)
+                    elif isinstance(jwk, dict):
+                        obj = jwk
+                    else:
+                        raise ValueError
+                except ValueError:
+                    raise InvalidKeyError("Key is not valid JSON") from None
+
+                if not isinstance(obj, dict):
+                    raise InvalidKeyError("Key is not a JSON object")
+
+                if obj.get("kty") != "AKP":
+                    raise InvalidKeyError("Not an ML-DSA key")
+
+                alg = obj.get("alg")
+                if alg not in MLDSAAlgorithm._PARAMS:
+                    raise InvalidKeyError(f"Unsupported ML-DSA algorithm: {alg!r}")
+
+                if "pub" not in obj:
+                    raise InvalidKeyError('ML-DSA JWK must have "pub" parameter')
+
+                priv_cls, pub_cls, expected_len = MLDSAAlgorithm._PARAMS[alg]
+
+                try:
+                    pub = base64url_decode(obj["pub"])
+                    priv = base64url_decode(obj["priv"]) if "priv" in obj else None
+                except (ValueError, TypeError) as err:
+                    raise InvalidKeyError("Invalid ML-DSA key encoding") from err
+
+                if len(pub) != expected_len:
+                    raise InvalidKeyError(
+                        f"{alg} public key must be {expected_len} bytes, got {len(pub)}"
+                    )
+
+                try:
+                    if priv is None:
+                        return pub_cls.from_public_bytes(pub)
+                    private_key = priv_cls.from_seed_bytes(priv)
+                except (ValueError, TypeError) as err:
+                    raise InvalidKeyError("Invalid ML-DSA key parameter") from err
+
+                # Validate that the stored public key matches the seed
+                if private_key.public_key().public_bytes_raw() != pub:
+                    raise InvalidKeyError(
+                        "Public key does not match the private key seed"
+                    )
+                return private_key
