@@ -21,7 +21,11 @@ from .exceptions import (
     InvalidTokenError,
 )
 from .utils import base64url_decode, base64url_encode
-from .warnings import InsecureKeyLengthWarning, RemovedInPyjwt3Warning
+from .warnings import (
+    InsecureKeyLengthWarning,
+    RemovedInPyjwt3Warning,
+    UnsecuredJWTWarning,
+)
 
 if TYPE_CHECKING:
     from .algorithms import AllowedPrivateKeys, AllowedPublicKeys
@@ -155,6 +159,13 @@ class PyJWS:
             headers_b64 = headers.get("b64")
             if headers_b64 is False:
                 is_payload_detached = True
+
+        if algorithm_ == "none":
+            warnings.warn(
+                'Encoding a token with alg "none", it will not be signed.',
+                UnsecuredJWTWarning,
+                stacklevel=2,
+            )
 
         # Header
         header: dict[str, Any] = {"typ": self.header_typ, "alg": algorithm_}

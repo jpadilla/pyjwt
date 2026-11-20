@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Changed
 ~~~~~~~
 
+- Emit a new ``UnsecuredJWTWarning`` when encoding a token with
+  ``alg: "none"``, including the implicit case of ``algorithm=None``, so
+  unsigned tokens are not created by accident
+  (`#1140 <https://github.com/jpadilla/pyjwt/issues/1140>`__).
 - Add public ``jwt.decode`` regression coverage for AWS ALB-style padded
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
