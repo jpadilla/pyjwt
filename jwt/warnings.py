@@ -9,3 +9,10 @@ class InsecureKeyLengthWarning(UserWarning):
     recommended length. See :ref:`key-length-validation` for details."""
 
     pass
+
+
+class UnsecuredJWTWarning(UserWarning):
+    """Warning emitted when a token is encoded with ``alg: "none"``, so it has
+    no signature and anyone can change it."""
+
+    pass
