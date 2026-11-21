@@ -47,6 +47,7 @@ Index
     faq
     algorithms
     api
+    contributing
     changelog
 
 .. _`RFC 7519`: https://tools.ietf.org/html/rfc7519
