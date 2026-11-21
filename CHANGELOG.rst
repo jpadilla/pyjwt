@@ -10,6 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Changed
 ~~~~~~~
 
+- Add contribution guidelines to the repository and published documentation,
+  including issue reporting, local checks and pull request instructions.
 - Add public ``jwt.decode`` regression coverage for AWS ALB-style padded
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.

@@ -1,6 +1,7 @@
 include .pre-commit-config.yaml
 include .readthedocs.yaml
 include CODE_OF_CONDUCT.md
+include CONTRIBUTING.rst
 include AUTHORS.rst
 include CHANGELOG.rst
 include LICENSE
