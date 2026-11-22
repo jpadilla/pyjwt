@@ -60,11 +60,12 @@ class PyJWKClient:
           Defaults to ``300`` (5 minutes). Must be greater than 0.
 
         Unknown key IDs can trigger one forced refresh after the cooldown
-        period configured by ``cooldown_duration``. Every successful fetch
-        starts this cooldown, including the initial fetch and cache-expiry
-        fetches. A newly rotated key may therefore wait for the cooldown
-        period before it is fetched; set ``cooldown_duration`` to ``0`` to
-        disable this behavior. The cooldown is bypassed when
+        period configured by ``cooldown_duration``. Every fetch attempt
+        starts this cooldown, including failed ones, so that an unreachable
+        endpoint does not serialize every lookup of an unknown key ID behind
+        the request timeout. A newly rotated key may therefore wait for the
+        cooldown period before it is fetched; set ``cooldown_duration`` to
+        ``0`` to disable this behavior. The cooldown is bypassed when
         ``cache_jwk_set`` is ``False``.
 
         **Tier 2 — Signing key cache** (disabled by default):
@@ -124,7 +125,7 @@ class PyJWKClient:
                 f'Cooldown duration must be finite, the input is "{cooldown_duration}"'
             )
         self.cooldown_duration = cooldown_duration
-        self._last_successful_fetch: float | None = None
+        self._last_fetch_attempt: float | None = None
         self._client_lock = threading.RLock()
 
         if cache_jwk_set:
@@ -184,7 +185,7 @@ class PyJWKClient:
         # wipe that breaks legitimate auth.
         if self.jwk_set_cache is not None:
             self.jwk_set_cache.put(jwk_set)
-        self._last_successful_fetch = time.monotonic()
+        self._last_fetch_attempt = time.monotonic()
         return jwk_set
 
     def get_jwk_set(self, refresh: bool = False) -> PyJWKSet:
@@ -281,14 +282,20 @@ class PyJWKClient:
             if not signing_key:
                 cooling_down = (
                     self.jwk_set_cache is not None
-                    and self._last_successful_fetch is not None
-                    and time.monotonic() - self._last_successful_fetch
+                    and self._last_fetch_attempt is not None
+                    and time.monotonic() - self._last_fetch_attempt
                     < self.cooldown_duration
                 )
                 if not cooling_down:
-                    signing_keys = self.get_signing_keys(refresh=True)
-                    self._last_successful_fetch = time.monotonic()
-                    signing_key = self.match_kid(signing_keys, kid)
+                    try:
+                        signing_keys = self.get_signing_keys(refresh=True)
+                        signing_key = self.match_kid(signing_keys, kid)
+                    finally:
+                        # Record the attempt when the fetch finishes, so a
+                        # failed fetch (e.g. the endpoint is down) also
+                        # starts the cooldown, and a fetch that hangs until
+                        # its timeout does not consume the whole window.
+                        self._last_fetch_attempt = time.monotonic()
 
                 if not signing_key:
                     raise PyJWKClientError(
