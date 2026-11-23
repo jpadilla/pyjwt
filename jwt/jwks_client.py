@@ -9,6 +9,7 @@ import urllib.request
 from functools import lru_cache
 from ssl import SSLContext
 from typing import Any
+from collections.abc import Iterable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 
@@ -43,6 +44,7 @@ class PyJWKClient:
         timeout: float = 30,
         ssl_context: SSLContext | None = None,
         cooldown_duration: float = 30,
+        allowed_schemes: Iterable[str] = ("http", "https"),
     ):
         """A client for retrieving signing keys from a JWKS endpoint.
 
@@ -96,18 +98,28 @@ class PyJWKClient:
         :param cooldown_duration: Minimum time in seconds between forced
             refreshes after an unknown key ID. Defaults to ``30``.
         :type cooldown_duration: float
+        :param allowed_schemes: Iterable of allowed URI schemes. Defaults to
+            ``("http", "https")``. The parsed scheme from ``uri`` is normalized
+            to lowercase before comparison, so values should be provided in
+            lowercase.
+        :type allowed_schemes: Iterable[str]
         """
         if headers is None:
             headers = {}
         # urllib's default OpenerDirector also handles file://, ftp://, and
-        # data: URIs. Reject anything that isn't http(s) eagerly so a caller
-        # passing an attacker-influenced URL (e.g. taken from a `jku` token
-        # header) can't read local files or reach other unintended schemes.
+        # data: URIs. Reject anything that isn't in allowed_schemes eagerly
+        # so a caller passing an attacker-influenced URL (e.g. taken from a
+        # `jku` token header) can't read local files or reach other unintended
+        # schemes.
+        if isinstance(allowed_schemes, str):
+            allowed_schemes = {allowed_schemes}
+        else:
+            allowed_schemes = set(allowed_schemes)
         scheme = urlparse(uri).scheme.lower()
-        if scheme not in ("http", "https"):
+        if scheme not in allowed_schemes:
             raise PyJWKClientError(
-                f"Invalid JWKS URI scheme {scheme!r}: only 'http' and 'https' "
-                f"are supported."
+                f"Invalid JWKS URI scheme {scheme!r}: only "
+                f"{' and '.join(allowed_schemes)} are supported."
             )
         self.uri = uri
         self.jwk_set_cache: JWKSetCache | None = None
