@@ -25,3 +25,18 @@ crypto_required = pytest.mark.skipif(
     not has_crypto,
     reason="Requires cryptography library installed",
 )
+
+
+def _p192_supported() -> bool:
+    if not has_crypto:
+        return False
+    from cryptography.hazmat.backends.openssl import backend
+    from cryptography.hazmat.primitives.asymmetric.ec import SECP192R1
+
+    return backend.elliptic_curve_supported(SECP192R1())
+
+
+p192_required = pytest.mark.skipif(
+    not _p192_supported(),
+    reason="Requires a cryptography backend that supports SECP192R1",
+)

@@ -750,8 +750,13 @@ if has_crypto:
                 ec_public_key = cast(EllipticCurvePublicKey, public_key)
                 self._validate_curve(ec_public_key)
                 return ec_public_key
+            except UnsupportedAlgorithm as e:
+                raise InvalidKeyError(f"Unsupported EC key: {e}") from e
             except ValueError:
-                private_key = load_pem_private_key(key_bytes, password=None)
+                try:
+                    private_key = load_pem_private_key(key_bytes, password=None)
+                except UnsupportedAlgorithm as e:
+                    raise InvalidKeyError(f"Unsupported EC key: {e}") from e
                 self.check_crypto_key_type(private_key)
                 ec_private_key = cast(EllipticCurvePrivateKey, private_key)
                 self._validate_curve(ec_private_key)

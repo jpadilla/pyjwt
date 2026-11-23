@@ -9,7 +9,7 @@ from jwt.exceptions import InvalidKeyError
 from jwt.utils import base64url_decode
 
 from .keys import load_ec_pub_key_p_521, load_hmac_key, load_rsa_pub_key
-from .utils import crypto_required, key_path
+from .utils import crypto_required, key_path, p192_required
 
 if has_crypto:
     from cryptography import x509
@@ -607,6 +607,7 @@ class TestAlgorithms:
                 assert jwk["crv"] == curve
 
     @crypto_required
+    @p192_required
     def test_ec_to_jwk_with_invalid_curve(self) -> None:
         algo = ECAlgorithm(ECAlgorithm.SHA256)
 
@@ -1569,6 +1570,7 @@ class TestECCurveValidation:
             prepared = algo.prepare_key(key)
             assert prepared is key
 
+    @p192_required
     def test_ec_curve_validation_rejects_p192_for_es256(self) -> None:
         """ES256 should reject P-192 keys (weaker than P-256)."""
         from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1
@@ -1651,6 +1653,23 @@ class TestECCurveValidation:
         # P-192 PEM key should be rejected
         with open(key_path("testkey_ec_secp192r1.priv")) as keyfile:
             with pytest.raises(InvalidKeyError):
+                algo.prepare_key(keyfile.read())
+
+    def test_ec_unsupported_curve_raises_invalid_key_error(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A curve the backend can't load should raise InvalidKeyError."""
+        import jwt.algorithms
+        from cryptography.exceptions import UnsupportedAlgorithm
+
+        def unsupported(*args: object, **kwargs: object) -> None:
+            raise UnsupportedAlgorithm("Curve is not supported")
+
+        monkeypatch.setattr(jwt.algorithms, "load_pem_private_key", unsupported)
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with open(key_path("testkey_ec.priv")) as keyfile:
+            with pytest.raises(InvalidKeyError, match="not supported"):
                 algo.prepare_key(keyfile.read())
 
     def test_jwt_encode_decode_rejects_wrong_curve(self) -> None:
