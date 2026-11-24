@@ -158,15 +158,65 @@ class TestPyJWK:
         assert jwk.algorithm_name == "HS256"
 
     @crypto_required
-    def test_should_load_key_okp_without_alg_from_dict(self) -> None:
-        with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
+    @pytest.mark.parametrize(
+        "key_file",
+        ["jwk_okp_pub_Ed25519.json", "jwk_okp_pub_Ed448.json"],
+    )
+    def test_should_load_key_okp_without_alg_from_dict(self, key_file: str) -> None:
+        with open(key_path(key_file)) as keyfile:
             key_data = json.loads(keyfile.read())
 
+        del key_data["alg"]
         jwk = PyJWK.from_dict(key_data)
 
         assert jwk.key_type == "OKP"
         assert isinstance(jwk.Algorithm, OKPAlgorithm)
         assert jwk.algorithm_name == "EdDSA"
+
+    @crypto_required
+    @pytest.mark.parametrize(
+        ("key_file", "expected_algorithm"),
+        [
+            ("jwk_okp_pub_Ed25519.json", "Ed25519"),
+            ("jwk_okp_pub_Ed448.json", "Ed448"),
+        ],
+    )
+    def test_should_load_key_okp_with_fully_specified_algorithm(
+        self, key_file: str, expected_algorithm: str
+    ) -> None:
+        with open(key_path(key_file)) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        jwk = PyJWK.from_dict(key_data)
+
+        # For fully-specified algorithm identifiers, the algorithm identifier
+        # is the same as the curve identifier.
+        assert jwk.key_type == "OKP"
+        assert isinstance(jwk.Algorithm, OKPAlgorithm)
+        assert jwk.algorithm_name == jwk.Algorithm.expected_curve == expected_algorithm
+
+    @crypto_required
+    def test_should_load_key_okp_with_alg_eddsa_from_dict(self) -> None:
+        with open(key_path("jwk_okp_pub_Ed448.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+
+        # The polymorphic algorithm identifier ‘EdDSA’ implicitly allows both
+        # ‘Ed25519’ and ‘Ed448’ keys.
+        key_data["alg"] = "EdDSA"
+        jwk = PyJWK.from_dict(key_data)
+
+        assert jwk.key_type == "OKP"
+        assert isinstance(jwk.Algorithm, OKPAlgorithm)
+        assert jwk.algorithm_name == "EdDSA"
+
+    @crypto_required
+    def test_should_reject_mismatched_okp_algorithm_and_curve(self) -> None:
+        with open(key_path("jwk_okp_pub_Ed25519.json")) as keyfile:
+            key_data = json.loads(keyfile.read())
+        assert key_data["crv"] == "Ed25519"
+        key_data["alg"] = "Ed448"  # overwrite with wrong value
+        with pytest.raises(InvalidKeyError, match="Unsupported crv for Ed448: Ed25519"):
+            PyJWK.from_dict(key_data)
 
     @crypto_required
     def test_from_dict_should_throw_exception_if_arg_is_invalid(self) -> None:
