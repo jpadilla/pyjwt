@@ -390,11 +390,15 @@ class TestPyJWKSet:
         with pytest.raises(MissingCryptographyError):
             PyJWKSet(keys=[{"kty": "RSA"}])
 
-    def test_oct_key_missing_k_raises_invalid_key_error_and_is_skipped_in_keyset(self) -> None:
+    def test_oct_key_missing_k_raises_invalid_key_error_and_is_skipped_in_keyset(
+        self,
+    ) -> None:
         with pytest.raises(InvalidKeyError):
             HMACAlgorithm.from_jwk({"kty": "oct"})
 
-        valid_jwk = HMACAlgorithm.to_jwk(b"secret-key-at-least-32-bytes-long!!", as_dict=True)
+        valid_jwk = HMACAlgorithm.to_jwk(
+            b"secret-key-at-least-32-bytes-long!!", as_dict=True
+        )
         valid_jwk["kid"] = "good"
         keyset = PyJWKSet(keys=[{"kty": "oct", "kid": "bad"}, valid_jwk])
         assert len(keyset.keys) == 1
