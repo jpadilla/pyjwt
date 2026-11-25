@@ -10,6 +10,9 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 Fixed
 ~~~~~
 
+- Reject a non-string ``sub`` claim at encode time with ``InvalidSubjectError``
+  instead of producing a token that can never be decoded (`#1243 <https://github.com/jpadilla/pyjwt/issues/1243>`__).
+
 - Raise ``InvalidKeyError`` instead of ``UnsupportedAlgorithm`` when an EC
   key uses a curve the cryptography backend doesn't support, and skip the
   P-192 tests on such backends (`#1153 <https://github.com/jpadilla/pyjwt/issues/1153>`__).

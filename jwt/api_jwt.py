@@ -140,6 +140,11 @@ class PyJWT:
         if "iss" in payload and not isinstance(payload["iss"], str):
             raise TypeError("Issuer (iss) must be a string.")
 
+        # Issue #1243, reject an invalid sub at encode time instead of
+        # producing a token that decode() will always refuse.
+        if "sub" in payload and not isinstance(payload["sub"], str):
+            raise InvalidSubjectError("Subject must be a string.")
+
         json_payload = self._encode_payload(
             payload,
             headers=headers,

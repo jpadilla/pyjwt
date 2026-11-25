@@ -288,6 +288,12 @@ class TestJWT:
                 key="secret",
             )
 
+    def test_encode_with_non_str_sub(self, jwt: PyJWT) -> None:
+        """Regression test for Issue #1243."""
+        for value in (5, None, 3.14, ["user123"]):
+            with pytest.raises(InvalidSubjectError):
+                jwt.encode({"sub": value}, "secret", algorithm="HS256")
+
     def test_encode_with_typ(self, jwt: PyJWT) -> None:
         payload = {
             "iss": "https://scim.example.com",
@@ -1111,11 +1117,14 @@ class TestJWT:
             )
 
     def test_decode_invalid_int_sub_claim(self, jwt: PyJWT) -> None:
-        payload = {
-            "sub": 1224344,
-        }
+        # Encode now refuses an invalid sub (issue #1243), so construct the
+        # token directly to exercise the decode-side validation as well.
         secret = "your-256-bit-secret"
-        token = jwt.encode(payload, secret, algorithm="HS256")
+        token = pyjwt.PyJWS().encode(
+            json.dumps({"sub": 1224344}).encode("utf-8"),
+            secret,
+            algorithm="HS256",
+        )
 
         with pytest.raises(InvalidSubjectError):
             jwt.decode(token, secret, algorithms=["HS256"])
