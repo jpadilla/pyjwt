@@ -96,6 +96,7 @@ def raw_to_der_signature(raw_sig: bytes, curve: "EllipticCurve") -> bytes:
 # Based on https://github.com/hynek/pem/blob/7ad94db26b0bc21d10953f5dbad3acfdfacf57aa/src/pem/_core.py#L224-L252
 _PEMS = {
     b"CERTIFICATE",
+    b"X509 CERTIFICATE",
     b"TRUSTED CERTIFICATE",
     b"PRIVATE KEY",
     b"PUBLIC KEY",
@@ -131,7 +132,7 @@ def is_pem_format(key: bytes) -> bool:
     return False
 
 
-# Based on https://github.com/pyca/cryptography/blob/bcb70852d577b3f490f015378c75cba74986297b/src/cryptography/hazmat/primitives/serialization/ssh.py#L40-L46
+# Based on https://github.com/pyca/cryptography/blob/50.0.2/src/cryptography/hazmat/primitives/serialization/ssh.py#L58-L68
 _SSH_KEY_FORMATS = (
     b"ssh-ed25519",
     b"ssh-rsa",
@@ -139,6 +140,8 @@ _SSH_KEY_FORMATS = (
     b"ecdsa-sha2-nistp256",
     b"ecdsa-sha2-nistp384",
     b"ecdsa-sha2-nistp521",
+    b"sk-ssh-ed25519@openssh.com",
+    b"sk-ecdsa-sha2-nistp256@openssh.com",
 )
 
 
