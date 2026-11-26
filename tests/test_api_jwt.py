@@ -288,6 +288,16 @@ class TestJWT:
                 key="secret",
             )
 
+    def test_encode_with_non_str_sub(self, jwt: PyJWT) -> None:
+        """Regression test for Issue #1243."""
+        with pytest.raises(TypeError, match=r"Subject \(sub\) must be a string"):
+            jwt.encode(
+                {
+                    "sub": 5,
+                },
+                key="secret",
+            )
+
     def test_encode_with_typ(self, jwt: PyJWT) -> None:
         payload = {
             "iss": "https://scim.example.com",

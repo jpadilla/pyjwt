@@ -140,6 +140,10 @@ class PyJWT:
         if "iss" in payload and not isinstance(payload["iss"], str):
             raise TypeError("Issuer (iss) must be a string.")
 
+        # Issue #1243, sub being set to non-string
+        if "sub" in payload and not isinstance(payload["sub"], str):
+            raise TypeError("Subject (sub) must be a string.")
+
         json_payload = self._encode_payload(
             payload,
             headers=headers,
