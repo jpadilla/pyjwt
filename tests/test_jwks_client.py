@@ -600,6 +600,80 @@ class TestPyJWKClient:
 
         assert opener.open.call_count == 1
 
+    def test_unknown_kid_failed_refresh_starts_cooldown(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "unknown-kid"
+        jwks_client = PyJWKClient(url, cooldown_duration=30)
+
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            opener = mock.Mock()
+            build_opener_mock.return_value = opener
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.return_value = json.dumps(RESPONSE_DATA_NO_MATCHING_KID)
+
+            # Prime the cache with a key set that does not contain kid, then
+            # pretend that fetch happened long ago so the cooldown expired.
+            opener.open.return_value = response
+            jwks_client.get_jwk_set()
+            jwks_client._last_fetch_attempt = 0
+
+            # The endpoint is now down: the forced refresh fails and raises.
+            opener.open.side_effect = URLError("endpoint down")
+            with pytest.raises(PyJWKClientConnectionError):
+                jwks_client.get_signing_key(kid)
+
+            # The failed attempt started the cooldown: the next lookup of an
+            # unknown kid fails straight away, without another fetch.
+            opener.open.side_effect = None
+            with pytest.raises(PyJWKClientError, match="matches"):
+                jwks_client.get_signing_key(kid)
+
+        assert opener.open.call_count == 2
+
+    def test_unknown_kid_slow_failed_refresh_still_cools_down(self) -> None:
+        url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
+        kid = "unknown-kid"
+        jwks_client = PyJWKClient(url, cooldown_duration=30)
+
+        with mock.patch("urllib.request.build_opener") as build_opener_mock:
+            opener = mock.Mock()
+            build_opener_mock.return_value = opener
+            response = mock.Mock()
+            response.__enter__ = mock.Mock(return_value=response)
+            response.__exit__ = mock.Mock()
+            response.read.return_value = json.dumps(RESPONSE_DATA_NO_MATCHING_KID)
+
+            # Prime the cache with a key set that does not contain kid.
+            opener.open.return_value = response
+            jwks_client.get_jwk_set()
+
+            clock = [100.0]
+
+            def slow_failing_open(*args, **kwargs):
+                # The endpoint hangs for the full 30s timeout, then fails.
+                clock[0] += 30
+                raise URLError("endpoint down")
+
+            with mock.patch(
+                "jwt.jwks_client.time.monotonic", side_effect=lambda: clock[0]
+            ):
+                # Pretend the last fetch happened long ago so a refresh runs.
+                jwks_client._last_fetch_attempt = 0
+                opener.open.side_effect = slow_failing_open
+                with pytest.raises(PyJWKClientConnectionError):
+                    jwks_client.get_signing_key(kid)
+
+                # The hanging fetch consumed the whole cooldown window, but
+                # the cooldown is measured from when the attempt *finished*:
+                # the next lookup fails fast, without another fetch.
+                opener.open.side_effect = None
+                with pytest.raises(PyJWKClientError, match="matches"):
+                    jwks_client.get_signing_key(kid)
+
+        assert opener.open.call_count == 2
+
     def test_unknown_kid_refresh_runs_again_after_cooldown(self) -> None:
         url = "https://dev-87evx9ru.auth0.com/.well-known/jwks.json"
         kid = "unknown-kid"
@@ -644,7 +718,7 @@ class TestPyJWKClient:
 
             opener.open.return_value = response
             jwks_client.get_jwk_set()
-            jwks_client._last_successful_fetch = 0
+            jwks_client._last_fetch_attempt = 0
 
             def open_response(*args: object, **kwargs: object) -> mock.Mock:
                 if opener.open.call_count == 1:

@@ -21,6 +21,14 @@ Changed
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
 
+Fixed
+~~~~~
+
+- ``PyJWKClient``: start the unknown-``kid`` refresh cooldown after a failed
+  fetch too, so an unreachable JWKS endpoint no longer makes every lookup of
+  an unknown key ID wait for the full request timeout
+  (`#1255 <https://github.com/jpadilla/pyjwt/issues/1255>`__).
+
 `v2.15.1 <https://github.com/jpadilla/pyjwt/compare/2.15.0...2.15.1>`__
 -----------------------------------------------------------------------
 
