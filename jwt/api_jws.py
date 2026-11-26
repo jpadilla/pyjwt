@@ -338,9 +338,11 @@ class PyJWS:
         if padding and len(segment) % 4 != 0:
             raise DecodeError(f"Invalid {name} padding")
 
-        if len(stripped) % 4 == 1 or any(
-            character not in _BASE64URL_ALPHABET for character in stripped
-        ):
+        # `translate` deletes every alphabet byte, so a non-empty remainder
+        # means the segment carries junk. Keeping this scan out of a per-byte
+        # Python loop matters because it runs on all three segments before the
+        # signature is verified.
+        if len(stripped) % 4 == 1 or stripped.translate(None, _BASE64URL_ALPHABET):
             raise DecodeError(f"Invalid {name} padding")
 
         try:
