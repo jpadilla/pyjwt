@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal
+from typing import Any
 
 import pytest
 
@@ -14,7 +15,7 @@ from jwt.exceptions import (
     InvalidTokenError,
 )
 from jwt.utils import base64url_decode, base64url_encode
-from jwt.warnings import RemovedInPyjwt3Warning
+from jwt.warnings import RemovedInPyjwt3Warning, UnsecuredJWTWarning
 
 from .utils import crypto_required, key_path, no_crypto_required
 
@@ -204,16 +205,27 @@ class TestJWS:
         assert str(exception) == "Algorithm not supported"
 
     def test_encode_with_headers_alg_none(self, jws: PyJWS, payload: bytes) -> None:
-        msg = jws.encode(
-            payload,
-            # The type signature does not capture the fact that `key` may be
-            # None when algorithm is "none".
-            key=None,  # type: ignore[arg-type,unused-ignore]
-            headers={"alg": "none"},
-        )
+        with pytest.warns(UnsecuredJWTWarning):
+            msg = jws.encode(
+                payload,
+                # The type signature does not capture the fact that `key` may be
+                # None when algorithm is "none".
+                key=None,  # type: ignore[arg-type,unused-ignore]
+                headers={"alg": "none"},
+            )
         with pytest.raises(DecodeError) as context:
             jws.decode(msg, algorithms=["none"])
         assert str(context.value) == "Signature verification failed"
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        [{"algorithm": "none"}, {"algorithm": None}, {"headers": {"alg": "none"}}],
+    )
+    def test_encode_with_alg_none_warns(
+        self, jws: PyJWS, payload: bytes, kwargs: dict[str, Any]
+    ) -> None:
+        with pytest.warns(UnsecuredJWTWarning):
+            jws.encode(payload, key=None, **kwargs)  # type: ignore[arg-type,unused-ignore]
 
     @crypto_required
     def test_encode_with_headers_alg_es256(self, jws: PyJWS, payload: bytes) -> None:
@@ -728,13 +740,14 @@ class TestJWS:
     def test_decode_with_algo_none_should_fail(
         self, jws: PyJWS, payload: bytes
     ) -> None:
-        jws_message = jws.encode(
-            payload,
-            # The type signature does not capture the fact that `key` may be
-            # None when algorithm is "none".
-            key=None,  # type: ignore[arg-type,unused-ignore]
-            algorithm="none",
-        )
+        with pytest.warns(UnsecuredJWTWarning):
+            jws_message = jws.encode(
+                payload,
+                # The type signature does not capture the fact that `key` may be
+                # None when algorithm is "none".
+                key=None,  # type: ignore[arg-type,unused-ignore]
+                algorithm="none",
+            )
 
         with pytest.raises(DecodeError):
             jws.decode(jws_message, algorithms=["none"])
@@ -742,13 +755,14 @@ class TestJWS:
     def test_decode_with_algo_none_and_verify_false_should_pass(
         self, jws: PyJWS, payload: bytes
     ) -> None:
-        jws_message = jws.encode(
-            payload,
-            # The type signature does not capture the fact that `key` may be
-            # None when algorithm is "none".
-            key=None,  # type: ignore[arg-type,unused-ignore]
-            algorithm="none",
-        )
+        with pytest.warns(UnsecuredJWTWarning):
+            jws_message = jws.encode(
+                payload,
+                # The type signature does not capture the fact that `key` may be
+                # None when algorithm is "none".
+                key=None,  # type: ignore[arg-type,unused-ignore]
+                algorithm="none",
+            )
         jws.decode(jws_message, options={"verify_signature": False})
 
     def test_get_unverified_header_returns_header_values(
