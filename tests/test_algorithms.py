@@ -362,6 +362,32 @@ class TestAlgorithms:
 
         assert algo.prepare_key(secret) == secret
 
+    def test_hmac_prepare_key_caches_accepted_key(self) -> None:
+        HMACAlgorithm._prepare_key_bytes.cache_clear()
+        secret = "a-plain-hmac-secret-that-is-32-bytes"
+
+        assert HMACAlgorithm(HMACAlgorithm.SHA256).prepare_key(secret) == (
+            secret.encode()
+        )
+        assert (
+            HMACAlgorithm(HMACAlgorithm.SHA512).prepare_key(secret.encode())
+            == secret.encode()
+        )
+
+        cache_info = HMACAlgorithm._prepare_key_bytes.cache_info()
+        assert (cache_info.misses, cache_info.hits) == (1, 1)
+
+    def test_hmac_prepare_key_does_not_cache_rejected_key(self) -> None:
+        HMACAlgorithm._prepare_key_bytes.cache_clear()
+        algo = HMACAlgorithm(HMACAlgorithm.SHA256)
+
+        for _ in range(2):
+            with pytest.raises(InvalidKeyError, match="looks like a JWK"):
+                algo.prepare_key('{"kty": "oct", "k": "c2VjcmV0"}')
+
+        cache_info = HMACAlgorithm._prepare_key_bytes.cache_info()
+        assert (cache_info.misses, cache_info.currsize) == (2, 0)
+
     @crypto_required
     def test_rsa_should_parse_pem_public_key(self) -> None:
         algo = RSAAlgorithm(RSAAlgorithm.SHA256)
