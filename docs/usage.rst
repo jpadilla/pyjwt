@@ -514,6 +514,23 @@ If the ``kid`` is not found in the current key set, ``PyJWKClient``
 automatically refreshes the JWKS from the endpoint and retries before raising
 an error.
 
+To select a proxy for one client, pass a scheme-to-proxy mapping:
+
+.. code-block:: python
+
+    jwks_client = PyJWKClient(
+        "https://example.com/.well-known/jwks.json",
+        proxies={"https": "http://proxy.example.com:8080"},
+    )
+
+The mapping key is the JWKS URL's scheme; the proxy URL may use HTTP for an
+HTTPS destination (urllib establishes a CONNECT tunnel). If ``proxies`` is
+omitted or ``None``, urllib uses its normal environment/platform proxy
+discovery. Pass ``proxies={}`` to disable that discovery for this client.
+urllib's proxy bypass rules, including ``no_proxy``, still apply. This does
+not change the process-wide urllib opener, TLS verification, timeout, or
+the client's policy of rejecting redirects.
+
 ``PyJWKClient`` also includes built-in caching to avoid unnecessary network
 requests. See :class:`~jwt.PyJWKClient` in the API reference for details on
 the caching parameters.

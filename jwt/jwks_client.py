@@ -43,6 +43,7 @@ class PyJWKClient:
         timeout: float = 30,
         ssl_context: SSLContext | None = None,
         cooldown_duration: float = 30,
+        proxies: dict[str, str] | None = None,
     ):
         """A client for retrieving signing keys from a JWKS endpoint.
 
@@ -96,6 +97,12 @@ class PyJWKClient:
         :param cooldown_duration: Minimum time in seconds between forced
             refreshes after an unknown key ID. Defaults to ``30``.
         :type cooldown_duration: float
+        :param proxies: Optional mapping from URL schemes to proxy URLs,
+            for example ``{"https": "http://proxy.example:8080"}``.
+            ``None`` uses urllib's environment/platform proxy discovery.
+            An empty dictionary disables proxy discovery for this client.
+            urllib's proxy bypass rules, including ``no_proxy``, still apply.
+        :type proxies: dict or None
         """
         if headers is None:
             headers = {}
@@ -114,6 +121,7 @@ class PyJWKClient:
         self.headers = headers
         self.timeout = timeout
         self.ssl_context = ssl_context
+        self.proxies = proxies.copy() if proxies is not None else None
         if cooldown_duration < 0:
             raise PyJWKClientError(
                 "Cooldown duration must be greater than or equal to 0, "
@@ -161,6 +169,8 @@ class PyJWKClient:
         try:
             r = urllib.request.Request(url=self.uri, headers=self.headers)
             handlers: list[Any] = [_NoRedirectHandler()]
+            if self.proxies is not None:
+                handlers.append(urllib.request.ProxyHandler(self.proxies))
             if self.ssl_context is not None:
                 handlers.append(urllib.request.HTTPSHandler(context=self.ssl_context))
             opener = urllib.request.build_opener(*handlers)
