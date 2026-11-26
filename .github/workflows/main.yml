@@ -16,7 +16,7 @@ jobs:
     name: "Python ${{ matrix.python-version }} on ${{ matrix.platform }}"
     runs-on: "${{ matrix.platform }}"
     env:
-      USING_COVERAGE: '3.9'
+      USING_COVERAGE: '3.12'
 
     strategy:
       fail-fast: false
