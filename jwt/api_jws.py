@@ -259,14 +259,6 @@ class PyJWS:
             )
 
         if header.get("b64", True) is False:
-            # RFC 7797 §3: when "b64" is present in the protected header,
-            # it MUST also appear in "crit". A token that sets b64=false
-            # without declaring it critical is malformed.
-            crit = header.get("crit") or []
-            if not isinstance(crit, list) or "b64" not in crit:
-                raise InvalidTokenError(
-                    "The 'b64' header parameter requires 'b64' to be listed in 'crit'."
-                )
             if detached_payload is None:
                 raise DecodeError(
                     'It is required that you pass in a value for the "detached_payload" argument to decode a message having the b64 header set to false.'
@@ -453,8 +445,18 @@ class PyJWS:
     ) -> None:
         if "kid" in headers:
             self._validate_kid(headers["kid"])
-        if not encoding and "crit" in headers:
-            self._validate_crit(headers)
+        if not encoding:
+            if "crit" in headers:
+                self._validate_crit(headers)
+            if headers.get("b64", True) is False:
+                # RFC 7797 §3: when "b64" is present in the protected header,
+                # it MUST also appear in "crit". A token that sets b64=false
+                # without declaring it critical is malformed.
+                crit = headers.get("crit") or []
+                if not isinstance(crit, list) or "b64" not in crit:
+                    raise InvalidTokenError(
+                        "The 'b64' header parameter requires 'b64' to be listed in 'crit'."
+                    )
 
     def _validate_kid(self, kid: Any) -> None:
         if not isinstance(kid, str):

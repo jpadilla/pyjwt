@@ -21,11 +21,13 @@ from jwt.jwks_client import _NoRedirectHandler
 from jwt.api_jwk import PyJWK, PyJWKSet
 from jwt.exceptions import (
     DecodeError,
+    InvalidTokenError,
     PyJWKClientConnectionError,
     PyJWKClientError,
     PyJWKSetError,
 )
 from jwt.jwk_set_cache import JWKSetCache
+from jwt.utils import base64url_encode
 
 from .utils import crypto_required
 
@@ -58,6 +60,25 @@ RESPONSE_DATA_NO_MATCHING_KID = {
         }
     ]
 }
+
+RESPONSE_DATA_WITH_TEST_OCT_KEY = {
+    "keys": [
+        {
+            "alg": "HS256",
+            "kty": "oct",
+            "use": "sig",
+            "kid": "test-key",
+            "k": "c3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3M",
+        }
+    ]
+}
+
+
+def compact_token(header: dict[str, Any], payload_segment: str = "") -> str:
+    header_segment = base64url_encode(
+        json.dumps(header, separators=(",", ":")).encode()
+    )
+    return b".".join((header_segment, payload_segment.encode(), b"AAAA")).decode()
 
 
 @contextlib.contextmanager
@@ -326,22 +347,102 @@ class TestPyJWKClient:
             "gty": "client-credentials",
         }
 
-    def test_get_signing_key_from_jwt_rejects_payload_recursion_error(self) -> None:
-        token = "eyJhbGciOiJSUzI1NiIsImtpZCI6InRlc3Qta2V5In0.e30."
-
-        with mocked_success_response(RESPONSE_DATA_WITH_MATCHING_KID) as open_mock:
+    def test_get_signing_key_from_jwt_with_detached_payload(self) -> None:
+        payload = b'{"sub":"123"}'
+        secret = b"s" * 32
+        token = jwt.PyJWS().encode(
+            payload,
+            secret,
+            algorithm="HS256",
+            headers={"kid": "test-key"},
+            is_payload_detached=True,
+        )
+        with mocked_success_response(RESPONSE_DATA_WITH_TEST_OCT_KEY):
             jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
-            with mock.patch(
-                "jwt.api_jwt.json.loads",
-                side_effect=[
-                    {"alg": "RS256", "kid": "test-key"},
-                    RecursionError(),
-                ],
-            ):
-                with pytest.raises(DecodeError, match="Invalid payload") as exc:
-                    jwks_client.get_signing_key_from_jwt(token)
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
 
-        assert isinstance(exc.value.__cause__, RecursionError)
+        assert signing_key.key_id == "test-key"
+        assert jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["HS256"],
+            detached_payload=payload,
+        ) == {"sub": "123"}
+
+    def test_get_signing_key_from_jwt_leaves_payload_validation_to_decode(self) -> None:
+        secret = b"s" * 32
+        token = jwt.PyJWS().encode(
+            b"not json",
+            secret,
+            algorithm="HS256",
+            headers={"kid": "test-key"},
+        )
+
+        with mocked_success_response(RESPONSE_DATA_WITH_TEST_OCT_KEY) as open_mock:
+            jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
+
+        assert signing_key.key_id == "test-key"
+        assert open_mock.call_count == 1
+        with pytest.raises(DecodeError, match="Invalid payload"):
+            jwt.decode(token, signing_key.key, algorithms=["HS256"])
+
+    def test_get_signing_key_from_jwt_rejects_b64_false_without_crit(self) -> None:
+        token = compact_token({"alg": "HS256", "kid": "test-key", "b64": False})
+
+        with mocked_success_response(RESPONSE_DATA_WITH_TEST_OCT_KEY) as open_mock:
+            jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
+            with pytest.raises(InvalidTokenError, match="requires 'b64'"):
+                jwks_client.get_signing_key_from_jwt(token)
+
+        assert open_mock.call_count == 0
+
+    def test_get_signing_key_from_jwt_rejects_b64_false_with_payload_segment(
+        self,
+    ) -> None:
+        token = compact_token(
+            {
+                "alg": "HS256",
+                "kid": "test-key",
+                "b64": False,
+                "crit": ["b64"],
+            },
+            payload_segment="AAAA",
+        )
+
+        with mocked_success_response(RESPONSE_DATA_WITH_TEST_OCT_KEY) as open_mock:
+            jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
+            with pytest.raises(DecodeError, match="Payload segment must be empty"):
+                jwks_client.get_signing_key_from_jwt(token)
+
+        assert open_mock.call_count == 0
+
+    def test_get_signing_key_from_jwt_without_kid(self) -> None:
+        token = compact_token({"alg": "HS256"}, payload_segment="e30")
+
+        with mocked_success_response(RESPONSE_DATA_WITH_TEST_OCT_KEY):
+            jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
+            with pytest.raises(PyJWKClientError, match="Unable to find"):
+                jwks_client.get_signing_key_from_jwt(token)
+
+    def test_get_signing_key_from_jwt_rejects_malformed_header_before_fetch(
+        self,
+    ) -> None:
+        with mocked_success_response(RESPONSE_DATA_WITH_TEST_OCT_KEY) as open_mock:
+            jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
+            with pytest.raises(DecodeError, match="Invalid header"):
+                jwks_client.get_signing_key_from_jwt("!!!!..AAAA")
+
+        assert open_mock.call_count == 0
+
+    def test_get_signing_key_from_jwt_rejects_non_string_token_before_fetch(
+        self,
+    ) -> None:
+        with mocked_success_response(RESPONSE_DATA_WITH_TEST_OCT_KEY) as open_mock:
+            jwks_client = PyJWKClient("https://example.test/.well-known/jwks.json")
+            with pytest.raises(DecodeError, match="Invalid token type"):
+                jwks_client.get_signing_key_from_jwt(123)  # type: ignore[arg-type]
+
         assert open_mock.call_count == 0
 
     def test_get_jwk_set_caches_result(self) -> None:

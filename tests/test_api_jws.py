@@ -1309,6 +1309,20 @@ class TestJWS:
         with pytest.raises(InvalidTokenError, match="Unsupported critical extension"):
             jws.get_unverified_header(token)
 
+    def test_get_unverified_header_rejects_b64_false_without_crit(
+        self, jws: PyJWS
+    ) -> None:
+        header_segment = base64url_encode(
+            json.dumps(
+                {"alg": "HS256", "kid": "test-key", "b64": False},
+                separators=(",", ":"),
+            ).encode()
+        )
+        token = b".".join((header_segment, b"", b"AAAA")).decode()
+
+        with pytest.raises(InvalidTokenError, match="requires 'b64'"):
+            jws.get_unverified_header(token)
+
     def test_pyjwk_rejects_empty_hmac_key(self) -> None:
         import jwt
 
