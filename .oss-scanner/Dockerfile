@@ -1,7 +1,7 @@
 # Build image for the OSS Scanner (https://github.com/anthropics/oss-scanner).
 # The scanner builds this with the repository as the build context, then runs the
 # finished image with no network access, so every dependency is installed here.
-FROM python:3.13-slim-bookworm
+FROM python:3.15-slim-trixie
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1
 
