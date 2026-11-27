@@ -17,6 +17,8 @@ Fixed
 Changed
 ~~~~~~~
 
+- Document the ``sort_headers`` argument to ``jwt.encode``, including its
+  default and its scope limited to JOSE headers.
 - Add public ``jwt.decode`` regression coverage for AWS ALB-style padded
   ES256 tokens, including rejection of tampered payloads and signatures,
   in `#1211 <https://github.com/jpadilla/pyjwt/pull/1211>`__.
