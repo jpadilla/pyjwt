@@ -1,6 +1,7 @@
 import base64
 import json
 from typing import Callable, Union, cast
+from unittest import mock
 
 import pytest
 
@@ -13,6 +14,7 @@ from .utils import crypto_required, key_path, p192_required
 
 if has_crypto:
     from cryptography import x509
+    from cryptography.exceptions import UnsupportedAlgorithm
     from cryptography.hazmat.primitives.asymmetric.ec import (
         EllipticCurvePrivateKey,
         EllipticCurvePublicKey,
@@ -1449,6 +1451,85 @@ class TestOKPAlgorithms:
         algo = HMACAlgorithm(HMACAlgorithm.SHA256)
         computed_hash = algo.compute_hash_digest(b"foo")
         assert computed_hash == foo_hash
+
+    @crypto_required
+    def test_ec_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
+        # RSA already did this; EC leaked cryptography's ValueError from the
+        # private-key fallback, so callers catching PyJWTError missed it.
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+        invalid_key = (
+            "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        )
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(invalid_key)
+
+        assert "Could not parse the provided public key." in str(excinfo.value)
+        # The cryptography error explains why the key did not parse.
+        assert isinstance(excinfo.value.__cause__, ValueError)
+
+    @crypto_required
+    def test_ec_prepare_key_raises_invalid_key_error_on_unsupported_algorithm(
+        self,
+    ) -> None:
+        # load_pem_public_key can raise UnsupportedAlgorithm before the
+        # private-key fallback is reached, which used to escape uncaught.
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+        key = "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+
+        with mock.patch(
+            "jwt.algorithms.load_pem_public_key",
+            side_effect=UnsupportedAlgorithm("unsupported curve"),
+        ):
+            with pytest.raises(InvalidKeyError) as excinfo:
+                algo.prepare_key(key)
+
+        assert "Unsupported EC key: unsupported curve" in str(excinfo.value)
+        assert isinstance(excinfo.value.__cause__, UnsupportedAlgorithm)
+
+    @crypto_required
+    def test_okp_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
+        algo = OKPAlgorithm()
+        invalid_key = (
+            "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+        )
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.prepare_key(invalid_key)
+
+        assert "Could not parse the provided public key." in str(excinfo.value)
+        assert isinstance(excinfo.value.__cause__, ValueError)
+
+    @crypto_required
+    def test_okp_prepare_key_raises_invalid_key_error_on_unsupported_algorithm(
+        self,
+    ) -> None:
+        algo = OKPAlgorithm()
+        key = "-----BEGIN PUBLIC KEY-----\nnot-a-key\n-----END PUBLIC KEY-----\n"
+
+        with mock.patch(
+            "jwt.algorithms.load_ssh_public_key",
+            side_effect=UnsupportedAlgorithm("unsupported key type"),
+        ):
+            with pytest.raises(InvalidKeyError) as excinfo:
+                algo.prepare_key("ssh-ed25519 AAAA")
+
+        assert "Could not parse the provided public key." in str(excinfo.value)
+        assert isinstance(excinfo.value.__cause__, UnsupportedAlgorithm)
+
+    @crypto_required
+    def test_crypto_key_type_error_lists_the_expected_classes(self) -> None:
+        # The message used to interpolate a generator object, so callers got
+        # "<generator object ...>" instead of the class names.
+        algo = ECAlgorithm(ECAlgorithm.SHA256)
+
+        with pytest.raises(InvalidKeyError) as excinfo:
+            algo.check_crypto_key_type(b"not-a-key-object")
+
+        message = str(excinfo.value)
+        assert "generator" not in message
+        assert "EllipticCurvePrivateKey" in message
+        assert "EllipticCurvePublicKey" in message
 
     @crypto_required
     def test_rsa_prepare_key_raises_invalid_key_error_on_invalid_pem(self) -> None:
