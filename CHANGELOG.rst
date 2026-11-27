@@ -13,6 +13,10 @@ Fixed
 - Raise ``InvalidKeyError`` instead of ``UnsupportedAlgorithm`` when an EC
   key uses a curve the cryptography backend doesn't support, and skip the
   P-192 tests on such backends (`#1153 <https://github.com/jpadilla/pyjwt/issues/1153>`__).
+- ``MissingRequiredClaimError`` now reports every missing required claim. The
+  existing ``claim`` attribute still holds the first missing claim for backward
+  compatibility; a new ``claims`` attribute holds the full list
+  (`#1189 <https://github.com/jpadilla/pyjwt/issues/1189>`__).
 
 Changed
 ~~~~~~~
