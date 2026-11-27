@@ -176,7 +176,8 @@ Expiration Time Claim (exp)
     containing a NumericDate value.  Use of this claim is OPTIONAL.
 
 You can pass the expiration time as a UTC UNIX timestamp (an int) or as a
-datetime, which will be converted into an int. For example:
+datetime, which will be converted into an int (or a float if the datetime has
+microseconds). For example:
 
 .. code-block:: pycon
 
