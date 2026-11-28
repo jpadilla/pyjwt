@@ -31,3 +31,18 @@ mldsa_required = pytest.mark.skipif(
     not has_mldsa,
     reason="Requires cryptography >= 48.0.0 with ML-DSA support",
 )
+
+
+def _p192_supported() -> bool:
+    if not has_crypto:
+        return False
+    from cryptography.hazmat.backends.openssl import backend
+    from cryptography.hazmat.primitives.asymmetric.ec import SECP192R1
+
+    return backend.elliptic_curve_supported(SECP192R1())
+
+
+p192_required = pytest.mark.skipif(
+    not _p192_supported(),
+    reason="Requires a cryptography backend that supports SECP192R1",
+)

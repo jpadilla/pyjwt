@@ -15,6 +15,13 @@ Added
   ``cryptography >= 48.0.0``; on older versions the algorithms are not
   registered and ML-DSA JWKs are skipped by ``PyJWKSet``.
 
+Fixed
+~~~~~
+
+- Raise ``InvalidKeyError`` instead of ``UnsupportedAlgorithm`` when an EC
+  key uses a curve the cryptography backend doesn't support, and skip the
+  P-192 tests on such backends (`#1153 <https://github.com/jpadilla/pyjwt/issues/1153>`__).
+
 Changed
 ~~~~~~~
 
