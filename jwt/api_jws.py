@@ -10,7 +10,9 @@ from .algorithms import (
     Algorithm,
     get_default_algorithms,
     has_crypto,
+    has_mldsa,
     requires_cryptography,
+    requires_mldsa,
 )
 from .api_jwk import PyJWK
 from .exceptions import (
@@ -117,6 +119,11 @@ class PyJWS:
             if not has_crypto and alg_name in requires_cryptography:
                 raise NotImplementedError(
                     f"Algorithm '{alg_name}' could not be found. Do you have cryptography installed?"
+                ) from e
+            if has_crypto and not has_mldsa and alg_name in requires_mldsa:
+                raise NotImplementedError(
+                    f"Algorithm '{alg_name}' requires cryptography >= 48.0.0 with ML-DSA support. "
+                    "Please upgrade: pip install 'cryptography>=48.0.0'"
                 ) from e
             raise NotImplementedError("Algorithm not supported") from e
 

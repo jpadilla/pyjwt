@@ -7,6 +7,14 @@ This project adheres to `Semantic Versioning <https://semver.org/>`__.
 `Unreleased <https://github.com/jpadilla/pyjwt/compare/2.15.1...HEAD>`__
 -------------------------------------------------------------------------
 
+Added
+~~~~~
+
+- Add the post-quantum ``ML-DSA-44``, ``ML-DSA-65`` and ``ML-DSA-87``
+  signature algorithms (FIPS 204), including ``AKP`` JWK support. Requires
+  ``cryptography >= 48.0.0``; on older versions the algorithms are not
+  registered and ML-DSA JWKs are skipped by ``PyJWKSet``.
+
 Fixed
 ~~~~~
 

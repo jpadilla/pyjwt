@@ -1,15 +1,16 @@
 import base64
 import json
-from typing import Callable, Union, cast
+from typing import Any, Callable, Union, cast
 
 import pytest
 
-from jwt.algorithms import HMACAlgorithm, NoneAlgorithm, has_crypto
+import jwt
+from jwt.algorithms import HMACAlgorithm, NoneAlgorithm, has_crypto, has_mldsa
 from jwt.exceptions import InvalidKeyError
-from jwt.utils import base64url_decode
+from jwt.utils import base64url_decode, base64url_encode
 
 from .keys import load_ec_pub_key_p_521, load_hmac_key, load_rsa_pub_key
-from .utils import crypto_required, key_path, p192_required
+from .utils import crypto_required, key_path, mldsa_required, p192_required
 
 if has_crypto:
     from cryptography import x509
@@ -35,6 +36,17 @@ if has_crypto:
     )
 
     from jwt.algorithms import ECAlgorithm, OKPAlgorithm, RSAAlgorithm, RSAPSSAlgorithm
+
+if has_mldsa:
+    from cryptography.hazmat.primitives.asymmetric.mldsa import (
+        MLDSA44PrivateKey,
+        MLDSA65PrivateKey,
+        MLDSA87PrivateKey,
+    )
+
+    from jwt.algorithms import MLDSAAlgorithm
+
+    MLDSAPrivateKey = Union[MLDSA44PrivateKey, MLDSA65PrivateKey, MLDSA87PrivateKey]
 
 
 class TestAlgorithms:
@@ -1937,3 +1949,256 @@ class TestKeyLengthValidation:
         token = jwt.encode({"hello": "world"}, "a" * 32, algorithm="HS256")
         decoded = jwt.decode(token, "a" * 32, algorithms=["HS256"])
         assert decoded == {"hello": "world"}
+
+
+@mldsa_required
+class TestMLDSAAlgorithms:
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_should_sign_and_verify(self, alg_id: str) -> None:
+        algo = MLDSAAlgorithm(alg_id)
+        priv_cls, _, _ = MLDSAAlgorithm._PARAMS[alg_id]
+        priv_key = priv_cls.generate()
+        pub_key = priv_key.public_key()
+
+        msg = b"Hello ML-DSA!"
+        sig = algo.sign(msg, priv_key)
+        assert algo.verify(msg, pub_key, sig)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_should_return_false_on_bad_signature(self, alg_id: str) -> None:
+        algo = MLDSAAlgorithm(alg_id)
+        priv_cls, _, _ = MLDSAAlgorithm._PARAMS[alg_id]
+        priv_key = priv_cls.generate()
+        msg = b"test message"
+        sig = algo.sign(msg, priv_key)
+        bad_sig = sig[:-1] + bytes([sig[-1] ^ 0xFF])
+        assert not algo.verify(msg, priv_key.public_key(), bad_sig)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_should_return_false_on_wrong_key(self, alg_id: str) -> None:
+        algo = MLDSAAlgorithm(alg_id)
+        priv_cls, _, _ = MLDSAAlgorithm._PARAMS[alg_id]
+        key1 = priv_cls.generate()
+        key2 = priv_cls.generate()
+        sig = algo.sign(b"test", key1)
+        assert not algo.verify(b"test", key2.public_key(), sig)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_should_accept_private_key_for_verify(self, alg_id: str) -> None:
+        algo = MLDSAAlgorithm(alg_id)
+        priv_cls, _, _ = MLDSAAlgorithm._PARAMS[alg_id]
+        priv_key = priv_cls.generate()
+        sig = algo.sign(b"test", priv_key)
+        assert algo.verify(b"test", priv_key, sig)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_should_load_pem_fixture_and_verify(self, alg_id: str) -> None:
+        number = alg_id.split("-")[-1]
+        label = f"mldsa{number}"
+        algo = MLDSAAlgorithm(alg_id)
+
+        with open(key_path(f"testkey_{label}.pem")) as keyfile:
+            priv_key = algo.prepare_key(keyfile.read())
+        with open(key_path(f"testkey_{label}.pub.pem")) as keyfile:
+            pub_key = algo.prepare_key(keyfile.read())
+
+        msg = b"fixture PEM test"
+        sig = algo.sign(msg, cast(MLDSAPrivateKey, priv_key))
+        assert algo.verify(msg, pub_key, sig)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_should_load_pem_as_correct_type(self, alg_id: str) -> None:
+        from cryptography.hazmat.primitives.serialization import (
+            Encoding,
+            NoEncryption,
+            PrivateFormat,
+            PublicFormat,
+        )
+
+        algo = MLDSAAlgorithm(alg_id)
+        priv_cls, pub_cls, _ = MLDSAAlgorithm._PARAMS[alg_id]
+        priv_key = priv_cls.generate()
+        priv_pem = priv_key.private_bytes(
+            Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()
+        )
+        pub_pem = priv_key.public_key().public_bytes(
+            Encoding.PEM, PublicFormat.SubjectPublicKeyInfo
+        )
+        loaded_priv = algo.prepare_key(priv_pem)
+        loaded_pub = algo.prepare_key(pub_pem)
+        assert isinstance(loaded_priv, priv_cls)
+        assert isinstance(loaded_pub, pub_cls)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_should_reject_wrong_parameter_set(self, alg_id: str) -> None:
+        other_alg_id = next(
+            a for a in ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87") if a != alg_id
+        )
+        other_priv_cls, _, _ = MLDSAAlgorithm._PARAMS[other_alg_id]
+        wrong_key = other_priv_cls.generate()
+        algo = MLDSAAlgorithm(alg_id)
+        with pytest.raises(InvalidKeyError):
+            algo.prepare_key(wrong_key)
+
+    def test_mldsa_should_raise_on_invalid_parameter_set(self) -> None:
+        with pytest.raises(ValueError):
+            MLDSAAlgorithm("ML-DSA-99")
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    @pytest.mark.parametrize("as_dict", (False, True))
+    def test_mldsa_jwk_should_round_trip(self, alg_id: str, as_dict: bool) -> None:
+        algo = MLDSAAlgorithm(alg_id)
+        priv_cls, _, _ = MLDSAAlgorithm._PARAMS[alg_id]
+        priv_key = priv_cls.generate()
+        msg = b"JWK round trip"
+
+        priv_jwk = MLDSAAlgorithm.to_jwk(
+            priv_key,
+            as_dict=as_dict,  # type: ignore[call-overload,unused-ignore]
+        )
+        loaded_priv = MLDSAAlgorithm.from_jwk(priv_jwk)
+        sig = algo.sign(msg, cast(MLDSAPrivateKey, loaded_priv))
+        assert algo.verify(msg, priv_key.public_key(), sig)
+
+        pub_jwk = MLDSAAlgorithm.to_jwk(
+            priv_key.public_key(),
+            as_dict=as_dict,  # type: ignore[call-overload,unused-ignore]
+        )
+        loaded_pub = MLDSAAlgorithm.from_jwk(pub_jwk)
+        assert algo.verify(msg, loaded_pub, sig)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    @pytest.mark.parametrize("as_dict", (False, True))
+    def test_mldsa_jwk_should_round_trip_from_fixture(
+        self, alg_id: str, as_dict: bool
+    ) -> None:
+        algo = MLDSAAlgorithm(alg_id)
+
+        with open(key_path(f"jwk_akp_key_{alg_id}.json")) as keyfile:
+            raw = keyfile.read()
+            priv_key = MLDSAAlgorithm.from_jwk(json.loads(raw) if as_dict else raw)
+        with open(key_path(f"jwk_akp_pub_{alg_id}.json")) as keyfile:
+            raw = keyfile.read()
+            pub_key = MLDSAAlgorithm.from_jwk(json.loads(raw) if as_dict else raw)
+
+        msg = b"fixture JWK test"
+        sig = algo.sign(msg, cast(MLDSAPrivateKey, priv_key))
+        assert algo.verify(msg, pub_key, sig)
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_to_jwk_should_include_correct_private_fields(
+        self, alg_id: str
+    ) -> None:
+        priv_cls, _, pub_len = MLDSAAlgorithm._PARAMS[alg_id]
+        priv_key = priv_cls.generate()
+        result = MLDSAAlgorithm.to_jwk(priv_key, as_dict=True)
+        assert result["kty"] == "AKP"
+        assert result["alg"] == alg_id
+        assert "pub" in result
+        assert "priv" in result
+        assert len(base64url_decode(result["pub"])) == pub_len
+        assert len(base64url_decode(result["priv"])) == 32  # seed is always 32 bytes
+
+    @pytest.mark.parametrize("alg_id", ("ML-DSA-44", "ML-DSA-65", "ML-DSA-87"))
+    def test_mldsa_to_jwk_should_include_correct_public_fields(
+        self, alg_id: str
+    ) -> None:
+        priv_cls, _, pub_len = MLDSAAlgorithm._PARAMS[alg_id]
+        pub_key = priv_cls.generate().public_key()
+        result = MLDSAAlgorithm.to_jwk(pub_key, as_dict=True)
+        assert result["kty"] == "AKP"
+        assert result["alg"] == alg_id
+        assert "pub" in result
+        assert "priv" not in result
+        assert len(base64url_decode(result["pub"])) == pub_len
+
+    def test_mldsa_jwk_should_reject_invalid_kty(self) -> None:
+        with pytest.raises(InvalidKeyError):
+            MLDSAAlgorithm.from_jwk({"kty": "OKP", "alg": "ML-DSA-65", "pub": "abc"})
+
+    def test_mldsa_jwk_should_reject_invalid_alg(self) -> None:
+        with pytest.raises(InvalidKeyError):
+            MLDSAAlgorithm.from_jwk({"kty": "AKP", "alg": "ML-DSA-99", "pub": "abc"})
+
+    def test_mldsa_jwk_should_reject_missing_pub(self) -> None:
+        with pytest.raises(InvalidKeyError):
+            MLDSAAlgorithm.from_jwk({"kty": "AKP", "alg": "ML-DSA-65"})
+
+    def test_mldsa_jwk_should_reject_wrong_public_key_length(self) -> None:
+        with pytest.raises(InvalidKeyError):
+            MLDSAAlgorithm.from_jwk(
+                {
+                    "kty": "AKP",
+                    "alg": "ML-DSA-65",
+                    "pub": base64url_encode(b"\x00" * 100).decode(),
+                }
+            )
+
+    def test_mldsa_jwk_should_reject_inconsistent_private_key(self) -> None:
+        priv_key = MLDSA65PrivateKey.generate()
+        jwk = json.loads(MLDSAAlgorithm.to_jwk(priv_key))
+        pub_bytes = bytearray(base64url_decode(jwk["pub"]))
+        pub_bytes[0] ^= 0xFF
+        jwk["pub"] = base64url_encode(bytes(pub_bytes)).decode()
+        with pytest.raises(InvalidKeyError):
+            MLDSAAlgorithm.from_jwk(jwk)
+
+    def test_mldsa_prepare_key_should_reject_malformed_pem(self) -> None:
+        algo = MLDSAAlgorithm("ML-DSA-44")
+        for bad in (
+            "-----BEGIN PUBLIC KEY-----\nAAAA\n-----END PUBLIC KEY-----\n",
+            b"-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----\n",
+        ):
+            with pytest.raises(InvalidKeyError):
+                algo.prepare_key(bad)
+
+    def test_mldsa_prepare_key_should_reject_non_utf8_bytes(self) -> None:
+        with pytest.raises(InvalidKeyError):
+            MLDSAAlgorithm("ML-DSA-44").prepare_key(b"\xff\xfe\x00")
+
+    def test_mldsa_prepare_key_should_reject_other_key_family(self) -> None:
+        with open(key_path("testkey2_rsa.pub.pem")) as keyfile:
+            with pytest.raises(InvalidKeyError):
+                MLDSAAlgorithm("ML-DSA-44").prepare_key(keyfile.read())
+
+    def test_mldsa_sign_should_reject_public_key(self) -> None:
+        algo = MLDSAAlgorithm("ML-DSA-44")
+        pub_key = MLDSA44PrivateKey.generate().public_key()
+        with pytest.raises(InvalidKeyError, match="requires a private key"):
+            algo.sign(b"msg", pub_key)  # type: ignore[arg-type]
+
+    def test_mldsa_encode_with_public_pem_should_raise_invalid_key(self) -> None:
+        with open(key_path("testkey_mldsa44.pub.pem")) as keyfile:
+            pub_pem = keyfile.read()
+        with pytest.raises(InvalidKeyError):
+            jwt.encode({"a": 1}, pub_pem, algorithm="ML-DSA-44")
+
+    @pytest.mark.parametrize(
+        "jwk",
+        [
+            "[1]",
+            '"string"',
+            {"kty": "AKP", "alg": "ML-DSA-44", "pub": 5},
+            {"kty": "AKP", "alg": "ML-DSA-44", "pub": "!!!!"},
+            {"kty": "AKP", "alg": "ML-DSA-44", "pub": "A"},
+        ],
+    )
+    def test_mldsa_from_jwk_should_raise_invalid_key_on_malformed_input(
+        self, jwk: Any
+    ) -> None:
+        with pytest.raises(InvalidKeyError):
+            MLDSAAlgorithm.from_jwk(jwk)
+
+    def test_mldsa_from_jwk_should_reject_malformed_priv(self) -> None:
+        jwk = MLDSAAlgorithm.to_jwk(MLDSA44PrivateKey.generate(), as_dict=True)
+        for bad_priv in (5, "!!!!", base64url_encode(b"\x00" * 31).decode()):
+            jwk["priv"] = bad_priv
+            with pytest.raises(InvalidKeyError):
+                MLDSAAlgorithm.from_jwk(jwk)
+
+    def test_mldsa_keys_accepted_by_public_api(self) -> None:
+        priv_key = MLDSA44PrivateKey.generate()
+        token = jwt.encode({"a": 1}, priv_key, algorithm="ML-DSA-44")
+        assert jwt.decode(token, priv_key.public_key(), algorithms=["ML-DSA-44"]) == {
+            "a": 1
+        }
